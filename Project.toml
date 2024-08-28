@@ -1,5 +1,5 @@
-name = "CTApp"
-uuid = "eb604665-d64b-4d02-aa6d-8b42324a08dc"
+name = "OptimalControlProblems"
+uuid = "ff39fdbe-7283-4e20-baa9-b694529f63a"
 authors = ["Olivier Cots <olivier.cots@toulouse-inp.fr>"]
 version = "0.1.0"
 

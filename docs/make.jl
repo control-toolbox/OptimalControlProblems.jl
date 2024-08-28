@@ -3,7 +3,7 @@ using Documenter
 makedocs(
     remotes = nothing,
     warnonly = :cross_references,
-    sitename = "CTApp",
+    sitename = "OptimalControlProblems",
     format = Documenter.HTML(
         prettyurls = false,
         size_threshold_ignore = ["index.md"],
@@ -18,6 +18,6 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/control-toolbox/CTApp.git",
+    repo = "github.com/control-toolbox/OptimalControlProblems.git",
     devbranch = "main"
 )
