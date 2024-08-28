@@ -18,6 +18,6 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/control-toolbox/OptimalControlProblems.git",
+    repo = "github.com/control-toolbox/OptimalControlProblems.jl.git",
     devbranch = "main"
 )
