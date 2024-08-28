@@ -1,16 +1,16 @@
 ```@meta
-CurrentModule = CTApp
+CurrentModule = OptimalControlProblems
 ```
 
-# CTApp
+# OptimalControlProblems
 
-Documentation for [CTApp](https://github.com/control-toolbox/CTApp.jl).
+Documentation for [OptimalControlProblems](https://github.com/control-toolbox/OptimalControlProblems.jl).
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [CTApp]
+Modules = [OptimalControlProblems]
 ```
 
 ## Dependencies

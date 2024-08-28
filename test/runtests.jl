@@ -1,8 +1,8 @@
 using Test
-using CTApp
+using OptimalControlProblems
 
 #
-@testset verbose = true showtiming = true "CTApp tests" begin
+@testset verbose = true showtiming = true "OptimalControlProblems tests" begin
     for name ∈ (
         :default,
         )

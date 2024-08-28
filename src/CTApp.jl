@@ -1,4 +1,4 @@
-module CTApp
+module OptimalControlProblems
 
 greet() = print("Hello World!")
 
