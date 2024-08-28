@@ -2,7 +2,7 @@ using Test
 using CTApp
 
 #
-@testset verbose = true showtiming = true "Base" begin
+@testset verbose = true showtiming = true "CTApp tests" begin
     for name ∈ (
         :default,
         )
