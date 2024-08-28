@@ -1,0 +1,7 @@
+name = "CTApp"
+uuid = "eb604665-d64b-4d02-aa6d-8b42324a08dc"
+authors = ["Olivier Cots <olivier.cots@toulouse-inp.fr>"]
+version = "0.1.0"
+
+[compat]
+julia = "1.10"
