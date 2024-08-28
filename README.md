@@ -1,16 +1,16 @@
 # OptimalControlProblems
 
-[ci-img]: https://github.com/control-toolbox/OptimalControlProblems/actions/workflows/CI.yml/badge.svg?branch=main
-[ci-url]: https://github.com/control-toolbox/OptimalControlProblems/actions/workflows/CI.yml?query=branch%3Amain
+[ci-img]: https://github.com/control-toolbox/OptimalControlProblems.jl/actions/workflows/CI.yml/badge.svg?branch=main
+[ci-url]: https://github.com/control-toolbox/OptimalControlProblems.jl/actions/workflows/CI.yml?query=branch%3Amain
 
-[co-img]: https://codecov.io/gh/control-toolbox/OptimalControlProblems/branch/main/graph/badge.svg?token=YM5YQQUSO3
-[co-url]: https://codecov.io/gh/control-toolbox/OptimalControlProblems
+[co-img]: https://codecov.io/gh/control-toolbox/OptimalControlProblems.jl/branch/main/graph/badge.svg?token=YM5YQQUSO3
+[co-url]: https://codecov.io/gh/control-toolbox/OptimalControlProblems.jl
 
 [doc-dev-img]: https://img.shields.io/badge/docs-dev-8A2BE2.svg
-[doc-dev-url]: https://control-toolbox.org/OptimalControlProblems/dev/
+[doc-dev-url]: https://control-toolbox.org/OptimalControlProblems.jl/dev/
 
 [doc-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[doc-stable-url]: https://control-toolbox.org/OptimalControlProblems/stable/
+[doc-stable-url]: https://control-toolbox.org/OptimalControlProblems.jl/stable/
 
 This repo is part of the [control-toolbox ecosystem](https://github.com/control-toolbox).
 The control-toolbox ecosystem gathers Julia packages for mathematical control and applications. The root package is [OptimalControl.jl](https://github.com/control-toolbox/OptimalControl.jl) which aims to provide tools to modelise and solve optimal control problems with ordinary differential equations by direct and indirect methods.
@@ -24,8 +24,8 @@ The control-toolbox ecosystem gathers Julia packages for mathematical control an
 
 ## Contributing
 
-[issue-url]: https://github.com/control-toolbox/OptimalControlProblems/issues
-[first-good-issue-url]: https://github.com/control-toolbox/OptimalControlProblems/contribute
+[issue-url]: https://github.com/control-toolbox/OptimalControlProblems.jl/issues
+[first-good-issue-url]: https://github.com/control-toolbox/OptimalControlProblems.jl/contribute
 
 If you think you found a bug or if you have a feature request / suggestion, feel free to open an [issue][issue-url].
 Before opening a pull request, please start an issue or a discussion on the topic. 
