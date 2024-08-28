@@ -1,17 +1,6 @@
-```@meta
-CurrentModule = OptimalControlProblems
-```
-
 # OptimalControlProblems
 
 Documentation for [OptimalControlProblems](https://github.com/control-toolbox/OptimalControlProblems.jl).
-
-```@index
-```
-
-```@autodocs
-Modules = [OptimalControlProblems]
-```
 
 ## Dependencies
 
