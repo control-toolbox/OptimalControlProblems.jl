@@ -6,7 +6,7 @@ export Cart_Pendulum
         The problem is formulated as a JuMP model.
     Ref: https://arxiv.org/pdf/2303.16746
 """
-function Cart_Pendulum(;nh::Int64=100)
+function cart_pendulum(;nh::Int64=100)
 ## parameters
     g = 9.82      # gravitation [m/s^2]
     L = 1.0       # pendulum length [m]
