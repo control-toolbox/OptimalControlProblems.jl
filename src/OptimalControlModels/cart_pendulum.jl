@@ -5,7 +5,7 @@ export Cart_Pendulum
         The objective is to swing the pendulum from the downward position to the upright position in the shortest time possible.
         The problem is formulated as an OptimalControl model.
 """
-function Cart_Pendulum()
+function cart_pendulum()
 # parameters
     # Physical constants
     g = 9.82      # gravitation [m/s^2]
