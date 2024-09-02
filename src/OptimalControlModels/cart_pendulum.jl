@@ -1,4 +1,3 @@
-export Cart_Pendulum
 """
     The Cart-Pendulum Problem:
         we want to find the optimal trajectory of a cart-pendulum system.
@@ -6,9 +5,9 @@ export Cart_Pendulum
         The problem is formulated as an OptimalControl model.
 """
 function cart_pendulum()
-# parameters
+    # parameters
     # Physical constants
-    g = 9.82      # gravitation [m/s^2]
+    g = 9.81      # gravitation [m/s^2]
     L = 1.0       # pendulum length [m]
     m = 1.0       # pendulum mass [kg]
     I = m*L^2/12  # pendulum moment of inertia
@@ -18,7 +17,7 @@ function cart_pendulum()
     max_v = 2.0
 
     @def ocp begin
-    ## parameters
+        ## parameters
         g = 9.82      # gravitation [m/s^2]
         L = 1.0       # pendulum length [m]
         m = 1.0       # pendulum mass [kg]
@@ -27,7 +26,7 @@ function cart_pendulum()
         max_f = 5.0
         max_x = 1.0
         max_v = 2.0
-    ## define the problem
+        ## define the problem
         var ∈ R² , variable
             tf = var₁
             ddx = var₂
@@ -35,14 +34,14 @@ function cart_pendulum()
         x ∈ R⁴, state
         u ∈ R¹, control
 
-    ## state variables
+        ## state variables
         dx = x₂
         theta = x₃
         omega = x₄
-    ## control variables
+        ## control variables
         Fex = u
     
-    ## constraints
+        ## constraints
         # state constraints
         -max_x ≤ x₁(t) ≤ max_x,         (x1_con)
         -max_v ≤ dx(t) ≤ max_v,        (dx_con)
@@ -59,14 +58,14 @@ function cart_pendulum()
         omega(tf) == 0,                 (omega_fc)
 
 
-    ## dynamics
+        ## dynamics
         ẋ(t) == dynamics(x(t), u(t),ddx)
     
-    ## objective
+        ## objective
         tf → min
     end
     
-# dynamics
+    # dynamics
     function dynamics(x, u,ddx)
         x1, dx, theta, omega = x
         Fex = u

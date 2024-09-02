@@ -1,9 +1,8 @@
 """
-    Particle Steering Problem:
-        We want to find the optimal trajectory of a particle.
-        The objective is to minimize the time taken to achieve a given altitude and terminal velocity.
-        The problem is formulated as a JuMP model.
-    Ref: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/steering.jl
+Particle Steering Problem:
+    We want to find the optimal trajectory of a particle.
+    The objective is to minimize the time taken to achieve a given altitude and terminal velocity.
+    The problem is formulated as a JuMP model, and can be found [here](https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/steering.jl)
 """
 function steering(;nh::Int64 = 100)
     a = 100.0 
@@ -31,6 +30,7 @@ function steering(;nh::Int64 = 100)
     @objective(model, Min, tf)
 
     @constraint(model, tf >= 0.0)
+
     # Dynamics
     @constraints(
         model, begin
@@ -40,6 +40,7 @@ function steering(;nh::Int64 = 100)
             con_x4[i=1:nh], x[i+1,4] == x[i,4] + 0.5*h*(a*sin(u[i]) + a*sin(u[i+1]))
         end
     )
+    
     # Boundary conditions
     @constraint(model , [j=1:4], x[1, j] == xs[j])
     @constraint(model , [j=2:4], x[nh+1, j] == xf[j])

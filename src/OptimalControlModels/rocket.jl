@@ -1,11 +1,11 @@
 """
-    Goddard Rocket Problem:
-        We want to find the optimal trajectory of a Goddard rocket.
-        The objective is to maximize the final altitude of the rocket.
-        The problem is formulated as an OptimalControl model.
+Goddard Rocket Problem:
+    We want to find the optimal trajectory of a Goddard rocket.
+    The objective is to maximize the final altitude of the rocket.
+    The problem is formulated as an OptimalControl model.
 """
 function rocket()
-# parameters
+    # parameters
     h_0 = 1.0
     v_0 = 0.0
     m_0 = 1.0
@@ -22,31 +22,31 @@ function rocket()
 
     ocp = OptimalControl.Model(variable=true)
     
-# dimensions
+    # dimensions
     state!(ocp, 3)                                  
     control!(ocp, 1) 
     variable!(ocp, 1, "tf")
     
-# time interval
+    # time interval
     time!(ocp, t0=0, indf=1) 
     constraint!(ocp, :variable, lb=0.0, ub=Inf)
     
-# initial and final conditions
+    # initial and final conditions
     constraint!(ocp, :initial, lb=[h_0, v_0 ,m_0],ub=[h_0, v_0 ,m_0]) 
     constraint!(ocp, :final, rg =3 , lb=m_f,ub=m_f)     
 
-# state constraints
+    # state constraints
     constraint!(ocp, :state , rg=1:3, lb=[h_0, v_0 ,m_f] , ub=[Inf, Inf, m_0]) 
 
-# control constraints
+    # control constraints
     constraint!(ocp, :control , lb=0, ub=T_max)
 
-# dynamics
+    # dynamics
     dynamics!(ocp, (x, u, tf) -> [ x[2],
         (u - (D_c*x[2]^2*exp(-h_c*(x[1] - h_0))/h_0) - x[3]*g_0*(h_0 / x[1])^2) / x[3],
         -u/c] ) 
 
-# objective     
+    # objective     
     objective!(ocp, :mayer, (x0, xf, tf) -> xf[1], :max)    
 
     return ocp

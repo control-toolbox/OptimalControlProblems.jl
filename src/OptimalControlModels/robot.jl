@@ -1,11 +1,11 @@
 """
-    Robot arm problem:
-        We want to find the shape of a robot arm moving between two points.
-        The objective is to minimize the time taken to move between the two points.
-        The problem is formulated as an OptimalControl model.
+Robot arm problem:
+    We want to find the shape of a robot arm moving between two points.
+    The objective is to minimize the time taken to move between the two points.
+    The problem is formulated as an OptimalControl model.
 """
 function robot()
-# parameters
+    # parameters
     L = 5.0
     max_u_rho = 1.0
     max_u_the = 1.0
@@ -17,7 +17,7 @@ function robot()
     t0 = 0.0
 
     @def ocp begin 
-    # parameters
+        # parameters
         L = 5.0
         max_u_rho = 1.0
         max_u_the = 1.0
@@ -28,13 +28,13 @@ function robot()
         thef = 2.0 * pi / 3
         t0 = 0.0
 
-    ## define the problem
+        ## define the problem
         tf ∈ R,variable
         t ∈ [ t0, tf ], time
         x ∈ R⁶, state
         u ∈ R³, control
 
-    ## state variables
+        ## state variables
         rho = x₁
         rho_dot = x₂
         the = x₃
@@ -42,7 +42,7 @@ function robot()
         phi = x₅
         phi_dot = x₆
 
-    ## constraints
+        ## constraints
         # state constraints
         0 ≤ rho(t) ≤ L,                        (rho_con)
         -pi ≤ the(t) ≤ pi,                     (the_con)
@@ -66,7 +66,7 @@ function robot()
         phi_dot(tf) == 0.0,                    (phi_dotf_con)
         rho_dot(tf) == 0.0,                    (rho_dotf_con)
 
-    ## dynamics  
+        ## dynamics  
         ẋ(t) == [rho_dot(t),
                     u₁(t) / L,
                     the_dot(t),
@@ -74,12 +74,11 @@ function robot()
                     phi_dot(t),
                     u₃(t) * 3 /((L-rho(t))^3 + rho(t)^3)]
 
-    ## objective
+        ## objective
         tf → min
-
     end
-    return ocp
 
+    return ocp
 end
 
 

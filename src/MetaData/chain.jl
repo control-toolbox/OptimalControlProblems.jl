@@ -3,5 +3,4 @@ chain_meta = Dict(
     :nvar => 404,
     :ncon => 305,
     :minimize => true,
-    :objective_value => 5.06978
 )

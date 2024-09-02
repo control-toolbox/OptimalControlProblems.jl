@@ -1,9 +1,8 @@
 """
-    Robot arm problem:
-        We want to find the shape of a robot arm moving between two points.
-        The objective is to minimize the time taken to move between the two points.
-        The problem is formulated as a JuMP model.
-    Ref: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/robot.jl
+Robot arm problem:
+    We want to find the shape of a robot arm moving between two points.
+    The objective is to minimize the time taken to move between the two points.
+    The problem is formulated as a JuMP model, and can be found [here](https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/robot.jl)
 """
 function robot(;nh::Int64=200)
     # total length of arm

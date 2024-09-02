@@ -1,9 +1,8 @@
 """
-    Hang Glider Problem:
-        We want to find the optimal trajectory of a hang glider.
-        The objective is to maximize the final horizontal position of the glider while in the presence of a thermal updraft.
-        The problem is formulated as a JuMP model.
-    Ref: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/glider.jl
+Hang Glider Problem:
+    We want to find the optimal trajectory of a hang glider.
+    The objective is to maximize the final horizontal position of the glider while in the presence of a thermal updraft.
+    The problem is formulated as a JuMP model, and can be found [here](https://www.mcs.anl.gov/~more/cops/)
 
 """
 function glider(;nh::Int64=200)

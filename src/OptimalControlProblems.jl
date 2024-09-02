@@ -2,8 +2,8 @@ module OptimalControlProblems
 
 using DataFrames
 
-include("./OptimalControlModels/OptimalControlModels.jl")
-include("./JuMPModels/JuMPModels.jl")
+include(joinpath("./OptimalControlModels", "OptimalControlModels.jl"))
+include(joinpath("./JuMPModels", "JuMPModels.jl"))
 
 export JuMPModels, OptimalControlModels
 
@@ -12,7 +12,7 @@ greet() = print("Hello World!")
 path = dirname(@__FILE__)
 files = filter(x -> x[(end - 2):end] == ".jl", readdir(path * "/MetaData"))
 for file in files
-  include("MetaData/" * file)
+    include(joinpath("./MetaData", file))
 end
 nb_problems = length(files)
 
@@ -21,7 +21,6 @@ const infos = [
     :nvar
     :ncon
     :minimize
-    :objective_value
 ]
 
 const types = [
@@ -29,7 +28,6 @@ const types = [
     Int
     Int
     Bool
-    Real
 ]
 
 """
@@ -38,7 +36,6 @@ The following keys are valid:
     - `nvar::Int`: number of variables
     - `ncon::Int`: number of general constraints
     - `minimize::Bool`: true if optimize == minimize
-    - `objective_value::Real`: objective value
 """
 const meta = DataFrame(infos .=> [Array{T}(undef, nb_problems) for T in types])
 

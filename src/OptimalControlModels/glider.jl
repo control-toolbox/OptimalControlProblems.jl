@@ -1,11 +1,11 @@
 """
-    Hang Glider Problem:
-        We want to find the optimal trajectory of a hang glider.
-        The objective is to maximize the final horizontal position of the glider while in the presence of a thermal updraft.
-        The problem is formulated as an OptimalControl model.
+Hang Glider Problem:
+    We want to find the optimal trajectory of a hang glider.
+    The objective is to maximize the final horizontal position of the glider while in the presence of a thermal updraft.
+    The problem is formulated as an OptimalControl model.
 """
 function glider()
-# parameters
+    # parameters
     x_0 = 0.0
     y_0 = 1000.0
     y_f = 900.0
@@ -26,7 +26,7 @@ function glider()
     t0 = 0.0
 
     @def ocp begin
-    ## parameters
+        ## parameters
         x_0 = 0.0
         y_0 = 1000.0
         y_f = 900.0
@@ -45,19 +45,19 @@ function glider()
         cL_min = 0.0
         cL_max = 1.4
         t0 = 0.0
-    ## define the problem
+        ## define the problem
         tf ∈ R¹, variable
         t ∈ [ t0, tf ], time
         x ∈ R⁴, state
         u ∈ R¹, control
-    ## state variables
+        ## state variables
         y = x₂
         vx = x₃
         vy = x₄
-    ## control variables
+        ## control variables
         cL = u₁
 
-    ## constraints
+        ## constraints
         # state constraints
         x₁(t) ≥ 0.0,                        (x_con)
         vx(t) ≥ 0.0,                       (vx_con)
@@ -73,10 +73,10 @@ function glider()
         vx(tf) == vx_f,                  (vxf_con)
         vy(tf) == vy_f,                  (vyf_con)
 
-    ## dynamics
+        ## dynamics
         ẋ(t) == dynamics(x(t),u(t))
 
-    ## objective
+        ## objective
         x₁(tf) → max
 
     end

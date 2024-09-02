@@ -1,35 +1,35 @@
 """
-    Dielectrophoretic particle problem:
-        This problem consists of a dielectrophoretic particle system.
-        The goal is to find the trajectory that minimize the time taken for the particle to travel between two points.
-        The problem is formulated as an OptimalControl model.
-    Ref: [CPR2006] Chang, D. E., Petit, N., & Rouchon, P. (2006). Time-optimal control of a particle in a dielectrophoretic system. IEEE Transactions on Automatic Control, 51(7), 1100-1114.
+Dielectrophoretic particle problem:
+    This problem consists of a dielectrophoretic particle system.
+    The goal is to find the trajectory that minimize the time taken for the particle to travel between two points.
+    The problem is formulated as an OptimalControl model.
+Ref: [CPR2006] Chang, D. E., Petit, N., & Rouchon, P. (2006). Time-optimal control of a particle in a dielectrophoretic system. IEEE Transactions on Automatic Control, 51(7), 1100-1114.
 """
 function dielectrophoretic_particle()
-# parameters
-x0 = 1.0
-xf = 2.0
-α = -0.75
-c = 1.0
-
-    @def ocp begin
-    ## parameters
+    # parameters
     x0 = 1.0
     xf = 2.0
     α = -0.75
     c = 1.0
 
-    ## define the problem
+    @def ocp begin
+        ## parameters
+        x0 = 1.0
+        xf = 2.0
+        α = -0.75
+        c = 1.0
+
+        ## define the problem
         tf ∈ R¹, variable
         t ∈ [ 0.0, tf ], time
         x ∈ R², state
         u ∈ R¹, control
 
-    ## state variables
+        ## state variables
         pos_x = x₁
         pos_y = x₂
 
-    ## constraints
+        ## constraints
         # state constraints
         tf ≥ 0.0,                                       (tf_con)
         # control constraints
@@ -40,10 +40,10 @@ c = 1.0
         # final constraints
         pos_x(tf) == xf,                                (pos_xf_con)
 
-    ## dynamics
+        ## dynamics
         ẋ(t) == dynamics(x(t), u(t))
 
-    ## objective  
+        ## objective  
         tf → min
     end
 

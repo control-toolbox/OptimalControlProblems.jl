@@ -1,9 +1,8 @@
 """
-    The Hanging Chain Problem:
-        We want to find the shape of a chain hanging between two points a and b, with a length L.
-        The objective is to minimize the potential energy of the chain.
-        The problem is formulated as a JuMP model.
-    Ref: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/chain.jl
+The Hanging Chain Problem:
+    We want to find the shape of a chain hanging between two points a and b, with a length L.
+    The objective is to minimize the potential energy of the chain.
+    The problem is formulated as a JuMP model, and can be found [here](https://www.mcs.anl.gov/~more/cops/)
 """
 function chain(;nh::Int64 = 200)
     L = 4.0

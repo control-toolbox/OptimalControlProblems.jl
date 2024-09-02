@@ -3,5 +3,4 @@ particle_meta = Dict(
     :nvar => 304,
     :ncon => 203,
     :minimize => true,
-    :objective_value => -9.97699e-9
 )
