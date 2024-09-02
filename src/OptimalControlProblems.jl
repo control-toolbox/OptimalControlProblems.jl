@@ -1,7 +1,5 @@
 module OptimalControlProblems
 
-using DataFrames
-
 include(joinpath("./OptimalControlModels", "OptimalControlModels.jl"))
 include(joinpath("./JuMPModels", "JuMPModels.jl"))
 
@@ -37,11 +35,5 @@ The following keys are valid:
     - `ncon::Int`: number of general constraints
     - `minimize::Bool`: true if optimize == minimize
 """
-const meta = DataFrame(infos .=> [Array{T}(undef, nb_problems) for T in types])
-
-for info in infos, i = 1:nb_problems
-  meta[!, info][i] = eval(Meta.parse("$(split(files[i], ".")[1])_meta"))[info]
-end
-
 
 end
