@@ -4,7 +4,7 @@ using Ipopt
 function test_JuMP_optimality()
     model = OptimalControlProblems.JuMPModels.cart_pendulum()
     # Solve the model
-    optimize!(model)
+    Ipopt.optimize!(model)
     # Test that the solver found an optimal solution
     @test termination_status(model) == MOI.OPTIMAL
 end
