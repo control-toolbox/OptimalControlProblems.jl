@@ -6,6 +6,7 @@ using OptimalControlProblems
     for name ∈ (
         :default,
         :JuMP_optimality,
+        :OptimalControl_optimality,
         )
         @testset "$(name)" begin
             test_name = Symbol(:test_, name)
