@@ -38,10 +38,10 @@ The following keys are valid:
     - `minimize::Bool`: true if optimize == minimize
     - `objective_value::Real`: objective value
 """
-const meta = DataFrame(infos .=> [Array{T}(undef, number_of_problems) for T in types])
+const meta = DataFrame(infos .=> [Array{T}(undef, nb_problems) for T in types])
 
-for name in names, i = 1:number_of_problems
-  meta[!, name][i] = eval(Meta.parse("$(split(files[i], ".")[1])_meta"))[name]
+for info in infos, i = 1:nb_problems
+  meta[!, info][i] = eval(Meta.parse("$(split(files[i], ".")[1])_meta"))[info]
 end
 
 
