@@ -1,3 +1,5 @@
+using Ipopt
+
 # test_JuMP_optimality
 function test_JuMP_optimality()
     model = OptimalControlProblems.JuMPModels.cart_pendulum()
