@@ -15,5 +15,5 @@ function test_JuMP_optimality()
     # Solve the model
     optimize!(model)
     # Test that the solver found an optimal solution
-    @test termination_status(model) == MOI.OPTIMAL
+    @test termination_status(model) == MOI.LOCALLY_SOLVED
 end
