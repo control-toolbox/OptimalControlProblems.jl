@@ -5,7 +5,7 @@ using OptimalControlProblems
 @testset verbose = true showtiming = true "OptimalControlProblems tests" begin
     for name ∈ (
         :default,
-        :JuMP_optimality
+        :JuMP_optimality,
         )
         @testset "$(name)" begin
             test_name = Symbol(:test_, name)
