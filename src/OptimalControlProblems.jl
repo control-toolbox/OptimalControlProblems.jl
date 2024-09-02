@@ -1,5 +1,7 @@
 module OptimalControlProblems
 
+using DataFrames
+
 include("./OptimalControlModels/OptimalControlModels.jl")
 include("./JuMPModels/JuMPModels.jl")
 
