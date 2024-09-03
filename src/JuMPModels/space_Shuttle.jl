@@ -75,15 +75,15 @@ function space_Shuttle(integration_rule::String = "rectangular";nh::Int64=503)
         return [x_s + (i-1) / (n-1) * (x_t - x_s) for i in 1:n]
     end
     # Interpolate each parameter separately
-    h_interp = linear_interpolate(h_s, h_t, n)
-    ϕ_interp = linear_interpolate(ϕ_s, ϕ_s, n) # no change in longitude
-    θ_interp = linear_interpolate(θ_s, θ_s, n) # no change in latitude
-    v_interp = linear_interpolate(v_s, v_t, n)
-    γ_interp = linear_interpolate(γ_s, γ_t, n)
-    ψ_interp = linear_interpolate(ψ_s, ψ_s, n) # no change in azimuth
-    α_interp = linear_interpolate(α_s, α_s, n) # no change in angle of attack
-    β_interp = linear_interpolate(β_s, β_s, n) # no change in bank angle
-    t_interp = linear_interpolate(t_s, t_s, n) # no change in time step
+    h_interp = linear_interpolate(h_s, h_t, nh)
+    ϕ_interp = linear_interpolate(ϕ_s, ϕ_s, nh) # no change in longitude
+    θ_interp = linear_interpolate(θ_s, θ_s, nh) # no change in latitude
+    v_interp = linear_interpolate(v_s, v_t, nh)
+    γ_interp = linear_interpolate(γ_s, γ_t, nh)
+    ψ_interp = linear_interpolate(ψ_s, ψ_s, nh) # no change in azimuth
+    α_interp = linear_interpolate(α_s, α_s, nh) # no change in angle of attack
+    β_interp = linear_interpolate(β_s, β_s, nh) # no change in bank angle
+    t_interp = linear_interpolate(t_s, t_s, nh) # no change in time step
     # Combine all interpolated parameters into an array of arrays
     interpolated_values = [transpose([h, ϕ, θ, v, γ, ψ, α, β, t]) for (h, ϕ, θ, v, γ, ψ, α, β, t) in 
                             zip(h_interp, ϕ_interp, θ_interp, v_interp, γ_interp, ψ_interp, α_interp, β_interp, t_interp)]
