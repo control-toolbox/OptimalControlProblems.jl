@@ -1,4 +1,3 @@
-import Interpolations
 """
 Space Shuttle Reentry Trajectory Problem:
     We want to find the optimal trajectory of a space shuttle reentry.
@@ -71,10 +70,25 @@ function space_Shuttle(integration_rule::String = "rectangular";nh::Int64=503)
     end)
 
     ## Initial guess: linear interpolation between boundary conditions
-    x_s = [h_s, ϕ_s, θ_s, v_s, γ_s, ψ_s, α_s, β_s,t_s]
-    x_t = [h_t, ϕ_s, θ_s, v_t, γ_t, ψ_s, α_s, β_s,t_s]
-    interp_linear = Interpolations.LinearInterpolation([1, nh], [x_s, x_t])
-    initial_guess = mapreduce(transpose, vcat, interp_linear.(1:nh))
+    # Helper function for linear interpolation
+    function linear_interpolate(x_s, x_t, n)
+        return [x_s + (i-1) / (n-1) * (x_t - x_s) for i in 1:n]
+    end
+    # Interpolate each parameter separately
+    h_interp = linear_interpolate(h_s, h_t, n)
+    ϕ_interp = linear_interpolate(ϕ_s, ϕ_s, n) # no change in longitude
+    θ_interp = linear_interpolate(θ_s, θ_s, n) # no change in latitude
+    v_interp = linear_interpolate(v_s, v_t, n)
+    γ_interp = linear_interpolate(γ_s, γ_t, n)
+    ψ_interp = linear_interpolate(ψ_s, ψ_s, n) # no change in azimuth
+    α_interp = linear_interpolate(α_s, α_s, n) # no change in angle of attack
+    β_interp = linear_interpolate(β_s, β_s, n) # no change in bank angle
+    t_interp = linear_interpolate(t_s, t_s, n) # no change in time step
+    # Combine all interpolated parameters into an array of arrays
+    interpolated_values = [transpose([h, ϕ, θ, v, γ, ψ, α, β, t]) for (h, ϕ, θ, v, γ, ψ, α, β, t) in 
+                            zip(h_interp, ϕ_interp, θ_interp, v_interp, γ_interp, ψ_interp, α_interp, β_interp, t_interp)]
+    # Create the initial guess by summing the interpolated values
+    initial_guess = reduce(vcat, interpolated_values)
     set_start_value.(model[:scaled_h], vec(initial_guess[:,1]))
     set_start_value.(model[:ϕ], vec(initial_guess[:,2]))
     set_start_value.(model[:θ], vec(initial_guess[:,3]))
