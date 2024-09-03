@@ -22,6 +22,7 @@ function test_JuMP_optimality()
             set_optimizer_attribute(model,"mu_strategy","adaptive")
             set_optimizer_attribute(model,"linear_solver","mumps")
             set_optimizer_attribute(model, "max_wall_time", 120.0) 
+            set_optimizer_attribute(model, "sb","yes")
             # Solve the model
             optimize!(model)
             # Test that the solver found an optimal solution
