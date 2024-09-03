@@ -4,7 +4,6 @@ using OptimalControlProblems
 #
 @testset verbose = true showtiming = true "OptimalControlProblems tests" begin
     for name ∈ (
-        :default,
         :JuMP_optimality,
         :OptimalControl_optimality,
         )

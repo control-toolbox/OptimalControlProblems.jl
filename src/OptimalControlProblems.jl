@@ -5,8 +5,6 @@ include(joinpath("./JuMPModels", "JuMPModels.jl"))
 
 export JuMPModels, OptimalControlModels
 
-greet() = print("Hello World!")
-
 path = dirname(@__FILE__)
 files = filter(x -> x[(end - 2):end] == ".jl", readdir(path * "/MetaData"))
 for file in files
