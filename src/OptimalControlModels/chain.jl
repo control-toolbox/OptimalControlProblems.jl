@@ -4,7 +4,7 @@ The Hanging Chain Problem:
     The objective is to minimize the potential energy of the chain.
     The problem is formulated as an OptimalControl model.
 """
-function chain()
+function chain(;nh::Int=100)
     # parameters
     L = 4
     a = 1
@@ -32,27 +32,30 @@ function chain()
     ] ) 
 
     # objective     
-    objective!(ocp, :mayer, (x0, xf) -> xf[2], :min)    
+    objective!(ocp, :mayer, (x0, xf) -> xf[2], :min)   
 
-    return ocp
+    # Initial guess
+    function chain_init(;nh)
+        L = 4.0
+        a = 1.0
+        b = 3.0
+        tf = 1.0
+        h = tf / nh
+        tmin = b > a ? 1 / 4 : 3 / 4
+        xinit = t -> [4 * abs(b - a) * t / tf * (1 / 2 * t / tf - tmin) + a,
+                    (4 * abs(b - a) * t / tf * (1 / 2 * t / tf - tmin) + a) * (4 * abs(b - a) * (t / tf - tmin)),
+                    4 * abs(b - a) * (t / tf - tmin) ]
+        uinit = t -> 4 * abs(b - a) * (t / tf - tmin)
+        init = (state =  xinit, control = uinit)
+        return init
+    end
+    init = chain_init(;nh=nh)
+
+    # NLPModel
+    nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]
+    
+    return nlp
 
 end
 
 
-function chain_init(;nh)
-    L = 4.0
-    a = 1.0
-    b = 3.0
-    tf = 1.0
-    h = tf / nh
-    tmin = b > a ? 1 / 4 : 3 / 4
-    
-    xinit = t -> [4 * abs(b - a) * t / tf * (1 / 2 * t / tf - tmin) + a,
-                (4 * abs(b - a) * t / tf * (1 / 2 * t / tf - tmin) + a) * (4 * abs(b - a) * (t / tf - tmin)),
-                4 * abs(b - a) * (t / tf - tmin) ]
-    uinit = t -> 4 * abs(b - a) * (t / tf - tmin)
-    
-    init = (state =  xinit, control = uinit)
-    
-    return init
-end

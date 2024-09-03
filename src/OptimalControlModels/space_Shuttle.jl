@@ -4,7 +4,7 @@ Space Shuttle Reentry Trajectory Problem:
     The objective is to minimize the angle of attack at the terminal point.
     The problem is formulated as an OptimalControl model.
 """
-function space_shuttle()
+function space_shuttle(;nh::Int=503)
     ## Global variables
     w = 203000.0  # weight (lb)
     g₀ = 32.174    # acceleration (ft/sec^2)
@@ -150,46 +150,51 @@ function space_shuttle()
         return [ h_dot, ϕ_dot, θ_dot, v_dot, γ_dot, ψ_dot]
     end
 
-    return ocp
-end
+    # Initial guess
+    function space_shuttle_init(;nh)
+        h_s = 2.6          # altitude (ft) / 1e5
+        ϕ_s = deg2rad(0)   # longitude (rad)
+        θ_s = deg2rad(0)   # latitude (rad)
+        v_s = 2.56         # velocity (ft/sec) / 1e4
+        γ_s = deg2rad(-1)  # flight path angle (rad)
+        ψ_s = deg2rad(90)  # azimuth (rad)
+        α_s = deg2rad(0)   # angle of attack (rad)
+        β_s = deg2rad(0)   # bank angle (rad)
+        t_s = 1.00 
+        h_t = 0.8          # altitude (ft) / 1e5
+        v_t = 0.25         # velocity (ft/sec) / 1e4
+        γ_t = deg2rad(-5)  # flight path angle (rad)
+        # Helper function for linear interpolation
+        function linear_interpolate(x_s, x_t, n)
+            return [x_s + (i-1) / (n-1) * (x_t - x_s) for i in 1:n]
+        end
+        # Interpolate each parameter separately
+        h_interp = linear_interpolate(h_s, h_t, nh)
+        ϕ_interp = linear_interpolate(ϕ_s, ϕ_s, nh) # no change in longitude
+        θ_interp = linear_interpolate(θ_s, θ_s, nh) # no change in latitude
+        v_interp = linear_interpolate(v_s, v_t, nh)
+        γ_interp = linear_interpolate(γ_s, γ_t, nh)
+        ψ_interp = linear_interpolate(ψ_s, ψ_s, nh) # no change in azimuth
+        α_interp = linear_interpolate(α_s, α_s, nh) # no change in angle of attack
+        β_interp = linear_interpolate(β_s, β_s, nh) # no change in bank angle
+        t_interp = linear_interpolate(t_s, t_s, nh) # no change in time step
+        # Combine all interpolated parameters into an array of arrays
+        interpolated_values = [transpose([h, ϕ, θ, v, γ, ψ, α, β, t]) for (h, ϕ, θ, v, γ, ψ, α, β, t) in 
+                                zip(h_interp, ϕ_interp, θ_interp, v_interp, γ_interp, ψ_interp, α_interp, β_interp, t_interp)]
+        # Create the initial guess by summing the interpolated values
+        initial_guess = reduce(vcat, interpolated_values)
 
-
-function space_shuttle_init(;nh)
-    h_s = 2.6          # altitude (ft) / 1e5
-    ϕ_s = deg2rad(0)   # longitude (rad)
-    θ_s = deg2rad(0)   # latitude (rad)
-    v_s = 2.56         # velocity (ft/sec) / 1e4
-    γ_s = deg2rad(-1)  # flight path angle (rad)
-    ψ_s = deg2rad(90)  # azimuth (rad)
-    α_s = deg2rad(0)   # angle of attack (rad)
-    β_s = deg2rad(0)   # bank angle (rad)
-    t_s = 1.00 
-    h_t = 0.8          # altitude (ft) / 1e5
-    v_t = 0.25         # velocity (ft/sec) / 1e4
-    γ_t = deg2rad(-5)  # flight path angle (rad)
-    # Helper function for linear interpolation
-    function linear_interpolate(x_s, x_t, n)
-        return [x_s + (i-1) / (n-1) * (x_t - x_s) for i in 1:n]
+        x_init = [initial_guess[i,1:6] for i in 1:nh];
+        u_init = [initial_guess[i,7:8] for i in 1:nh];
+        time_vec = LinRange(0.0,t_s*nh*4,nh)
+        init = (time= time_vec, state= x_init, control= u_init)
+        return init
     end
-    # Interpolate each parameter separately
-    h_interp = linear_interpolate(h_s, h_t, nh)
-    ϕ_interp = linear_interpolate(ϕ_s, ϕ_s, nh) # no change in longitude
-    θ_interp = linear_interpolate(θ_s, θ_s, nh) # no change in latitude
-    v_interp = linear_interpolate(v_s, v_t, nh)
-    γ_interp = linear_interpolate(γ_s, γ_t, nh)
-    ψ_interp = linear_interpolate(ψ_s, ψ_s, nh) # no change in azimuth
-    α_interp = linear_interpolate(α_s, α_s, nh) # no change in angle of attack
-    β_interp = linear_interpolate(β_s, β_s, nh) # no change in bank angle
-    t_interp = linear_interpolate(t_s, t_s, nh) # no change in time step
-    # Combine all interpolated parameters into an array of arrays
-    interpolated_values = [transpose([h, ϕ, θ, v, γ, ψ, α, β, t]) for (h, ϕ, θ, v, γ, ψ, α, β, t) in 
-                            zip(h_interp, ϕ_interp, θ_interp, v_interp, γ_interp, ψ_interp, α_interp, β_interp, t_interp)]
-    # Create the initial guess by summing the interpolated values
-    initial_guess = reduce(vcat, interpolated_values)
+    init = space_shuttle_init(nh=nh)
 
-    x_init = [initial_guess[i,1:6] for i in 1:nh];
-    u_init = [initial_guess[i,7:8] for i in 1:nh];
-    time_vec = LinRange(0.0,t_s*nh*4,nh)
-    init = (time= time_vec, state= x_init, control= u_init)
-    return init
+    # NLPModel
+    nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]
+
+    return nlp
 end
+

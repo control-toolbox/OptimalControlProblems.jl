@@ -4,7 +4,7 @@ The Truck Trailer Problem:
     The objective is to minimize the time taken to park the truck and the trailers aligned vertically at a given target location.
     The problem is formulated as an OptimalControl model.
 """
-function truck_trailer(;data::Array{Float64,2}=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2])
+function truck_trailer(;data::Array{Float64,2}=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2],nh::Int=100)
     # parameters
     if size(data) != (3, 3)
         error("The input matrix must be 3x3.")
@@ -126,12 +126,17 @@ function truck_trailer(;data::Array{Float64,2}=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.
         return [ dx2, dy2, dtheta0, dtheta1, dtheta2,d_v0, d_delta0 ]
     end
 
-    return ocp
+    # Initial guess
+    function truck_trailer_init(;nh)
+        init = (state=[0, 0, 0.1, 0.0, 0.0, -0.2, 0],)
+        return init
+    end
+    init = truck_trailer_init(;nh=nh)
+
+    # NLPModel
+    nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]
+
+    return nlp
 
 end
 
-
-function truck_trailer_init(;nh)
-    init = (state=[0, 0, 0.1, 0.0, 0.0, -0.2, 0],)
-    return init
-end

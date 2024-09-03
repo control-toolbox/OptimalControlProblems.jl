@@ -4,7 +4,7 @@ Robot arm problem:
     The objective is to minimize the time taken to move between the two points.
     The problem is formulated as an OptimalControl model.
 """
-function robot()
+function robot(;nh::Int=100)
     # parameters
     L = 5.0
     max_u_rho = 1.0
@@ -78,22 +78,28 @@ function robot()
         tf → min
     end
 
-    return ocp
+    # Initial guess
+    function robot_init(;nh)
+        rho0 = 4.5
+        phi0 = pi/4
+    
+        xinit = t -> [rho0,
+                2*pi/3*(t^2),
+                phi0,
+                0.0,
+                4*pi/3*t,
+                0.0]
+        uinit = [0.0, 0.0, 0.0]
+        init = (state = xinit, control = uinit , variable= 1.0)
+    
+        return init
+    end
+    init = robot_init(;nh=nh)
+
+    # NLPModel
+    nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]
+
+    return nlp
 end
 
 
-function robot_init(;nh)
-    rho0 = 4.5
-    phi0 = pi/4
-
-    xinit = t -> [rho0,
-            2*pi/3*(t^2),
-            phi0,
-            0.0,
-            4*pi/3*t,
-            0.0]
-    uinit = [0.0, 0.0, 0.0]
-    init = (state = xinit, control = uinit , variable= 1.0)
-
-    return init
-end

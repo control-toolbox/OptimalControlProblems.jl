@@ -4,7 +4,7 @@ Quadrotor Problem:
     The objective is to minimize the final time.
     The problem is formulated as an OptimalControl model.
 """
-function quadrotor()
+function quadrotor(;nh::Int=100)
     # parameters
     g = 9.81
     atmin = 0
@@ -105,12 +105,18 @@ function quadrotor()
         return [v1, v2, v3, a[1], a[2], a[3], ϕ_dot, θ_dot]
     end
 
-    return ocp
+    # Initial guess
+    function quadrotor_init(;nh)
+        init = (control = [10, 0.0, 0.0, 0.0],);
+        return init
+    end
+    init = quadrotor_init(;nh=nh)
+
+    # NLPModel
+    nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]
+
+    return nlp
 end
 
 
 
-function quadrotor_init(;nh)
-    init = (control = [10, 0.0, 0.0, 0.0],);
-    return init
-end

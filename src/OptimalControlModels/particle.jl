@@ -5,7 +5,7 @@ Dielectrophoretic particle problem:
     The problem is formulated as an OptimalControl model.
 Ref: [CPR2006] Chang, D. E., Petit, N., & Rouchon, P. (2006). Time-optimal control of a particle in a dielectrophoretic system. IEEE Transactions on Automatic Control, 51(7), 1100-1114.
 """
-function dielectrophoretic_particle()
+function dielectrophoretic_particle(;nh::Int=100)
     # parameters
     x0 = 1.0
     xf = 2.0
@@ -56,11 +56,17 @@ function dielectrophoretic_particle()
         return [dx, dy]
     end
 
+    ## Initial guess
+    function dielectrophoretic_particle_init(;nh)
+        init = (state = [1.0,1.0],control = 0.0,variable = 1.0);
+        return init
+    end
+    init = dielectrophoretic_particle_init(;nh=nh)
+
+    # NLPModel
+    nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]
+
     return ocp
 end
 
 
-function dielectrophoretic_particle_init(;nh)
-    init = (state = [1.0,1.0],control = 0.0,variable = 1.0);
-    return init
-end

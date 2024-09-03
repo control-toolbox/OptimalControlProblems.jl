@@ -4,7 +4,7 @@ Particle Steering Problem:
     The objective is to minimize the time taken to achieve a given altitude and terminal velocity.
     The problem is formulated as an OptimalControl model.
 """
-function steering()
+function steering(;nh::Int=100)
     # parameters
     a = 100.0 
     u_min, u_max = -pi/2.0, pi/2.0
@@ -40,24 +40,27 @@ function steering()
     # objective     
     objective!(ocp, :mayer, (x0, xf, tf) -> tf, :min) 
 
-    return ocp
-
-end
-
-
-function steering_init(;nh)
-    function gen_x0(t, i)
-        if i == 1 || i == 4
-            return 0.0
-        elseif i == 2
-            return 5*t
-        elseif i == 3
-            return 45.0*t
+    # Initial guess
+    function steering_init(;nh)
+        function gen_x0(t, i)
+            if i == 1 || i == 4
+                return 0.0
+            elseif i == 2
+                return 5*t
+            elseif i == 3
+                return 45.0*t
+            end
         end
+        xinit = t -> [ gen_x0(t, i) for i in 1:4]
+        init = (state = xinit, control =  0.0 ,variable = 1.0);
+        return init
     end
-    xinit = t -> [ gen_x0(t, i) for i in 1:4]
+    init = steering_init(;nh=nh)
 
-    init = (state = xinit, control =  0.0 ,variable = 1.0);
+    # NLPModel
+    nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]
     
-    return init
+    return nlp
+
 end
+

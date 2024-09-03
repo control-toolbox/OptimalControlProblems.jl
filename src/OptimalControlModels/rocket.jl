@@ -4,7 +4,7 @@ Goddard Rocket Problem:
     The objective is to maximize the final altitude of the rocket.
     The problem is formulated as an OptimalControl model.
 """
-function rocket()
+function rocket(;nh::Int=100)
     # parameters
     h_0 = 1.0
     v_0 = 0.0
@@ -49,24 +49,30 @@ function rocket()
     # objective     
     objective!(ocp, :mayer, (x0, xf, tf) -> xf[1], :max)    
 
-    return ocp
+    # Initial guess
+    function rocket_init(;nh)
+        m_0 = 1.0
+        g_0 = 1.0
+        T_c = 3.5
+        m_c = 0.6
+        m_f = m_c * m_0
+        T_max = T_c * m_0 * g_0
+    
+        xinit = [[1.0,
+                  k* (1.0 - k) ,
+                  (m_f - m_0) * k + m_0] for k=0:nh]
+    
+        time_vec = LinRange(0.0,1.0,nh+1)
+        init = (time= time_vec, state = xinit , control = T_max/2.0 ,variable= 1);
+        return init
+    end
+    init = rocket_init(;nh=nh)
+
+    # NLPModel
+    nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]
+
+    return nlp
 
 end
 
 
-function rocket_init(;nh)
-    m_0 = 1.0
-    g_0 = 1.0
-    T_c = 3.5
-    m_c = 0.6
-    m_f = m_c * m_0
-    T_max = T_c * m_0 * g_0
-
-    xinit = [[1.0,
-              k* (1.0 - k) ,
-              (m_f - m_0) * k + m_0] for k=0:nh]
-
-    time_vec = LinRange(0.0,1.0,nh+1)
-    init = (time= time_vec, state = xinit , control = T_max/2.0 ,variable= 1);
-    return init
-end
