@@ -19,7 +19,8 @@ function test_OptimalControl_optimality()
             model = OptimalControlProblems.OptimalControlModels.eval(f)()
             f_init = init_functions_list[findfirst(x -> x == Symbol(f , "_init"), init_functions_list)]
             init = OptimalControlProblems.OptimalControlModels.eval(f_init)(;nh=nh)
-            sol = OptimalControl.solve(model, init=init, grid_size = nh; display = false)
+            sol = OptimalControl.solve(model, init=init, grid_size = nh; display = false, 
+                        tol=1e-8, constr_viol_tol=1e-6, max_iter=500, max_wall_time=120.0)
             # Test that the solver found an optimal solution
             @test sol.message == "Solve_Succeeded"
         end

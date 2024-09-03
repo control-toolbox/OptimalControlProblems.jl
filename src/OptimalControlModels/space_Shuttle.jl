@@ -155,6 +155,18 @@ end
 
 
 function space_shuttle_init(;nh)
+    h_s = 2.6          # altitude (ft) / 1e5
+    ϕ_s = deg2rad(0)   # longitude (rad)
+    θ_s = deg2rad(0)   # latitude (rad)
+    v_s = 2.56         # velocity (ft/sec) / 1e4
+    γ_s = deg2rad(-1)  # flight path angle (rad)
+    ψ_s = deg2rad(90)  # azimuth (rad)
+    α_s = deg2rad(0)   # angle of attack (rad)
+    β_s = deg2rad(0)   # bank angle (rad)
+    t_s = 1.00 
+    h_t = 0.8          # altitude (ft) / 1e5
+    v_t = 0.25         # velocity (ft/sec) / 1e4
+    γ_t = deg2rad(-5)  # flight path angle (rad)
     # Helper function for linear interpolation
     function linear_interpolate(x_s, x_t, n)
         return [x_s + (i-1) / (n-1) * (x_t - x_s) for i in 1:n]

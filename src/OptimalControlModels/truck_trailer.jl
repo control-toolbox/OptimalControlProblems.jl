@@ -64,8 +64,8 @@ function truck(;data::Array{Float64,2}=default_data)
         u ∈ R², control
 
         ## state variables
-        x2 = x₁
-        y2 = x₂
+        x_2 = x₁
+        y_2 = x₂
         theta0 = x₃
         theta1 = x₄
         theta2 = x₅
@@ -77,8 +77,8 @@ function truck(;data::Array{Float64,2}=default_data)
         ## auxiliary variables
         beta01 = theta0 - theta1
         beta12 = theta1 - theta2
-        x1     = x2 + L2*cos(theta2) + M1*cos(theta1)
-        y1     = x2 + L2*cos(theta2) + M1*cos(theta1)
+        x1     = x_2 + L2*cos(theta2) + M1*cos(theta1)
+        y1     = x_2 + L2*cos(theta2) + M1*cos(theta1)
         x0     = x1 + L1*cos(theta1) + M0*cos(theta0)
         y0     = y1 + L1*sin(theta1) + M0*sin(theta0)
 
@@ -94,14 +94,14 @@ function truck(;data::Array{Float64,2}=default_data)
         -pi/2 ≤ beta01(t) ≤ pi/2,                     (beta01_con)
         -pi/2 ≤ beta12(t) ≤ pi/2,                     (beta12_con)
         # initial conditions
-        x2(0) == x2_t0,                       (x2_t0_con)
-        y2(0) == y2_t0,                       (y2_t0_con)
+        x_2(0) == x2_t0,                       (x2_t0_con)
+        y_2(0) == y2_t0,                       (y2_t0_con)
         theta0(0) == theta0_t0,               (theta0_t0_con)
         theta1(0) == theta1_t0,               (theta1_t0_con)
         theta2(0) == theta2_t0,               (theta2_t0_con)
         # final conditions
-        x2(tf) == x2_tf,                       (x2_tf_con)
-        y2(tf) == y2_tf,                       (y2_tf_con)
+        x_2(tf) == x2_tf,                       (x2_tf_con)
+        y_2(tf) == y2_tf,                       (y2_tf_con)
         theta2(tf) == theta2_tf,               (theta2_tf_con)
         beta01(tf) == theta0_tf - theta1_tf,    (beta01_tf_con)
         beta12(tf) == theta1_tf - theta2_tf,    (beta12_tf_con)
