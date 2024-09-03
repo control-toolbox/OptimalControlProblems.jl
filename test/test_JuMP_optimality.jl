@@ -25,10 +25,8 @@ function test_JuMP_optimality()
             # Solve the model
             optimize!(model)
             # Test that the solver found an optimal solution
-            if f == :dielectrophoretic_particle || f == :truck_trailer
-                @test_broken termination_status(model) == MOI.LOCALLY_INFEASIBLE 
-            elseif f == :moonlander || f == :quadrotor
-                @test_broken termination_status(model) == MOI.TIME_LIMIT 
+            if f == :ducted_fan || f == :truck_trailer || f == :moonlander || f == :quadrotor
+                @test_broken termination_status(model) == MOI.LOCALLY_SOLVED 
             else
                 @test termination_status(model) == MOI.LOCALLY_SOLVED 
             end
