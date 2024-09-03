@@ -4,8 +4,7 @@ The Moonlander Problem:
     The objective is to minimize the time taken to land on the moon.
     The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746)
 """
-target = [5.0, 5.0]
-function moonlander(;target::Array{Float64}=target,nh::Int64=500)
+function moonlander(;target::Array{Float64}=[5.0, 5.0],nh::Int64=500)
     ## parameters
     if size(target) != (2,)
         error("The input matrix must be 3x3.")

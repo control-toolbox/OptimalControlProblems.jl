@@ -4,7 +4,7 @@ Quadrotor Problem:
     The objective is to minimize the final time.
     The problem is formulated as an OptimalControl model.
 """
-function quadrotorP2P()
+function quadrotor()
     # parameters
     g = 9.81
     atmin = 0
@@ -110,7 +110,7 @@ end
 
 
 
-function quadrotorP2P_init(;nh)
+function quadrotor_init(;nh)
     init = (control = [10, 0.0, 0.0, 0.0],);
     return init
 end
