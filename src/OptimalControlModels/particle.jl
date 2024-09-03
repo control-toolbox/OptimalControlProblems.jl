@@ -66,7 +66,7 @@ function dielectrophoretic_particle(;nh::Int=100)
     # NLPModel
     nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]
 
-    return ocp
+    return nlp
 end
 
 

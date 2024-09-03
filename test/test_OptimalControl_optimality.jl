@@ -14,7 +14,7 @@ function test_OptimalControl_optimality()
         @testset "$(f)" begin
             # Set up the model
             model = OptimalControlProblems.OptimalControlModels.eval(f)()
-            sol = NLPModelsIpopt.ipopt(model,tol=1e-8,mu_strategy="adaptive", sb="yes", constr_viol_tol=1e-6, max_iter=500, max_wall_time=120.0)
+            sol = NLPModelsIpopt.ipopt(model; print_level=0, tol=1e-8, mu_strategy="adaptive", sb="yes", constr_viol_tol=1e-6, max_iter=500, max_wall_time=120.0)
             # Test that the solver found an optimal solution
             if f == :dielectrophoretic_particle || f == :moonlander || f == :quadrotor || f == :truck_trailer || f == :space_shuttle
                 @test_broken sol.status ==  :first_order
