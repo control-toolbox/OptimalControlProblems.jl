@@ -77,10 +77,10 @@ function truck(;data::Array{Float64,2}=default_data)
         ## auxiliary variables
         beta01 = theta0 - theta1
         beta12 = theta1 - theta2
-        x1     = x_2 + L2*cos(theta2) + M1*cos(theta1)
-        y1     = x_2 + L2*cos(theta2) + M1*cos(theta1)
-        x0     = x1 + L1*cos(theta1) + M0*cos(theta0)
-        y0     = y1 + L1*sin(theta1) + M0*sin(theta0)
+        x_1     = x_2 + L2*cos(theta2) + M1*cos(theta1)
+        y_1     = x_2 + L2*cos(theta2) + M1*cos(theta1)
+        x0     = x_1 + L1*cos(theta1) + M0*cos(theta0)
+        y0     = y_1 + L1*sin(theta1) + M0*sin(theta0)
 
         ## constraints
         # state constraints

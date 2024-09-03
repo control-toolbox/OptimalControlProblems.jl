@@ -189,7 +189,7 @@ function space_shuttle_init(;nh)
 
     x_init = [initial_guess[i,1:6] for i in 1:nh];
     u_init = [initial_guess[i,7:8] for i in 1:nh];
-    time_vec = LinRange(0.0,t_s*n*4,nh)
+    time_vec = LinRange(0.0,t_s*nh*4,nh)
     init = (time= time_vec, state= x_init, control= u_init)
     return init
 end
