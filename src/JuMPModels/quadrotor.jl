@@ -4,7 +4,7 @@ Quadrotor Problem:
     The objective is to minimize the final time.
     The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746)
 """
-function quadrotor(;nh::Int64=100)
+function quadrotor(;nh::Int64=60)
     # parameters
     g = 9.81
     atmin = 0

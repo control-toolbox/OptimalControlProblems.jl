@@ -4,7 +4,7 @@ Quadrotor Problem:
     The objective is to minimize the final time.
     The problem is formulated as an OptimalControl model.
 """
-function quadrotor(;nh::Int=100)
+function quadrotor(;nh::Int=60)
     # parameters
     g = 9.81
     atmin = 0
