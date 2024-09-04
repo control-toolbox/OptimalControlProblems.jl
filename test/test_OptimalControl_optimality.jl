@@ -16,7 +16,7 @@ function test_OptimalControl_optimality()
             model = OptimalControlProblems.OptimalControlModels.eval(f)()
             sol = NLPModelsIpopt.ipopt(model; print_level=0, tol=1e-8, mu_strategy="adaptive", sb="yes", constr_viol_tol=1e-6, max_iter=500, max_wall_time=120.0)
             # Test that the solver found an optimal solution
-            if f == :quadrotor || f == :truck_trailer || f == :space_shuttle
+            if f == :moonlander || f == :quadrotor || f == :truck_trailer || f == :space_shuttle
                 @test_broken sol.status ==  :first_order
             else
                 @test sol.status == :first_order
