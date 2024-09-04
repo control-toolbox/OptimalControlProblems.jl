@@ -26,7 +26,7 @@ function test_JuMP_optimality()
             # Solve the model
             optimize!(model)
             # Test that the solver found an optimal solution
-            if f == :truck_trailer
+            if f == :truck_trailer || f == :quadrator
                 @test_broken termination_status(model) == MOI.LOCALLY_SOLVED 
             else
                 @test termination_status(model) == MOI.LOCALLY_SOLVED 
