@@ -1,6 +1,6 @@
 moonlander_meta = Dict(
     :name => "moonlander",
-    :nvar => nothing,
-    :ncon => nothing,
+    :nvar => 610,
+    :ncon => 809,
     :minimize => true,
 )

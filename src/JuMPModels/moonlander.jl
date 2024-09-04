@@ -19,7 +19,7 @@ function moonlander(;target::Array{Float64}=[5.0, 5.0],nh::Int64=100)
     model = JuMP.Model()
 
     @variables(model, begin
-        0.0 <= tf
+        0.0 <= step
         # state variables
         p1[k=0:nh]
         p2[k=0:nh]
@@ -60,9 +60,6 @@ function moonlander(;target::Array{Float64}=[5.0, 5.0],nh::Int64=100)
         ddp2[k=0:nh], (1/m) * F_tot[k][2] - g
         ddtheta[k=0:nh], (1/I) * (D/2) * (F2[k] - F1[k])
     end)    
-    @expressions(model, begin
-        step,           tf / nh
-    end)
 
     @constraints(model, begin
         d_p1[k=1:nh], p1[k] == p1[k-1] + 0.5 * step * (dp1[k] + dp1[k-1])
@@ -73,7 +70,7 @@ function moonlander(;target::Array{Float64}=[5.0, 5.0],nh::Int64=100)
         d_dtheta[k=1:nh], dtheta[k] == dtheta[k-1] + 0.5 * step * (ddtheta[k] + ddtheta[k-1])
     end)
 
-    @objective(model, Min, tf)
+    @objective(model, Min, step*nh)
 
     return model
 end
