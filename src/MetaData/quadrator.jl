@@ -1,5 +1,5 @@
 quadrator_meta = Dict(
-    :name => "quadratorP2P",
+    :name => "quadrator",
     :nvar => nothing,
     :ncon => nothing,
     :minimize => true,

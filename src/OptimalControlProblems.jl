@@ -12,6 +12,13 @@ for file in files
 end
 nb_problems = length(files)
 
+"""
+The following keys are valid:
+    - `name::String`: problem name
+    - `nvar::Int`: number of variables
+    - `ncon::Int`: number of general constraints
+    - `minimize::Bool`: true if optimize == minimize
+"""
 const infos = [
     :name
     :nvar
@@ -26,12 +33,5 @@ const types = [
     Bool
 ]
 
-"""
-The following keys are valid:
-    - `name::String`: problem name
-    - `nvar::Int`: number of variables
-    - `ncon::Int`: number of general constraints
-    - `minimize::Bool`: true if optimize == minimize
-"""
 
 end
