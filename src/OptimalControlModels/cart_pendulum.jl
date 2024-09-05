@@ -82,10 +82,7 @@ function cart_pendulum(;nh::Int=100)
     end
 
     # initial guess
-    function cart_pendulum_init(;nh)
-        return ()
-    end
-    init = cart_pendulum_init(;nh = nh)
+    init = ()
 
     # NLPModel
     nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]

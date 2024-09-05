@@ -35,21 +35,12 @@ function chain(;nh::Int=100)
     objective!(ocp, :mayer, (x0, xf) -> xf[2], :min)   
 
     # Initial guess
-    function chain_init(;nh)
-        L = 4.0
-        a = 1.0
-        b = 3.0
-        tf = 1.0
-        h = tf / nh
-        tmin = b > a ? 1 / 4 : 3 / 4
-        xinit = t -> [4 * abs(b - a) * t / tf * (1 / 2 * t / tf - tmin) + a,
-                    (4 * abs(b - a) * t / tf * (1 / 2 * t / tf - tmin) + a) * (4 * abs(b - a) * (t / tf - tmin)),
-                    4 * abs(b - a) * (t / tf - tmin) ]
-        uinit = t -> 4 * abs(b - a) * (t / tf - tmin)
-        init = (state =  xinit, control = uinit)
-        return init
-    end
-    init = chain_init(;nh=nh)
+    tmin = b > a ? 1 / 4 : 3 / 4
+    xinit = t -> [4 * abs(b - a) * t / tf * (1 / 2 * t / tf - tmin) + a,
+                (4 * abs(b - a) * t / tf * (1 / 2 * t / tf - tmin) + a) * (4 * abs(b - a) * (t / tf - tmin)),
+                4 * abs(b - a) * (t / tf - tmin) ]
+    uinit = t -> 4 * abs(b - a) * (t / tf - tmin)
+    init = (state =  xinit, control = uinit)
 
     # NLPModel
     nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]

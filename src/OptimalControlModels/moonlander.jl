@@ -82,11 +82,7 @@ function moonlander(;target::Array{Float64}=[5.0, 5.0], nh::Int=100)
     end
 
     # Initial guess
-    function moonlander_init(;nh)
-        init = (control=[5.0,5.0],)
-        return init
-    end
-    init = moonlander_init(;nh=nh)
+    init = (control=[5.0,5.0],)
 
     # NLPModel
     nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]

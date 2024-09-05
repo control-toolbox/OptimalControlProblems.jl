@@ -77,10 +77,7 @@ function ducted_fan(;nh::Int=100)
     end
 
     # Initial guess
-    function ducted_fan_init(;nh)
-        return ()
-    end
-    init = ducted_fan_init(;nh=nh)
+    init = ()
 
     # NLPModel
     nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]

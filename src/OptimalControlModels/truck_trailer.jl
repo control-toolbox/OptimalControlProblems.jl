@@ -127,11 +127,7 @@ function truck_trailer(;data::Array{Float64,2}=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.
     end
 
     # Initial guess
-    function truck_trailer_init(;nh)
-        init = (state=[0, 0, 0.1, 0.0, 0.0, -0.2, 0],)
-        return init
-    end
-    init = truck_trailer_init(;nh=nh)
+    init = (state=[0, 0, 0.1, 0.0, 0.0, -0.2, 0],)
 
     # NLPModel
     nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]

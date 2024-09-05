@@ -17,10 +17,7 @@ function vanderpol(;nh::Int=100)
     end
 
     # Initial guess
-    function vanderpol_init(;nh)
-        return ()
-    end
-    init = vanderpol_init(;nh=nh)
+    init = ()
 
     # NLPModel
     nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]

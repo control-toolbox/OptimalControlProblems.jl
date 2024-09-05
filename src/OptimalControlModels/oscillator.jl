@@ -56,10 +56,7 @@ function double_oscillator(;nh::Int=100)
     end
 
     # Initial guess
-    function double_oscillator_init(;nh)
-        return ()
-    end
-    init = double_oscillator_init(;nh=nh)
+    init = ()
 
     # NLPModel
     nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]

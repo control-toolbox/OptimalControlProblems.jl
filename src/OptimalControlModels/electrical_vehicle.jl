@@ -60,10 +60,7 @@ function electrical_vehicle(;nh::Int=100)
     end
 
     ## Initial guess
-    function electrical_vehicle_init(;nh)
-        return ()
-    end
-    init = electrical_vehicle_init(;nh=nh)
+    init = ()
 
     ## NLPModel
     nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]

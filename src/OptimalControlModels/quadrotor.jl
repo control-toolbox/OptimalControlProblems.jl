@@ -106,11 +106,7 @@ function quadrotor(;nh::Int=60)
     end
 
     # Initial guess
-    function quadrotor_init(;nh)
-        init = (control = [10, 0.0, 0.0, 0.0],);
-        return init
-    end
-    init = quadrotor_init(;nh=nh)
+    init = (control = [10, 0.0, 0.0, 0.0],);
 
     # NLPModel
     nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]
