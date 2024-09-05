@@ -153,7 +153,7 @@ function space_shuttle(;nh::Int=503)
     # Initial guess
     # Helper function for linear interpolation
     function linear_interpolate(x_s, x_t, nh)
-        return [x_s + (i-1) / (n-1) * (x_t - x_s) for i in 1:nh]
+        return [x_s + (i-1) / (nh-1) * (x_t - x_s) for i in 1:nh]
     end
     # Interpolate each parameter separately
     h_interp = linear_interpolate(h_s, h_t, nh)
