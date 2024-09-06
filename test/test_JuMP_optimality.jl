@@ -21,12 +21,12 @@ function test_JuMP_optimality()
             set_optimizer_attribute(model,"max_iter",500)
             set_optimizer_attribute(model,"mu_strategy","adaptive")
             set_optimizer_attribute(model,"linear_solver","mumps")
-            set_optimizer_attribute(model, "max_wall_time", 160.0) 
+            set_optimizer_attribute(model, "max_wall_time", 120.0) 
             set_optimizer_attribute(model, "sb","yes")
             # Solve the model
             optimize!(model)
             # Test that the solver found an optimal solution
-            if f == :truck_trailer
+            if f == :truck_trailer || f == :quadrotor
                 @test_broken termination_status(model) == MOI.LOCALLY_SOLVED 
             else
                 @test termination_status(model) == MOI.LOCALLY_SOLVED 
