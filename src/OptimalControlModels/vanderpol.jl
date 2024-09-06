@@ -2,7 +2,7 @@
 The Van der Pol Problem:
     The problem is formulated as an OptimalControl modeln and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function vanderpol(;nh::Int=100)
+function vanderpol(; nh::Int = 100)
     @def ocp begin
         # constants
         omega = 1
@@ -20,9 +20,7 @@ function vanderpol(;nh::Int=100)
     init = ()
 
     # NLPModel
-    nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]
+    nlp = direct_transcription(ocp, init = init, grid_size = nh)[2]
 
     return nlp
-
-
 end

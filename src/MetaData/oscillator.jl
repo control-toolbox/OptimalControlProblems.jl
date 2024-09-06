@@ -1,6 +1,1 @@
-oscillator_meta = Dict(
-    :name => "oscillator",
-    :nvar => nothing,
-    :ncon => nothing,
-    :minimize => true,
-)
+oscillator_meta = Dict(:name => "oscillator", :nvar => nothing, :ncon => nothing, :minimize => true)

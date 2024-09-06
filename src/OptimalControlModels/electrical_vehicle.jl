@@ -4,7 +4,7 @@ The Electrical Vehicle Problem
     The problem is formulated as an OptimalControl model.
 Ref: [PS2011] Nicolas Petit and Antonio Sciarretta. "Optimal drive of electric vehicles using an inversion-based trajectory generation approach." IFAC Proceedings Volumes 44, no. 1 (2011): 14519-14526.
 """
-function electrical_vehicle(;nh::Int=100)
+function electrical_vehicle(; nh::Int = 100)
     # parameters
     D = 10.0
     tf = 1.0
@@ -25,7 +25,7 @@ function electrical_vehicle(;nh::Int=100)
         h1 = 1.0
         h2 = 1e-3
         ## define the problem
-        t ∈ [ 0.0, tf ], time
+        t ∈ [0.0, tf], time
         x ∈ R², state
         u ∈ R, control
 
@@ -35,22 +35,21 @@ function electrical_vehicle(;nh::Int=100)
 
         ## constraints
         # initial constraints
-        pos(0) == 0.0,                                   (pos_i)
-        v(0) == 0.0,                                     (v_i)
+        pos(0) == 0.0, (pos_i)
+        v(0) == 0.0, (v_i)
         # final constraints
-        pos(tf) == D,                                    (pos_f)
-        v(tf) == 0.0,                                    (v_f)
-        
+        pos(tf) == D, (pos_f)
+        v(tf) == 0.0, (v_f)
+
         ## dynamics
         ẋ(t) == dynamics(x(t), u(t))
 
         ## objective
-        ∫(b1 *u(t) * v(t) + b2 * u(t)^2) → min
-
+        ∫(b1 * u(t) * v(t) + b2 * u(t)^2) → min
     end
 
     function road(x)
-        return p0 + p1*x + p2*x^2 + p3*x^3
+        return p0 + p1 * x + p2 * x^2 + p3 * x^3
     end
 
     function dynamics(x, u)
@@ -63,10 +62,7 @@ function electrical_vehicle(;nh::Int=100)
     init = ()
 
     ## NLPModel
-    nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]
+    nlp = direct_transcription(ocp, init = init, grid_size = nh)[2]
 
     return nlp
-
 end
-
-

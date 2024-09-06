@@ -33,5 +33,4 @@ const types = [
     Bool
 ]
 
-
 end

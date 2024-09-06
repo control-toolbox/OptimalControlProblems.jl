@@ -4,7 +4,7 @@ Goddard Rocket Problem:
     The objective is to maximize the final altitude of the rocket.
     The problem is formulated as an OptimalControl model.
 """
-function rocket(;nh::Int=100)
+function rocket(; nh::Int = 100)
     # parameters
     h_0 = 1.0
     v_0 = 0.0
@@ -15,52 +15,52 @@ function rocket(;nh::Int=100)
     v_c = 620.0
     m_c = 0.6
 
-    c = 0.5*sqrt(g_0 * h_0)
+    c = 0.5 * sqrt(g_0 * h_0)
     m_f = m_c * m_0
     D_c = 0.5 * v_c * (m_0 / g_0)
     T_max = T_c * m_0 * g_0
 
-    ocp = OptimalControl.Model(variable=true)
-    
+    ocp = OptimalControl.Model(variable = true)
+
     # dimensions
-    state!(ocp, 3)                                  
-    control!(ocp, 1) 
+    state!(ocp, 3)
+    control!(ocp, 1)
     variable!(ocp, 1, "tf")
-    
+
     # time interval
-    time!(ocp, t0=0, indf=1) 
-    constraint!(ocp, :variable, lb=0.0, ub=Inf)
-    
+    time!(ocp, t0 = 0, indf = 1)
+    constraint!(ocp, :variable, lb = 0.0, ub = Inf)
+
     # initial and final conditions
-    constraint!(ocp, :initial, lb=[h_0, v_0 ,m_0],ub=[h_0, v_0 ,m_0]) 
-    constraint!(ocp, :final, rg =3 , lb=m_f,ub=m_f)     
+    constraint!(ocp, :initial, lb = [h_0, v_0, m_0], ub = [h_0, v_0, m_0])
+    constraint!(ocp, :final, rg = 3, lb = m_f, ub = m_f)
 
     # state constraints
-    constraint!(ocp, :state , rg=1:3, lb=[h_0, v_0 ,m_f] , ub=[Inf, Inf, m_0]) 
+    constraint!(ocp, :state, rg = 1:3, lb = [h_0, v_0, m_f], ub = [Inf, Inf, m_0])
 
     # control constraints
-    constraint!(ocp, :control , lb=0, ub=T_max)
+    constraint!(ocp, :control, lb = 0, ub = T_max)
 
     # dynamics
-    dynamics!(ocp, (x, u, tf) -> [ x[2],
-        (u - (D_c*x[2]^2*exp(-h_c*(x[1] - h_0))/h_0) - x[3]*g_0*(h_0 / x[1])^2) / x[3],
-        -u/c] ) 
+    dynamics!(
+        ocp,
+        (x, u, tf) -> [
+            x[2],
+            (u - (D_c * x[2]^2 * exp(-h_c * (x[1] - h_0)) / h_0) - x[3] * g_0 * (h_0 / x[1])^2) / x[3],
+            -u / c,
+        ],
+    )
 
     # objective     
-    objective!(ocp, :mayer, (x0, xf, tf) -> xf[1], :max)    
+    objective!(ocp, :mayer, (x0, xf, tf) -> xf[1], :max)
 
     # Initial guess
-    xinit = [[1.0,
-            k* (1.0 - k) ,
-            (m_f - m_0) * k + m_0] for k=0:nh]
-    time_vec = LinRange(0.0,1.0,nh+1)
-    init = (time= time_vec, state = xinit , control = T_max/2.0 ,variable= 1);
+    xinit = [[1.0, k * (1.0 - k), (m_f - m_0) * k + m_0] for k = 0:nh]
+    time_vec = LinRange(0.0, 1.0, nh + 1)
+    init = (time = time_vec, state = xinit, control = T_max / 2.0, variable = 1)
 
     # NLPModel
-    nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]
+    nlp = direct_transcription(ocp, init = init, grid_size = nh)[2]
 
     return nlp
-
 end
-
-
