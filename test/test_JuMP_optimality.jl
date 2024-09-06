@@ -1,6 +1,3 @@
-using JuMP 
-using Ipopt
-
 # test_JuMP_optimality
 function test_JuMP_optimality()
     # Collecting all the OptimalControlProblems.JuMPModels models

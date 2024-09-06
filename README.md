@@ -12,15 +12,22 @@
 [doc-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [doc-stable-url]: https://control-toolbox.org/OptimalControlProblems.jl/stable/
 
+[licence-img]: https://img.shields.io/badge/License-MIT-yellow.svg
+[licence-url]: https://github.com/control-toolbox/OptimalControlProblems.jl/blob/master/LICENSE
+
+[aqua-img]: https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg
+[aqua-url]: https://github.com/JuliaTesting/Aqua.jl
+
 This repo is part of the [control-toolbox ecosystem](https://github.com/control-toolbox).
 The control-toolbox ecosystem gathers Julia packages for mathematical control and applications. The root package is [OptimalControl.jl](https://github.com/control-toolbox/OptimalControl.jl) which aims to provide tools to model and solve optimal control problems with ordinary differential equations by direct and indirect methods.
 
 [![doc OptimalControl.jl](https://img.shields.io/badge/Documentation-OptimalControl.jl-blue)](http://control-toolbox.org/OptimalControl.jl)
 
-
-| **Documentation**  | **Code Status**  |
-|:-------------------|:-----------------|
-| [![Documentation][doc-stable-img]][doc-stable-url] [![Documentation][doc-dev-img]][doc-dev-url] | [![Build Status][ci-img]][ci-url] [![Covering Status][co-img]][co-url] |
+| **Name**          | **Badge**         |
+:-------------------|:------------------|
+| Documentation     | [![Documentation][doc-stable-img]][doc-stable-url] [![Documentation][doc-dev-img]][doc-dev-url]                   | 
+| Code Status       | [![Build Status][ci-img]][ci-url] [![Covering Status][co-img]][co-url] [![Aqua.jl][aqua-img]][aqua-url] |
+| Licence           | [![License: MIT][licence-img]][licence-url]   |
 
 ## Contributing
 

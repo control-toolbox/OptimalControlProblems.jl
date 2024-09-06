@@ -1,9 +1,16 @@
-using Test
+using Aqua
+using CTBase
+using CTDirect
+using Ipopt
+using JuMP 
+using NLPModelsIpopt
 using OptimalControlProblems
+using Test
 
 #
 @testset verbose = true showtiming = true "OptimalControlProblems tests" begin
     for name ∈ (
+        :aqua,
         :JuMP_optimality,
         :OptimalControl_optimality,
         )
