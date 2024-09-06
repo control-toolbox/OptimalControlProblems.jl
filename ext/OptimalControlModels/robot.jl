@@ -4,7 +4,7 @@ Robot arm problem:
     The objective is to minimize the time taken to move between the two points.
     The problem is formulated as an OptimalControl model.
 """
-function robot(;nh::Int=100)
+function OptimalControlProblems.robot(::OptimalControlBackend;nh::Int=100)
     # parameters
     L = 5.0
     max_u_rho = 1.0

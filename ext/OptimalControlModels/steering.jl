@@ -4,7 +4,7 @@ Particle Steering Problem:
     The objective is to minimize the time taken to achieve a given altitude and terminal velocity.
     The problem is formulated as an OptimalControl model.
 """
-function steering(;nh::Int=100)
+function OptimalControlProblems.steering(::OptimalControlBackend;nh::Int=100)
     # parameters
     a = 100.0 
     u_min, u_max = -pi/2.0, pi/2.0

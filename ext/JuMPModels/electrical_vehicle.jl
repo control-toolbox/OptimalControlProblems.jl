@@ -4,7 +4,7 @@ The Electrical Vehicle Problem
     The problem is formulated as a JuMP model.
 Ref: [PS2011] Nicolas Petit and Antonio Sciarretta. "Optimal drive of electric vehicles using an inversion-based trajectory generation approach." IFAC Proceedings Volumes 44, no. 1 (2011): 14519-14526.
 """
-function electrical_vehicle(;nh::Int=100)
+function OptimalControlProblems.electrical_vehicle(::JuMPBackend;nh::Int=100)
     D = 10.0
     T = 1.0
     b1 = 1e3

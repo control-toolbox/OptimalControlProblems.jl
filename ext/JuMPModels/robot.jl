@@ -4,7 +4,7 @@ Robot arm problem:
     The objective is to minimize the time taken to move between the two points.
     The problem is formulated as a JuMP model, and can be found [here](https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/robot.jl)
 """
-function robot(;nh::Int64=100)
+function OptimalControlProblems.robot(::JuMPBackend;nh::Int64=100)
     # total length of arm
     L = 5.0
     # Upper bounds on the controls

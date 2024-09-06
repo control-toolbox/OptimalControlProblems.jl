@@ -2,7 +2,7 @@
 The Van der Pol Problem:
     The problem is formulated as an OptimalControl modeln and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function vanderpol(;nh::Int=100)
+function OptimalControlProblems.vanderpol(::JuMPBackend;nh::Int=100)
     # parameters
     omega = 1
     epsilon = 1

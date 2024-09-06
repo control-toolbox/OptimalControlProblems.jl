@@ -1,19 +1,19 @@
-using Ipopt
 using JuMP 
+using Ipopt
 
 # test_JuMP_optimality
 function test_JuMP_optimality()
     # Collecting all the OptimalControlProblems.JuMPModels models
-    all_names = names(OptimalControlProblems.JuMPModels, all=true)
-    functions_list = filter(x -> isdefined(OptimalControlProblems.JuMPModels, x) && 
-                        isa(getfield(OptimalControlProblems.JuMPModels, x), Function) &&
+    all_names = names(OptimalControlProblems, all=true)
+    functions_list = filter(x -> isdefined(OptimalControlProblems, x) && 
+                        isa(getfield(OptimalControlProblems, x), Function) &&
                         !startswith(string(x), "#") && 
                         !(x in [:eval, :include]), 
                         all_names)
     for f in functions_list
         @testset "$(f)" begin
             # Set up the model
-            model = OptimalControlProblems.JuMPModels.eval(f)()
+            model = OptimalControlProblems.eval(f)(JuMPBackend())
             set_optimizer(model,Ipopt.Optimizer)
             set_silent(model)
             set_optimizer_attribute(model,"tol",1e-8)

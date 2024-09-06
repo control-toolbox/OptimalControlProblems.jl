@@ -4,7 +4,7 @@ Space Shuttle Reentry Trajectory Problem:
     The objective is to minimize the angle of attack at the terminal point.
     The problem is formulated as an OptimalControl model.
 """
-function space_shuttle(;nh::Int=503)
+function OptimalControlProblems.space_shuttle(::OptimalControlBackend;nh::Int=503)
     ## Global variables
     w = 203000.0  # weight (lb)
     g₀ = 32.174    # acceleration (ft/sec^2)

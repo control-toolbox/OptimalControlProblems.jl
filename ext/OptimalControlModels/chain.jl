@@ -4,7 +4,7 @@ The Hanging Chain Problem:
     The objective is to minimize the potential energy of the chain.
     The problem is formulated as an OptimalControl model.
 """
-function chain(;nh::Int=100)
+function OptimalControlProblems.chain(::OptimalControlBackend;nh::Int=100)
     # parameters
     L = 4
     a = 1

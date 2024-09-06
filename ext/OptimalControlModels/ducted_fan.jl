@@ -5,7 +5,7 @@ The Ducted Fan Problem:
     The problem is formulated as an OptimalControl model.
 Ref: Graichen, K., & Petit, N. (2009). Incorporating a class of constraints into the dynamics of optimal control problems. Optimal Control Applications and Methods, 30(6), 537-561.
 """
-function ducted_fan(;nh::Int=100)
+function OptimalControlProblems.ducted_fan(::OptimalControlBackend;nh::Int=100)
     # parameters
     r = 0.2         # [m]
     J = 0.05        # [kg.m2]

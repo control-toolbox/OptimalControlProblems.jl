@@ -4,7 +4,7 @@ Space Shuttle Reentry Trajectory Problem:
     The objective is to minimize the angle of attack at the terminal point.
     The problem is formulated as a JuMP model, and can be found [here](https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/)
 """
-function space_shuttle(integration_rule::String = "rectangular";nh::Int64=503)
+function OptimalControlProblems.space_shuttle(::JuMPBackend;integration_rule::String = "rectangular",nh::Int64=503)
     ## Global variables
     w = 203000.0  # weight (lb)
     g₀ = 32.174    # acceleration (ft/sec^2)

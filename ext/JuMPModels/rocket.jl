@@ -4,7 +4,7 @@ Goddard Rocket Problem:
     The objective is to maximize the final altitude of the rocket.
     The problem is formulated as a JuMP model, and can be found [here](https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/rocket.jl)
 """
-function rocket(;nh::Int64 = 100)
+function OptimalControlProblems.rocket(::JuMPBackend;nh::Int64 = 100)
     h_0 = 1.0
     v_0 = 0.0
     m_0 = 1.0

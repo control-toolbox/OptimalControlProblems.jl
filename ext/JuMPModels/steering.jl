@@ -4,7 +4,7 @@ Particle Steering Problem:
     The objective is to minimize the time taken to achieve a given altitude and terminal velocity.
     The problem is formulated as a JuMP model, and can be found [here](https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/steering.jl)
 """
-function steering(;nh::Int64 = 100)
+function OptimalControlProblems.steering(::JuMPBackend;nh::Int64 = 100)
     a = 100.0 
     u_min, u_max = -pi/2.0, pi/2.0
     xs = zeros(4)

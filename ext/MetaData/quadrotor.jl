@@ -1,5 +1,5 @@
-oscillator_meta = Dict(
-    :name => "oscillator",
+quadrotor_meta = Dict(
+    :name => "quadrotor",
     :nvar => nothing,
     :ncon => nothing,
     :minimize => true,

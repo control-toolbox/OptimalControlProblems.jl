@@ -5,7 +5,7 @@ Hang Glider Problem:
     The problem is formulated as a JuMP model, and can be found [here](https://www.mcs.anl.gov/~more/cops/)
 
 """
-function glider(;nh::Int64=100)
+function OptimalControlProblems.glider(::JuMPBackend;nh::Int64=100)
     # Design parameters
     x_0 = 0.0
     y_0 = 1000.0

@@ -5,7 +5,7 @@ Dielectrophoretic particle problem:
     The problem is formulated as a JuMP model.
 Ref: [CPR2006] Chang, D. E., Petit, N., & Rouchon, P. (2006). Time-optimal control of a particle in a dielectrophoretic system. IEEE Transactions on Automatic Control, 51(7), 1100-1114.
 """
-function dielectrophoretic_particle(;nh::Int=300)
+function OptimalControlProblems.dielectrophoretic_particle(::JuMPBackend;nh::Int=300)
     x0 = 1.0
     xf = 2.0
     α = -0.75

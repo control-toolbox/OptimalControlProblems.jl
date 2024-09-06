@@ -4,7 +4,7 @@ The Hanging Chain Problem:
     The objective is to minimize the potential energy of the chain.
     The problem is formulated as a JuMP model, and can be found [here](https://www.mcs.anl.gov/~more/cops/)
 """
-function chain(;nh::Int64 = 100)
+function OptimalControlProblems.chain(::JuMPBackend;nh::Int64 = 100)
     L = 4.0
     a = 1.0
     b = 3.0

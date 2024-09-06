@@ -4,7 +4,7 @@ Hang Glider Problem:
     The objective is to maximize the final horizontal position of the glider while in the presence of a thermal updraft.
     The problem is formulated as an OptimalControl model.
 """
-function glider(;nh::Int=100)
+function OptimalControlProblems.glider(::OptimalControlBackend;nh::Int=100)
     # parameters
     x_0 = 0.0
     y_0 = 1000.0

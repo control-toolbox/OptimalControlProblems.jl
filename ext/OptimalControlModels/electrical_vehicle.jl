@@ -4,7 +4,7 @@ The Electrical Vehicle Problem
     The problem is formulated as an OptimalControl model.
 Ref: [PS2011] Nicolas Petit and Antonio Sciarretta. "Optimal drive of electric vehicles using an inversion-based trajectory generation approach." IFAC Proceedings Volumes 44, no. 1 (2011): 14519-14526.
 """
-function electrical_vehicle(;nh::Int=100)
+function OptimalControlProblems.electrical_vehicle(::OptimalControlBackend;nh::Int=100)
     # parameters
     D = 10.0
     tf = 1.0

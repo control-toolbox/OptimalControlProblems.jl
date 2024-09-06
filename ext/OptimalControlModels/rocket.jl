@@ -4,7 +4,7 @@ Goddard Rocket Problem:
     The objective is to maximize the final altitude of the rocket.
     The problem is formulated as an OptimalControl model.
 """
-function rocket(;nh::Int=100)
+function OptimalControlProblems.rocket(::OptimalControlBackend;nh::Int=100)
     # parameters
     h_0 = 1.0
     v_0 = 0.0

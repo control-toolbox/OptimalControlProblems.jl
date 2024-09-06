@@ -4,7 +4,7 @@ The Truck Trailer Problem:
     The objective is to minimize the time taken to park the truck and the trailers aligned vertically at a given target location.
     The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746)
 """
-function truck_trailer(;data::Array{Float64,2}=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2], nh::Int64=100)
+function OptimalControlProblems.truck_trailer(::JuMPBackend;data::Array{Float64,2}=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2], nh::Int64=100)
     # parameters
     if size(data) != (3, 3)
         error("The input matrix must be 3x3.")
