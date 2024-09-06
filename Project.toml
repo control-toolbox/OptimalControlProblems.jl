@@ -8,5 +8,6 @@ JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
 OptimalControl = "5f98b655-cc9a-415a-b60e-744165666948"
 
 [compat]
+JuMP = "1"
 OptimalControl = "0.12"
 julia = "1.10"
