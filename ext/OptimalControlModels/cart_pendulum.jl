@@ -4,7 +4,7 @@
         The objective is to swing the pendulum from the downward position to the upright position in the shortest time possible.
         The problem is formulated as an OptimalControl model.
 """
-function cart_pendulum(;nh::Int=100)
+function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=100)
     # parameters
     # Physical constants
     g = 9.81      # gravitation [m/s^2]

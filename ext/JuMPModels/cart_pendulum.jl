@@ -4,7 +4,7 @@ The Cart-Pendulum Problem:
     The objective is to swing the pendulum from the downward position to the upright position in the shortest time possible.      
     The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746).
 """
-function cart_pendulum(;nh::Int64=100)
+function OptimalControlProblems.cart_pendulum(::JuMPBackend; nh::Int64=100)
     ## parameters
     g = 9.81      # gravitation [m/s^2]
     L = 1.0       # pendulum length [m]
