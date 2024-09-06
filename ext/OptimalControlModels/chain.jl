@@ -10,29 +10,43 @@ function OptimalControlProblems.chain(::OptimalControlBackend;nh::Int=100)
     a = 1
     b = 3
     tf = 1.0
-    ocp = OptimalControl.Model()
+
+    # Model
+    @def ocp begin 
+        ## parameters
+        L = 4
+        a = 1
+        b = 3
+        tf = 1.0
+
+        ## define the Problem
+        t ∈ [0.0, tf], time
+        x ∈ R³, state
+        u ∈ R¹, control
+
+        ## constraints
+        # initial conditions
+        x₁(0.0) == a,         (x1_ic)
+        x₂(0.0) == 0.0,       (x2_ic)
+        x₃(0.0) == 0.0,       (x3_ic)
+        # final conditions
+        x₁(tf) == b,         (x1_con)
+        x₃(tf) == L,         (x3_con)
+
+        ## dynamics
+        ẋ(t) == dynamics(x(t), u(t))
     
-    # dimensions
-    state!(ocp, 3)                                  
-    control!(ocp, 1) 
-    
-    # time interval
-    time!(ocp, t0 = 0, tf = tf) 
-    
-    # initial and final conditions
-    constraint!(ocp, :initial, lb=[a , 0.0 , 0.0],ub=[a , 0.0 , 0.0])    
-    constraint!(ocp, :final, rg=1 , lb=b, ub=b)    
-    constraint!(ocp, :final, rg=3 , lb=L, ub=L)      
+        ## objective
+        x₂(tf) → min
+
+    end
 
     # dynamics
-    dynamics!(ocp, (x, u) -> [ 
-        u , 
-        x[1] * sqrt(1+u^2),
-        sqrt(1+u^2)
-    ] ) 
-
-    # objective     
-    objective!(ocp, :mayer, (x0, xf) -> xf[2], :min)   
+    function dynamics(x, u)
+        return [u , 
+            x[1] * sqrt(1+u^2),
+            sqrt(1+u^2)] 
+    end
 
     # Initial guess
     tmin = b > a ? 1 / 4 : 3 / 4

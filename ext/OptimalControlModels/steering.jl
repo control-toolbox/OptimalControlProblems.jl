@@ -7,38 +7,51 @@ Particle Steering Problem:
 function OptimalControlProblems.steering(::OptimalControlBackend;nh::Int=100)
     # parameters
     a = 100.0 
-    u_min, u_max = -pi/2.0, pi/2.0
+    u_min = -pi/2.0
+    u_max = pi/2.0
     xs = zeros(4)
     xf = [NaN, 5.0, 45.0, 0.0]
 
-    ocp = OptimalControl.Model(variable=true)
-    
-    # dimensions
-    state!(ocp, 4)                                  
-    control!(ocp, 1) 
-    variable!(ocp, 1, "tf")
-    
-    # time interval
-    time!(ocp, t0=0, indf=1) 
-    constraint!(ocp, :variable, rg=1, lb=0.0, ub=Inf)
-    
-    # initial and final conditions
-    constraint!(ocp, :initial, lb=xs, ub=xs)       
-    constraint!(ocp, :final, lb=xf, ub=xf)       
+    # Model
+    @def ocp begin
+        # parameters
+        a = 100.0 
+        u_min = -pi/2.0
+        u_max = pi/2.0
+        xs = zeros(4)
+        xf = [NaN, 5.0, 45.0, 0.0]
+        
+        ## define the Problem
+        tf ∈ R , variable
+        t ∈ [0.0, tf], time
+        x ∈ R⁴, state
+        u ∈ R¹, control
 
-    # control constraints
-    constraint!(ocp, :control, lb=u_min, ub=u_max)
-    
+        ## constraints
+        # time constraints
+        tf ≥ 0.0,                       (tf_con)
+        # initial conditions
+        x(0.0) == xs,                   (x_ic)
+        # final conditions
+        x(tf) == xf,                    (x_fc)
+        # control constraints
+        u_min ≤ u(t) ≤ u_max,           (u_con)
+
+        ## dynamics
+        ẋ(t) == dynamics(x(t), u(t))
+
+        ## objective
+        tf → min
+
+    end
+       
     # dynamics
-    dynamics!(ocp, (x, u, tf) -> [ 
-        x[3] , 
-        x[4],
-        a * cos(u),
-        a * sin(u)
-    ] ) 
-
-    # objective     
-    objective!(ocp, :mayer, (x0, xf, tf) -> tf, :min) 
+    function dynamics(x, u)
+        return [x[3], 
+            x[4],
+            a * cos(u),
+            a * sin(u) ]
+    end
 
     # Initial guess
     function gen_x0(t, i)
