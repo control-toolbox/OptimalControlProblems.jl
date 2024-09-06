@@ -1,7 +1,3 @@
-using CTBase
-using CTDirect
-using NLPModelsIpopt
-
 # test_OptimalControl_optimality
 function test_OptimalControl_optimality()
     # Collecting all the OptimalControlProblems.OptimalControlModels models
