@@ -97,8 +97,9 @@ function OptimalControlProblems.glider(::OptimalControlBackend; nh::Int=100)
 
     # Initial guess
     tf = 90.0
-    xinit = [[x_0 + vx_0 * (k / nh), y_0 + (k / nh) * (y_f - y_0), vx_0, vy_0] for k in 0:nh
-]
+    xinit = [
+        [x_0 + vx_0 * (k / nh), y_0 + (k / nh) * (y_f - y_0), vx_0, vy_0] for k in 0:nh
+    ]
     uinit = cL_max / 2.0
     time_vec = LinRange(0.0, tf, nh + 1)
     init = (time=time_vec, state=xinit, control=uinit, variable=1.0)
