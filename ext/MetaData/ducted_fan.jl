@@ -1,3 +1,1 @@
-ducted_fan_meta = Dict(
-    :name => "ducted_fan", :nvar => nothing, :ncon => nothing, :minimize => true
-)
+ducted_fan_meta = Dict(:name => "ducted_fan", :nh => nothing, :nvar => nothing, :ncon => nothing, :minimize => true)
