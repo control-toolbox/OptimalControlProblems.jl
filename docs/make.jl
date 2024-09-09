@@ -15,10 +15,7 @@ makedocs(;
     pages=[
         "Introduction" => "index.md",
         "List of the problems" => "list_of_problems.md",
-        "How to get the models" => [
-                    "OptimalControl models" => "use_oc_models.md",
-                    "JuMP models" => "use_jump_models.md",
-                    ],
+        "How to get the models" => "use_models.md",
         "Developers" => [
             "How to add a new problem" => "add_problem.md",
             ],
