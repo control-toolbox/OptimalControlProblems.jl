@@ -18,6 +18,7 @@ OptimalControlModels = "CTDirect"
 [compat]
 CTBase = "0.13"
 CTDirect = "0.12"
+DataFrames = "1"
 JuMP = "1"
 DataFrames = "1"
 julia = "1.10"
