@@ -1,6 +1,6 @@
 # Resolution of OptimalControlProblems.jl problems
 
-We consider the ***The Hanging Chain*** Problem from [COPS package](https://www.mcs.anl.gov/~more/cops/) as an example. The problem is to find the shape of a chain hanging between two points a and b. The chain is assumed to be a uniform cable with a given length L. 
+We consider the **The Hanging Chain** Problem from [COPS package](https://www.mcs.anl.gov/~more/cops/) as an example. The problem is to find the shape of a chain hanging between two points a and b. The chain is assumed to be a uniform cable with a given length L. 
 The aim is to find the shape of the chain that minimizes the potential energy. 
 
 ## Solving JuMP version
