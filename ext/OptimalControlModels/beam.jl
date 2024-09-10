@@ -1,6 +1,6 @@
 """
 The Beam Problem:
-    The problem is formulated as an OptimalControl modeln and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+    The problem is formulated as an OptimalControl model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
 function OptimalControlProblems.beam(::OptimalControlBackend;nh::Int=100)
     # Model

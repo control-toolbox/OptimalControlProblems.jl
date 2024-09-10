@@ -1,6 +1,6 @@
 """
 The Robbins Problem:
-    The problem is formulated as a JuMP modeln and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+    The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
 function OptimalControlProblems.robbins(::JuMPBackend;nh::Int=100, N::Int=30)
     # constants
