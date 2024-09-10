@@ -13,7 +13,6 @@ function OptimalControlProblems.bioreactor(::JuMPBackend;nh::Int=100, N::Int=30)
     mubar = 1
     r = 0.005
     T = 10 * N
-    pi = 3.141592653589793
 
     # Model
     model = JuMP.Model()
