@@ -6,8 +6,8 @@ JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
 NLPModelsIpopt = "f4238b75-b362-5c4c-b852-0801c9a21d71"
 
 [compat]
-CTDirect = "0.12.0"
-Documenter = "1.7.0"
-Ipopt = "1.6.6"
-JuMP = "1.23.1"
-NLPModelsIpopt = "0.10.2"
+CTDirect = "0.12"
+Documenter = "1.7"
+Ipopt = "1.6"
+JuMP = "1.23"
+NLPModelsIpopt = "0.10"
