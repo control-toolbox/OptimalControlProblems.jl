@@ -1,10 +1,13 @@
 using Documenter
 
+repo_url = "github.com/control-toolbox/OptimalControlProblems.jl"
+
 makedocs(;
     remotes=nothing,
     warnonly=:cross_references,
-    sitename="OptimalControlProblems",
+    sitename="OptimalControlProblems.jl",
     format=Documenter.HTML(;
+        repolink = "https://"*repo_url,
         prettyurls=false,
         size_threshold_ignore=["index.md"],
         assets=[
@@ -26,5 +29,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/control-toolbox/OptimalControlProblems.jl.git", devbranch="main"
+    repo=repo_url*".git", devbranch="main"
 )
