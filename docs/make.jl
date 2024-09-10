@@ -12,7 +12,17 @@ makedocs(;
             asset("https://control-toolbox.org/assets/js/documentation.js"),
         ],
     ),
-    pages=["Introduction" => "index.md"],
+    pages=[
+        "Introduction" => "index.md",
+        "List of the problems" => "list_of_problems.md",
+        "Tutorials" => [
+            "How to use the models" => "use_models.md",
+            "How to solve a problem" => "solve_problem.md",
+            ],
+        "Developers" => [
+            "How to add a new problem" => "add_problem.md",
+            ],
+    ]
 )
 
 deploydocs(;
