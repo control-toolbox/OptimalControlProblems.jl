@@ -28,7 +28,7 @@ end
 
 # ------- Problem Metadata -------
 for file in files
-    include(joinpath(path , file))
+    include(joinpath(path, file))
 end
 number_of_problems = length(files)
 
@@ -41,11 +41,11 @@ const infos = [
 ]
 
 const types = [
-    Union{String, Nothing},
-    Union{Int, Nothing},
-    Union{Int, Nothing},
-    Union{Int, Nothing},
-    Union{Bool, Nothing}
+    Union{String,Nothing},
+    Union{Int,Nothing},
+    Union{Int,Nothing},
+    Union{Int,Nothing},
+    Union{Bool,Nothing},
 ]
 
 """
@@ -60,7 +60,7 @@ The following keys are valid:
 """
 const metadata = DataFrame(infos .=> [Array{T}(undef, number_of_problems) for T in types])
 
-for data in infos, i = 1:number_of_problems
+for data in infos, i in 1:number_of_problems
     metadata[!, data][i] = eval(Meta.parse("$(split(files[i], ".")[1])_meta"))[data]
 end
 
