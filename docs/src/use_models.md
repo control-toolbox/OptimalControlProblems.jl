@@ -23,6 +23,18 @@ model = cart_pendulum(JuMPBackend())
 
 To use `OptimalControl` models from `OptimalControlProblems.jl`, you need to have `CTDirect` installed.
 
+
+!!! note "using OptimalControl"
+
+    You can also use OptimalControl instead of CTDirect, as the former automatically imports the latter. This simplifies the code by requiring only one import statement.
+    ```julia	
+    # Instead of this
+    using CTDirect
+    # You can do this
+    using OptimalControl  # This implicitly includes CTDirect
+    ```
+
+
 By running the following code, you can get the total number of `OptimalControl` models available in `OptimalControlProblems.jl`:
 
 ```@example main2
