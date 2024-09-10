@@ -15,7 +15,10 @@ makedocs(;
     pages=[
         "Introduction" => "index.md",
         "List of the problems" => "list_of_problems.md",
-        "How to get the models" => "use_models.md",
+        "Tutorials" => [
+            "How to use the models" => "use_models.md",
+            "How to solve a problem" => "solve_problem.md",
+            ],
         "Developers" => [
             "How to add a new problem" => "add_problem.md",
             ],
