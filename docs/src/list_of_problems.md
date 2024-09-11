@@ -11,9 +11,14 @@ For each problem, we provide the following data in [MetaData](https://github.com
 - `minimize::Bool`: true if optimize == minimize
 
 To get the list of metadata, you can use the following code:
-```julia
+```@example metadata
 using OptimalControlProblems
 OptimalControlProblems.metadata
+nothing # hide
+```
+To access the metadata of a specific problem, you can execute the following command:
+```@example metadata
+OptimalControlProblems.metadata[:chain]
 ```
 
 ## List of Problems
@@ -21,19 +26,23 @@ The table below summarizes the status of the each problem:
 
 | Problem | With JuMP | With OptimalControl |
 | --- | --- | --- | 
+| `beam` | ✅ | ✅|
+| `bioreactor` | ✅ | ✅|
+| `cart_pendulum` | ✅ | ✅|
 | `chain` |   ✅  |   ✅|
+| `dielectrophoretic_particle` | ✅ | ✅| 
+| `double_oscillator` | ✅ | ✅|
+| `ducted_fan` | ✅ | ✅
+| `electrical_vehicle` | ✅ | ✅|
 | `glider` |  ✅  |  ✅ |
+| `insurance` | ✅ | ✅|
+| `jackson` | ✅ | ✅|
+| `moonlander` | ✅ | ❌|
+| `quadrotor` | ✅ | ❌|
+| `robbins` | ✅ | ✅|
 | `robot` |  ✅ | ✅|
 | `rocket` |  ✅ | ✅|
-| `steering` |  ✅ | ✅|
 | `space_shuttle` |  ✅ |  ❌|
-| `cart_pendulum` | ✅ | ✅|
-| `moonlander` | ✅ | ❌|
+| `steering` |  ✅ | ✅|
 | `truck_trailer` | ❌ | ❌|
-| `quadrotor` | ✅ | ❌|
-| `dielectrophoretic_particle` | ✅ | ✅| 
-| `ducted_fan` | ✅ | ✅| 
-| `double_oscillator` | ✅ | ✅|
-| `electrical_vehicle` | ✅ | ✅|
 | `vanderpol` | ✅ | ✅|
-
