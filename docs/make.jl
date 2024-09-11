@@ -7,7 +7,7 @@ makedocs(;
     warnonly=:cross_references,
     sitename="OptimalControlProblems.jl",
     format=Documenter.HTML(;
-        repolink = "https://"*repo_url,
+        repolink="https://" * repo_url,
         prettyurls=false,
         size_threshold_ignore=["index.md"],
         assets=[
@@ -21,13 +21,9 @@ makedocs(;
         "Tutorials" => [
             "How to use the models" => "use_models.md",
             "How to solve a problem" => "solve_problem.md",
-            ],
-        "Developers" => [
-            "How to add a new problem" => "add_problem.md",
-            ],
-    ]
+        ],
+        "Developers" => ["How to add a new problem" => "add_problem.md"],
+    ],
 )
 
-deploydocs(;
-    repo=repo_url*".git", devbranch="main"
-)
+deploydocs(; repo=repo_url * ".git", devbranch="main")
