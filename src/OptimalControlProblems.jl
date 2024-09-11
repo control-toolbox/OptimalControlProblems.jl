@@ -1,7 +1,6 @@
 module OptimalControlProblems
 
 using CTBase
-using DataFrames
 
 abstract type AbstractModelBackend end
 struct JuMPBackend <: AbstractModelBackend end
@@ -58,10 +57,18 @@ The following keys are valid:
     - `ncon::Int`: number of general constraints
     - `minimize::Bool`: true if optimize == minimize
 """
-const metadata = DataFrame(infos .=> [Array{T}(undef, number_of_problems) for T in types])
+const metadata = Dict()
 
-for data in infos, i in 1:number_of_problems
-    metadata[!, data][i] = eval(Meta.parse("$(split(files[i], ".")[1])_meta"))[data]
+for i in 1:number_of_problems
+    file_key = Symbol(split(files[i], ".")[1])
+    metadata[file_key] = Dict()
+    for (data, T) in zip(infos, types)
+        value = eval(Meta.parse("$(file_key)_meta"))[data]
+        if !(value isa T)
+            error("Type mismatch: Expected $(T) for $(data), but got $(typeof(value))")
+        end
+        metadata[file_key][data] = value
+    end
 end
 
 export JuMPBackend, OptimalControlBackend
