@@ -5,6 +5,7 @@ The Beam Problem:
 function OptimalControlProblems.beam(::JuMPBackend;nh::Int=100)
     # Parameters
     tf = 1
+    step = tf/nh
 
     # Model
     model = JuMP.Model()
@@ -24,12 +25,9 @@ function OptimalControlProblems.beam(::JuMPBackend;nh::Int=100)
     end)
 
     # Dynamics
-    @expressions(model, begin
-        step, tf/nh
-    end)    
     @constraints(model, begin
-        con_x1[t=1:nh], x1[t] == x1[t-1] + 0.5 * step[t] * (x2[t] + x2[t-1])
-        con_x2[t=1:nh], x2[t] == x2[t-1] + 0.5 * step[t] * (u[t] + u[t-1])
+        con_x1[t=1:nh], x1[t] == x1[t-1] + 0.5 * step * (x2[t] + x2[t-1])
+        con_x2[t=1:nh], x2[t] == x2[t-1] + 0.5 * step * (u[t] + u[t-1])
     end)
     
 
