@@ -67,8 +67,8 @@ function OptimalControlProblems.bioreactor(::OptimalControlBackend; nh::Int=100,
     # Initial guess
     init = (state=[50, 50, 50], control=0.5)
 
-    # NLPModel
-    nlp = direct_transcription(ocp; init=init, grid_size=nh)[2]
+    # NLPModel + DOCP
+    res = direct_transcription(ocp; init=init, grid_size=nh)
 
-    return nlp
+    return res
 end

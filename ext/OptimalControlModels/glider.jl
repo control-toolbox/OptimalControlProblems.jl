@@ -104,8 +104,8 @@ function OptimalControlProblems.glider(::OptimalControlBackend; nh::Int=100)
     time_vec = LinRange(0.0, tf, nh + 1)
     init = (time=time_vec, state=xinit, control=uinit, variable=1.0)
 
-    # NLPModel
-    nlp = direct_transcription(ocp; init=init, grid_size=nh)[2]
+    # NLPModel + DOCP
+    res = direct_transcription(ocp; init=init, grid_size=nh)
 
-    return nlp
+    return res
 end

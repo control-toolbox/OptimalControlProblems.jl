@@ -110,8 +110,8 @@ function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=60)
     # Initial guess
     init = (control=[10, 0.0, 0.0, 0.0],)
 
-    # NLPModel
-    nlp = direct_transcription(ocp; init=init, grid_size=nh)[2]
+    # NLPModel + DOCP
+    res = direct_transcription(ocp; init=init, grid_size=nh)
 
-    return nlp
+    return res
 end

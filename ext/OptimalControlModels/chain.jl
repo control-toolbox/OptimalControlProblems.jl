@@ -57,8 +57,8 @@ function OptimalControlProblems.chain(::OptimalControlBackend; nh::Int=100)
     uinit = t -> 4 * abs(b - a) * (t / tf - tmin)
     init = (state=xinit, control=uinit)
 
-    # NLPModel
-    nlp = direct_transcription(ocp; init=init, grid_size=nh)[2]
+    # NLPModel + DOCP
+    res = direct_transcription(ocp; init=init, grid_size=nh)
 
-    return nlp
+    return res
 end

@@ -61,8 +61,8 @@ function OptimalControlProblems.dielectrophoretic_particle(
     ## Initial guess
     init = (state=[1.0, 1.0], control=0.0, variable=1.0)
 
-    # NLPModel
-    nlp = direct_transcription(ocp; init=init, grid_size=nh)[2]
+    # NLPModel + DOCP
+    res = direct_transcription(ocp; init=init, grid_size=nh)
 
-    return nlp
+    return res
 end

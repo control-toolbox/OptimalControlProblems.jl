@@ -29,8 +29,8 @@ function OptimalControlProblems.jackson(::OptimalControlBackend; nh::Int=100, N:
     # Initial guess
     init = ()
 
-    # NLPModel
-    nlp = direct_transcription(ocp; init=init, grid_size=nh)[2]
+    # NLPModel + DOCP
+    res = direct_transcription(ocp; init=init, grid_size=nh)
 
-    return nlp
+    return res
 end
