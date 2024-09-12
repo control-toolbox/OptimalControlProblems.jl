@@ -3,7 +3,8 @@ The Jackson Problem:
     The problem is formulated as an OptimalControl model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
 function OptimalControlProblems.jackson(::OptimalControlBackend; nh::Int=100, N::Int=30)
-    @def ocp begin
+    # Model
+    ocp = @def begin
         # constants
         k1 = 1
         k2 = 10

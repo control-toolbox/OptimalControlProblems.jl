@@ -13,7 +13,7 @@ function OptimalControlProblems.ducted_fan(::OptimalControlBackend; nh::Int=100)
     mg = 4.0        # [N]
     μ = 1000.0
 
-    @def ocp begin
+    ocp = @def begin
         ## parameters
         r = 0.2         # [m]
         J = 0.05        # [kg.m2]

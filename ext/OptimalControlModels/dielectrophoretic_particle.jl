@@ -14,7 +14,7 @@ function OptimalControlProblems.dielectrophoretic_particle(
     α = -0.75
     c = 1.0
 
-    @def ocp begin
+    ocp = @def begin
         ## parameters
         x0 = 1.0
         xf = 2.0

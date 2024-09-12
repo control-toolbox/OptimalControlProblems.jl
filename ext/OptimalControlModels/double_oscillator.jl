@@ -13,7 +13,7 @@ function OptimalControlProblems.double_oscillator(::OptimalControlBackend; nh::I
     k2 = 3.0   # [N/m]
     tf = 2π
 
-    @def ocp begin
+    ocp = @def begin
         ## parameters
         m1 = 100.0 # [kg]
         m2 = 2.0   # [kg]

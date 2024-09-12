@@ -20,7 +20,7 @@ function OptimalControlProblems.rocket(::OptimalControlBackend; nh::Int=100)
     T_max = T_c * m_0 * g_0
 
     # Model
-    @def ocp begin
+    ocp = @def begin
         ## parameters
         h_0 = 1.0
         v_0 = 0.0

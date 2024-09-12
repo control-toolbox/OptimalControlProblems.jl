@@ -17,7 +17,7 @@ function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=60)
     pf = [0.01, 5.0, 2.5]
     vf = [0.0, 0.0, 0.0]
 
-    @def ocp begin
+    ocp = @def begin
         ## parameters
         g = 9.81
         atmin = 0

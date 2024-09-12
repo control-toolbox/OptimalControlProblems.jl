@@ -15,7 +15,7 @@ function OptimalControlProblems.electrical_vehicle(::OptimalControlBackend; nh::
     h2 = 1e-3
     p0, p1, p2, p3 = (3.0, 0.4, -1.0, 0.1)
 
-    @def ocp begin
+    ocp = @def begin
         ## parameters
         D = 10.0
         tf = 1.0

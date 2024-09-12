@@ -25,7 +25,7 @@ function OptimalControlProblems.glider(::OptimalControlBackend; nh::Int=100)
     cL_max = 1.4
     t0 = 0.0
 
-    @def ocp begin
+    ocp = @def begin
         ## parameters
         x_0 = 0.0
         y_0 = 1000.0

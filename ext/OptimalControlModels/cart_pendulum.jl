@@ -16,7 +16,7 @@ function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=1
     max_x = 1.0
     max_v = 2.0
 
-    @def ocp begin
+    ocp = @def begin
         ## parameters
         g = 9.82      # gravitation [m/s^2]
         L = 1.0       # pendulum length [m]

@@ -17,7 +17,7 @@ function OptimalControlProblems.moonlander(
     D = 1.0
     max_thrust = 2 * g
 
-    @def ocp begin
+    ocp = @def begin
         ## parameters
         m = 1.0
         g = 9.81
