@@ -29,7 +29,7 @@ function OptimalControlProblems.jackson(::OptimalControlBackend; nh::Int=100, N:
     init = ()
 
     # NLPModel
-    nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]
+    nlp = direct_transcription(ocp; init=init, grid_size=nh)[2]
 
     return nlp
 end

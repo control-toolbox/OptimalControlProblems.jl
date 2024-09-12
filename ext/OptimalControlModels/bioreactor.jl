@@ -57,17 +57,18 @@ function OptimalControlProblems.bioreactor(::OptimalControlBackend; nh::Int=100,
         light = max(0, sin(tau))^2
         mu = light * mubar
         mu2 = mu2m * s / (s + Ks)
-        return [mu * y / (1 + y) - (r + u) * y,
+        return [
+            mu * y / (1 + y) - (r + u) * y,
             -mu2 * b + u * beta * (gamma * y - s),
-            (mu2 - u * beta) * b]
+            (mu2 - u * beta) * b,
+        ]
     end
 
     # Initial guess
-    init = (state = [50, 50, 50], control = 0.5)
+    init = (state=[50, 50, 50], control=0.5)
 
     # NLPModel
-    nlp = direct_transcription(ocp ,init = init, grid_size = nh)[2]
+    nlp = direct_transcription(ocp; init=init, grid_size=nh)[2]
 
     return nlp
-
 end
