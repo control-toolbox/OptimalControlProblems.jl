@@ -4,7 +4,7 @@ The Beam Problem:
 """
 function OptimalControlProblems.beam(::OptimalControlBackend; nh::Int=100)
     # Model
-    @def ocp begin
+    ocp = @def begin
         t ∈ [0, 1], time
         x ∈ R², state
         u ∈ R, control

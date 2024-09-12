@@ -3,7 +3,8 @@ The Robbins Problem:
     The problem is formulated as an OptimalControl model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
 function OptimalControlProblems.robbins(::OptimalControlBackend; nh::Int=100, N::Int=30)
-    @def ocp begin
+    # Model
+    ocp = @def begin
         # constants
         alpha = 3
         beta = 0

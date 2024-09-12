@@ -13,7 +13,7 @@ function OptimalControlProblems.steering(::OptimalControlBackend; nh::Int=100)
     xf = [NaN, 5.0, 45.0, 0.0]
 
     # Model
-    @def ocp begin
+    ocp = @def begin
         # parameters
         a = 100.0
         u_min = -pi / 2.0

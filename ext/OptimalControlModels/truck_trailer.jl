@@ -34,7 +34,7 @@ function OptimalControlProblems.truck_trailer(
     theta1_tf = 2 * pi / 4
     theta0_tf = 2 * pi / 4
 
-    @def ocp begin
+    ocp = @def begin
         # parameters
         L0 = data[1, 1]
         M0 = data[1, 2]

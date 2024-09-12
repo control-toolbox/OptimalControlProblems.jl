@@ -15,7 +15,7 @@ function OptimalControlProblems.bioreactor(::OptimalControlBackend; nh::Int=100,
     T = 10 * N
 
     # Model
-    @def ocp begin
+    ocp = @def begin
         # constants
         beta = 1
         c = 2

@@ -15,7 +15,7 @@ function OptimalControlProblems.insurance(::OptimalControlBackend; nh::Int=100)
     tf = 10
 
     # Model
-    @def ocp begin
+    ocp = @def begin
         # constants
         gamma = 0.2
         lambda = 0.25

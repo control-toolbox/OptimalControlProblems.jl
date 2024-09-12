@@ -12,7 +12,7 @@ function OptimalControlProblems.chain(::OptimalControlBackend; nh::Int=100)
     tf = 1.0
 
     # Model
-    @def ocp begin
+    ocp = @def begin
         ## parameters
         L = 4
         a = 1

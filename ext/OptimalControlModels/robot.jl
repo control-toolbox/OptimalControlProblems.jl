@@ -16,7 +16,7 @@ function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=100)
     thef = 2.0 * pi / 3
     t0 = 0.0
 
-    @def ocp begin
+    ocp = @def begin
         # parameters
         L = 5.0
         max_u_rho = 1.0

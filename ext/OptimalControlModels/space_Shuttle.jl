@@ -44,7 +44,7 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=5
     tf = 2009.0 # final time (sec)
     t0 = 0.0 # initial time (sec)
 
-    @def ocp begin
+    ocp = @def begin
         ## parameters
         w = 203000.0  # weight (lb)
         g₀ = 32.174    # acceleration (ft/sec^2)
