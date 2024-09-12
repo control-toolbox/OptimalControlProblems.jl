@@ -51,5 +51,5 @@ _, nlp = cart_pendulum(OptimalControlBackend())
 And we have also access to the DOCP information:
 
 ```@example main2
-docp, _ = cart_pendulum(OptimalControlBackend())[1]
+docp, _ = cart_pendulum(OptimalControlBackend())
 ```
