@@ -13,7 +13,7 @@ function test_OptimalControl_optimality()
     for f in functions_list
         @testset "$(f)" begin
             # Set up the model
-            model = OptimalControlProblems.eval(f)(OptimalControlBackend())[2]
+            _, model = OptimalControlProblems.eval(f)(OptimalControlBackend())
             sol = NLPModelsIpopt.ipopt(
                 model;
                 print_level=0,

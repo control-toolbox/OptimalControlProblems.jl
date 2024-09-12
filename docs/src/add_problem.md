@@ -35,9 +35,9 @@ function OptimalControlProblems.new_problem(::OptimalControlBackend; nh::Int=def
     init = () 
 
     # Obtain the NLPModel + DOCP
-    res = direct_transcription(ocp; init=init, grid_size=nh)
+    docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
 
-    return res
+    return docp, nlp
 end
 ```
 
