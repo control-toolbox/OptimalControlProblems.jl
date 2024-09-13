@@ -1,7 +1,7 @@
 name = "OptimalControlProblems"
 uuid = "59046045-fb9c-4c23-964f-ff0a25704f96"
 authors = ["Olivier Cots <olivier.cots@toulouse-inp.fr>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 CTBase = "54762871-cc72-4466-b8e8-f6c8b58076cd"
