@@ -16,7 +16,36 @@ using OptimalControlProblems</code></pre><p>We can call for example the <code>ca
 using CTDirect
 # You can do this
 using OptimalControl  # This implicitly includes CTDirect</code></pre></div></div><p>By running the following code, you can get the total number of <code>OptimalControl</code> models available in <code>OptimalControlProblems.jl</code>:</p><pre><code class="language-julia hljs">using CTDirect
-using OptimalControlProblems</code></pre><p>We can call for example the <code>cart_pendulum</code> problem as follows:</p><pre><code class="language-julia hljs">model = cart_pendulum(OptimalControlBackend())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">ADNLPModel - Model with automatic differentiation backend ADModelBackend{
+using OptimalControlProblems</code></pre><p>We can call for example the <code>cart_pendulum</code> problem as follows:</p><pre><code class="language-julia hljs">_, nlp = cart_pendulum(OptimalControlBackend())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(CTDirect.DOCP(CTBase.OptimalControlModel{CTBase.Autonomous, CTBase.NonFixed}
+  model_expression: Expr
+  initial_time: Float64 0.0
+  initial_time_name: String &quot;0.0&quot;
+  final_time: CTBase.Index
+  final_time_name: String &quot;var₁&quot;
+  time_name: String &quot;t&quot;
+  control_dimension: Int64 1
+  control_components_names: Array{String}((1,))
+  control_name: String &quot;u&quot;
+  state_dimension: Int64 4
+  state_components_names: Array{String}((4,))
+  state_name: String &quot;x&quot;
+  variable_dimension: Int64 2
+  variable_components_names: Array{String}((2,))
+  variable_name: String &quot;var&quot;
+  lagrange: Nothing nothing
+  mayer: CTBase.Mayer{CTBase.NonFixed}
+  criterion: Symbol min
+  dynamics: CTBase.Dynamics{CTBase.Autonomous, CTBase.NonFixed}
+  constraints: Dict{Symbol, Tuple}
+  dim_control_constraints: Int64 0
+  dim_state_constraints: Int64 0
+  dim_mixed_constraints: Int64 0
+  dim_boundary_constraints: Int64 5
+  dim_variable_constraints: Int64 0
+  dim_control_range: Int64 1
+  dim_state_range: Int64 2
+  dim_variable_range: Int64 1
+, (Real[], CTBase.var&quot;#ξ#41&quot;(Core.Box(Real[]), Core.Box(CTBase.ControlConstraint[])), Real[]), (Real[], CTBase.var&quot;#η#42&quot;(Core.Box(Real[]), Core.Box(CTBase.StateConstraint[])), Real[]), (Real[], CTBase.var&quot;#ψ#43&quot;(Core.Box(Real[]), Core.Box(CTBase.MixedConstraint[])), Real[]), (Real[π, 0, 0.0, 0.0, 0.0], CTBase.var&quot;#ϕ#44&quot;(Core.Box(Real[π, 0, 0.0, 0.0, 0.0]), Core.Box(CTBase.BoundaryConstraint[CTBase.BoundaryConstraint{CTBase.NonFixed}(CTBase.var&quot;#70#74&quot;(Core.Box(CTBase.Index(3)))), CTBase.BoundaryConstraint{CTBase.NonFixed}(CTBase.var&quot;#70#74&quot;(Core.Box(CTBase.Index(4)))), CTBase.BoundaryConstraint{CTBase.NonFixed}(CTBase.var&quot;#68#72&quot;(Core.Box(CTBase.Index(4)))), CTBase.BoundaryConstraint{CTBase.NonFixed}(CTBase.var&quot;#68#72&quot;(Core.Box(CTBase.Index(3)))), CTBase.BoundaryConstraint{CTBase.NonFixed}(CTBase.var&quot;#68#72&quot;(Core.Box(CTBase.Index(1))))])), Real[π, 0, 0.0, 0.0, 0.0]), (Real[], CTBase.var&quot;#θ#45&quot;(Core.Box(Real[]), Core.Box(CTBase.VariableConstraint[])), Real[]), (Real[-5.0], [1], Real[5.0]), (Real[-2.0, -1.0], [2, 1], Real[2.0, 1.0]), (Real[0.0], [1], Real[Inf]), false, true, false, true, true, false, 2, 1, 1, 0, 0, 0, 0, 0, 5, 4, 1, 2, 4, 100, [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09  …  0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99, 1.0], 507, 405, [-1.0, -2.0, -Inf, -Inf, -5.0, -1.0, -2.0, -Inf, -Inf, -5.0  …  -Inf, -Inf, -5.0, -1.0, -2.0, -Inf, -Inf, -5.0, 0.0, -Inf], [1.0, 2.0, Inf, Inf, 5.0, 1.0, 2.0, Inf, Inf, 5.0  …  Inf, Inf, 5.0, 1.0, 2.0, Inf, Inf, 5.0, Inf, Inf], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0  …  0.0, 0.0, 0.0, 0.0, 0.0, 3.141592653589793, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0  …  0.0, 0.0, 0.0, 0.0, 0.0, 3.141592653589793, 0.0, 0.0, 0.0, 0.0]), ADNLPModel - Model with automatic differentiation backend ADModelBackend{
   ReverseDiffADGradient,
   ReverseDiffADHvprod,
   ForwardDiffADJprod,
@@ -45,4 +74,62 @@ using OptimalControlProblems</code></pre><p>We can call for example the <code>ca
        jprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jtprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0           jtprod_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
       jtprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 hess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
            jhess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
-</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="list_of_problems.html">« List of the problems</a><a class="docs-footer-nextpage" href="solve_problem.html">How to solve a problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.7.0 on <span class="colophon-date" title="Thursday 12 September 2024 19:16">Thursday 12 September 2024</span>. Using Julia version 1.10.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+)</code></pre><p>And we have also access to the DOCP information:</p><pre><code class="language-julia hljs">docp, _ = cart_pendulum(OptimalControlBackend())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(CTDirect.DOCP(CTBase.OptimalControlModel{CTBase.Autonomous, CTBase.NonFixed}
+  model_expression: Expr
+  initial_time: Float64 0.0
+  initial_time_name: String &quot;0.0&quot;
+  final_time: CTBase.Index
+  final_time_name: String &quot;var₁&quot;
+  time_name: String &quot;t&quot;
+  control_dimension: Int64 1
+  control_components_names: Array{String}((1,))
+  control_name: String &quot;u&quot;
+  state_dimension: Int64 4
+  state_components_names: Array{String}((4,))
+  state_name: String &quot;x&quot;
+  variable_dimension: Int64 2
+  variable_components_names: Array{String}((2,))
+  variable_name: String &quot;var&quot;
+  lagrange: Nothing nothing
+  mayer: CTBase.Mayer{CTBase.NonFixed}
+  criterion: Symbol min
+  dynamics: CTBase.Dynamics{CTBase.Autonomous, CTBase.NonFixed}
+  constraints: Dict{Symbol, Tuple}
+  dim_control_constraints: Int64 0
+  dim_state_constraints: Int64 0
+  dim_mixed_constraints: Int64 0
+  dim_boundary_constraints: Int64 5
+  dim_variable_constraints: Int64 0
+  dim_control_range: Int64 1
+  dim_state_range: Int64 2
+  dim_variable_range: Int64 1
+, (Real[], CTBase.var&quot;#ξ#41&quot;(Core.Box(Real[]), Core.Box(CTBase.ControlConstraint[])), Real[]), (Real[], CTBase.var&quot;#η#42&quot;(Core.Box(Real[]), Core.Box(CTBase.StateConstraint[])), Real[]), (Real[], CTBase.var&quot;#ψ#43&quot;(Core.Box(Real[]), Core.Box(CTBase.MixedConstraint[])), Real[]), (Real[π, 0, 0.0, 0.0, 0.0], CTBase.var&quot;#ϕ#44&quot;(Core.Box(Real[π, 0, 0.0, 0.0, 0.0]), Core.Box(CTBase.BoundaryConstraint[CTBase.BoundaryConstraint{CTBase.NonFixed}(CTBase.var&quot;#70#74&quot;(Core.Box(CTBase.Index(3)))), CTBase.BoundaryConstraint{CTBase.NonFixed}(CTBase.var&quot;#70#74&quot;(Core.Box(CTBase.Index(4)))), CTBase.BoundaryConstraint{CTBase.NonFixed}(CTBase.var&quot;#68#72&quot;(Core.Box(CTBase.Index(4)))), CTBase.BoundaryConstraint{CTBase.NonFixed}(CTBase.var&quot;#68#72&quot;(Core.Box(CTBase.Index(3)))), CTBase.BoundaryConstraint{CTBase.NonFixed}(CTBase.var&quot;#68#72&quot;(Core.Box(CTBase.Index(1))))])), Real[π, 0, 0.0, 0.0, 0.0]), (Real[], CTBase.var&quot;#θ#45&quot;(Core.Box(Real[]), Core.Box(CTBase.VariableConstraint[])), Real[]), (Real[-5.0], [1], Real[5.0]), (Real[-2.0, -1.0], [2, 1], Real[2.0, 1.0]), (Real[0.0], [1], Real[Inf]), false, true, false, true, true, false, 2, 1, 1, 0, 0, 0, 0, 0, 5, 4, 1, 2, 4, 100, [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09  …  0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99, 1.0], 507, 405, [-1.0, -2.0, -Inf, -Inf, -5.0, -1.0, -2.0, -Inf, -Inf, -5.0  …  -Inf, -Inf, -5.0, -1.0, -2.0, -Inf, -Inf, -5.0, 0.0, -Inf], [1.0, 2.0, Inf, Inf, 5.0, 1.0, 2.0, Inf, Inf, 5.0  …  Inf, Inf, 5.0, 1.0, 2.0, Inf, Inf, 5.0, Inf, Inf], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0  …  0.0, 0.0, 0.0, 0.0, 0.0, 3.141592653589793, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0  …  0.0, 0.0, 0.0, 0.0, 0.0, 3.141592653589793, 0.0, 0.0, 0.0, 0.0]), ADNLPModel - Model with automatic differentiation backend ADModelBackend{
+  ReverseDiffADGradient,
+  ReverseDiffADHvprod,
+  ForwardDiffADJprod,
+  ReverseDiffADJtprod,
+  SparseADJacobian,
+  SparseReverseADHessian,
+  ForwardDiffADGHjvprod,
+}
+  Problem name: Generic
+   All variables: ████████████████████ 507    All constraints: ████████████████████ 405   
+            free: █████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 203               free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           lower: █⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 1                lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+         low/upp: ████████████⋅⋅⋅⋅⋅⋅⋅⋅ 303            low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                fixed: ████████████████████ 405   
+          infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            nnzh: ( 99.37% sparsity)   809             linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                    nonlinear: ████████████████████ 405   
+                                                         nnzj: ( 98.63% sparsity)   2805  
+
+  Counters:
+             obj: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 grad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 cons: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+        cons_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0             cons_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 jcon: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           jgrad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                  jac: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0              jac_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+         jac_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0            jprod_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+       jprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jtprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0           jtprod_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+      jtprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 hess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           jhess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="list_of_problems.html">« List of the problems</a><a class="docs-footer-nextpage" href="solve_problem.html">How to solve a problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.7.0 on <span class="colophon-date" title="Friday 13 September 2024 08:12">Friday 13 September 2024</span>. Using Julia version 1.10.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
