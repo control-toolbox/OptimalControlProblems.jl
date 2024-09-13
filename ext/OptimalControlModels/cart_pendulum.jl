@@ -92,8 +92,8 @@ function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=1
     # initial guess
     init = ()
 
-    # NLPModel
-    nlp = direct_transcription(ocp; init=init, grid_size=nh)[2]
-
-    return nlp
+    # NLPModel + DOCP
+    docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
+    
+    return docp, nlp
 end

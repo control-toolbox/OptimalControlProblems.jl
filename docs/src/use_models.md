@@ -45,5 +45,11 @@ using OptimalControlProblems
 We can call for example the `cart_pendulum` problem as follows:
 
 ```@example main2
-model = cart_pendulum(OptimalControlBackend())
+_, nlp = cart_pendulum(OptimalControlBackend())
+```
+
+And we have also access to the DOCP information:
+
+```@example main2
+docp, _ = cart_pendulum(OptimalControlBackend())
 ```

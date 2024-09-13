@@ -81,8 +81,8 @@ function OptimalControlProblems.rocket(::OptimalControlBackend; nh::Int=100)
     time_vec = LinRange(0.0, 1.0, nh + 1)
     init = (time=time_vec, state=xinit, control=T_max / 2.0, variable=1)
 
-    # NLPModel
-    nlp = direct_transcription(ocp; init=init, grid_size=nh)[2]
-
-    return nlp
+    # NLPModel + DOCP
+    docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
+    
+    return docp, nlp
 end

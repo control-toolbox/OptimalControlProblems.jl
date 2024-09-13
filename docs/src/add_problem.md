@@ -34,10 +34,10 @@ function OptimalControlProblems.new_problem(::OptimalControlBackend; nh::Int=def
     # Initial guess for the problem
     init = () 
 
-    # Obtain the NLPModel
-    nlp = direct_transcription(ocp; init=init, grid_size=nh)[2]
+    # Obtain the NLPModel + DOCP
+    docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
 
-    return nlp
+    return docp, nlp
 end
 ```
 

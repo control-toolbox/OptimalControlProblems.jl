@@ -73,8 +73,8 @@ function OptimalControlProblems.insurance(::OptimalControlBackend; nh::Int=100)
     # Initial guess
     init = ()
 
-    # NLPModel
-    nlp = direct_transcription(ocp; init=init, grid_size=nh)[2]
-
-    return nlp
+    # NLPModel + DOCP
+    docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
+    
+    return docp, nlp
 end

@@ -39,7 +39,7 @@ We need first to import the needed packages and the problem.
 using OptimalControlProblems
 using CTDirect
 
-model = chain(OptimalControlBackend())
+_, model = chain(OptimalControlBackend())
 ```
 
 Then we can solve the problem using the `ipopt` function of `NLPModelsIpopt`.	

@@ -88,8 +88,8 @@ function OptimalControlProblems.moonlander(
     # Initial guess
     init = (control=[5.0, 5.0],)
 
-    # NLPModel
-    nlp = direct_transcription(ocp; init=init, grid_size=nh)[2]
-
-    return nlp
+    # NLPModel + DOCP
+    docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
+    
+    return docp, nlp
 end
