@@ -82,7 +82,7 @@ function OptimalControlProblems.rocket(::OptimalControlBackend; nh::Int=100)
     init = (time=time_vec, state=xinit, control=T_max / 2.0, variable=1)
 
     # NLPModel + DOCP
-    res = direct_transcription(ocp; init=init, grid_size=nh)
-
-    return res
+    docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
+    
+    return docp, nlp
 end

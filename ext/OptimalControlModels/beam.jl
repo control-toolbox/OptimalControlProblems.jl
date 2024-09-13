@@ -20,7 +20,7 @@ function OptimalControlProblems.beam(::OptimalControlBackend; nh::Int=100)
     init = (state=[0.0, 0.0], control=0.0)
 
     # NLPModel + DOCP
-    res = direct_transcription(ocp; init=init, grid_size=nh)
-
-    return res
+    docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
+    
+    return docp, nlp
 end
