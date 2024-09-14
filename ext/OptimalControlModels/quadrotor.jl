@@ -112,6 +112,6 @@ function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=60)
 
     # NLPModel + DOCP
     docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
-    
+
     return docp, nlp
 end
