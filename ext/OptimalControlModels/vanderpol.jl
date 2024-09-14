@@ -22,6 +22,6 @@ function OptimalControlProblems.vanderpol(::OptimalControlBackend; nh::Int=100)
 
     # NLPModel + DOCP
     docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
-    
+
     return docp, nlp
 end
