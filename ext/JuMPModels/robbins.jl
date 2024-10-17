@@ -40,9 +40,9 @@ function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=100, N::Int=30)
     @constraints(
         model,
         begin
-            con_x1[t=1:nh], x1[t] == x1[t - 1] + 0.5 * step * (x2[t] + x2[t - 1])
-            con_x2[t=1:nh], x2[t] == x2[t - 1] + 0.5 * step * (x3[t] + x3[t - 1])
-            con_dx3[t=1:nh], x3[t] == x3[t - 1] + 0.5 * step * (u[t] + u[t - 1])
+            con_x1[t = 1:nh], x1[t] == x1[t - 1] + 0.5 * step * (x2[t] + x2[t - 1])
+            con_x2[t = 1:nh], x2[t] == x2[t - 1] + 0.5 * step * (x3[t] + x3[t - 1])
+            con_dx3[t = 1:nh], x3[t] == x3[t - 1] + 0.5 * step * (u[t] + u[t - 1])
         end
     )
 

@@ -22,8 +22,8 @@ function OptimalControlProblems.steering(::JuMPBackend; nh::Int64=100)
 
     model = JuMP.Model()
 
-    @variable(model, u_min <= u[i=1:(nh + 1)] <= u_max, start = 0.0)   # control
-    @variable(model, x[i=1:(nh + 1), j=1:4], start = gen_x0(i, j))     # state
+    @variable(model, u_min <= u[i = 1:(nh + 1)] <= u_max, start = 0.0)   # control
+    @variable(model, x[i = 1:(nh + 1), j = 1:4], start = gen_x0(i, j))     # state
     @variable(model, tf, start = 1.0)                              # final time
 
     @expression(model, h, tf / nh) # step size
@@ -35,11 +35,11 @@ function OptimalControlProblems.steering(::JuMPBackend; nh::Int64=100)
     @constraints(
         model,
         begin
-            con_x1[i=1:nh], x[i + 1, 1] == x[i, 1] + 0.5 * h * (x[i, 3] + x[i + 1, 3])
-            con_x2[i=1:nh], x[i + 1, 2] == x[i, 2] + 0.5 * h * (x[i, 4] + x[i + 1, 4])
-            con_x3[i=1:nh],
+            con_x1[i = 1:nh], x[i + 1, 1] == x[i, 1] + 0.5 * h * (x[i, 3] + x[i + 1, 3])
+            con_x2[i = 1:nh], x[i + 1, 2] == x[i, 2] + 0.5 * h * (x[i, 4] + x[i + 1, 4])
+            con_x3[i = 1:nh],
             x[i + 1, 3] == x[i, 3] + 0.5 * h * (a * cos(u[i]) + a * cos(u[i + 1]))
-            con_x4[i=1:nh],
+            con_x4[i = 1:nh],
             x[i + 1, 4] == x[i, 4] + 0.5 * h * (a * sin(u[i]) + a * sin(u[i + 1]))
         end
     )

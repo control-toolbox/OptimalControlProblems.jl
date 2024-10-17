@@ -5,9 +5,9 @@ function test_JuMP_optimality()
     functions_list = filter(
         x ->
             isdefined(OptimalControlProblems, x) &&
-                isa(getfield(OptimalControlProblems, x), Function) &&
-                !startswith(string(x), "#") &&
-                !(x in [:eval, :include]),
+            isa(getfield(OptimalControlProblems, x), Function) &&
+            !startswith(string(x), "#") &&
+            !(x in [:eval, :include]),
         all_names,
     )
     for f in functions_list

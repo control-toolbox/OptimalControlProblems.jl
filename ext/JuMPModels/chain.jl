@@ -17,16 +17,16 @@ function OptimalControlProblems.chain(::JuMPBackend; nh::Int64=100)
     @variables(
         model,
         begin
-            u[k=1:(nh + 1)], (start = 4 * abs(b - a) * (k / nh - tmin))
-            x1[k=1:(nh + 1)],
+            u[k = 1:(nh + 1)], (start = 4 * abs(b - a) * (k / nh - tmin))
+            x1[k = 1:(nh + 1)],
             (start = 4 * abs(b - a) * k / nh * (1 / 2 * k / nh - tmin) + a)
-            x2[k=1:(nh + 1)],
+            x2[k = 1:(nh + 1)],
             (
                 start =
                     (4 * abs(b - a) * k / nh * (1 / 2 * k / nh - tmin) + a) *
                     (4 * abs(b - a) * (k / nh - tmin))
             )
-            x3[k=1:(nh + 1)], (start = 4 * abs(b - a) * (k / nh - tmin))
+            x3[k = 1:(nh + 1)], (start = 4 * abs(b - a) * (k / nh - tmin))
         end
     )
 
@@ -46,12 +46,12 @@ function OptimalControlProblems.chain(::JuMPBackend; nh::Int64=100)
     @constraints(
         model,
         begin
-            con_x2[j=1:nh],
+            con_x2[j = 1:nh],
             x2[j + 1] - x2[j] -
             (1 / 2) * h * (x1[j] * sqrt(1 + u[j]^2) + x1[j + 1] * sqrt(1 + u[j + 1]^2)) == 0
-            con_x3[j=1:nh],
+            con_x3[j = 1:nh],
             x3[j + 1] - x3[j] - (1 / 2) * h * (sqrt(1 + u[j]^2) + sqrt(1 + u[j + 1]^2)) == 0
-            con_x1[j=1:nh], x1[j + 1] - x1[j] - (1 / 2) * h * (u[j] + u[j + 1]) == 0
+            con_x1[j = 1:nh], x1[j + 1] - x1[j] - (1 / 2) * h * (u[j] + u[j + 1]) == 0
         end
     )
 

@@ -24,10 +24,10 @@ function OptimalControlProblems.rocket(::JuMPBackend; nh::Int64=100)
     @variables(
         model,
         begin
-            1.0 <= h[i=0:nh], (start = 1.0)
-            0.0 <= v[i=0:nh], (start = i / nh * (1.0 - i / nh))
-            m_f <= m[i=0:nh] <= m_0, (start = (m_f - m_0) * (i / nh) + m_0)
-            0.0 <= T[i=0:nh] <= T_max, (start = T_max / 2.0)
+            1.0 <= h[i = 0:nh], (start = 1.0)
+            0.0 <= v[i = 0:nh], (start = i / nh * (1.0 - i / nh))
+            m_f <= m[i = 0:nh] <= m_0, (start = (m_f - m_0) * (i / nh) + m_0)
+            0.0 <= T[i = 0:nh] <= T_max, (start = T_max / 2.0)
             0.0 <= step, (start = 1 / nh)
         end
     )
@@ -35,11 +35,11 @@ function OptimalControlProblems.rocket(::JuMPBackend; nh::Int64=100)
     @expressions(
         model,
         begin
-            D[i=0:nh], D_c * v[i]^2 * exp(-h_c * (h[i] - h_0)) / h_0
-            g[i=0:nh], g_0 * (h_0 / h[i])^2
-            dh[i=0:nh], v[i]
-            dv[i=0:nh], (T[i] - D[i] - m[i] * g[i]) / m[i]
-            dm[i=0:nh], -T[i] / c
+            D[i = 0:nh], D_c * v[i]^2 * exp(-h_c * (h[i] - h_0)) / h_0
+            g[i = 0:nh], g_0 * (h_0 / h[i])^2
+            dh[i = 0:nh], v[i]
+            dv[i = 0:nh], (T[i] - D[i] - m[i] * g[i]) / m[i]
+            dm[i = 0:nh], -T[i] / c
         end
     )
 
@@ -49,9 +49,9 @@ function OptimalControlProblems.rocket(::JuMPBackend; nh::Int64=100)
     @constraints(
         model,
         begin
-            con_dh[i=1:nh], h[i] == h[i - 1] + 0.5 * step * (dh[i] + dh[i - 1])
-            con_dv[i=1:nh], v[i] == v[i - 1] + 0.5 * step * (dv[i] + dv[i - 1])
-            con_dm[i=1:nh], m[i] == m[i - 1] + 0.5 * step * (dm[i] + dm[i - 1])
+            con_dh[i = 1:nh], h[i] == h[i - 1] + 0.5 * step * (dh[i] + dh[i - 1])
+            con_dv[i = 1:nh], v[i] == v[i - 1] + 0.5 * step * (dv[i] + dv[i - 1])
+            con_dm[i = 1:nh], m[i] == m[i - 1] + 0.5 * step * (dm[i] + dm[i - 1])
         end
     )
 
