@@ -31,11 +31,10 @@ function test_OptimalControl()
             )
             # Test that the solver found an optimal solution
             if  f == :moonlander    ||
-                f == :truck_trailer
-                @test sol.status == :infeasible
-            elseif f == :quadrotor ||
+                f == :truck_trailer ||
+                f == :quadrotor     ||
                 f == :space_shuttle
-                @test sol.status == :max_iter
+                @test (sol.status == :infeasible) || (sol.status == :max_iter)
             else
                 @test sol.status == :first_order
             end

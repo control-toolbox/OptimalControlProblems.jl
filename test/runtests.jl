@@ -10,8 +10,8 @@ using Test
 #
 @testset verbose = true showtiming = true "OptimalControlProblems tests" begin
     for name in (
-        #:aqua, 
-        #:JuMP, 
+        :aqua, 
+        :JuMP, 
         :OptimalControl,
         )
         @testset "$(name)" begin
