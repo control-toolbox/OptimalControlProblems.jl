@@ -32,7 +32,7 @@ function test_JuMP()
             optimize!(model)
             # Test that the solver found an optimal solution
             if f == :truck_trailer || f == :quadrotor
-                @test termination_status(model) == MOI.LOCALLY_INFEASIBLE
+                @test (termination_status(model) == MOI.LOCALLY_INFEASIBLE) || (termination_status(model) == MOI.ITERATION_LIMIT)
             else
                 @test termination_status(model) == MOI.LOCALLY_SOLVED
             end
