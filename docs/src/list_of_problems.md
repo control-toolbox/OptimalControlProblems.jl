@@ -1,9 +1,9 @@
-# List of Problems
+# [List of Problems](@id list-of-problems)
 
-## Where to find the problems
-The problems are stored in [OptimalControlProblems.jl/ext](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext) directory. `JuMP` models are stored in [JuMPModels](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/JuMPModels) directory and `OptimalControl` models are stored in [OptimalControlModels](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/OptimalControlModels).
+The problems are stored in [OptimalControlProblems.jl/ext](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext) directory. JuMP models are stored in [JuMPModels](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/JuMPModels) directory and OptimalControl models are stored in [OptimalControlModels](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/OptimalControlModels).
 
 For each problem, we provide the following data in [MetaData](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/MetaData) directory:
+
 - `name::String`: problem name
 - `nh::Int`: default number of discretization points
 - `nvar::Int`: number of variables
@@ -11,6 +11,7 @@ For each problem, we provide the following data in [MetaData](https://github.com
 - `minimize::Bool`: true if optimize == minimize
 
 To get the list of metadata, you can use the following code:
+
 ```@example metadata
 using OptimalControlProblems
 OptimalControlProblems.metadata
@@ -21,28 +22,47 @@ To access the metadata of a specific problem, you can execute the following comm
 OptimalControlProblems.metadata[:chain]
 ```
 
-## List of Problems
-The table below summarizes the status of the each problem:
+The table below summarizes the names and status of the each problem:
 
-| Problem | With JuMP | With OptimalControl |
-| --- | --- | --- | 
-| `beam` | ✅ | ✅|
-| `bioreactor` | ✅ | ✅|
-| `cart_pendulum` | ✅ | ✅|
-| `chain` |   ✅  |   ✅|
-| `dielectrophoretic_particle` | ✅ | ✅| 
-| `double_oscillator` | ✅ | ✅|
-| `ducted_fan` | ✅ | ✅
-| `electrical_vehicle` | ✅ | ✅|
-| `glider` |  ✅  |  ✅ |
-| `insurance` | ✅ | ✅|
-| `jackson` | ✅ | ✅|
-| `moonlander` | ✅ | ❌|
-| `quadrotor` | ✅ | ❌|
-| `robbins` | ✅ | ✅|
-| `robot` |  ✅ | ✅|
-| `rocket` |  ✅ | ✅|
-| `space_shuttle` |  ✅ |  ❌|
-| `steering` |  ✅ | ✅|
-| `truck_trailer` | ❌ | ❌|
-| `vanderpol` | ✅ | ✅|
+| Problem                       | With JuMP | With OptimalControl |
+| ---                           | ---       | ---                 | 
+| beam                          | ✅        | ✅    |
+| bioreactor                    | ✅        | ✅    |
+| cart_pendulum                 | ❌        | ✅    |
+| chain                         | ✅        | ✅    |
+| dielectrophoretic_particle    | ✅        | ✅    | 
+| double_oscillator             | ✅        | ✅    |
+| ducted_fan                    | ✅        | ✅    |
+| electrical_vehicle            | ✅        | ✅    |
+| glider                        | ✅        | ❌    |
+| insurance                     | ✅        | ✅    |
+| jackson                       | ✅        | ✅    |
+| moonlander                    | ✅        | 🟠    |
+| quadrotor                     | 🟠        | 🟠🟠    |
+| robbins                       | ✅        | ✅    |
+| robot                         | ✅        | ✅    |
+| rocket                        | ✅        | ✅    |
+| space_shuttle                 | ✅        | 🟠🟠    |
+| steering                      | ✅        | ✅    |
+| truck_trailer                 | 🟠        | 🟠    |
+| vanderpol                     | ✅        | ✅    |
+
+**Legend**
+
+The problems are solved with Ipopt and the parameters:
+
+```julia
+tol = 1e-8
+constr_viol_tol = 1e-6
+max_iter = 500
+mu_strategy = "adaptive"
+linear_solver = "mumps"
+max_wall_time = 240.0
+sb = "yes"
+```
+The symbols in the table means:
+
+- ✅ locally solved
+- 🟠 locally infeasible
+- 🟠🟠 maximum of iterations
+- ❌ error during execution

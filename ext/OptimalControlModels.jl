@@ -1,8 +1,7 @@
 module OptimalControlModels
 
 using OptimalControlProblems
-using CTBase
-using CTDirect
+using OptimalControl
 
 rel_path_problems = "OptimalControlModels"
 path = joinpath(dirname(@__FILE__), rel_path_problems)

@@ -16,13 +16,13 @@ makedocs(;
         ],
     ),
     pages=[
-        "Introduction" => "index.md",
-        "List of the problems" => "list_of_problems.md",
+        "Getting Started" => "index.md",
+        "List of the Problems" => "list_of_problems.md",
         "Tutorials" => [
-            "How to use the models" => "use_models.md",
+            "How to get a problem" => "use_models.md",
             "How to solve a problem" => "solve_problem.md",
         ],
-        "Developers" => ["How to add a new problem" => "add_problem.md"],
+        "Developers" => ["How to add a problem" => "add_problem.md"],
     ],
 )
 
