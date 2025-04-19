@@ -12,11 +12,14 @@
 [doc-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [doc-stable-url]: https://control-toolbox.org/OptimalControlProblems.jl/stable/
 
+[release-img]: https://img.shields.io/github/v/release/control-toolbox/OptimalControlProblems.jl.svg
+[release-url]: https://github.com/control-toolbox/OptimalControlProblems.jl/releases
+
+[pkg-eval-img]: https://img.shields.io/badge/Julia-package-purple
+[pkg-eval-url]: https://juliahub.com/ui/Packages/General/OptimalControlProblems
+
 [licence-img]: https://img.shields.io/badge/License-MIT-yellow.svg
 [licence-url]: https://github.com/control-toolbox/OptimalControlProblems.jl/blob/master/LICENSE
-
-[aqua-img]: https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg
-[aqua-url]: https://github.com/JuliaTesting/Aqua.jl
 
 [blue-img]: https://img.shields.io/badge/code%20style-blue-4495d1.svg
 [blue-url]: https://github.com/JuliaDiff/BlueStyle
@@ -29,8 +32,20 @@ The control-toolbox ecosystem gathers Julia packages for mathematical control an
 | **Name**          | **Badge**         |
 :-------------------|:------------------|
 | Documentation     | [![Documentation][doc-stable-img]][doc-stable-url] [![Documentation][doc-dev-img]][doc-dev-url]                   | 
-| Code Status       | [![Build Status][ci-img]][ci-url] [![Covering Status][co-img]][co-url] [![Aqua.jl][aqua-img]][aqua-url] [![Code Style: Blue][blue-img]][blue-url] |
+| Code Status       | [![Build Status][ci-img]][ci-url] [![Covering Status][co-img]][co-url] [![pkgeval][pkg-eval-img]][pkg-eval-url] [![Code Style: Blue][blue-img]][blue-url]  |
 | Licence           | [![License: MIT][licence-img]][licence-url]   |
+| Release           | [![Release][release-img]][release-url]        |
+
+## Installation
+
+To install OptimalControlProblems.jl please 
+<a href="https://docs.julialang.org/en/v1/manual/getting-started/">open Julia's interactive session (known as REPL)</a> 
+and press <kbd>]</kbd> key in the REPL to use the package mode, then add the package:
+
+```julia
+julia> ]
+pkg> add OptimalControlProblems
+```
 
 ## Contributing
 
