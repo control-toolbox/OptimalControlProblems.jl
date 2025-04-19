@@ -38,11 +38,11 @@ The table below summarizes the names and status of the each problem:
 | insurance                     | ✅        | ✅    |
 | jackson                       | ✅        | ✅    |
 | moonlander                    | ✅        | 🟠    |
-| quadrotor                     | 🟠        | 🟠🟠    |
+| quadrotor                     | 🟠        | 🟠    |
 | robbins                       | ✅        | ✅    |
 | robot                         | ✅        | ✅    |
 | rocket                        | ✅        | ✅    |
-| space_shuttle                 | ✅        | 🟠🟠    |
+| space_shuttle                 | ✅        | 🟠    |
 | steering                      | ✅        | ✅    |
 | truck_trailer                 | 🟠        | 🟠    |
 | vanderpol                     | ✅        | ✅    |
@@ -63,6 +63,5 @@ sb = "yes"
 The symbols in the table means:
 
 - ✅ locally solved
-- 🟠 locally infeasible
-- 🟠🟠 maximum of iterations
+- 🟠 locally infeasible or maximum of iterations
 - ❌ error during execution
