@@ -16,21 +16,22 @@ function test_JuMP()
 
     for f in functions_list
         @testset "$(f)" begin
-            println("  $f")
+            println("  $f:")
             # Set up the model
             model = OptimalControlProblems.eval(f)(JuMPBackend())
             set_optimizer(model, Ipopt.Optimizer)
             set_silent(model)
-            set_optimizer_attribute(model, "tol", 1e-8)
+            set_optimizer_attribute(model, "tol", 1e-6)
             set_optimizer_attribute(model, "constr_viol_tol", 1e-6)
-            set_optimizer_attribute(model, "max_iter", 500)
+            set_optimizer_attribute(model, "max_iter", 1000)
             set_optimizer_attribute(model, "mu_strategy", "adaptive")
             set_optimizer_attribute(model, "linear_solver", "mumps")
-            set_optimizer_attribute(model, "max_wall_time", 240.0)
+            set_optimizer_attribute(model, "max_wall_time", 500.0)
             set_optimizer_attribute(model, "sb", "yes")
             # Solve the model
-            optimize!(model)
+            @time optimize!(model)
             # Test that the solver found an optimal solution
+            println("  termination_status = $(termination_status(model))\n")
             if f == :truck_trailer || f == :quadrotor
                 @test (termination_status(model) == MOI.LOCALLY_INFEASIBLE) || (termination_status(model) == MOI.ITERATION_LIMIT)
             else

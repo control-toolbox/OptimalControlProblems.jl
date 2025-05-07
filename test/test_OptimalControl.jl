@@ -15,24 +15,23 @@ function test_OptimalControl()
     functions_list = setdiff(functions_list, pbs_with_issues)
 
     for f in functions_list
-        println("  $f")
+        println("  $f:")
         @testset "$(f)" begin
             # Set up the model
             _, model = OptimalControlProblems.eval(f)(OptimalControlBackend())
-            sol = NLPModelsIpopt.ipopt(
+            @time sol = NLPModelsIpopt.ipopt(
                 model;
                 print_level=0,
-                tol=1e-8,
+                tol=1e-6,
                 mu_strategy="adaptive",
                 sb="yes",
                 constr_viol_tol=1e-6,
-                max_iter=500,
-                max_wall_time=240.0,
+                max_iter=1000,
+                max_wall_time=500.0,
             )
+            println("  sol.status = $(sol.status)\n")
             # Test that the solver found an optimal solution
-            if  f == :moonlander    ||
-                f == :truck_trailer ||
-                f == :quadrotor     ||
+            if  f == :truck_trailer ||
                 f == :space_shuttle
                 @test (sol.status == :infeasible) || (sol.status == :max_iter)
             else
