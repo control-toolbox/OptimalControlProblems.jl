@@ -15,13 +15,13 @@ function test_OptimalControl()
     functions_list = setdiff(functions_list, pbs_with_issues)
 
     kwargs = Dict(
-        "print_level" => 0,
-        "tol" => 1e-6,
-        "mu_strategy" => "adaptive",
-        "sb" => "yes",
-        "constr_viol_tol" => 1e-6,
-        "max_iter" => 1000,
-        "max_wall_time" => 500.0,
+        :print_level => 0,
+        :tol => 1e-6,
+        :mu_strategy => "adaptive",
+        :sb => "yes",
+        :constr_viol_tol => 1e-6,
+        :max_iter => 1000,
+        :max_wall_time => 500.0,
     )
 
     for f in functions_list
