@@ -29,7 +29,8 @@ function test_JuMP()
             set_optimizer_attribute(model, "max_wall_time", 500.0)
             set_optimizer_attribute(model, "sb", "yes")
             # Solve the model
-            @time optimize!(model)
+            print("  First solve:  "); @time optimize!(model)
+            print("  Second solve: "); @time optimize!(model)
             # Test that the solver found an optimal solution
             println("  termination_status = $(termination_status(model))\n")
             if f == :truck_trailer || f == :quadrotor
