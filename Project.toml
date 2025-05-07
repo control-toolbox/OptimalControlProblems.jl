@@ -1,7 +1,7 @@
 name = "OptimalControlProblems"
 uuid = "59046045-fb9c-4c23-964f-ff0a25704f96"
 authors = ["Olivier Cots <olivier.cots@toulouse-inp.fr>"]
-version = "0.2.0"
+version = "0.2.1"
 
 [deps]
 CTBase = "54762871-cc72-4466-b8e8-f6c8b58076cd"
@@ -15,7 +15,7 @@ JuMPModels = "JuMP"
 OptimalControlModels = "OptimalControl"
 
 [compat]
-CTBase = "0.15"
+CTBase = "0.16"
 JuMP = "1.25"
 OptimalControl = "1.0"
 julia = "1.10"
