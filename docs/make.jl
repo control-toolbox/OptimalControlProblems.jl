@@ -1,5 +1,6 @@
 using Documenter
 
+mkpath("./docs/src/assets")
 cp("./docs/Manifest.toml", "./docs/src/assets/Manifest.toml", force = true)
 cp("./docs/Project.toml", "./docs/src/assets/Project.toml", force = true)
 
