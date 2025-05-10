@@ -657,7 +657,7 @@ version = "1.0.1"
 deps = ["CTBase"]
 path = "/home/runner/work/OptimalControlProblems.jl/OptimalControlProblems.jl"
 uuid = "59046045-fb9c-4c23-964f-ff0a25704f96"
-version = "0.2.0"
+version = "0.2.1"
 weakdeps = ["JuMP", "OptimalControl"]
 
     [deps.OptimalControlProblems.extensions]
