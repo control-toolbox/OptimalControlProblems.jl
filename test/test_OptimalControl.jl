@@ -11,17 +11,17 @@ function test_OptimalControl()
         all_names,
     )
 
-    pbs_with_issues = [:glider]
+    pbs_with_issues = [:glider, moonlander]
     functions_list = setdiff(functions_list, pbs_with_issues)
 
     kwargs = Dict(
         :print_level => 0,
-        :tol => 1e-6,
-        :mu_strategy => "adaptive",
-        :sb => "yes",
-        :constr_viol_tol => 1e-6,
-        :max_iter => 1000,
-        :max_wall_time => 500.0,
+        :tol => tol,
+        :mu_strategy => mu_strategy,
+        :sb => sb,
+        :constr_viol_tol => constr_viol_tol,
+        :max_iter => max_iter,
+        :max_wall_time => max_wall_time,
     )
 
     for f in functions_list

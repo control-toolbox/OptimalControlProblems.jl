@@ -7,6 +7,14 @@ using OptimalControl
 using OptimalControlProblems
 using Test
 
+# Parameters
+const tol = 1e-6
+const mu_strategy = "adaptive"
+const sb = "yes"
+const constr_viol_tol = 1e-6
+const max_iter = 1000
+const max_wall_time = 500.0
+
 #
 @testset verbose = true showtiming = true "OptimalControlProblems tests" begin
     for name in (

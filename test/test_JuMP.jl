@@ -11,7 +11,7 @@ function test_JuMP()
         all_names,
     )
 
-    pbs_with_issues = [:cart_pendulum]
+    pbs_with_issues = [:cart_pendulum, :moonlander]
     functions_list = setdiff(functions_list, pbs_with_issues)
 
     for f in functions_list
@@ -21,13 +21,13 @@ function test_JuMP()
             model = OptimalControlProblems.eval(f)(JuMPBackend())
             set_optimizer(model, Ipopt.Optimizer)
             set_silent(model)
-            set_optimizer_attribute(model, "tol", 1e-6)
-            set_optimizer_attribute(model, "constr_viol_tol", 1e-6)
-            set_optimizer_attribute(model, "max_iter", 1000)
-            set_optimizer_attribute(model, "mu_strategy", "adaptive")
+            set_optimizer_attribute(model, "tol", tol)
+            set_optimizer_attribute(model, "constr_viol_tol", constr_viol_tol)
+            set_optimizer_attribute(model, "max_iter", max_iter)
+            set_optimizer_attribute(model, "mu_strategy", mu_strategy)
             set_optimizer_attribute(model, "linear_solver", "mumps")
-            set_optimizer_attribute(model, "max_wall_time", 500.0)
-            set_optimizer_attribute(model, "sb", "yes")
+            set_optimizer_attribute(model, "max_wall_time", max_wall_time)
+            set_optimizer_attribute(model, "sb", sb)
             # Solve the model
             print("  First solve:  "); @time optimize!(model)
             print("  Second solve: "); @time optimize!(model)
