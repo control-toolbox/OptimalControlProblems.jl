@@ -37,8 +37,8 @@ The table below summarizes the names and status of the each problem:
 | glider                        | ✅        | ❌    |
 | insurance                     | ✅        | ✅    |
 | jackson                       | ✅        | ✅    |
-| moonlander                    | ✅        | 🟠    |
-| quadrotor                     | 🟠        | 🟠    |
+| moonlander                    | ✅        | ✅    |
+| quadrotor                     | 🟠        | ✅    |
 | robbins                       | ✅        | ✅    |
 | robot                         | ✅        | ✅    |
 | rocket                        | ✅        | ✅    |
@@ -54,10 +54,10 @@ The problems are solved with Ipopt and the parameters:
 ```julia
 tol = 1e-8
 constr_viol_tol = 1e-6
-max_iter = 500
+max_iter = 1000
 mu_strategy = "adaptive"
 linear_solver = "mumps"
-max_wall_time = 240.0
+max_wall_time = 500
 sb = "yes"
 ```
 The symbols in the table means:
