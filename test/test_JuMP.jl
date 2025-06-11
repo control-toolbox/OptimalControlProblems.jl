@@ -11,7 +11,7 @@ function test_JuMP()
         all_names,
     )
 
-    pbs_with_issues = [:cart_pendulum, :moonlander]
+    pbs_with_issues = [:cart_pendulum, :truck_trailer]
     functions_list = setdiff(functions_list, pbs_with_issues)
 
     for f in functions_list

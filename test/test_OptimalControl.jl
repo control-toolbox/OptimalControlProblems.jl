@@ -11,7 +11,7 @@ function test_OptimalControl()
         all_names,
     )
 
-    pbs_with_issues = [:glider, moonlander]
+    pbs_with_issues = [:glider, :moonlander]
     functions_list = setdiff(functions_list, pbs_with_issues)
 
     kwargs = Dict(
