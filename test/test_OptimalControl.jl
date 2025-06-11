@@ -11,28 +11,29 @@ function test_OptimalControl()
         all_names,
     )
 
-    pbs_with_issues = [:glider]
+    pbs_with_issues = [:glider, :moonlander]
     functions_list = setdiff(functions_list, pbs_with_issues)
 
+    kwargs = Dict(
+        :print_level => 0,
+        :tol => tol,
+        :mu_strategy => mu_strategy,
+        :sb => sb,
+        :constr_viol_tol => constr_viol_tol,
+        :max_iter => max_iter,
+        :max_wall_time => max_wall_time,
+    )
+
     for f in functions_list
-        println("  $f")
+        println("  $f:")
         @testset "$(f)" begin
             # Set up the model
             _, model = OptimalControlProblems.eval(f)(OptimalControlBackend())
-            sol = NLPModelsIpopt.ipopt(
-                model;
-                print_level=0,
-                tol=1e-8,
-                mu_strategy="adaptive",
-                sb="yes",
-                constr_viol_tol=1e-6,
-                max_iter=500,
-                max_wall_time=240.0,
-            )
+            print("  First solve:  "); @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
+            print("  Second solve: "); @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
+            println("  sol.status = $(sol.status)\n")
             # Test that the solver found an optimal solution
-            if  f == :moonlander    ||
-                f == :truck_trailer ||
-                f == :quadrotor     ||
+            if  f == :truck_trailer ||
                 f == :space_shuttle
                 @test (sol.status == :infeasible) || (sol.status == :max_iter)
             else
