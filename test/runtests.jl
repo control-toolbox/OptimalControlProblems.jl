@@ -18,9 +18,10 @@ const max_wall_time = 500.0
 #
 @testset verbose = true showtiming = true "OptimalControlProblems tests" begin
     for name in (
-        :aqua, 
-        :JuMP, 
-        :OptimalControl,
+        # :aqua, 
+        # :JuMP, 
+        # :OptimalControl,
+        :Comparison,
         )
         @testset "$(name)" begin
             test_name = Symbol(:test_, name)

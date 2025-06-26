@@ -37,6 +37,10 @@ const infos = [
     :nvar
     :ncon
     :minimize
+    :state_name
+    :costate_name
+    :control_name
+    :time
 ]
 
 const types = [
@@ -45,6 +49,10 @@ const types = [
     Union{Int,Nothing},
     Union{Int,Nothing},
     Union{Bool,Nothing},
+    Union{Vector{String}, String, Nothing}, 
+    Union{Vector{String}, String, Nothing}, 
+    Union{Vector{String}, String, Nothing},  
+    Union{Tuple{String, String, Union{Real,Nothing}}, Nothing},
 ]
 
 """

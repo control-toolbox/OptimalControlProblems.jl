@@ -30,7 +30,7 @@ function OptimalControlProblems.glider(::JuMPBackend; nh::Int64=100)
     @variables(
         model,
         begin
-            0 <= t_f, (start = 1.0)
+            0 <= tf, (start = 1.0)
             0.0 <= x[k=0:nh], (start = x_0 + vx_0 * (k / nh))
             y[k=0:nh], (start = y_0 + (k / nh) * (y_f - y_0))
             0.0 <= vx[k=0:nh], (start = vx_0)
@@ -44,7 +44,7 @@ function OptimalControlProblems.glider(::JuMPBackend; nh::Int64=100)
     @expressions(
         model,
         begin
-            step, t_f / nh
+            step, tf / nh
             r[i=0:nh], (x[i] / r_0 - 2.5)^2
             u[i=0:nh], u_c * (1 - r[i]) * exp(-r[i])
             w[i=0:nh], vy[i] - u[i]
