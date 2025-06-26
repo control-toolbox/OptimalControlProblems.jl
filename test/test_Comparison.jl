@@ -1,29 +1,11 @@
-using Plots
-include("utils.jl")
-
 # test_Comparison_JuMP_OptimalControl
 function test_Comparison()
 
     # Comparison Parameters
-    ϵ = 1e-2
+    ε = 1e-2
     p = 2
 
-    # Collecting all the OptimalControlProblems
-    all_names = names(OptimalControlProblems; all=true)
-    functions_list = filter(
-        x ->
-            isdefined(OptimalControlProblems, x) &&
-                isa(getfield(OptimalControlProblems, x), Function) &&
-                !startswith(string(x), "#") &&
-                !(x in [:eval, :include]),
-        all_names,
-    )
-
-    pbs_with_issues = [:glider, :moonlander,  # issues with OptimalControl
-        :cart_pendulum, :truck_trailer,  # issues with JuMP
-        :space_shuttle] # not the same probleme between JuMP (tf not fixed) and OptimalControl (tf fixed)
-    functions_list = setdiff(functions_list, pbs_with_issues)
-
+    # options for solvers
     kwargs = Dict(
         :print_level => 0,
         :tol => tol,
@@ -37,21 +19,27 @@ function test_Comparison()
     println("\033[1m### NORM L$p ###\033[0m")
     println()
 
-    for f in functions_list
+    for f in list_of_problems
         nh = OptimalControlProblems.metadata[f][:nh]
-        @testset "$(f)" begin
+        @testset "$(f)" verbose=verbose begin
             println("############ TEST $f #############")
             println()
-
 
             ########## OptimalControl ##########
 
             # Set up the OptimalControl model 
             docp, OC_model = OptimalControlProblems.eval(f)(OptimalControlBackend())
+
             # Solve the problem
             nlp_sol = NLPModelsIpopt.ipopt(OC_model; kwargs...)
+
             # Build the solution
             sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers)
+
+            # Retrieves values of variables
+            x_oc = state(sol)
+            p_oc = costate(sol)
+            u_oc = control(sol)
 
             ############### JuMP ###############
 
@@ -66,6 +54,7 @@ function test_Comparison()
             set_optimizer_attribute(JuMP_model, "linear_solver", "mumps")
             set_optimizer_attribute(JuMP_model, "max_wall_time", max_wall_time)
             set_optimizer_attribute(JuMP_model, "sb", sb)
+
             # Solve the model
             optimize!(JuMP_model)
 
@@ -105,12 +94,6 @@ function test_Comparison()
             p_jmp = -[[p_jmp_vars[j][i] for j in 1:length(p_vars)] for i in inds_p]
             p_jmp = costateInterpolation(p_jmp, t)
 
-
-            # Values of OptimalControl variables 
-            x_oc = state(sol)
-            p_oc = costate(sol)
-            u_oc = control(sol)
-
             ############ TEST ############
 
             plots_x = Vector{Any}()
@@ -120,39 +103,51 @@ function test_Comparison()
             for k in 1:length(x_jmp[1])
                 dist_x_Lp = norm_Lp([x_oc((i - 1) * h)[k] - x_jmp[i][k] for i in 1:nh+1], p, h)
                 print("Test x$k : ")
-                if dist_x_Lp < ϵ
-                    print("$dist_x_Lp < $ϵ \033[1;32mTest Passed\033[0m")
+                @testset "x$k" verbose=verbose begin
+                    if !(dist_x_Lp < ε)
+                        print("$dist_x_Lp < $ε \033[0;33mTest Broken\033[0m\n")
+                        @test dist_x_Lp < ε broken=true
+                    else
+                        print("$dist_x_Lp < $ε \033[1;32mTest Passed\033[0m\n")
+                        @test dist_x_Lp < ε
+                    end
                 end
-                println()
-                @test dist_x_Lp < ϵ
-                px = plot(plot(sol)[k], line=2)
-                px = plot!(t, [x_jmp[i][k] for i in 1:nh+1], xlabel="t", ylabel=x_vars[k], legend=false, line=2, color="red", linestyle=:dash)
+                px = plot(plot(sol)[k]; line=2, label="OptimalControl") # OptimalControl
+                px = plot!(t, [x_jmp[i][k] for i in 1:nh+1]; xlabel="t", ylabel=x_vars[k], legend=false, line=2, color="red", linestyle=:dash, label="JuMP") # JuMP
                 push!(plots_x, px)
             end
 
             for k in 1:length(p_jmp[1])
                 dist_p_Lp = norm_Lp([p_oc((i - 1) * h)[k] - p_jmp[i][k] for i in 1:nh+1], p, h)
                 print("Test p$k : ")
-                if dist_p_Lp < ϵ
-                    print("$dist_p_Lp < $ϵ \033[1;32mTest Passed\033[0m")
+                @testset "p$k" verbose=verbose begin
+                    if !(dist_p_Lp < ε)
+                        print("$dist_p_Lp < $ε \033[0;33mTest Broken\033[0m\n")
+                        @test dist_p_Lp < ε broken=true
+                    else
+                        print("$dist_p_Lp < $ε \033[1;32mTest Passed\033[0m\n")
+                        @test dist_p_Lp < ε
+                    end
                 end
-                println()
-                @test dist_p_Lp < ϵ
-                pp = plot(plot(sol)[length(x_jmp[1])+k], line=2)
-                pp = plot!(t, [p_jmp[i][k] for i in 1:nh+1], xlabel="t", ylabel="p_" * x_vars[k], legend=false, line=2, color="red", linestyle=:dash)
+                pp = plot(plot(sol)[length(x_jmp[1])+k]; line=2, label="OptimalControl") # OptimalControl
+                pp = plot!(t, [p_jmp[i][k] for i in 1:nh+1]; xlabel="t", ylabel="p_" * x_vars[k], legend=false, line=2, color="red", linestyle=:dash, label="JuMP") # JuMP
                 push!(plots_p, pp)
             end
 
             for k in 1:length(u_jmp[1])
                 dist_u_Lp = norm_Lp([u_oc((i - 1) * h)[k] - u_jmp[i][k] for i in 1:nh+1], p, h)
                 print("Test u$k : ")
-                if dist_u_Lp < ϵ
-                    print("$dist_u_Lp < $ϵ \033[1;32mTest Passed\033[0m")
+                @testset "u$k" verbose=verbose begin
+                    if !(dist_u_Lp < ε)
+                        print("$dist_u_Lp < $ε \033[0;33mTest Broken\033[0m\n")
+                        @test dist_u_Lp < ε broken=true
+                    else
+                        print("$dist_u_Lp < $ε \033[1;32mTest Passed\033[0m\n")
+                        @test dist_u_Lp < ε
+                    end
                 end
-                println()
-                @test dist_u_Lp < ϵ
-                pu = plot(plot(sol)[length(x_jmp[1])+length(p_jmp[1])+k], line=2)
-                pu = plot!(t, [u_jmp[i][k] for i in 1:nh+1], xlabel="t", ylabel=u_vars[k], legend=false, line=2, color="red", linestyle=:dash)
+                pu = plot(plot(sol)[length(x_jmp[1])+length(p_jmp[1])+k]; line=2, label="OptimalControl") # OptimalControl
+                pu = plot!(t, [u_jmp[i][k] for i in 1:nh+1]; xlabel="t", ylabel=u_vars[k], legend=false, line=2, color="red", linestyle=:dash, label="JuMP") # JuMP
                 push!(plots_u, pu)
             end
 

@@ -1,18 +1,5 @@
 # test_OptimalControl_optimality
 function test_OptimalControl()
-    # Collecting all the OptimalControlProblems.OptimalControlModels models
-    all_names = names(OptimalControlProblems; all=true)
-    functions_list = filter(
-        x ->
-            isdefined(OptimalControlProblems, x) &&
-                isa(getfield(OptimalControlProblems, x), Function) &&
-                !startswith(string(x), "#") &&
-                !(x in [:eval, :include]),
-        all_names,
-    )
-
-    pbs_with_issues = [:glider, :moonlander]
-    functions_list = setdiff(functions_list, pbs_with_issues)
 
     kwargs = Dict(
         :print_level => 0,
@@ -24,7 +11,7 @@ function test_OptimalControl()
         :max_wall_time => max_wall_time,
     )
 
-    for f in functions_list
+    for f in list_of_problems
         println("  $f:")
         @testset "$(f)" begin
             # Set up the model

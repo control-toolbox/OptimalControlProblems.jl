@@ -1,20 +1,6 @@
 # test_JuMP_optimality
 function test_JuMP()
-    # Collecting all the OptimalControlProblems.JuMPModels models
-    all_names = names(OptimalControlProblems; all=true)
-    functions_list = filter(
-        x ->
-            isdefined(OptimalControlProblems, x) &&
-                isa(getfield(OptimalControlProblems, x), Function) &&
-                !startswith(string(x), "#") &&
-                !(x in [:eval, :include]),
-        all_names,
-    )
-
-    pbs_with_issues = [:cart_pendulum, :truck_trailer]
-    functions_list = setdiff(functions_list, pbs_with_issues)
-
-    for f in functions_list
+    for f in list_of_problems
         @testset "$(f)" begin
             println("  $f:")
             # Set up the model
