@@ -105,8 +105,10 @@ function test_Comparison()
                 print("Test x$k : ")
                 @testset "x$k" verbose=verbose begin
                     if !(dist_x_Lp < ε)
-                        print("$dist_x_Lp < $ε \033[0;33mTest Broken\033[0m\n")
+                        print("$dist_x_Lp < $ε \033[1;33mTest Broken\033[0m\n")
                         @test dist_x_Lp < ε broken=true
+                        global list_of_problems_final
+                        list_of_problems_final = setdiff(list_of_problems_final, [f])
                     else
                         print("$dist_x_Lp < $ε \033[1;32mTest Passed\033[0m\n")
                         @test dist_x_Lp < ε
@@ -122,8 +124,10 @@ function test_Comparison()
                 print("Test p$k : ")
                 @testset "p$k" verbose=verbose begin
                     if !(dist_p_Lp < ε)
-                        print("$dist_p_Lp < $ε \033[0;33mTest Broken\033[0m\n")
+                        print("$dist_p_Lp < $ε \033[1;33mTest Broken\033[0m\n")
                         @test dist_p_Lp < ε broken=true
+                        global list_of_problems_final
+                        list_of_problems_final = setdiff(list_of_problems_final, [f])
                     else
                         print("$dist_p_Lp < $ε \033[1;32mTest Passed\033[0m\n")
                         @test dist_p_Lp < ε
@@ -139,8 +143,10 @@ function test_Comparison()
                 print("Test u$k : ")
                 @testset "u$k" verbose=verbose begin
                     if !(dist_u_Lp < ε)
-                        print("$dist_u_Lp < $ε \033[0;33mTest Broken\033[0m\n")
+                        print("$dist_u_Lp < $ε \033[1;33mTest Broken\033[0m\n")
                         @test dist_u_Lp < ε broken=true
+                        global list_of_problems_final
+                        list_of_problems_final = setdiff(list_of_problems_final, [f])
                     else
                         print("$dist_u_Lp < $ε \033[1;32mTest Passed\033[0m\n")
                         @test dist_u_Lp < ε

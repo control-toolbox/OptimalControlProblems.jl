@@ -45,9 +45,9 @@ list_of_problems_final = deepcopy(functions_list)
 const verbose = true
 @testset "OptimalControlProblems tests" verbose=verbose showtiming=true begin
     for name in (
-        # :aqua, 
-        # :JuMP, 
-        # :OptimalControl,
+        :aqua, 
+        :JuMP, 
+        :OptimalControl,
         :Comparison,
         )
         @testset "$(name)" verbose=verbose begin

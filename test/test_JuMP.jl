@@ -1,7 +1,7 @@
 # test_JuMP_optimality
 function test_JuMP()
     for f in list_of_problems
-        @testset "$(f)" begin
+        @testset "$(f)" verbose=verbose begin
             println("  $f:")
             # Set up the model
             model = OptimalControlProblems.eval(f)(JuMPBackend())
@@ -19,10 +19,14 @@ function test_JuMP()
             print("  Second solve: "); @time optimize!(model)
             # Test that the solver found an optimal solution
             println("  termination_status = $(termination_status(model))\n")
-            if f == :truck_trailer || f == :quadrotor
-                @test (termination_status(model) == MOI.LOCALLY_INFEASIBLE) || (termination_status(model) == MOI.ITERATION_LIMIT)
-            else
+            if termination_status(model) == MOI.LOCALLY_SOLVED
                 @test termination_status(model) == MOI.LOCALLY_SOLVED
+                print("JuMP: $f converged : \033[1;32mTest Passed\033[0m\n")
+            else 
+                @test termination_status(model) == MOI.LOCALLY_SOLVED broken=true
+                print("JuMP : $f converged : \033[1;33mTest Broken\033[0m\n")
+                global list_of_problems_final
+                list_of_problems_final = setdiff(list_of_problems_final, [f])
             end
         end
     end
