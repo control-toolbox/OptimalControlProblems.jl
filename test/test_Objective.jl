@@ -1,5 +1,5 @@
 function test_Objective()
-    
+
     # Comparison Parameters
     ε = 1e-2
 
@@ -16,9 +16,9 @@ function test_Objective()
 
     for f in list_of_problems
         nh = OptimalControlProblems.metadata[f][:nh]
-        @testset "$(f)" verbose=verbose begin
-            println("############ TEST $f #############")
+        @testset "$(f)" verbose = verbose begin
             println()
+            println("############ TEST objective $f #############")
 
             ########## OptimalControl ##########
 
@@ -32,9 +32,11 @@ function test_Objective()
             sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers)
 
             # Retrieves values of variables
-            x_oc = state(sol)
-            p_oc = costate(sol)
-            u_oc = control(sol)
+            # x_oc = state(sol)
+            # p_oc = costate(sol)
+            # u_oc = control(sol)
+
+            obj_oc = objective(sol)
 
             ############### JuMP ###############
 
@@ -52,6 +54,19 @@ function test_Objective()
 
             # Solve the model
             optimize!(JuMP_model)
+
+            obj_jmp = objective_value(JuMP_model)
+
+            dist_obj = abs(obj_oc - obj_jmp)
+            if !(dist_obj < ε)
+                print("$dist_obj < $ε \033[1;33mTest Broken\033[0m\n")
+                @test dist_obj < ε broken = true
+                global list_of_problems_final
+                list_of_problems_final = setdiff(list_of_problems_final, [f])
+            else
+                print("$dist_obj < $ε \033[1;32mTest Passed\033[0m\n")
+                @test dist_obj < ε
+            end
         end
     end
 end

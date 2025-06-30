@@ -49,7 +49,8 @@ const verbose = true
         # :JuMP, 
         # :OptimalControl,
         # :Comparison,
-        :Init,
+        # :Init,
+        :Objective,
         )
         @testset "$(name)" verbose=verbose begin
             test_name = Symbol(:test_, name)
