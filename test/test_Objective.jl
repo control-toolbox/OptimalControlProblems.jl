@@ -14,6 +14,12 @@ function test_Objective()
         :max_wall_time => max_wall_time,
     )
 
+    println()
+    println("\033[1m##################################\033[0m")
+    println("\033[1m######### TEST OBJECTIVE #########\033[0m")
+    println("\033[1m##################################\033[0m")
+    println()
+
     for f in list_of_problems
         nh = OptimalControlProblems.metadata[f][:nh]
         @testset "$(f)" verbose = verbose begin
@@ -69,4 +75,11 @@ function test_Objective()
             end
         end
     end
+
+    println()
+    println("\033[1m##################################\033[0m")
+    println("\033[1m####### END TEST OBJECTIVE #######\033[0m")
+    println("\033[1m##################################\033[0m")
+    println()
+
 end

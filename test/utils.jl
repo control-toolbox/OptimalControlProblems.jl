@@ -46,23 +46,23 @@ function norm_Lp(u, p, dt)
     return (s * dt)^(1 / p)
 end
 
-function available_probleme()
+function available_problems()
     cache_file = joinpath(@__DIR__, "..", "available_problems_cache.txt")
     
     if isfile(cache_file)
         try
             content = read(cache_file, String)
             if !isempty(strip(content))
-                # Parse les symboles depuis le fichier
+                # Parse symbols from the file
                 lines = split(strip(content), '\n')
                 return [Symbol(strip(line)) for line in lines if !isempty(strip(line))]
             end
         catch e
-            @warn "Erreur lors de la lecture du cache: $e"
+            @warn "Error reading the cache: $e"
         end
     end
     
-    # Liste par défaut si le cache n'existe pas ou est vide
-    @warn "Cache des problèmes disponibles non trouvé. Exécutez les tests pour mettre à jour la liste."
+    # Default list if the cache does not exist or is empty
+    @warn "Available problems cache not found. Run the tests to update the list."
     return Symbol[]
 end

@@ -45,11 +45,11 @@ list_of_problems_final = deepcopy(functions_list)
 const verbose = true
 @testset "OptimalControlProblems tests" verbose=verbose showtiming=true begin
     for name in (
-        # :aqua, 
-        # :JuMP, 
-        # :OptimalControl,
-        # :Comparison,
-        # :Init,
+        :aqua, 
+        :JuMP, 
+        :OptimalControl,
+        :Comparison,
+        :Init,
         :Objective,
         )
         @testset "$(name)" verbose=verbose begin
@@ -57,6 +57,14 @@ const verbose = true
             println("Testing: " * string(name))
             include("$(test_name).jl")
             @eval $test_name()
+        end
+    end
+ 
+    @testset "available_problems" verbose=verbose begin
+        if list_of_problems_final == available_problems()
+            @test list_of_problems_final == available_problems()
+        else
+            @test list_of_problems_final == available_problems() broken=true
         end
     end
 end

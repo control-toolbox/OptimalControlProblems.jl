@@ -1,5 +1,12 @@
 # test_JuMP_optimality
 function test_JuMP()
+
+    println()
+    println("\033[1m###########################\033[0m")
+    println("\033[1m### TEST CONVERGED JuMP ###\033[0m")
+    println("\033[1m###########################\033[0m")
+    println()
+
     for f in list_of_problems
         @testset "$(f)" verbose=verbose begin
             println("  $f:")
@@ -30,4 +37,11 @@ function test_JuMP()
             end
         end
     end
+
+    println()
+    println("\033[1m###############################\033[0m")
+    println("\033[1m### END TEST CONVERGED JuMP ###\033[0m")
+    println("\033[1m###############################\033[0m")
+    println()
+
 end

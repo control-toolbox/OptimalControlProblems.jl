@@ -11,6 +11,12 @@ function test_OptimalControl()
         :max_wall_time => max_wall_time,
     )
 
+    println()
+    println("\033[1m#########################################\033[0m")
+    println("\033[1m##### TEST CONVERGED OptimalControl #####\033[0m")
+    println("\033[1m#########################################\033[0m")
+    println()
+
     for f in list_of_problems
         println("  $f:")
         @testset "$(f)" verbose=verbose begin
@@ -31,4 +37,11 @@ function test_OptimalControl()
             end
         end
     end
+
+    println()
+    println("\033[1m#########################################\033[0m")
+    println("\033[1m### END TEST CONVERGED OptimalControl ###\033[0m")
+    println("\033[1m#########################################\033[0m")
+    println()
+
 end

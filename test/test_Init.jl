@@ -15,6 +15,12 @@ function test_Init()
         :max_wall_time => max_wall_time,
     )
 
+    println()
+    println("\033[1m###########################\033[0m")
+    println("\033[1m######### INIT ############\033[0m")
+    println("\033[1m###########################\033[0m")
+    println()
+
     for f in list_of_problems
         nh = OptimalControlProblems.metadata[f][:nh]
         @testset "$(f)" verbose=verbose begin
@@ -144,5 +150,11 @@ function test_Init()
 
         end
     end
+
+    println()
+    println("\033[1m###########################\033[0m")
+    println("\033[1m######## END INIT #########\033[0m")
+    println("\033[1m###########################\033[0m")
+    println()
 
 end

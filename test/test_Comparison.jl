@@ -16,12 +16,15 @@ function test_Comparison()
         :max_wall_time => max_wall_time,
     )
 
-    println("\033[1m### NORM L$p ###\033[0m")
+    println()
+    println("\033[1m###########################\033[0m")
+    println("\033[1m### COMPARISON NORM L$p ###\033[0m")
+    println("\033[1m###########################\033[0m")
     println()
 
     for f in list_of_problems
         nh = OptimalControlProblems.metadata[f][:nh]
-        @testset "$(f)" verbose=verbose begin
+        @testset "$(f)" verbose = verbose begin
             println("############ TEST $f #############")
             println()
 
@@ -63,14 +66,14 @@ function test_Comparison()
             if time_data == "final_time"
                 if time_value !== nothing
                     tf = time_value
-                else 
+                else
                     tf = value.(JuMP_model[Symbol(time_var_name)])
                 end
                 h = tf / nh
             elseif time_data == "step"
                 if time_value !== nothing
                     h = time_value
-                else 
+                else
                     h = value.(JuMP_model[Symbol(time_var_name)])
                 end
                 tf = h * nh
@@ -103,10 +106,10 @@ function test_Comparison()
             for k in 1:length(x_jmp[1])
                 dist_x_Lp = norm_Lp([x_oc((i - 1) * h)[k] - x_jmp[i][k] for i in 1:nh+1], p, h)
                 print("Test x$k : ")
-                @testset "x$k" verbose=verbose begin
+                @testset "x$k" verbose = verbose begin
                     if !(dist_x_Lp < ε)
                         print("$dist_x_Lp < $ε \033[1;33mTest Broken\033[0m\n")
-                        @test dist_x_Lp < ε broken=true
+                        @test dist_x_Lp < ε broken = true
                         global list_of_problems_final
                         list_of_problems_final = setdiff(list_of_problems_final, [f])
                     else
@@ -122,10 +125,10 @@ function test_Comparison()
             for k in 1:length(p_jmp[1])
                 dist_p_Lp = norm_Lp([p_oc((i - 1) * h)[k] - p_jmp[i][k] for i in 1:nh+1], p, h)
                 print("Test p$k : ")
-                @testset "p$k" verbose=verbose begin
+                @testset "p$k" verbose = verbose begin
                     if !(dist_p_Lp < ε)
                         print("$dist_p_Lp < $ε \033[1;33mTest Broken\033[0m\n")
-                        @test dist_p_Lp < ε broken=true
+                        @test dist_p_Lp < ε broken = true
                         global list_of_problems_final
                         list_of_problems_final = setdiff(list_of_problems_final, [f])
                     else
@@ -141,10 +144,10 @@ function test_Comparison()
             for k in 1:length(u_jmp[1])
                 dist_u_Lp = norm_Lp([u_oc((i - 1) * h)[k] - u_jmp[i][k] for i in 1:nh+1], p, h)
                 print("Test u$k : ")
-                @testset "u$k" verbose=verbose begin
+                @testset "u$k" verbose = verbose begin
                     if !(dist_u_Lp < ε)
                         print("$dist_u_Lp < $ε \033[1;33mTest Broken\033[0m\n")
-                        @test dist_u_Lp < ε broken=true
+                        @test dist_u_Lp < ε broken = true
                         global list_of_problems_final
                         list_of_problems_final = setdiff(list_of_problems_final, [f])
                     else
@@ -174,5 +177,11 @@ function test_Comparison()
 
         end
     end
+
+    println()
+    println("\033[1m###############################\033[0m")
+    println("\033[1m### END COMPARISON NORM L$p ###\033[0m")
+    println("\033[1m###############################\033[0m")
+    println()
 
 end
