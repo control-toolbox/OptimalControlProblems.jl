@@ -7,12 +7,10 @@ using OptimalControl
 using OptimalControlProblems
 using Test
 using Plots
-
-#
 using Interpolations
 include("utils.jl") 
 
-# Parameters
+# Parameters for the solvers
 const tol = 1e-6
 const mu_strategy = "adaptive"
 const sb = "yes"
@@ -20,7 +18,7 @@ const constr_viol_tol = 1e-6
 const max_iter = 1000
 const max_wall_time = 500.0
 
-# Collecting all the OptimalControlProblems
+# Collect all the problem from OptimalControlProblems
 all_names = names(OptimalControlProblems; all=true)
 functions_list = filter(
     x ->
@@ -31,6 +29,7 @@ functions_list = filter(
     all_names,
 )
 
+# Remove from the tests the problems that are not working
 pbs_with_issues = [
     :glider, :moonlander,               # issues with OptimalControl
     :cart_pendulum, :truck_trailer,     # issues with JuMP
@@ -38,19 +37,23 @@ pbs_with_issues = [
 ]
 functions_list = setdiff(functions_list, pbs_with_issues)
 
+# The list of all the problems to test
 const list_of_problems = deepcopy(functions_list)
+
+# The final list of problems for which the tests pass
 list_of_problems_final = deepcopy(functions_list)
 
-#
-const verbose = true
+# Tests
+const verbose = true # print or not details during tests
 @testset "OptimalControlProblems tests" verbose=verbose showtiming=true begin
+
     for name in (
         :aqua, 
-        :JuMP, 
-        :OptimalControl,
-        :Comparison,
-        :Init,
-        :Objective,
+        :JuMP,                  # convergence tests for JuMP models
+        :OptimalControl,        # convergence tests for OptimalControl models
+        :comparison_solution,   # comparison between OptimalControl and JuMP in terms of solutions
+        :comparison_init,       # comparison between OptimalControl and JuMP in terms of init guess
+        :comparison_objective,  # comparison between OptimalControl and JuMP in terms of objective
         )
         @testset "$(name)" verbose=verbose begin
             test_name = Symbol(:test_, name)
@@ -67,6 +70,7 @@ const verbose = true
             @test list_of_problems_final == available_problems() broken=true
         end
     end
+    
 end
 
 #

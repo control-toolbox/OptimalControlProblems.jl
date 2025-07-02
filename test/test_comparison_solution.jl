@@ -1,5 +1,4 @@
-# test_Comparison_JuMP_OptimalControl
-function test_Comparison()
+function test_comparison_solution()
 
     # Comparison Parameters
     ε = 1e-2

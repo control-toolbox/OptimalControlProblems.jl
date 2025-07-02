@@ -1,4 +1,4 @@
-function test_Objective()
+function test_comparison_objective()
 
     # Comparison Parameters
     ε = 1e-2
