@@ -1,5 +1,4 @@
-# test_comparison_init
-function test_Init()
+function test_comparison_init()
 
     # Comparison Parameters
     ε = 1e-2
