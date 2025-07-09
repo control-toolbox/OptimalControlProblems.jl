@@ -18,9 +18,9 @@ function OptimalControlProblems.electrical_vehicle(::JuMPBackend; nh::Int=100)
 
     model = Model()
 
-    @variable(model, x[0:nh])
-    @variable(model, v[0:nh])
-    @variable(model, u[0:nh])
+    @variable(model, x[0:nh], start = 0.1)
+    @variable(model, v[0:nh], start = 0.1)
+    @variable(model, u[0:nh], start = 0.1)
 
     @objective(model, Min, sum(b1 * u[t] * v[t] + b2 * u[t]^2 for t in 0:nh))
 

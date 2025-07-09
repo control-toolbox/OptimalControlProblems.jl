@@ -18,7 +18,9 @@ function OptimalControlProblems.vanderpol(::OptimalControlBackend; nh::Int=100)
     end
 
     # Initial guess
-    init = ()
+    xinit = t -> [0.1, 0.1]  # [x1, x2]
+    uinit = [0.1]  # [u]
+    init = (state=xinit, control=uinit)
 
     # NLPModel + DOCP
     docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)

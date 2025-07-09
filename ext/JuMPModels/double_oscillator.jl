@@ -19,11 +19,11 @@ function OptimalControlProblems.double_oscillator(::JuMPBackend; nh::Int=100)
     @variables(
         model,
         begin
-            x1[0:nh]
-            x2[0:nh]
-            x3[0:nh]
-            x4[0:nh]
-            -1.0 <= u[0:nh] <= 1.0
+            x1[0:nh], (start = 0.1)
+            x2[0:nh], (start = 0.1)
+            x3[0:nh], (start = 0.1)
+            x4[0:nh], (start = 0.1)
+            -1.0 <= u[0:nh] <= 1.0, (start = 0.1)
         end
     )
 

@@ -40,16 +40,16 @@ function OptimalControlProblems.truck_trailer(
         model,
         begin
             # Final time
-            0.0 <= tf
+            0.0 <= tf, (start = 0.1)
             # State variables
-            x2[0:nh]
-            y2[0:nh]
+            x2[0:nh], (start = 0.1)
+            y2[0:nh], (start = 0.1)
             -pi / 2 <= theta0[0:nh] <= pi / 2, (start = 0.1)
             -pi / 2 <= theta1[0:nh] <= pi / 2, (start = 0.0)
             theta2[0:nh], (start = 0.0)
             # Control variables
             -0.2 * speedf <= v0[0:nh] <= 0.2 * speedf, (start = -0.2)
-            -pi / 6 <= delta0[0:nh] <= pi / 6
+            -pi / 6 <= delta0[0:nh] <= pi / 6, (start = 0.1)
         end
     )
 

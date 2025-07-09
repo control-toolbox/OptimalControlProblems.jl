@@ -13,9 +13,9 @@ function OptimalControlProblems.vanderpol(::JuMPBackend; nh::Int=100)
     @variables(
         model,
         begin
-            x1[0:nh]
-            x2[0:nh]
-            u[0:nh]
+            x1[0:nh], (start = 0.1)
+            x2[0:nh], (start = 0.1)
+            u[0:nh], (start = 0.1)
             step[0:nh] == tf / nh
         end
     )

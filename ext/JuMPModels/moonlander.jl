@@ -23,14 +23,14 @@ function OptimalControlProblems.moonlander(
     @variables(
         model,
         begin
-            0.0 <= step
+            0.0 <= step, (start = 0.1)
             # state variables
-            p1[k=0:nh]
-            p2[k=0:nh]
-            dp1[k=0:nh]
-            dp2[k=0:nh]
-            theta[k=0:nh]
-            dtheta[k=0:nh]
+            p1[k=0:nh], (start = 0.1)
+            p2[k=0:nh], (start = 0.1)
+            dp1[k=0:nh], (start = 0.1)
+            dp2[k=0:nh], (start = 0.1)
+            theta[k=0:nh], (start = 0.1)
+            dtheta[k=0:nh], (start = 0.1)
             # control variables
             0 <= F1[k=0:nh] <= max_thrust, (start = 5.0)
             0 <= F2[k=0:nh] <= max_thrust, (start = 5.0)

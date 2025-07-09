@@ -77,7 +77,10 @@ function OptimalControlProblems.ducted_fan(::OptimalControlBackend; nh::Int=100)
     end
 
     # Initial guess
-    init = ()
+    xinit = t -> [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [x1, v1, x2, v2, α, vα]
+    uinit = [0.1, 0.1]  # [u1, u2]
+    varinit = [1.0]  # [tf] 
+    init = (state=xinit, control=uinit, variable=varinit)
 
     # NLPModel + DOCP
     docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)

@@ -55,7 +55,9 @@ function OptimalControlProblems.double_oscillator(::OptimalControlBackend; nh::I
     end
 
     # Initial guess
-    init = ()
+    xinit = t -> [0.1, 0.1, 0.1, 0.1]  # [x1, x2, x3, x4]
+    uinit = [0.1]  # [u]
+    init = (state=xinit, control=uinit)
 
     # NLPModel + DOCP
     docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)

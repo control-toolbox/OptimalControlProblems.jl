@@ -22,17 +22,17 @@ function OptimalControlProblems.quadrotor(::JuMPBackend; nh::Int64=60)
     @variables(
         model,
         begin
-            0.0 <= tf
-            p1[0:nh]
-            p2[0:nh]
-            p3[0:nh]
-            v1[0:nh]
-            v2[0:nh]
-            v3[0:nh]
+            0.0 <= tf, (start = 0.1)
+            p1[0:nh], (start = 0.1)
+            p2[0:nh], (start = 0.1)
+            p3[0:nh], (start = 0.1)
+            v1[0:nh], (start = 0.1)
+            v2[0:nh], (start = 0.1)
+            v3[0:nh], (start = 0.1)
             atmin <= at[0:nh] <= atmax, (start = 10.0)
-            -pi / 2 <= ϕ[0:nh] <= pi / 2
-            -pi / 2 <= θ[0:nh] <= pi / 2
-            ψ[0:nh]
+            -pi / 2 <= ϕ[0:nh] <= pi / 2, (start = 0.1)
+            -pi / 2 <= θ[0:nh] <= pi / 2, (start = 0.1)
+            ψ[0:nh], (start = 0.1)
         end
     )
 

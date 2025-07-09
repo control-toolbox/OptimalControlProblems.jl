@@ -131,7 +131,10 @@ function OptimalControlProblems.truck_trailer(
     end
 
     # Initial guess
-    init = (state=[0, 0, 0.1, 0.0, 0.0, -0.2, 0],)
+    xinit = t -> [0.1, 0.1, 0.1, 0.0, 0.0, -0.2, 0.1]  # [x2, y2, theta0, theta1, theta2, v0, delta0]
+    uinit = [0.1, 0.1]  # [d_v0, d_delta0]
+    varinit = [0.1]  # [tf]
+    init = (state=xinit, control=uinit, variable=varinit)
 
     # NLPModel + DOCP
     docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)

@@ -21,13 +21,13 @@ function OptimalControlProblems.cart_pendulum(::JuMPBackend; nh::Int64=100)
     @variables(
         model,
         begin
-            0.0 <= tf
-            ddx
-            -max_x <= x[0:nh] <= max_x
-            -max_v <= dx[0:nh] <= max_v
-            theta[0:nh]
-            omega[0:nh]
-            -max_f <= Fex[0:nh] <= max_f
+            0.0 <= tf, (start = 0.1)
+            ddx, (start = 0.1)
+            -max_x <= x[0:nh] <= max_x, (start = 0.1)
+            -max_v <= dx[0:nh] <= max_v, (start = 0.1)
+            theta[0:nh], (start = 0.1)
+            omega[0:nh], (start = 0.1)
+            -max_f <= Fex[0:nh] <= max_f, (start = 0.1)
         end
     )
 

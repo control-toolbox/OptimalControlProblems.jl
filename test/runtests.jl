@@ -25,7 +25,7 @@ functions_list = filter(
         isdefined(OptimalControlProblems, x) &&
             isa(getfield(OptimalControlProblems, x), Function) &&
             !startswith(string(x), "#") &&
-            !(x in [:eval, :include]),
+            !(x in [:eval, :include, :available_problems]),
     all_names,
 )
 
@@ -51,9 +51,7 @@ const verbose = true # print or not details during tests
         :aqua, 
         :JuMP,                  # convergence tests for JuMP models
         :OptimalControl,        # convergence tests for OptimalControl models
-        :comparison_solution,   # comparison between OptimalControl and JuMP in terms of solutions
-        :comparison_init,       # comparison between OptimalControl and JuMP in terms of init guess
-        :comparison_objective,  # comparison between OptimalControl and JuMP in terms of objective
+        :Comparison,            # comparison between OptimalControl and JuMP 
         )
         @testset "$(name)" verbose=verbose begin
             test_name = Symbol(:test_, name)

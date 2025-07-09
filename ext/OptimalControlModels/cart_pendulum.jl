@@ -90,7 +90,10 @@ function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=1
     end
 
     # initial guess
-    init = ()
+    xinit = t -> [0.1, 0.1, 0.1, 0.1]  # [x1, dx, theta, omega]
+    uinit = [0.1]  # [Fex]
+    varinit = [0.1, 0.1]  # [tf, ddx]
+    init = (state=xinit, control=uinit, variable=varinit)
 
     # NLPModel + DOCP
     docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)

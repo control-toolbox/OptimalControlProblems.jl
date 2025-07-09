@@ -86,7 +86,10 @@ function OptimalControlProblems.moonlander(
     end
 
     # Initial guess
-    init = (control=[5.0, 5.0],)
+    xinit = t -> [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [p1, p2, dp1, dp2, theta, dtheta]
+    uinit = [5.0, 5.0]  # [F1, F2] 
+    varinit = [0.1]  # [tf] 
+    init = (state=xinit, control=uinit, variable=varinit)
 
     # NLPModel + DOCP
     docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)

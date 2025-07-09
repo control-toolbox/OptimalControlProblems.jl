@@ -14,14 +14,14 @@ function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=100)
 
     model = Model()
 
-    @variable(model, x1[0:nh])
-    @variable(model, v1[0:nh])
-    @variable(model, x2[0:nh])
-    @variable(model, v2[0:nh])
-    @variable(model, -deg2rad(30.0) <= α[0:nh] <= deg2rad(30.0)) # radian
-    @variable(model, vα[0:nh])
-    @variable(model, -5.0 <= u1[0:nh] <= 5.0) # [nh]
-    @variable(model, 0.0 <= u2[0:nh] <= 17.0) # [nh]
+    @variable(model, x1[0:nh], start = 0.1)
+    @variable(model, v1[0:nh], start = 0.1)
+    @variable(model, x2[0:nh], start = 0.1)
+    @variable(model, v2[0:nh], start = 0.1)
+    @variable(model, -deg2rad(30.0) <= α[0:nh] <= deg2rad(30.0), start = 0.1) # radian
+    @variable(model, vα[0:nh], start = 0.1)
+    @variable(model, -5.0 <= u1[0:nh] <= 5.0, start = 0.1) # [nh]
+    @variable(model, 0.0 <= u2[0:nh] <= 17.0, start = 0.1) # [nh]
     @variable(model, 0 <= tf, start = 1.0)
 
     @objective(model, Min, tf / nh * sum(2 * u1[t]^2 + u2[t]^2 for t in 0:nh) + μ * tf)
