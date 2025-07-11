@@ -1,7 +1,7 @@
 """
 Space Shuttle Reentry Trajectory Problem:
     We want to find the optimal trajectory of a space shuttle reentry.
-    The objective is to minimize the angle of attack at the terminal point.
+    The objective is to maximize the latitude (cross range) at the terminal point.
     The problem is formulated as a JuMP model, and can be found [here](https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/)
 """
 function OptimalControlProblems.space_shuttle(

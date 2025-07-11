@@ -7,7 +7,7 @@ The Truck Trailer Problem:
 function OptimalControlProblems.truck_trailer(
     ::JuMPBackend;
     data::Array{Float64,2}=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2],
-    nh::Int64=100,
+    nh::Int64=200,
 )
     # parameters
     if size(data) != (3, 3)
@@ -40,15 +40,15 @@ function OptimalControlProblems.truck_trailer(
         model,
         begin
             # Final time
-            0.0 <= tf, (start = 0.1)
+            1.0 <= tf <= 1000, (start = 10)
             # State variables
             x2[0:nh], (start = 0.1)
             y2[0:nh], (start = 0.1)
             -pi / 2 <= theta0[0:nh] <= pi / 2, (start = 0.1)
-            -pi / 2 <= theta1[0:nh] <= pi / 2, (start = 0.0)
-            theta2[0:nh], (start = 0.0)
+            -pi / 2 <= theta1[0:nh] <= pi / 2, (start = 0.1)
+            theta2[0:nh], (start = 0.1)
             # Control variables
-            -0.2 * speedf <= v0[0:nh] <= 0.2 * speedf, (start = -0.2)
+            -0.2 * speedf <= v0[0:nh] <= 0.2 * speedf, (start = 0.1)
             -pi / 6 <= delta0[0:nh] <= pi / 6, (start = 0.1)
         end
     )
@@ -150,7 +150,7 @@ function OptimalControlProblems.truck_trailer(
         end
     )
 
-    @objective(model, Min, tf + sum((beta01[j]^2 + beta12[j]^2) for j in 0:nh))
+    @objective(model, Min, tf + step * sum((beta01[j]^2 + beta12[j]^2) for j in 0:nh-1))
 
     return model
 end
