@@ -1,6 +1,6 @@
 # OptimalControlProblems.jl
 
-The OptimalControlProblems.jl package is part of the [control-toolbox ecosystem](https://github.com/control-toolbox) and is independent of [OptimalControl.jl](https://control-toolbox.org/OptimalControl.jl). The control-toolbox ecosystem gathers Julia packages for mathematical control and applications. It aims to provide tools to model and solve optimal control problems with ordinary differential equations by direct and indirect methods. If you want to define an optimal control problem and solve it, please check the [documentation](https://control-toolbox.org/OptimalControl.jl).
+The OptimalControlProblems.jl package is part of the [control-toolbox ecosystem](https://github.com/control-toolbox) and is independent of [OptimalControl.jl](https://control-toolbox.org/OptimalControl.jl). The control-toolbox ecosystem gathers Julia packages for mathematical control and applications. It aims to provide tools to model and solve optimal control problems with ordinary differential equations by direct and indirect methods, both on CPU and GPU. If you want to define an optimal control problem and solve it, please check the [documentation](https://control-toolbox.org/OptimalControl.jl).
 
 In the OptimalControlProblems.jl package, you can find a list of optimal control problems modelled with JuMP and OptimalControl. There can be used for benchmarking.
 
