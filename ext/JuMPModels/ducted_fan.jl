@@ -5,7 +5,7 @@ The Ducted Fan Problem:
     The problem is formulated as a JuMP model.
 Ref: Graichen, K., & Petit, N. (2009). Incorporating a class of constraints into the dynamics of optimal control problems. Optimal Control Applications and Methods, 30(6), 537-561.
 """
-function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=100)
+function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=250)
     r = 0.2         # [m]
     J = 0.05        # [kg.m2]
     m = 2.2         # [kg]
@@ -23,8 +23,6 @@ function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=100)
     @variable(model, -5.0 <= u1[0:nh] <= 5.0, start = 0.1) # [nh]
     @variable(model, 0.0 <= u2[0:nh] <= 17.0, start = 0.1) # [nh]
     @variable(model, 0 <= tf, start = 1.0)
-
-    @objective(model, Min, tf / nh * sum(2 * u1[t]^2 + u2[t]^2 for t in 0:nh) + μ * tf)
 
     # Dynamics
     @expressions(
@@ -69,6 +67,8 @@ function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=100)
             vα[nh] == 0.0
         end
     )
+
+    @objective(model, Min, step * sum(2 * u1[t]^2 + u2[t]^2 for t in 0:nh-1) + μ * tf)
 
     return model
 end

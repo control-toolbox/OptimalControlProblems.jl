@@ -2,7 +2,7 @@
 The Bioreactor Problem:
     The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=100, N::Int=30)
+function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=250, N::Int=30)
     # Parameters
     beta = 1
     c = 2
@@ -63,7 +63,7 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=100, N::Int=30
         end
     )
 
-    @objective(model, Max, sum(b[t] / (beta + c) for t in 0:nh))
+    @objective(model, Max, step * sum(b[t] / (beta + c) for t in 0:nh-1))
 
     return model
 end

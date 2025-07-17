@@ -28,7 +28,7 @@ function OptimalControlProblems.double_oscillator(::JuMPBackend; nh::Int=100)
     )
 
     # Objective
-    @objective(model, Min, 0.5 * sum(x1[t]^2 + x2[t]^2 + u[t]^2 for t in 0:nh))
+    @objective(model, Min, 0.5 * step * sum(x1[t]^2 + x2[t]^2 + u[t]^2 for t in 0:nh-1))
 
     # Dynamics
     @expressions(

@@ -46,7 +46,7 @@ function OptimalControlProblems.vanderpol(::JuMPBackend; nh::Int=100)
         end
     )
 
-    @objective(model, Min, sum(0.5 * (x1[t]^2 + x2[t]^2 + u[t]^2) for t in 0:nh))
+    @objective(model, Min, step * sum(0.5 * (x1[t]^2 + x2[t]^2 + u[t]^2) for t in 0:nh-1))
 
     return model
 end

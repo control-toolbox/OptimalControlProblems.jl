@@ -2,7 +2,7 @@
 The Insurance Problem:
     The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.insurance(::JuMPBackend; nh::Int=100, N::Int=30)
+function OptimalControlProblems.insurance(::JuMPBackend; nh::Int=100)
     # constants
     gamma = 0.2
     lambda = 0.25
@@ -82,7 +82,7 @@ function OptimalControlProblems.insurance(::JuMPBackend; nh::Int=100, N::Int=30)
     )
 
     # Objective
-    @objective(model, Max, sum(U[t] * fx[t] for t in 0:nh))
+    @objective(model, Max, step * sum(U[t] * fx[t] for t in 0:nh-1))
 
     return model
 end
