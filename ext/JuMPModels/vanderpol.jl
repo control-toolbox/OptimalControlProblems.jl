@@ -16,7 +16,6 @@ function OptimalControlProblems.vanderpol(::JuMPBackend; nh::Int=100)
             x1[0:nh], (start = 0.1)
             x2[0:nh], (start = 0.1)
             u[0:nh], (start = 0.1)
-            step[0:nh] == tf / nh
         end
     )
 
@@ -32,6 +31,7 @@ function OptimalControlProblems.vanderpol(::JuMPBackend; nh::Int=100)
     @expressions(
         model,
         begin
+            step, tf / nh
             dx1[t=0:nh], x2[t]
             dx2[t=0:nh], epsilon * omega * (1 - x1[t]^2) * x2[t] - omega^2 * x1[t] + u[t]
         end
