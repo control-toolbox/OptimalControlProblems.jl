@@ -18,6 +18,7 @@ function test_JuMP()
             # Solve the model
             optimize!(model) # precompile
             #@time optimize!(model) #time
+            println("Objective: ", MOI.get(model, MOI.ObjectiveValue()))
             @test termination_status(model) == MOI.LOCALLY_SOLVED
             if termination_status(model) == MOI.LOCALLY_SOLVED
                 @test termination_status(model) == MOI.LOCALLY_SOLVED

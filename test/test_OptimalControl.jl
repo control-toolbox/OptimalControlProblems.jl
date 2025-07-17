@@ -11,37 +11,25 @@ function test_OptimalControl()
         :max_wall_time => max_wall_time,
     )
 
-    println()
-    println("\033[1m#########################################\033[0m")
-    println("\033[1m##### TEST CONVERGED OptimalControl #####\033[0m")
-    println("\033[1m#########################################\033[0m")
-    println()
-
     for f in list_of_problems
-        println("  $f:")
+        #println("  $f:")
         @testset "$(f)" verbose=verbose begin
-            # Set up the model
-            _, model = OptimalControlProblems.eval(f)(OptimalControlBackend())
-            print("  First solve:  "); @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
-            print("  Second solve: "); @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
+            # Set up the model +++ TO BE UPDATED
+            _, model = (OptimalControlProblems.eval(f)(OptimalControlBackend()))
+            sol = NLPModelsIpopt.ipopt(model; kwargs...) # precompile
+            #@time sol = NLPModelsIpopt.ipopt(model; kwargs...) # time
             println("  sol.status = $(sol.status)\n")
             # Test that the solver found an optimal solution
             if sol.status == :first_order
                 @test sol.status == :first_order
-                print("OptimalControl : $f converged : \033[1;32mTest Passed\033[0m\n")
+                print("OptimalControl : $f \033[1;32mTest Passed\033[0m\n")
             else 
                 @test sol.status == :first_order broken=true
-                print("OptimalControl : $f converged : \033[1;33mTest Broken\033[0m\n")
+                print("OptimalControl : $f \033[1;33mTest Broken\033[0m\n")
                 global list_of_problems_final
                 list_of_problems_final = setdiff(list_of_problems_final, [f])
             end
         end
     end
-
-    println()
-    println("\033[1m#########################################\033[0m")
-    println("\033[1m### END TEST CONVERGED OptimalControl ###\033[0m")
-    println("\033[1m#########################################\033[0m")
-    println()
 
 end

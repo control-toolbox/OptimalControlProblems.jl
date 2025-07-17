@@ -49,8 +49,8 @@ const verbose = true # print or not details during tests
 
     for name in (
         #:aqua, 
-        :JuMP,                  # convergence tests for JuMP models
-        #:OptimalControl,        # convergence tests for OptimalControl models
+        #:JuMP,                  # convergence tests for JuMP models
+        :OptimalControl,        # convergence tests for OptimalControl models
         #:Comparison,            # comparison between OptimalControl and JuMP 
         )
         @testset "$(name)" verbose=verbose begin

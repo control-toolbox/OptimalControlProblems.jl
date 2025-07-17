@@ -26,7 +26,5 @@ function OptimalControlProblems.robbins(::OptimalControlBackend; nh::Int=100, N:
     init = (state=xinit, control=uinit)
 
     # NLPModel + DOCP
-    docp = direct_transcription(ocp; init=init, grid_size=nh)
-
-    return docp
+    return direct_transcription(ocp; init=init, grid_size=nh)
 end
