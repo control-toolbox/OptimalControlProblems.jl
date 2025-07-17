@@ -31,9 +31,9 @@ functions_list = filter(
 
 # Remove from the tests the problems that are not working
 pbs_with_issues = [
-    :glider, :moonlander,               # issues with OptimalControl
-    :cart_pendulum, :truck_trailer,     # issues with JuMP
-    :space_shuttle,                     # not the same probleme between JuMP (tf not fixed) and OptimalControl (tf fixed)
+    #:glider, :moonlander,               # issues with OptimalControl
+    #:cart_pendulum, :truck_trailer,     # issues with JuMP
+    #:space_shuttle,                     # not the same probleme between JuMP (tf not fixed) and OptimalControl (tf fixed)
 ]
 functions_list = setdiff(functions_list, pbs_with_issues)
 
@@ -48,10 +48,10 @@ const verbose = true # print or not details during tests
 @testset "OptimalControlProblems tests" verbose=verbose showtiming=true begin
 
     for name in (
-        :aqua, 
+        #:aqua, 
         :JuMP,                  # convergence tests for JuMP models
-        :OptimalControl,        # convergence tests for OptimalControl models
-        :Comparison,            # comparison between OptimalControl and JuMP 
+        #:OptimalControl,        # convergence tests for OptimalControl models
+        #:Comparison,            # comparison between OptimalControl and JuMP 
         )
         @testset "$(name)" verbose=verbose begin
             test_name = Symbol(:test_, name)

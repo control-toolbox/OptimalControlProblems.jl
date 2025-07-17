@@ -5,25 +5,34 @@ The Moonlander Problem:
     The problem is formulated as an OptimalControl model.
 """
 function OptimalControlProblems.moonlander(
-    ::OptimalControlBackend; target::Array{Float64}=[5.0, 5.0], nh::Int=100
+    ::OptimalControlBackend; p_f::Array{Float64}=[5.0, 5.0], nh::Int=100
 )
     ## parameters
-    if size(target) != (2,)
-        error("The input matrix must be 3x3.")
-    end
     m = 1.0
     g = 9.81
     I = 0.1
     D = 1.0
     max_thrust = 2 * g
 
+    # dynamics
+    function dynamics(x, u)
+        p1, p2, dp1, dp2, theta, dtheta = x
+        F1, F2 = u
+
+        F_r = [
+            cos(theta) -sin(theta) p1
+            sin(theta) cos(theta) p2
+            0.0 0.0 1.0
+        ]
+        F_tot = (F_r * [0; F1 + F2; 0])[1:2]
+        ddp1 = (1 / m) * F_tot[1]
+        ddp2 = (1 / m) * F_tot[2] - g
+        ddtheta = (1 / I) * (D / 2) * (F2 - F1)
+
+        return [dp1, dp2, ddp1, ddp2, dtheta, ddtheta]
+    end
+
     ocp = @def begin
-        ## parameters
-        m = 1.0
-        g = 9.81
-        I = 0.1
-        D = 1.0
-        max_thrust = 2 * g
 
         ## define the problem
         tf ∈ R, variable
@@ -55,8 +64,9 @@ function OptimalControlProblems.moonlander(
         theta(0.0) == 0.0, (theta_ic)
         dtheta(0.0) == 0.0, (dtheta_ic)
         # final conditions
-        p1(tf) == target[1], (p1_fc)
-        p2(tf) == target[2], (p2_fc)
+        tf >= 0.1
+        p1(tf) == p_f[1], (p1_fc)
+        p2(tf) == p_f[2], (p2_fc)
         dp1(tf) == 0.0, (dp1_fc)
         dp2(tf) == 0.0, (dp2_fc)
 
@@ -67,24 +77,6 @@ function OptimalControlProblems.moonlander(
         tf → min
     end
 
-    # dynamics
-    function dynamics(x, u)
-        p1, p2, dp1, dp2, theta, dtheta = x
-        F1, F2 = u
-
-        F_r = [
-            cos(theta) -sin(theta) p1
-            sin(theta) cos(theta) p2
-            0.0 0.0 1.0
-        ]
-        F_tot = (F_r * [0; F1 + F2; 0])[1:2]
-        ddp1 = (1 / m) * F_tot[1]
-        ddp2 = (1 / m) * F_tot[2] - g
-        ddtheta = (1 / I) * (D / 2) * (F2 - F1)
-
-        return [dp1, dp2, ddp1, ddp2, dtheta, ddtheta]
-    end
-
     # Initial guess
     xinit = t -> [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [p1, p2, dp1, dp2, theta, dtheta]
     uinit = [5.0, 5.0]  # [F1, F2] 
@@ -92,7 +84,7 @@ function OptimalControlProblems.moonlander(
     init = (state=xinit, control=uinit, variable=varinit)
 
     # NLPModel + DOCP
-    docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
+    docp = direct_transcription(ocp; init=init, grid_size=nh)
 
-    return docp, nlp
+    return docp
 end

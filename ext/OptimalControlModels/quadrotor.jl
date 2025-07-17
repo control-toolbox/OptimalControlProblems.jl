@@ -17,21 +17,32 @@ function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=60)
     pf = [0.01, 5.0, 2.5]
     vf = [0.0, 0.0, 0.0]
 
+    function dynamics(x, u)
+        p1, p2, p3, v1, v2, v3, ϕ, θ = x
+        at, ϕ_dot, θ_dot, ψ = u
+
+        cr = cos(ϕ)
+        sr = sin(ϕ)
+        cp = cos(θ)
+        sp = sin(θ)
+        cy = cos(ψ)
+        sy = sin(ψ)
+        R = [
+            (cy*cp) (cy * sp * sr-sy * cr) (cy * sp * cr+sy * sr)
+            (sy*cp) (sy * sp * sr+cy * cr) (sy * sp * cr-cy * sr)
+            (-sp) (cp*sr) (cp*cr)
+        ]
+        at_ = R * [0; 0; at]
+        g_ = [0; 0; -g]
+        a = g_ + at_
+
+        return [v1, v2, v3, a[1], a[2], a[3], ϕ_dot, θ_dot]
+    end
+
     ocp = @def begin
-        ## parameters
-        g = 9.81
-        atmin = 0
-        atmax = 9.18 * 5
-        tiltmax = 1.1 / 2
-        dtiltmax = 6.0 / 2
-        p0 = [0.0, 0.0, 2.5]
-        v0 = [0, 0, 0]
-        u0 = [9.81, 0, 0, 0]
-        pf = [0.01, 5.0, 2.5]
-        vf = [0.0, 0.0, 0.0]
 
         ## define the problem
-        tf ∈ R¹, variable
+        tf ∈ R, variable
         t ∈ [0.0, tf], time
         x ∈ R⁸, state
         u ∈ R⁴, control
@@ -53,14 +64,15 @@ function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=60)
 
         ## constraints
         # state constraints
-        tf ≥ 0.0, (tf_con)
-        # control constraints
+        tf ≥ 0.1, (tf_con)
         -pi / 2 ≤ ϕ(t) ≤ pi / 2, (ϕ_con)
         -pi / 2 ≤ θ(t) ≤ pi / 2, (θ_con)
-        cos(θ(t)) * cos(ϕ(t)) ≥ cos(tiltmax), (tiltmax_con)
+        # control constraints
+        atmin ≤ at(t) ≤ atmax, (at_con)
         -dtiltmax ≤ ϕ_dot(t) ≤ dtiltmax, (ϕdot_con)
         -dtiltmax ≤ θ_dot(t) ≤ dtiltmax, (θdot_con)
-        atmin ≤ at(t) ≤ atmax, (at_con)
+        # path constraints
+        cos(θ(t)) * cos(ϕ(t)) ≥ cos(tiltmax), (tiltmax_con)
         # initial constraints
         p1(0) == p0[1], (p1_i)
         p2(0) == p0[2], (p2_i)
@@ -85,28 +97,6 @@ function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=60)
         tf + ∫(1e-8 * (ϕ(t)^2 + θ(t)^2 + ψ(t)^2 + at(t)^2) + (1e2 * (ψ(t) - u0[3])^2)) → min
     end
 
-    function dynamics(x, u)
-        p1, p2, p3, v1, v2, v3, ϕ, θ = x
-        at, ϕ_dot, θ_dot, ψ = u
-
-        cr = cos(ϕ)
-        sr = sin(ϕ)
-        cp = cos(θ)
-        sp = sin(θ)
-        cy = cos(ψ)
-        sy = sin(ψ)
-        R = [
-            (cy*cp) (cy * sp * sr-sy * cr) (cy * sp * cr+sy * sr)
-            (sy*cp) (sy * sp * sr+cy * cr) (sy * sp * cr-cy * sr)
-            (-sp) (cp*sr) (cp*cr)
-        ]
-        at_ = R * [0; 0; at]
-        g_ = [0; 0; -g]
-        a = g_ + at_
-
-        return [v1, v2, v3, a[1], a[2], a[3], ϕ_dot, θ_dot]
-    end
-
     # Initial guess
     xinit = t -> [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [p1, p2, p3, v1, v2, v3, ϕ, θ]
     uinit = [10.0, 0.1, 0.1, 0.1]  # [at, ϕ_dot, θ_dot, ψ] 
@@ -114,7 +104,7 @@ function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=60)
     init = (state=xinit, control=uinit, variable=varinit)
 
     # NLPModel + DOCP
-    docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
+    docp = direct_transcription(ocp; init=init, grid_size=nh)
 
-    return docp, nlp
+    return docp
 end
