@@ -6,6 +6,6 @@ cart_pendulum_meta = Dict(
     :minimize => true,
     :state_name => ["x", "dx", "theta", "omega"],
     :costate_name => ["d_x", "d_dx", "d_theta", "d_omega"],
-    :control_name => "Fex",
+    :control_name => ["Fex"],
     :time => ("final_time", "tf", nothing)
 )

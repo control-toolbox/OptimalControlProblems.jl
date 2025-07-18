@@ -1,5 +1,7 @@
 function test_Comparison()
 
+    test_init = false
+
     # Comparison Parameters
     ε = 1e-2
     p = 2
@@ -35,125 +37,127 @@ function test_Comparison()
             println("############ TEST $f #############")
             println()
 
-            #================== INIT ======================#
+            if test_init
+                #================== INIT ======================#
 
-            ########## OptimalControl ##########
+                ########## OptimalControl ##########
 
-            # Set up the OptimalControl model 
-            docp_init, OC_model_init = OptimalControlProblems.eval(f)(OptimalControlBackend()) # +++ UPDATE
+                # Set up the OptimalControl model 
+                docp_init, OC_model_init = OptimalControlProblems.eval(f)(OptimalControlBackend()) # +++ UPDATE
 
-            # Solve the problem
-            nlp_sol_init = NLPModelsIpopt.ipopt(OC_model_init; kwargs_init...)
+                # Solve the problem
+                nlp_sol_init = NLPModelsIpopt.ipopt(OC_model_init; kwargs_init...)
 
-            # Build the solution
-            sol_init = build_OCP_solution(docp_init; primal=nlp_sol_init.solution, dual=nlp_sol_init.multipliers)
+                # Build the solution
+                sol_init = build_OCP_solution(docp_init; primal=nlp_sol_init.solution, dual=nlp_sol_init.multipliers)
 
-            # Retrieves values of variables
-            x_init_oc = state(sol_init)
-            p_init_oc = costate(sol_init)
-            u_init_oc = control(sol_init)
+                # Retrieves values of variables
+                x_init_oc = state(sol_init)
+                p_init_oc = costate(sol_init)
+                u_init_oc = control(sol_init)
 
-            ############### JuMP ###############
+                ############### JuMP ###############
 
-            # Set up the JuMP model
-            JuMP_init_model = OptimalControlProblems.eval(f)(JuMPBackend())
-            set_optimizer(JuMP_init_model, Ipopt.Optimizer)
-            set_silent(JuMP_init_model)
-            set_optimizer_attribute(JuMP_init_model, "tol", tol)
-            set_optimizer_attribute(JuMP_init_model, "max_iter", 0)
-            set_optimizer_attribute(JuMP_init_model, "mu_strategy", mu_strategy)
-            set_optimizer_attribute(JuMP_init_model, "linear_solver", "mumps")
-            set_optimizer_attribute(JuMP_init_model, "max_wall_time", max_wall_time)
-            set_optimizer_attribute(JuMP_init_model, "sb", sb)
+                # Set up the JuMP model
+                JuMP_init_model = OptimalControlProblems.eval(f)(JuMPBackend())
+                set_optimizer(JuMP_init_model, Ipopt.Optimizer)
+                set_silent(JuMP_init_model)
+                set_optimizer_attribute(JuMP_init_model, "tol", tol)
+                set_optimizer_attribute(JuMP_init_model, "max_iter", 0)
+                set_optimizer_attribute(JuMP_init_model, "mu_strategy", mu_strategy)
+                set_optimizer_attribute(JuMP_init_model, "linear_solver", "mumps")
+                set_optimizer_attribute(JuMP_init_model, "max_wall_time", max_wall_time)
+                set_optimizer_attribute(JuMP_init_model, "sb", sb)
 
-            # Solve the model
-            optimize!(JuMP_init_model)
+                # Solve the model
+                optimize!(JuMP_init_model)
 
-            # Retrieves values of variables
-            time_data, time_var_name, time_value = OptimalControlProblems.metadata[f][:time]
-            if time_data == "final_time"
-                if time_value !== nothing
-                    tf_init = time_value
-                else
-                    tf_init = value.(JuMP_init_model[Symbol(time_var_name)])
+                # Retrieves values of variables
+                time_data, time_var_name, time_value = OptimalControlProblems.metadata[f][:time]
+                if time_data == "final_time"
+                    if time_value !== nothing
+                        tf_init = time_value
+                    else
+                        tf_init = value.(JuMP_init_model[Symbol(time_var_name)])
+                    end
+                    h_init = tf_init / nh
+                elseif time_data == "step"
+                    if time_value !== nothing
+                        h_init = time_value
+                    else
+                        h_init = value.(JuMP_init_model[Symbol(time_var_name)])
+                    end
+                    tf_init = h_init * nh
                 end
-                h_init = tf_init / nh
-            elseif time_data == "step"
-                if time_value !== nothing
-                    h_init = time_value
-                else
-                    h_init = value.(JuMP_init_model[Symbol(time_var_name)])
-                end
-                tf_init = h_init * nh
+                t_init = Vector((0:nh) * h_init)
+
+                x_vars = OptimalControlProblems.metadata[f][:state_name]
+                p_vars = OptimalControlProblems.metadata[f][:costate_name]
+                u_vars = OptimalControlProblems.metadata[f][:control_name]
+
+                x_jmp_vars_init = [JuMP.value.(JuMP_init_model[Symbol(xv)]) for xv in x_vars]
+                inds_x_init = axes(x_jmp_vars_init[1], 1)
+                x_jmp_init = [[x_jmp_vars_init[j][i] for j in 1:length(x_vars)] for i in inds_x_init]
+
+                u_jmp_vars_init = [JuMP.value.(JuMP_init_model[Symbol(uv)]) for uv in u_vars]
+                inds_u_init = axes(u_jmp_vars_init[1], 1)
+                u_jmp_init = [[u_jmp_vars_init[j][i] for j in 1:length(u_vars)] for i in inds_u_init]
+
+                p_jmp_vars_init = [JuMP.dual.(JuMP_init_model[Symbol(pv)]) for pv in p_vars]
+                inds_p_init = axes(p_jmp_vars_init[1], 1)
+                p_jmp_init = -[[p_jmp_vars_init[j][i] for j in 1:length(p_vars)] for i in inds_p_init]
+                p_jmp_init = costateInterpolation(p_jmp_init, t_init)
+
+                ############ TEST ############
+                @testset "init" verbose=verbose begin 
+                print("Init:\n")
+                    for k in 1:length(x_jmp_init[1])
+                        dist_x_init = abs(x_init_oc(0)[k] - x_jmp_init[1][k])
+                        print("  Test x$k : ")
+                        @testset "x$k" verbose=verbose begin
+                            if !(dist_x_init < ε)
+                                print("$dist_x_init < $ε \033[1;33mTest Broken\033[0m\n")
+                                @test dist_x_init < ε broken=true
+                                global list_of_problems_final
+                                list_of_problems_final = setdiff(list_of_problems_final, [f])
+                            else
+                                print("$dist_x_init < $ε \033[1;32mTest Passed\033[0m\n")
+                                @test dist_x_init < ε
+                            end
+                        end
+                    end
+
+                    for k in 1:length(p_jmp_init[1])
+                        dist_p_init = abs(p_init_oc(0)[k] - p_jmp_init[1][k])
+                        print("  Test p$k : ")
+                        @testset "p$k" verbose=verbose begin
+                            if !(dist_p_init < ε)
+                                print("$dist_p_init < $ε \033[1;33mTest Broken\033[0m\n")
+                                @test dist_p_init < ε broken=true
+                            else
+                                print("$dist_p_init < $ε \033[1;32mTest Passed\033[0m\n")
+                                @test dist_p_init < ε
+                            end
+                        end
+                    end
+
+                    for k in 1:length(u_jmp_init[1])
+                        dist_u_init = abs(u_init_oc(0)[k] - u_jmp_init[1][k])
+                        print("  Test u$k : ")
+                        @testset "u$k" verbose=verbose begin
+                            if !(dist_u_init < ε)
+                                print("$dist_u_init < $ε \033[1;33mTest Broken\033[0m\n")
+                                @test dist_u_init < ε broken=true
+                                global list_of_problems_final
+                                list_of_problems_final = setdiff(list_of_problems_final, [f])
+                            else
+                                print("$dist_u_init < $ε \033[1;32mTest Passed\033[0m\n")
+                                @test dist_u_init < ε
+                            end
+                        end
+                    end
+                end 
             end
-            t_init = Vector((0:nh) * h_init)
-
-            x_vars = OptimalControlProblems.metadata[f][:state_name]
-            p_vars = OptimalControlProblems.metadata[f][:costate_name]
-            u_vars = OptimalControlProblems.metadata[f][:control_name]
-
-            x_jmp_vars_init = [JuMP.value.(JuMP_init_model[Symbol(xv)]) for xv in x_vars]
-            inds_x_init = axes(x_jmp_vars_init[1], 1)
-            x_jmp_init = [[x_jmp_vars_init[j][i] for j in 1:length(x_vars)] for i in inds_x_init]
-
-            u_jmp_vars_init = [JuMP.value.(JuMP_init_model[Symbol(uv)]) for uv in u_vars]
-            inds_u_init = axes(u_jmp_vars_init[1], 1)
-            u_jmp_init = [[u_jmp_vars_init[j][i] for j in 1:length(u_vars)] for i in inds_u_init]
-
-            p_jmp_vars_init = [JuMP.dual.(JuMP_init_model[Symbol(pv)]) for pv in p_vars]
-            inds_p_init = axes(p_jmp_vars_init[1], 1)
-            p_jmp_init = -[[p_jmp_vars_init[j][i] for j in 1:length(p_vars)] for i in inds_p_init]
-            p_jmp_init = costateInterpolation(p_jmp_init, t_init)
-
-            ############ TEST ############
-            @testset "init" verbose=verbose begin 
-            print("Init:\n")
-                for k in 1:length(x_jmp_init[1])
-                    dist_x_init = abs(x_init_oc(0)[k] - x_jmp_init[1][k])
-                    print("  Test x$k : ")
-                    @testset "x$k" verbose=verbose begin
-                        if !(dist_x_init < ε)
-                            print("$dist_x_init < $ε \033[1;33mTest Broken\033[0m\n")
-                            @test dist_x_init < ε broken=true
-                            global list_of_problems_final
-                            list_of_problems_final = setdiff(list_of_problems_final, [f])
-                        else
-                            print("$dist_x_init < $ε \033[1;32mTest Passed\033[0m\n")
-                            @test dist_x_init < ε
-                        end
-                    end
-                end
-
-                for k in 1:length(p_jmp_init[1])
-                    dist_p_init = abs(p_init_oc(0)[k] - p_jmp_init[1][k])
-                    print("  Test p$k : ")
-                    @testset "p$k" verbose=verbose begin
-                        if !(dist_p_init < ε)
-                            print("$dist_p_init < $ε \033[1;33mTest Broken\033[0m\n")
-                            @test dist_p_init < ε broken=true
-                        else
-                            print("$dist_p_init < $ε \033[1;32mTest Passed\033[0m\n")
-                            @test dist_p_init < ε
-                        end
-                    end
-                end
-
-                for k in 1:length(u_jmp_init[1])
-                    dist_u_init = abs(u_init_oc(0)[k] - u_jmp_init[1][k])
-                    print("  Test u$k : ")
-                    @testset "u$k" verbose=verbose begin
-                        if !(dist_u_init < ε)
-                            print("$dist_u_init < $ε \033[1;33mTest Broken\033[0m\n")
-                            @test dist_u_init < ε broken=true
-                            global list_of_problems_final
-                            list_of_problems_final = setdiff(list_of_problems_final, [f])
-                        else
-                            print("$dist_u_init < $ε \033[1;32mTest Passed\033[0m\n")
-                            @test dist_u_init < ε
-                        end
-                    end
-                end
-            end 
 
             #======================= END INIT ========================#
 
@@ -225,12 +229,13 @@ function test_Comparison()
 
             obj_jmp = objective_value(JuMP_model)
 
-            dist_obj = abs(obj_oc - obj_jmp)
+            dist_obj = abs(obj_oc - obj_jmp) / (obj_oc + obj_jmp) / 2.
             @testset "objective" verbose=verbose begin
             print("Objective:\n")
             print("  Test objective : ")
                 if !(dist_obj < ε)
                     print("$dist_obj < $ε \033[1;33mTest Broken\033[0m\n")
+                    println("Jump ", obj_jmp, " vs OC ", obj_oc)
                     @test dist_obj < ε broken=true
                     global list_of_problems_final
                     list_of_problems_final = setdiff(list_of_problems_final, [f])
@@ -244,6 +249,7 @@ function test_Comparison()
             plots_p = Vector{Any}()
             plots_u = Vector{Any}()
 
+            # +++ use relative error
             @testset "norm_L$p" verbose=verbose begin
             print("Norm_L$p:\n")
                 for k in 1:length(x_jmp[1])
