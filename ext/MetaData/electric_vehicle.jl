@@ -1,5 +1,5 @@
-electrical_vehicle_meta = Dict(
-    :name => "electrical_vehicle",
+electric_vehicle_meta = Dict(
+    :name => "electric_vehicle",
     :nh => 100, #:nh => nothing,
     :nvar => nothing,
     :ncon => nothing,

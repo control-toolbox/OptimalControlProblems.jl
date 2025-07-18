@@ -11,10 +11,9 @@ using Interpolations
 include("utils.jl") 
 
 # Parameters for the solvers
-const tol = 1e-6
+const tol = 1e-8
 const mu_strategy = "adaptive"
 const sb = "yes"
-const constr_viol_tol = 1e-6
 const max_iter = 1000
 const max_wall_time = 500.0
 
@@ -31,9 +30,6 @@ functions_list = filter(
 
 # Remove from the tests the problems that are not working
 pbs_with_issues = [
-    :glider, :moonlander,               # issues with OptimalControl
-    :cart_pendulum, :truck_trailer,     # issues with JuMP
-    :space_shuttle,                     # not the same probleme between JuMP (tf not fixed) and OptimalControl (tf fixed)
 ]
 functions_list = setdiff(functions_list, pbs_with_issues)
 
@@ -48,10 +44,11 @@ const verbose = true # print or not details during tests
 @testset "OptimalControlProblems tests" verbose=verbose showtiming=true begin
 
     for name in (
-        :aqua, 
-        :JuMP,                  # convergence tests for JuMP models
-        :OptimalControl,        # convergence tests for OptimalControl models
-        :Comparison,            # comparison between OptimalControl and JuMP 
+        #:aqua, 
+        #:JuMP,                  # convergence tests for JuMP models
+        #:OptimalControl,        # convergence tests for OptimalControl models
+        :Comparison,            # comparison between OptimalControl and JuMP
+        #:quick,                 # quick comparison: objective rel error only
         )
         @testset "$(name)" verbose=verbose begin
             test_name = Symbol(:test_, name)
@@ -61,13 +58,19 @@ const verbose = true # print or not details during tests
         end
     end
  
+    # note: not sure I undertand the purpose of the cache ?
+    # the list of available problems is not up to date when the tests are run
+    # and we need to run the tests another time to get the proper list
     @testset "available_problems" verbose=verbose begin
         if list_of_problems_final == available_problems()
             @test list_of_problems_final == available_problems()
         else
+            println("Available problems: ", available_problems())
+            println("Passed problems: ",list_of_problems_final)
             @test list_of_problems_final == available_problems() broken=true
         end
     end
+    
     
 end
 

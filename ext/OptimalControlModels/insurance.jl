@@ -77,7 +77,5 @@ function OptimalControlProblems.insurance(::OptimalControlBackend; nh::Int=100)
     init = (state=xinit, control=uinit, variable=varinit)
 
     # NLPModel + DOCP
-    docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
-
-    return docp, nlp
+    return direct_transcription(ocp; init=init, grid_size=nh)
 end

@@ -5,7 +5,7 @@ The Moonlander Problem:
     The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746)
 """
 function OptimalControlProblems.moonlander(
-    ::JuMPBackend; target::Array{Float64}=[5.0, 5.0], nh::Int64=100
+    ::JuMPBackend; target::Array{Float64}=[5.0, 5.0], nh::Int64=1000
 )
     ## parameters
     if size(target) != (2,)
@@ -23,7 +23,7 @@ function OptimalControlProblems.moonlander(
     @variables(
         model,
         begin
-            0.0 <= step, (start = 0.1)
+            0.01 <= tf, (start = 0.1)
             # state variables
             p1[k=0:nh], (start = 0.1)
             p2[k=0:nh], (start = 0.1)
@@ -55,6 +55,13 @@ function OptimalControlProblems.moonlander(
     )
 
     #dynamics
+    @expressions(
+        model,
+        begin
+            step, tf / nh
+        end
+    )
+
     @expressions(
         model,
         begin
@@ -95,7 +102,7 @@ function OptimalControlProblems.moonlander(
         end
     )
 
-    @objective(model, Min, step * nh)
+    @objective(model, Min, tf)
 
     return model
 end

@@ -2,7 +2,7 @@
 The Robbins Problem:
     The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=100, N::Int=30)
+function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=250)
     # constants
     alpha = 3
     beta = 0
@@ -48,7 +48,7 @@ function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=100, N::Int=30)
 
     # Objective
     @objective(
-        model, Min, sum(alpha * x1[t] + beta * x1[t]^2 + gamma * u[t]^2 for t in 0:nh)
+        model, Min, step * sum(alpha * x1[t] + beta * x1[t]^2 + gamma * u[t]^2 for t in 0:nh-1)
     )
 
     return model
