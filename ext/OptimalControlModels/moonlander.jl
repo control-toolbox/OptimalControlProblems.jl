@@ -86,7 +86,7 @@ function OptimalControlProblems.moonlander(
     end
 
     # Initial guess
-    xinit = t -> [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [p1, p2, dp1, dp2, theta, dtheta]
+    xinit = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [p1, p2, dp1, dp2, theta, dtheta]
     uinit = [5.0, 5.0]  # [F1, F2] 
     varinit = [0.1]  # [tf] 
     init = (state=xinit, control=uinit, variable=varinit)

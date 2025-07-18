@@ -39,7 +39,7 @@ function OptimalControlProblems.beam(::JuMPBackend; nh::Int=100)
         end
     )
 
-    @objective(model, Min, sum(u[t]^2 for t in 0:nh))
+    @objective(model, Min, step * sum(u[t]^2 for t in 0:nh))
 
     return model
 end

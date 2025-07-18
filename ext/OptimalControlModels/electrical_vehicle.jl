@@ -59,7 +59,7 @@ function OptimalControlProblems.electrical_vehicle(::OptimalControlBackend; nh::
     end
 
     ## Initial guess
-    xinit = t -> [0.1, 0.1]  # [pos, v]
+    xinit = [0.1, 0.1]  # [pos, v]
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 

@@ -55,7 +55,7 @@ function OptimalControlProblems.double_oscillator(::OptimalControlBackend; nh::I
     end
 
     # Initial guess
-    xinit = t -> [0.1, 0.1, 0.1, 0.1]  # [x1, x2, x3, x4]
+    xinit = [0.1, 0.1, 0.1, 0.1]  # [x1, x2, x3, x4]
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 

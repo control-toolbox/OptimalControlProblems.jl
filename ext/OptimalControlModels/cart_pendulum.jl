@@ -90,7 +90,7 @@ function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=1
     end
 
     # initial guess
-    xinit = t -> [0.1, 0.1, 0.1, 0.1]  # [x1, dx, theta, omega]
+    xinit = [0.1, 0.1, 0.1, 0.1]  # [x1, dx, theta, omega]
     uinit = [0.1]  # [Fex]
     varinit = [0.1, 0.1]  # [tf, ddx]
     init = (state=xinit, control=uinit, variable=varinit)

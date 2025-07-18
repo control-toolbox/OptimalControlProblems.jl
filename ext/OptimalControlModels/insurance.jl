@@ -71,7 +71,7 @@ function OptimalControlProblems.insurance(::OptimalControlBackend; nh::Int=100)
     end
 
     # Initial guess
-    xinit = t -> [0.1, 0.1, 0.1]  # [I, m, x3]
+    xinit = [0.1, 0.1, 0.1]  # [I, m, x3]
     uinit = [0.1, 0.1, 0.1, 0.1, 0.1]  # [h, R, H, U, dUdR]
     varinit = [0.1]  # [P]
     init = (state=xinit, control=uinit, variable=varinit)

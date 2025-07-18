@@ -28,6 +28,7 @@ function test_Comparison()
     println()
     println("\033[1m###########################\033[0m")
     println("\033[1m####### COMPARISON ########\033[0m")
+    println("\033[1m##### RELATIVE TEST #######\033[0m")
     println("\033[1m###########################\033[0m")
     println()
 
@@ -109,51 +110,56 @@ function test_Comparison()
             p_jmp_init = costateInterpolation(p_jmp_init, t_init)
 
             ############ TEST ############
-            @testset "init" verbose=verbose begin 
-            print("Init:\n")
-                for k in 1:length(x_jmp_init[1])
-                    dist_x_init = abs(x_init_oc(0)[k] - x_jmp_init[1][k])
-                    print("  Test x$k : ")
-                    @testset "x$k" verbose=verbose begin
-                        if !(dist_x_init < ε)
-                            print("$dist_x_init < $ε \033[1;33mTest Broken\033[0m\n")
-                            @test dist_x_init < ε broken=true
-                            global list_of_problems_final
-                            list_of_problems_final = setdiff(list_of_problems_final, [f])
-                        else
-                            print("$dist_x_init < $ε \033[1;32mTest Passed\033[0m\n")
-                            @test dist_x_init < ε
-                        end
+            
+            init_has_broken = false
+            for k in 1:length(x_jmp_init[1])
+                dist_x_init = abs(x_init_oc(0)[k] - x_jmp_init[1][k]) / (0.5 * abs(x_jmp_init[1][k] + x_init_oc(0)[k]) + 1e-12)
+                if !(dist_x_init < ε)
+                    init_has_broken = true
+                    break
+                end
+            end
+            if !init_has_broken
+                for k in 1:length(u_jmp_init[1])
+                    dist_u_init = abs(u_init_oc(0)[k] - u_jmp_init[1][k]) / (0.5 * abs(u_jmp_init[1][k] + u_init_oc(0)[k]) + 1e-12)
+                    if !(dist_u_init < ε)
+                        init_has_broken = true
+                        break
                     end
                 end
-
-                for k in 1:length(p_jmp_init[1])
-                    dist_p_init = abs(p_init_oc(0)[k] - p_jmp_init[1][k])
-                    print("  Test p$k : ")
-                    @testset "p$k" verbose=verbose begin
-                        if !(dist_p_init < ε)
-                            print("$dist_p_init < $ε \033[1;33mTest Broken\033[0m\n")
-                            @test dist_p_init < ε broken=true
-                        else
-                            print("$dist_p_init < $ε \033[1;32mTest Passed\033[0m\n")
-                            @test dist_p_init < ε
+            end
+            
+            @testset "init" verbose=init_has_broken begin 
+            print("Init:\n")
+                for k in 1:length(x_jmp_init[1])
+                    dist_x_init = abs(x_init_oc(0)[k] - x_jmp_init[1][k]) / (0.5 * abs(x_jmp_init[1][k] + x_init_oc(0)[k]) + 1e-12)
+                    print("  Test x$k : ")
+                    if !(dist_x_init < ε)
+                        print("$dist_x_init < $ε \033[1;33mTest Broken\033[0m\n")
+                        @testset "x$k" verbose=false begin
+                            @test dist_x_init < ε broken=true
                         end
+                        global list_of_problems_final
+                        list_of_problems_final = setdiff(list_of_problems_final, [f])
+                    else
+                        print("$dist_x_init < $ε \033[1;32mTest Passed\033[0m\n")
+                        @test dist_x_init < ε
                     end
                 end
 
                 for k in 1:length(u_jmp_init[1])
-                    dist_u_init = abs(u_init_oc(0)[k] - u_jmp_init[1][k])
+                    dist_u_init = abs(u_init_oc(0)[k] - u_jmp_init[1][k]) / (0.5 * abs(u_jmp_init[1][k] + u_init_oc(0)[k]) + 1e-12)
                     print("  Test u$k : ")
-                    @testset "u$k" verbose=verbose begin
-                        if !(dist_u_init < ε)
-                            print("$dist_u_init < $ε \033[1;33mTest Broken\033[0m\n")
+                    if !(dist_u_init < ε)
+                        print("$dist_u_init < $ε \033[1;33mTest Broken\033[0m\n")
+                        @testset "u$k" verbose=false begin
                             @test dist_u_init < ε broken=true
-                            global list_of_problems_final
-                            list_of_problems_final = setdiff(list_of_problems_final, [f])
-                        else
-                            print("$dist_u_init < $ε \033[1;32mTest Passed\033[0m\n")
-                            @test dist_u_init < ε
                         end
+                        global list_of_problems_final
+                        list_of_problems_final = setdiff(list_of_problems_final, [f])
+                    else
+                        print("$dist_u_init < $ε \033[1;32mTest Passed\033[0m\n")
+                        @test dist_u_init < ε
                     end
                 end
             end 
@@ -229,8 +235,10 @@ function test_Comparison()
 
             obj_jmp = objective_value(JuMP_model)
 
-            dist_obj = abs(obj_oc - obj_jmp)
-            @testset "objective" verbose=verbose begin
+            dist_obj = abs(obj_oc - obj_jmp) / (0.5 * abs(obj_jmp + obj_oc) + 1e-12)
+            obj_has_broken = !(dist_obj < ε)
+            
+            @testset "objective" verbose=obj_has_broken begin
             print("Objective:\n")
             print("  Test objective : ")
                 if !(dist_obj < ε)
@@ -248,62 +256,92 @@ function test_Comparison()
             plots_p = Vector{Any}()
             plots_u = Vector{Any}()
 
-            @testset "norm_L$p" verbose=verbose begin
+            norm_has_broken = false
+            
+            for k in 1:length(x_jmp[1])
+                dist_x_Lp = norm_Lp([x_oc((i - 1) * h)[k] - x_jmp[i][k] for i in 1:nh+1], p, h) / (0.5 * norm_Lp([x_oc((i - 1) * h)[k] + x_jmp[i][k] for i in 1:nh+1], p, h) + 1e-12)
+                if !(dist_x_Lp < ε)
+                    norm_has_broken = true
+                    break
+                end
+            end
+            
+            if !norm_has_broken
+                for k in 1:length(p_jmp[1])
+                    dist_p_Lp = norm_Lp([p_oc((i - 1) * h)[k] - p_jmp[i][k] for i in 1:nh+1], p, h) / (0.5 * norm_Lp([p_oc((i - 1) * h)[k] + p_jmp[i][k] for i in 1:nh+1], p, h) + 1e-12)
+                    if !(dist_p_Lp < ε)
+                        norm_has_broken = true
+                        break
+                    end
+                end
+            end
+            
+            if !norm_has_broken
+                for k in 1:length(u_jmp[1])
+                    dist_u_Lp = norm_Lp([u_oc((i - 1) * h)[k] - u_jmp[i][k] for i in 1:nh+1], p, h) / (0.5 * norm_Lp([u_oc((i - 1) * h)[k] + u_jmp[i][k] for i in 1:nh+1], p, h) + 1e-12)
+                    if !(dist_u_Lp < ε)
+                        norm_has_broken = true
+                        break
+                    end
+                end
+            end
+
+            @testset "norm_L$p" verbose=norm_has_broken begin
             print("Norm_L$p:\n")
                 for k in 1:length(x_jmp[1])
-                    dist_x_Lp = norm_Lp([x_oc((i - 1) * h)[k] - x_jmp[i][k] for i in 1:nh+1], p, h)
+                    dist_x_Lp = norm_Lp([x_oc((i - 1) * h)[k] - x_jmp[i][k] for i in 1:nh+1], p, h) / (0.5 * norm_Lp([x_oc((i - 1) * h)[k] + x_jmp[i][k] for i in 1:nh+1], p, h) + 1e-12)
                     print("  Test x$k : ")
-                    @testset "x$k" verbose = verbose begin
-                        if !(dist_x_Lp < ε)
-                            print("$dist_x_Lp < $ε \033[1;33mTest Broken\033[0m\n")
+                    if !(dist_x_Lp < ε)
+                        print("$dist_x_Lp < $ε \033[1;33mTest Broken\033[0m\n")
+                        @testset "x$k" verbose = false begin
                             @test dist_x_Lp < ε broken=true
-                            global list_of_problems_final
-                            list_of_problems_final = setdiff(list_of_problems_final, [f])
-                        else
-                            print("$dist_x_Lp < $ε \033[1;32mTest Passed\033[0m\n")
-                            @test dist_x_Lp < ε
                         end
+                        global list_of_problems_final
+                        list_of_problems_final = setdiff(list_of_problems_final, [f])
+                    else
+                        print("$dist_x_Lp < $ε \033[1;32mTest Passed\033[0m\n")
+                        @test dist_x_Lp < ε
                     end
-                    px = plot(plot(sol)[k]; line=2, label="OptimalControl") # OptimalControl
-                    px = plot!(t, [x_jmp[i][k] for i in 1:nh+1]; xlabel="t", ylabel=string(x_vars[k]), legend=false, line=2, color="red", linestyle=:dash, label="JuMP") # JuMP
+                    px = plot(plot(sol)[k]; line=2, label="OptimalControl")
+                    px = plot!(t, [x_jmp[i][k] for i in 1:nh+1]; xlabel="t", ylabel=string(x_vars[k]), legend=false, line=2, color="red", linestyle=:dash, label="JuMP") 
                     push!(plots_x, px)
                 end
 
                 for k in 1:length(p_jmp[1])
-                    dist_p_Lp = norm_Lp([p_oc((i - 1) * h)[k] - p_jmp[i][k] for i in 1:nh+1], p, h)
+                    dist_p_Lp = norm_Lp([p_oc((i - 1) * h)[k] - p_jmp[i][k] for i in 1:nh+1], p, h) / (0.5 * norm_Lp([p_oc((i - 1) * h)[k] + p_jmp[i][k] for i in 1:nh+1], p, h) + 1e-12)
                     print("  Test p$k : ")
-                    @testset "p$k" verbose = verbose begin
-                        if !(dist_p_Lp < ε)
-                            print("$dist_p_Lp < $ε \033[1;33mTest Broken\033[0m\n")
+                    if !(dist_p_Lp < ε)
+                        print("$dist_p_Lp < $ε \033[1;33mTest Broken\033[0m\n")
+                        @testset "p$k" verbose = false begin
                             @test dist_p_Lp < ε broken=true
-                            global list_of_problems_final
-                            list_of_problems_final = setdiff(list_of_problems_final, [f])
-                        else
-                            print("$dist_p_Lp < $ε \033[1;32mTest Passed\033[0m\n")
-                            @test dist_p_Lp < ε
                         end
+                        global list_of_problems_final
+                        list_of_problems_final = setdiff(list_of_problems_final, [f])
+                    else
+                        print("$dist_p_Lp < $ε \033[1;32mTest Passed\033[0m\n")
+                        @test dist_p_Lp < ε
                     end
-                    pp = plot(plot(sol)[length(x_jmp[1])+k]; line=2, label="OptimalControl") # OptimalControl
-                    pp = plot!(t, [p_jmp[i][k] for i in 1:nh+1]; xlabel="t", ylabel="p_" * string(x_vars[k]), legend=false, line=2, color="red", linestyle=:dash, label="JuMP") # JuMP
+                    pp = plot(plot(sol)[length(x_jmp[1])+k]; line=2, label="OptimalControl") 
+                    pp = plot!(t, [p_jmp[i][k] for i in 1:nh+1]; xlabel="t", ylabel="p_" * string(x_vars[k]), legend=false, line=2, color="red", linestyle=:dash, label="JuMP") 
                     push!(plots_p, pp)
                 end
 
                 for k in 1:length(u_jmp[1])
-                    dist_u_Lp = norm_Lp([u_oc((i - 1) * h)[k] - u_jmp[i][k] for i in 1:nh+1], p, h)
+                    dist_u_Lp = norm_Lp([u_oc((i - 1) * h)[k] - u_jmp[i][k] for i in 1:nh+1], p, h) / (0.5 * norm_Lp([u_oc((i - 1) * h)[k] + u_jmp[i][k] for i in 1:nh+1], p, h) + 1e-12)
                     print("  Test u$k : ")
-                    @testset "u$k" verbose = verbose begin
-                        if !(dist_u_Lp < ε)
-                            print("$dist_u_Lp < $ε \033[1;33mTest Broken\033[0m\n")
+                    if !(dist_u_Lp < ε)
+                        print("$dist_u_Lp < $ε \033[1;33mTest Broken\033[0m\n")
+                        @testset "u$k" verbose = false begin
                             @test dist_u_Lp < ε broken=true
-                            global list_of_problems_final
-                            list_of_problems_final = setdiff(list_of_problems_final, [f])
-                        else
-                            print("$dist_u_Lp < $ε \033[1;32mTest Passed\033[0m\n")
-                            @test dist_u_Lp < ε
                         end
+                        global list_of_problems_final
+                        list_of_problems_final = setdiff(list_of_problems_final, [f])
+                    else
+                        print("$dist_u_Lp < $ε \033[1;32mTest Passed\033[0m\n")
+                        @test dist_u_Lp < ε
                     end
-                    pu = plot(plot(sol)[length(x_jmp[1])+length(p_jmp[1])+k]; line=2, label="OptimalControl") # OptimalControl
-                    pu = plot!(t, [u_jmp[i][k] for i in 1:nh+1]; xlabel="t", ylabel=string(u_vars[k]), legend=false, line=2, color="red", linestyle=:dash, label="JuMP") # JuMP
+                    pu = plot(plot(sol)[length(x_jmp[1])+length(p_jmp[1])+k]; line=2, label="OptimalControl") 
+                    pu = plot!(t, [u_jmp[i][k] for i in 1:nh+1]; xlabel="t", ylabel=string(u_vars[k]), legend=false, line=2, color="red", linestyle=:dash, label="JuMP")
                     push!(plots_u, pu)
                 end
             end

@@ -108,7 +108,7 @@ function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=60)
     end
 
     # Initial guess
-    xinit = t -> [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [p1, p2, p3, v1, v2, v3, ϕ, θ]
+    xinit = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [p1, p2, p3, v1, v2, v3, ϕ, θ]
     uinit = [10.0, 0.1, 0.1, 0.1]  # [at, ϕ_dot, θ_dot, ψ] 
     varinit = [0.1]  # [tf]
     init = (state=xinit, control=uinit, variable=varinit)

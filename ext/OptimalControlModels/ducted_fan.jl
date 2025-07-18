@@ -77,7 +77,7 @@ function OptimalControlProblems.ducted_fan(::OptimalControlBackend; nh::Int=100)
     end
 
     # Initial guess
-    xinit = t -> [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [x1, v1, x2, v2, α, vα]
+    xinit = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [x1, v1, x2, v2, α, vα]
     uinit = [0.1, 0.1]  # [u1, u2]
     varinit = [1.0]  # [tf] 
     init = (state=xinit, control=uinit, variable=varinit)

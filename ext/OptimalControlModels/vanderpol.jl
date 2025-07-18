@@ -18,7 +18,7 @@ function OptimalControlProblems.vanderpol(::OptimalControlBackend; nh::Int=100)
     end
 
     # Initial guess
-    xinit = t -> [0.1, 0.1]  # [x1, x2]
+    xinit = [0.1, 0.1]  # [x1, x2]
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 

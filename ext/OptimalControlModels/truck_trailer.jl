@@ -131,7 +131,7 @@ function OptimalControlProblems.truck_trailer(
     end
 
     # Initial guess
-    xinit = t -> [0.1, 0.1, 0.1, 0.0, 0.0, -0.2, 0.1]  # [x2, y2, theta0, theta1, theta2, v0, delta0]
+    xinit = [0.1, 0.1, 0.1, 0.0, 0.0, -0.2, 0.1]  # [x2, y2, theta0, theta1, theta2, v0, delta0]
     uinit = [0.1, 0.1]  # [d_v0, d_delta0]
     varinit = [0.1]  # [tf]
     init = (state=xinit, control=uinit, variable=varinit)
