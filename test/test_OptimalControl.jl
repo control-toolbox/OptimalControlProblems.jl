@@ -24,7 +24,8 @@ function test_OptimalControl()
             _, model = OptimalControlProblems.eval(f)(OptimalControlBackend()) # !+++ UPDATE
             print("  First solve:  "); @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
             print("  Second solve: "); @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
-            println("  sol.status = $(sol.status)\n")
+            println("  sol.status = $(sol.status)  objective (NLP) = $(sol.objective) \n")
+
             # Test that the solver found an optimal solution
             if sol.status == :first_order
                 @test sol.status == :first_order

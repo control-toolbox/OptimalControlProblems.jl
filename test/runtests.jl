@@ -50,8 +50,8 @@ const verbose = true # print or not details during tests
         #:aqua, 
         #:JuMP,                  # convergence tests for JuMP models
         #:OptimalControl,        # convergence tests for OptimalControl models
-        #:Comparison,            # comparison between OptimalControl and JuMP
-        :quick,                 # quick comparison: objective rel error only
+        :Comparison,            # comparison between OptimalControl and JuMP
+        #:quick,                 # quick comparison: objective rel error only
         )
         @testset "$(name)" verbose=verbose begin
             test_name = Symbol(:test_, name)
@@ -61,7 +61,7 @@ const verbose = true # print or not details during tests
         end
     end
  
-    #=
+    
     @testset "available_problems" verbose=verbose begin
         println(available_problems())
         println(list_of_problems_final)
@@ -71,7 +71,7 @@ const verbose = true # print or not details during tests
             @test list_of_problems_final == available_problems() broken=true
         end
     end
-    =#
+    
     
 end
 

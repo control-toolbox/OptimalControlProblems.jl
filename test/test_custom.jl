@@ -1,6 +1,8 @@
+#using CTBase
 using Ipopt
 using JuMP
 using NLPModelsIpopt
+using OptimalControl
 using OptimalControlProblems
 using Test
 include("utils.jl") 
@@ -19,5 +21,5 @@ verbose = true
 include("test_JuMP.jl")
 test_JuMP()
 
-include("test_OptimalControl")
+include("test_OptimalControl.jl")
 test_OptimalControl()
