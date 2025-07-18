@@ -46,9 +46,9 @@ const verbose = true # print or not details during tests
     for name in (
         #:aqua, 
         #:JuMP,                  # convergence tests for JuMP models
-        :OptimalControl,        # convergence tests for OptimalControl models
+        #:OptimalControl,        # convergence tests for OptimalControl models
         #:Comparison,            # comparison between OptimalControl and JuMP
-        #:quick,                 # quick comparison: objective rel error only
+        :quick,                 # quick comparison: objective rel error only
         )
         @testset "$(name)" verbose=verbose begin
             test_name = Symbol(:test_, name)
