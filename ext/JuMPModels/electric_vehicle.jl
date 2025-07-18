@@ -1,10 +1,10 @@
 """
-The Electrical Vehicle Problem
-    Implement optimal control of an electrical vehicle.
+The electric Vehicle Problem
+    Implement optimal control of an electric vehicle.
     The problem is formulated as a JuMP model.
 Ref: [PS2011] Nicolas Petit and Antonio Sciarretta. "Optimal drive of electric vehicles using an inversion-based trajectory generation approach." IFAC Proceedings Volumes 44, no. 1 (2011): 14519-14526.
 """
-function OptimalControlProblems.electrical_vehicle(::JuMPBackend; nh::Int=250)
+function OptimalControlProblems.electric_vehicle(::JuMPBackend; nh::Int=250)
     D = 10.0
     T = 1.0
     b1 = 1e3

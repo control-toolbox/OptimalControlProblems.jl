@@ -42,7 +42,7 @@ function test_Comparison()
             ########## OptimalControl ##########
 
             # Set up the OptimalControl model 
-            docp_init, OC_model_init = OptimalControlProblems.eval(f)(OptimalControlBackend())
+            docp_init, OC_model_init = OptimalControlProblems.eval(f)(OptimalControlBackend()) # +++ UPDATE
 
             # Solve the problem
             nlp_sol_init = NLPModelsIpopt.ipopt(OC_model_init; kwargs_init...)

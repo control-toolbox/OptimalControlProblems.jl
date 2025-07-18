@@ -63,7 +63,7 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=250, N::Int=30
         end
     )
 
-    @objective(model, Max, step * sum(b[t] / (beta + c) for t in 0:nh-1))
+    @objective(model, Max, step * sum(mu2[t] * b[t] / (beta + c) for t in 0:nh-1))
 
     return model
 end

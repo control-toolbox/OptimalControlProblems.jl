@@ -7,7 +7,7 @@ The Truck Trailer Problem:
 function OptimalControlProblems.truck_trailer(
     ::OptimalControlBackend;
     data::Array{Float64,2}=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2],
-    nh::Int=100,
+    nh::Int=250,
 )
     # parameters
     L0 = data[1, 1]

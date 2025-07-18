@@ -68,7 +68,7 @@ function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=250)
         end
     )
 
-    @objective(model, Min, step * sum(2 * u1[t]^2 + u2[t]^2 for t in 0:nh-1) + μ * tf)
+    @objective(model, Min, 1. / tf * step * sum(2. * u1[t]^2 + u2[t]^2 for t in 0:nh-1) + μ * tf)
 
     return model
 end

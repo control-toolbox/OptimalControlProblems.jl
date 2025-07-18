@@ -13,8 +13,11 @@ const constr_viol_tol = 1e-8
 const max_iter = 1000
 const max_wall_time = 500.0
 
-list_of_problems=[:cart_pendulum]
+list_of_problems=[:electric_vehicle]
 verbose = true
 
 include("test_JuMP.jl")
 test_JuMP()
+
+include("test_OptimalControl")
+test_OptimalControl()

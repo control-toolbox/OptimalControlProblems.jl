@@ -1,10 +1,10 @@
 """
-The Electrical Vehicle Problem
-    Implement optimal control of an electrical vehicle.
+The electric Vehicle Problem
+    Implement optimal control of an electric vehicle.
     The problem is formulated as an OptimalControl model.
 Ref: [PS2011] Nicolas Petit and Antonio Sciarretta. "Optimal drive of electric vehicles using an inversion-based trajectory generation approach." IFAC Proceedings Volumes 44, no. 1 (2011): 14519-14526.
 """
-function OptimalControlProblems.electrical_vehicle(::OptimalControlBackend; nh::Int=100)
+function OptimalControlProblems.electric_vehicle(::OptimalControlBackend; nh=100)
     # parameters
     D = 10.0
     tf = 1.0

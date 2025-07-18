@@ -7,7 +7,7 @@ The Truck Trailer Problem:
 function OptimalControlProblems.truck_trailer(
     ::JuMPBackend;
     data::Array{Float64,2}=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2],
-    nh::Int64=200,
+    nh::Int64=250,
 )
     # parameters
     if size(data) != (3, 3)
@@ -70,7 +70,7 @@ function OptimalControlProblems.truck_trailer(
         begin
             beta01[j=0:nh], theta0[j] - theta1[j]
             beta12[j=0:nh], theta1[j] - theta2[j]
-            step, tf / (nh - 1)
+            step, tf / nh
         end
     )
     @constraints(
