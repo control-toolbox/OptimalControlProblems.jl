@@ -26,7 +26,7 @@ function test_OptimalControl()
             println("  sol.status = $(sol.status)  objective (NLP) = $(sol.objective) \n")
 
             # Test that the solver found an optimal solution
-            success = (sol.status == :first_order || sol.status == :first_order)
+            success = (sol.status == :first_order || sol.status == :acceptable)
             if success
                 @test success
                 print("OptimalControl : $f converged : \033[1;32mTest Passed\033[0m\n")

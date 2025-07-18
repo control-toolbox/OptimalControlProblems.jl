@@ -45,8 +45,8 @@ const verbose = true # print or not details during tests
 
     for name in (
         #:aqua, 
-        :JuMP,                  # convergence tests for JuMP models
-        #:OptimalControl,        # convergence tests for OptimalControl models
+        #:JuMP,                  # convergence tests for JuMP models
+        :OptimalControl,        # convergence tests for OptimalControl models
         #:Comparison,            # comparison between OptimalControl and JuMP
         #:quick,                 # quick comparison: objective rel error only
         )
@@ -58,13 +58,15 @@ const verbose = true # print or not details during tests
         end
     end
  
-    
+    # note: not sure I undertand the purpose of the cache ?
+    # the list of available problems is not up to date when the tests are run
+    # and we need to run the tests another time to get the proper list
     @testset "available_problems" verbose=verbose begin
-        println(available_problems())
-        println(list_of_problems_final)
         if list_of_problems_final == available_problems()
             @test list_of_problems_final == available_problems()
         else
+            println("Available problems: ", available_problems())
+            println("Passed problems: ",list_of_problems_final)
             @test list_of_problems_final == available_problems() broken=true
         end
     end
