@@ -33,7 +33,7 @@ The table below summarizes the names and status of the each problem:
 | dielectrophoretic_particle    | ✅        | ✅    | 
 | double_oscillator             | ✅        | ✅    |
 | ducted_fan                    | ✅        | ✅    |
-| electrical_vehicle            | ✅        | ✅    |
+| electric_vehicle              | ✅        | ✅    |
 | glider                        | ✅        | ❌    |
 | insurance                     | ✅        | ✅    |
 | jackson                       | ✅        | ✅    |

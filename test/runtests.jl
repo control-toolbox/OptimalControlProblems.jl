@@ -30,9 +30,6 @@ functions_list = filter(
 
 # Remove from the tests the problems that are not working
 pbs_with_issues = [
-    #:glider, :moonlander,               # issues with OptimalControl
-    #:cart_pendulum, :truck_trailer,     # issues with JuMP
-    #:space_shuttle,                     # not the same probleme between JuMP (tf not fixed) and OptimalControl (tf fixed)
 ]
 functions_list = setdiff(functions_list, pbs_with_issues)
 
@@ -48,9 +45,9 @@ const verbose = true # print or not details during tests
 
     for name in (
         #:aqua, 
-        #:JuMP,                  # convergence tests for JuMP models
+        :JuMP,                  # convergence tests for JuMP models
         #:OptimalControl,        # convergence tests for OptimalControl models
-        :Comparison,            # comparison between OptimalControl and JuMP
+        #:Comparison,            # comparison between OptimalControl and JuMP
         #:quick,                 # quick comparison: objective rel error only
         )
         @testset "$(name)" verbose=verbose begin

@@ -10,7 +10,6 @@ function test_Comparison()
         :tol => tol,
         :mu_strategy => mu_strategy,
         :sb => sb,
-        :constr_viol_tol => constr_viol_tol,
         :max_iter => 0,
         :max_wall_time => max_wall_time,
     )
@@ -20,7 +19,6 @@ function test_Comparison()
         :tol => tol,
         :mu_strategy => mu_strategy,
         :sb => sb,
-        :constr_viol_tol => constr_viol_tol,
         :max_iter => max_iter,
         :max_wall_time => max_wall_time,
     )
@@ -62,7 +60,6 @@ function test_Comparison()
             set_optimizer(JuMP_init_model, Ipopt.Optimizer)
             set_silent(JuMP_init_model)
             set_optimizer_attribute(JuMP_init_model, "tol", tol)
-            set_optimizer_attribute(JuMP_init_model, "constr_viol_tol", constr_viol_tol)
             set_optimizer_attribute(JuMP_init_model, "max_iter", 0)
             set_optimizer_attribute(JuMP_init_model, "mu_strategy", mu_strategy)
             set_optimizer_attribute(JuMP_init_model, "linear_solver", "mumps")
@@ -177,7 +174,7 @@ function test_Comparison()
             x_oc = state(sol)
             p_oc = costate(sol)
             u_oc = control(sol)
-            obj_oc = nlp_sol.objective
+            obj_oc = objective(sol)
 
             ############### JuMP ###############
 
@@ -186,7 +183,6 @@ function test_Comparison()
             set_optimizer(JuMP_model, Ipopt.Optimizer)
             set_silent(JuMP_model)
             set_optimizer_attribute(JuMP_model, "tol", tol)
-            set_optimizer_attribute(JuMP_model, "constr_viol_tol", constr_viol_tol)
             set_optimizer_attribute(JuMP_model, "max_iter", max_iter)
             set_optimizer_attribute(JuMP_model, "mu_strategy", mu_strategy)
             set_optimizer_attribute(JuMP_model, "linear_solver", "mumps")

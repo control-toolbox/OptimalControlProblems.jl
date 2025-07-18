@@ -5,7 +5,7 @@ chain
 dielectrophoretic_particle
 double_oscillator
 ducted_fan
-electrical_vehicle
+electric_vehicle
 glider
 insurance
 jackson
