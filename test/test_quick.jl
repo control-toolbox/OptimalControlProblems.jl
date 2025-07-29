@@ -38,12 +38,14 @@ function test_quick()
         obj_jmp = objective_value(JuMP_model)
 
         # objective relative error
-        dist_obj = abs(obj_oc - obj_jmp) / (obj_oc + obj_jmp) / 2
+        dist_obj = abs(obj_oc - obj_jmp) / (0.5* abs(obj_oc + obj_jmp) + 1e-12)
         if dist_obj < ε
             @printf("Objective rel error %5.2g \033[1;32mTest Passed\033[0m\n", dist_obj)
         else
             @printf("Objective rel error %5.2g \033[1;33mTest Broken\033[0m JuMP: %5.2g vs OC: %5.2g\n", dist_obj, obj_jmp, obj_oc)
         end
+        println("jmp: $obj_jmp")
+        println("oc: $obj_oc")
 
     end
 

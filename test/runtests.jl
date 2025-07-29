@@ -30,6 +30,7 @@ functions_list = filter(
 
 # Remove from the tests the problems that are not working
 pbs_with_issues = [
+    
 ]
 functions_list = setdiff(functions_list, pbs_with_issues)
 
@@ -44,9 +45,9 @@ const verbose = true # print or not details during tests
 @testset "OptimalControlProblems tests" verbose=verbose showtiming=true begin
 
     for name in (
-        #:aqua, 
-        #:JuMP,                  # convergence tests for JuMP models
-        #:OptimalControl,        # convergence tests for OptimalControl models
+        :aqua, 
+        :JuMP,                  # convergence tests for JuMP models
+        :OptimalControl,        # convergence tests for OptimalControl models
         :Comparison,            # comparison between OptimalControl and JuMP
         #:quick,                 # quick comparison: objective rel error only
         )

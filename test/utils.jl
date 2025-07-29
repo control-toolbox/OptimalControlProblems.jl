@@ -37,11 +37,25 @@ function norm_Lp(u, p, dt)
     end
     nu = length(u)
     if nu < 2
-        return (sum(abs.(u[1]) .^ p) * dt)^(1 / p)
+        if isa(dt, Number)
+            return (sum(abs.(u[1]) .^ p) * dt)^(1 / p)
+        else
+            return (sum(abs.(u[1]) .^ p) * dt[1])^(1 / p)
+        end
     end
     s = 0.0
-    for i in 1:nu-1
-        s += 0.5 * (sum(abs.(u[i]) .^ p) + sum(abs.(u[i+1]) .^ p))
+    if isa(dt, Number)
+        # Uniform time step
+        for i in 1:nu-1
+            s += 0.5 * (sum(abs.(u[i]) .^ p) + sum(abs.(u[i+1]) .^ p))
+        end
+        return (s * dt)^(1 / p)
+    else
+        # Variable time steps
+        for i in 1:nu-1
+            dt_i = (i <= length(dt)) ? dt[i] : dt[end]
+            s += 0.5 * (sum(abs.(u[i]) .^ p) + sum(abs.(u[i+1]) .^ p)) * dt_i
+        end
+        return s^(1 / p)
     end
-    return (s * dt)^(1 / p)
 end
