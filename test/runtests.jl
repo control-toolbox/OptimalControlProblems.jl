@@ -78,7 +78,7 @@ end
 #
 println("List of problems working:", list_of_problems_final)
 
-# Sauvegarder la liste des problèmes fonctionnels dans un fichier de cache
+# Save the list of working problems to a cache file
 cache_file = joinpath(@__DIR__, "..", "available_problems_cache.txt")
 try
     open(cache_file, "w") do f
@@ -86,7 +86,7 @@ try
             println(f, string(problem))
         end
     end
-    println("Cache des problèmes disponibles mis à jour: $cache_file")
+    println("Available problems cache updated: $cache_file")
 catch e
-    @warn "Impossible de sauvegarder le cache des problèmes: $e"
+    @warn "Unable to save problems cache: $e"
 end
