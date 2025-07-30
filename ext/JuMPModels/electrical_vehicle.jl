@@ -28,16 +28,16 @@ function OptimalControlProblems.electrical_vehicle(::JuMPBackend; nh::Int=100)
     @expressions(
         model,
         begin
-            dx[t=0:nh], v[t]
-            dv[t=0:nh], h1 * u[t] - h2 * v[t]^2 - h0 - road(x[t])
+            dx[t = 0:nh], v[t]
+            dv[t = 0:nh], h1 * u[t] - h2 * v[t]^2 - h0 - road(x[t])
         end
     )
     # Collocation
     @constraints(
         model,
         begin
-            cond_x[t=1:nh], x[t] == x[t - 1] + 0.5 * step * (dx[t - 1] + dx[t])
-            cond_v[t=1:nh], v[t] == v[t - 1] + 0.5 * step * (dv[t - 1] + dv[t])
+            cond_x[t = 1:nh], x[t] == x[t - 1] + 0.5 * step * (dx[t - 1] + dx[t])
+            cond_v[t = 1:nh], v[t] == v[t - 1] + 0.5 * step * (dv[t - 1] + dv[t])
         end
     )
     # Boundary constraints

@@ -26,16 +26,16 @@ function OptimalControlProblems.dielectrophoretic_particle(::JuMPBackend; nh::In
         model,
         begin
             step, tf / nh
-            dx[t=0:nh], y[t] * u[t] + α * u[t]^2
-            dy[t=0:nh], -c * y[t] + u[t]
+            dx[t = 0:nh], y[t] * u[t] + α * u[t]^2
+            dy[t = 0:nh], -c * y[t] + u[t]
         end
     )
     # Collocation
     @constraints(
         model,
         begin
-            con_x[t=1:nh], x[t] == x[t - 1] + 0.5 * step * (dx[t] + dx[t - 1])
-            con_y[t=1:nh], y[t] == y[t - 1] + 0.5 * step * (dy[t] + dy[t - 1])
+            con_x[t = 1:nh], x[t] == x[t - 1] + 0.5 * step * (dx[t] + dx[t - 1])
+            con_y[t = 1:nh], y[t] == y[t - 1] + 0.5 * step * (dy[t] + dy[t - 1])
         end
     )
     # Boundary constraints

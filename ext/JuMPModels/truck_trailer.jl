@@ -57,10 +57,10 @@ function OptimalControlProblems.truck_trailer(
     @expressions(
         model,
         begin
-            x1[j=0:nh], x2[j] + L2 * cos(theta2[j]) + M1 * cos(theta1[j])
-            y1[j=0:nh], y2[j] + L2 * sin(theta2[j]) + M1 * sin(theta1[j])
-            x0[j=0:nh], x1[j] + L1 * cos(theta1[j]) + M0 * cos(theta0[j])
-            y0[j=0:nh], y1[j] + L1 * sin(theta1[j]) + M0 * sin(theta0[j])
+            x1[j = 0:nh], x2[j] + L2 * cos(theta2[j]) + M1 * cos(theta1[j])
+            y1[j = 0:nh], y2[j] + L2 * sin(theta2[j]) + M1 * sin(theta1[j])
+            x0[j = 0:nh], x1[j] + L1 * cos(theta1[j]) + M0 * cos(theta0[j])
+            y0[j = 0:nh], y1[j] + L1 * sin(theta1[j]) + M0 * sin(theta0[j])
         end
     )
 
@@ -68,16 +68,16 @@ function OptimalControlProblems.truck_trailer(
     @expressions(
         model,
         begin
-            beta01[j=0:nh], theta0[j] - theta1[j]
-            beta12[j=0:nh], theta1[j] - theta2[j]
+            beta01[j = 0:nh], theta0[j] - theta1[j]
+            beta12[j = 0:nh], theta1[j] - theta2[j]
             step, tf / (nh - 1)
         end
     )
     @constraints(
         model,
         begin
-            beta01_con[j=0:nh], -pi / 2 <= beta01[j] <= pi / 2
-            beta12_con[j=0:nh], -pi / 2 <= beta12[j] <= pi / 2
+            beta01_con[j = 0:nh], -pi / 2 <= beta01[j] <= pi / 2
+            beta12_con[j = 0:nh], -pi / 2 <= beta12[j] <= pi / 2
         end
     )
 
@@ -85,15 +85,15 @@ function OptimalControlProblems.truck_trailer(
     @expressions(
         model,
         begin
-            v0_dot[j=1:nh], (v0[j] - v0[j - 1]) / step
-            delta0_dot[j=1:nh], (delta0[j] - delta0[j - 1]) / step
+            v0_dot[j = 1:nh], (v0[j] - v0[j - 1]) / step
+            delta0_dot[j = 1:nh], (delta0[j] - delta0[j - 1]) / step
         end
     )
     @constraints(
         model,
         begin
-            delta0_dot_con[j=1:nh], -pi / 10 <= delta0_dot[j] <= pi / 10
-            v0_dot_con[j=1:nh], -1 <= v0_dot[j] <= 1
+            delta0_dot_con[j = 1:nh], -pi / 10 <= delta0_dot[j] <= pi / 10
+            v0_dot_con[j = 1:nh], -1 <= v0_dot[j] <= 1
         end
     )
 
@@ -115,37 +115,37 @@ function OptimalControlProblems.truck_trailer(
         end
     )
 
-    @expression(model, dtheta0[j=0:nh], v0[j] / L0 * tan(delta0[j]))
+    @expression(model, dtheta0[j = 0:nh], v0[j] / L0 * tan(delta0[j]))
     @expression(
         model,
-        dtheta1[j=0:nh],
+        dtheta1[j = 0:nh],
         v0[j] / L1 * sin(beta01[j]) - M0 / L1 * cos(beta01[j]) * dtheta0[j]
     )
     @expression(
-        model, v1[j=0:nh], v0[j] * cos(beta01[j]) + M0 * sin(beta01[j]) * dtheta0[j]
+        model, v1[j = 0:nh], v0[j] * cos(beta01[j]) + M0 * sin(beta01[j]) * dtheta0[j]
     )
     @expression(
         model,
-        dtheta2[j=0:nh],
+        dtheta2[j = 0:nh],
         v1[j] / L2 * sin(beta12[j]) - M1 / L2 * cos(beta12[j]) * dtheta1[j]
     )
     @expression(
-        model, v2[j=0:nh], v1[j] * cos(beta12[j]) + M1 * sin(beta12[j]) * dtheta1[j]
+        model, v2[j = 0:nh], v1[j] * cos(beta12[j]) + M1 * sin(beta12[j]) * dtheta1[j]
     )
-    @expression(model, dx2[j=0:nh], v2[j] * cos(theta2[j]))
-    @expression(model, dy2[j=0:nh], v2[j] * sin(theta2[j]))
+    @expression(model, dx2[j = 0:nh], v2[j] * cos(theta2[j]))
+    @expression(model, dy2[j = 0:nh], v2[j] * sin(theta2[j]))
 
     # Dynamics
     @constraints(
         model,
         begin
-            d_x2[j=1:nh], x2[j] == x2[j - 1] + 0.5 * step * (dx2[j] + dx2[j - 1])
-            d_y2[j=1:nh], y2[j] == y2[j - 1] + 0.5 * step * (dy2[j] + dy2[j - 1])
-            d_theta0[j=1:nh],
+            d_x2[j = 1:nh], x2[j] == x2[j - 1] + 0.5 * step * (dx2[j] + dx2[j - 1])
+            d_y2[j = 1:nh], y2[j] == y2[j - 1] + 0.5 * step * (dy2[j] + dy2[j - 1])
+            d_theta0[j = 1:nh],
             theta0[j] == theta0[j - 1] + 0.5 * step * (dtheta0[j] + dtheta0[j - 1])
-            d_theta1[j=1:nh],
+            d_theta1[j = 1:nh],
             theta1[j] == theta1[j - 1] + 0.5 * step * (dtheta1[j] + dtheta1[j - 1])
-            d_theta2[j=1:nh],
+            d_theta2[j = 1:nh],
             theta2[j] == theta2[j - 1] + 0.5 * step * (dtheta2[j] + dtheta2[j - 1])
         end
     )

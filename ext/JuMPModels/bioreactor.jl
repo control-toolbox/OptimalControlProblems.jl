@@ -43,23 +43,23 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=100, N::Int=30
         begin
             step, T / nh
             # intermediate variables
-            mu2[t=0:nh], mu2m * s[t] / (s[t] + Ks)
-            days[t=0:nh], (t * step) / (halfperiod * 2)
-            tau[t=0:nh], (days[t] - floor(days[t])) * 2 * pi
-            light[t=0:nh], max(0, sin(tau[t]))^2
-            mu[t=0:nh], light[t] * mubar
+            mu2[t = 0:nh], mu2m * s[t] / (s[t] + Ks)
+            days[t = 0:nh], (t * step) / (halfperiod * 2)
+            tau[t = 0:nh], (days[t] - floor(days[t])) * 2 * pi
+            light[t = 0:nh], max(0, sin(tau[t]))^2
+            mu[t = 0:nh], light[t] * mubar
             # dynamics
-            dy[t=0:nh], mu[t] * y[t] / (1 + y[t]) - (r + u[t]) * y[t]
-            ds[t=0:nh], -mu2[t] * b[t] + u[t] * beta * (gamma * y[t] - s[t])
-            db[t=0:nh], (mu2[t] - u[t] * beta) * b[t]
+            dy[t = 0:nh], mu[t] * y[t] / (1 + y[t]) - (r + u[t]) * y[t]
+            ds[t = 0:nh], -mu2[t] * b[t] + u[t] * beta * (gamma * y[t] - s[t])
+            db[t = 0:nh], (mu2[t] - u[t] * beta) * b[t]
         end
     )
     @constraints(
         model,
         begin
-            con_y[t=1:nh], y[t] == y[t - 1] + 0.5 * step * (dy[t] + dy[t - 1])
-            con_s[t=1:nh], s[t] == s[t - 1] + 0.5 * step * (ds[t] + ds[t - 1])
-            con_b[t=1:nh], b[t] == b[t - 1] + 0.5 * step * (db[t] + db[t - 1])
+            con_y[t = 1:nh], y[t] == y[t - 1] + 0.5 * step * (dy[t] + dy[t - 1])
+            con_s[t = 1:nh], s[t] == s[t - 1] + 0.5 * step * (ds[t] + ds[t - 1])
+            con_b[t = 1:nh], b[t] == b[t - 1] + 0.5 * step * (db[t] + db[t - 1])
         end
     )
 
