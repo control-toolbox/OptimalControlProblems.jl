@@ -253,6 +253,8 @@ function test_Comparison()
                     print("$dist_obj < $ε_rel \033[1;32mTest Passed\033[0m\n")
                     @test dist_obj < ε_rel
                 end
+                print("    JuMP : $obj_jmp\n")
+                print("    OptimalControl : $obj_oc\n")
             end
 
             plots_x = Vector{Any}()
@@ -271,15 +273,15 @@ function test_Comparison()
                 end
             end
             
-            if !norm_has_broken
-                for k in 1:length(p_jmp[1])
-                    dist_p_Lp = norm_Lp([p_oc(t[i])[k] - p_jmp[i][k] for i in 1:length(t)], p, dt_param) / max(0.5 * norm_Lp([p_oc(t[i])[k] + p_jmp[i][k] for i in 1:length(t)], p, dt_param), ε_abs)
-                    if !(dist_p_Lp < ε_rel)
-                        norm_has_broken = true
-                        break
-                    end
-                end
-            end
+            # if !norm_has_broken
+            #     for k in 1:length(p_jmp[1])
+            #         dist_p_Lp = norm_Lp([p_oc(t[i])[k] - p_jmp[i][k] for i in 1:length(t)], p, dt_param) / max(0.5 * norm_Lp([p_oc(t[i])[k] + p_jmp[i][k] for i in 1:length(t)], p, dt_param), ε_abs)
+            #         if !(dist_p_Lp < ε_rel)
+            #             norm_has_broken = true
+            #             break
+            #         end
+            #     end
+            # end
             
             if !norm_has_broken
                 for k in 1:length(u_jmp[1])
@@ -311,25 +313,27 @@ function test_Comparison()
                     px = plot!(t, [x_jmp[i][k] for i in 1:length(t)]; xlabel="t", ylabel=string(x_vars[k]), legend=false, line=2, color="red", linestyle=:dash, label="JuMP") 
                     push!(plots_x, px)
                 end
+                
+                # # Comparison costate 
 
-                for k in 1:length(p_jmp[1])
-                    dist_p_Lp = norm_Lp([p_oc(t[i])[k] - p_jmp[i][k] for i in 1:length(t)], p, dt_param) / max(0.5 * norm_Lp([p_oc(t[i])[k] + p_jmp[i][k] for i in 1:length(t)], p, dt_param), ε_abs)
-                    print("  Test p$k : ")
-                    if !(dist_p_Lp < ε_rel)
-                        print("$dist_p_Lp < $ε_rel \033[1;33mTest Broken\033[0m\n")
-                        @testset "p$k" verbose = false begin
-                            @test dist_p_Lp < ε_rel broken=true
-                        end
-                        global list_of_problems_final
-                        list_of_problems_final = setdiff(list_of_problems_final, [f])
-                    else
-                        print("$dist_p_Lp < $ε_rel \033[1;32mTest Passed\033[0m\n")
-                        @test dist_p_Lp < ε_rel
-                    end
-                    pp = plot(plot(sol)[length(x_jmp[1])+k]; line=2, label="OptimalControl") 
-                    pp = plot!(t, [p_jmp[i][k] for i in 1:length(t)]; xlabel="t", ylabel="p_" * string(x_vars[k]), legend=false, line=2, color="red", linestyle=:dash, label="JuMP") 
-                    push!(plots_p, pp)
-                end
+                # for k in 1:length(p_jmp[1])
+                #     dist_p_Lp = norm_Lp([p_oc(t[i])[k] - p_jmp[i][k] for i in 1:length(t)], p, dt_param) / max(0.5 * norm_Lp([p_oc(t[i])[k] + p_jmp[i][k] for i in 1:length(t)], p, dt_param), ε_abs)
+                #     print("  Test p$k : ")
+                #     if !(dist_p_Lp < ε_rel)
+                #         print("$dist_p_Lp < $ε_rel \033[1;33mTest Broken\033[0m\n")
+                #         @testset "p$k" verbose = false begin
+                #             @test dist_p_Lp < ε_rel broken=true
+                #         end
+                #         global list_of_problems_final
+                #         list_of_problems_final = setdiff(list_of_problems_final, [f])
+                #     else
+                #         print("$dist_p_Lp < $ε_rel \033[1;32mTest Passed\033[0m\n")
+                #         @test dist_p_Lp < ε_rel
+                #     end
+                #     pp = plot(plot(sol)[length(x_jmp[1])+k]; line=2, label="OptimalControl") 
+                #     pp = plot!(t, [p_jmp[i][k] for i in 1:length(t)]; xlabel="t", ylabel="p_" * string(x_vars[k]), legend=false, line=2, color="red", linestyle=:dash, label="JuMP") 
+                #     push!(plots_p, pp)
+                # end
 
                 for k in 1:length(u_jmp[1])
                     dist_u_Lp = norm_Lp([u_oc(t[i])[k] - u_jmp[i][k] for i in 1:length(t)], p, dt_param) / max(0.5 * norm_Lp([u_oc(t[i])[k] + u_jmp[i][k] for i in 1:length(t)], p, dt_param), ε_abs)

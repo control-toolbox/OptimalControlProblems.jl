@@ -28,10 +28,13 @@ The table below summarizes the names and status of the each problem:
 <tr>
   <th rowspan="2">Problem</th>
   <th colspan="2">Convergence</th>
+  <th colspan="2">Objective Value</th>
   <th colspan="3">Comparison</th>
   <th rowspan="2">Available Problems</th>
 </tr>
 <tr>
+  <th>JuMP</th>
+  <th>OptimalControl</th>
   <th>JuMP</th>
   <th>OptimalControl</th>
   <th>Init</th>
@@ -42,6 +45,8 @@ The table below summarizes the names and status of the each problem:
   <td>beam</td>
   <td>✅</td>
   <td>✅</td>
+  <td>9.1213</td>
+  <td>8.8986</td>
   <td>✅</td>
   <td>✅</td>
   <td>🟠</td>
@@ -51,6 +56,8 @@ The table below summarizes the names and status of the each problem:
   <td>bioreactor</td>
   <td>✅</td>
   <td>✅</td>
+  <td>19.053</td>
+  <td>19.077</td>
   <td>✅</td>
   <td>✅</td>
   <td>🟠</td>
@@ -60,6 +67,8 @@ The table below summarizes the names and status of the each problem:
   <td>cart_pendulum</td>
   <td>✅</td>
   <td>✅</td>
+  <td>1.7439</td>
+  <td>1.7444</td>
   <td>✅</td>
   <td>✅</td>
   <td>🟠</td>
@@ -69,6 +78,8 @@ The table below summarizes the names and status of the each problem:
   <td>chain</td>
   <td>✅</td>
   <td>✅</td>
+  <td>5.0698</td>
+  <td>5.0698</td>
   <td>✅</td>
   <td>✅</td>
   <td>✅</td>
@@ -78,6 +89,8 @@ The table below summarizes the names and status of the each problem:
   <td>dielectrophoretic_particle</td>
   <td>✅</td>
   <td>✅</td>
+  <td>7.8113</td>
+  <td>7.8113</td>
   <td>✅</td>
   <td>✅</td>
   <td>✅</td>
@@ -87,6 +100,8 @@ The table below summarizes the names and status of the each problem:
   <td>double_oscillator</td>
   <td>✅</td>
   <td>✅</td>
+  <td>0.0009</td>
+  <td>0.0009</td>
   <td>✅</td>
   <td>✅</td>
   <td>🟠</td>
@@ -96,6 +111,8 @@ The table below summarizes the names and status of the each problem:
   <td>ducted_fan</td>
   <td>✅</td>
   <td>✅</td>
+  <td>1831.8</td>
+  <td>1832.9</td>
   <td>✅</td>
   <td>✅</td>
   <td>🟠</td>
@@ -105,6 +122,8 @@ The table below summarizes the names and status of the each problem:
   <td>electric_vehicle</td>
   <td>✅</td>
   <td>✅</td>
+  <td>4.0246e5</td>
+  <td>1.2287e6</td>
   <td>✅</td>
   <td>🟠</td>
   <td>🟠</td>
@@ -114,6 +133,8 @@ The table below summarizes the names and status of the each problem:
   <td>glider</td>
   <td>✅</td>
   <td>✅</td>
+  <td>1254.6</td>
+  <td>1254.6</td>
   <td>✅</td>
   <td>✅</td>
   <td>✅</td>
@@ -123,6 +144,8 @@ The table below summarizes the names and status of the each problem:
   <td>insurance</td>
   <td>✅</td>
   <td>✅</td>
+  <td>2.0879</td>
+  <td>2.0578</td>
   <td>✅</td>
   <td>✅</td>
   <td>🟠</td>
@@ -132,6 +155,8 @@ The table below summarizes the names and status of the each problem:
   <td>jackson</td>
   <td>✅</td>
   <td>✅</td>
+  <td>0.1920</td>
+  <td>0.1920</td>
   <td>✅</td>
   <td>✅</td>
   <td>✅</td>
@@ -141,6 +166,8 @@ The table below summarizes the names and status of the each problem:
   <td>moonlander</td>
   <td>🟠</td>
   <td>✅</td>
+  <td>1.4148</td>
+  <td>0.9621</td>
   <td>✅</td>
   <td>🟠</td>
   <td>🟠</td>
@@ -150,6 +177,8 @@ The table below summarizes the names and status of the each problem:
   <td>quadrotor</td>
   <td>✅</td>
   <td>✅</td>
+  <td>1.4928</td>
+  <td>1.4925</td>
   <td>✅</td>
   <td>✅</td>
   <td>🟠</td>
@@ -159,6 +188,8 @@ The table below summarizes the names and status of the each problem:
   <td>robbins</td>
   <td>✅</td>
   <td>✅</td>
+  <td>20.628</td>
+  <td>20.204</td>
   <td>✅</td>
   <td>✅</td>
   <td>🟠</td>
@@ -168,6 +199,8 @@ The table below summarizes the names and status of the each problem:
   <td>robot</td>
   <td>✅</td>
   <td>✅</td>
+  <td>9.1427</td>
+  <td>9.1427</td>
   <td>🟠</td>
   <td>✅</td>
   <td>✅</td>
@@ -177,24 +210,30 @@ The table below summarizes the names and status of the each problem:
   <td>rocket</td>
   <td>✅</td>
   <td>✅</td>
+  <td>1.0128</td>
+  <td>1.0128</td>
   <td>✅</td>
   <td>✅</td>
-  <td>🟠</td>
-  <td>🟠</td>
+  <td>✅</td>
+  <td>✅</td>
 </tr>
 <tr>
   <td>space_shuttle</td>
   <td>✅</td>
   <td>✅</td>
+  <td>0.5959</td>
+  <td>0.5959</td>
   <td>✅</td>
   <td>✅</td>
-  <td>🟠</td>
-  <td>🟠</td>
+  <td>✅</td>
+  <td>✅</td>
 </tr>
 <tr>
   <td>steering</td>
   <td>✅</td>
   <td>✅</td>
+  <td>0.5546</td>
+  <td>0.5546</td>
   <td>🟠</td>
   <td>✅</td>
   <td>✅</td>
@@ -204,6 +243,8 @@ The table below summarizes the names and status of the each problem:
   <td>truck_trailer</td>
   <td>✅</td>
   <td>✅</td>
+  <td>59.211</td>
+  <td>59.259</td>
   <td>🟠</td>
   <td>✅</td>
   <td>🟠</td>
@@ -213,6 +254,8 @@ The table below summarizes the names and status of the each problem:
   <td>vanderpol</td>
   <td>✅</td>
   <td>✅</td>
+  <td>1.0480</td>
+  <td>1.0480</td>
   <td>✅</td>
   <td>✅</td>
   <td>🟠</td>
