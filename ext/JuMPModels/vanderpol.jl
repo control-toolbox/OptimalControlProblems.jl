@@ -32,8 +32,8 @@ function OptimalControlProblems.vanderpol(::JuMPBackend; nh::Int=100)
     @expressions(
         model,
         begin
-            dx1[t=0:nh], x2[t]
-            dx2[t=0:nh], epsilon * omega * (1 - x1[t]^2) * x2[t] - omega^2 * x1[t] + u[t]
+            dx1[t = 0:nh], x2[t]
+            dx2[t = 0:nh], epsilon * omega * (1 - x1[t]^2) * x2[t] - omega^2 * x1[t] + u[t]
         end
     )
 
@@ -41,8 +41,8 @@ function OptimalControlProblems.vanderpol(::JuMPBackend; nh::Int=100)
     @constraints(
         model,
         begin
-            con_x1[t=1:nh], x1[t] == x1[t - 1] + 0.5 * step[t] * (dx1[t] + dx1[t - 1])
-            con_x2[t=1:nh], x2[t] == x2[t - 1] + 0.5 * step[t] * (dx2[t] + dx2[t - 1])
+            con_x1[t = 1:nh], x1[t] == x1[t - 1] + 0.5 * step[t] * (dx1[t] + dx1[t - 1])
+            con_x2[t = 1:nh], x2[t] == x2[t - 1] + 0.5 * step[t] * (dx2[t] + dx2[t - 1])
         end
     )
 

@@ -31,24 +31,24 @@ function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=100)
         model,
         begin
             step, tf / nh
-            dx1[t=0:nh], v1[t]
-            dv1[t=0:nh], (u1[t] * cos(α[t]) - u2[t] * sin(α[t])) / m
-            dx2[t=0:nh], v2[t]
-            dv2[t=0:nh], (-mg + u1[t] * sin(α[t]) + u2[t] * cos(α[t])) / m
-            dα[t=0:nh], vα[t]
-            dvα[t=0:nh], r * u1[t] / J
+            dx1[t = 0:nh], v1[t]
+            dv1[t = 0:nh], (u1[t] * cos(α[t]) - u2[t] * sin(α[t])) / m
+            dx2[t = 0:nh], v2[t]
+            dv2[t = 0:nh], (-mg + u1[t] * sin(α[t]) + u2[t] * cos(α[t])) / m
+            dα[t = 0:nh], vα[t]
+            dvα[t = 0:nh], r * u1[t] / J
         end
     )
     # Collocation
     @constraints(
         model,
         begin
-            con_x1[t=1:nh], x1[t] == x1[t - 1] + 0.5 * step * (dx1[t] + dx1[t - 1])
-            con_v1[t=1:nh], v1[t] == v1[t - 1] + 0.5 * step * (dv1[t] + dv1[t - 1])
-            con_x2[t=1:nh], x2[t] == x2[t - 1] + 0.5 * step * (dx2[t] + dx2[t - 1])
-            con_v2[t=1:nh], v2[t] == v2[t - 1] + 0.5 * step * (dv2[t] + dv2[t - 1])
-            con_α[t=1:nh], α[t] == α[t - 1] + 0.5 * step * (dα[t] + dα[t - 1])
-            con_vα[t=1:nh], vα[t] == vα[t - 1] + 0.5 * step * (dvα[t] + dvα[t - 1])
+            con_x1[t = 1:nh], x1[t] == x1[t - 1] + 0.5 * step * (dx1[t] + dx1[t - 1])
+            con_v1[t = 1:nh], v1[t] == v1[t - 1] + 0.5 * step * (dv1[t] + dv1[t - 1])
+            con_x2[t = 1:nh], x2[t] == x2[t - 1] + 0.5 * step * (dx2[t] + dx2[t - 1])
+            con_v2[t = 1:nh], v2[t] == v2[t - 1] + 0.5 * step * (dv2[t] + dv2[t - 1])
+            con_α[t = 1:nh], α[t] == α[t - 1] + 0.5 * step * (dα[t] + dα[t - 1])
+            con_vα[t = 1:nh], vα[t] == vα[t - 1] + 0.5 * step * (dvα[t] + dvα[t - 1])
         end
     )
     # Boundary constraints

@@ -5,9 +5,9 @@ function test_OptimalControl()
     functions_list = filter(
         x ->
             isdefined(OptimalControlProblems, x) &&
-                isa(getfield(OptimalControlProblems, x), Function) &&
-                !startswith(string(x), "#") &&
-                !(x in [:eval, :include]),
+            isa(getfield(OptimalControlProblems, x), Function) &&
+            !startswith(string(x), "#") &&
+            !(x in [:eval, :include]),
         all_names,
     )
 
@@ -29,12 +29,13 @@ function test_OptimalControl()
         @testset "$(f)" begin
             # Set up the model
             _, model = OptimalControlProblems.eval(f)(OptimalControlBackend())
-            print("  First solve:  "); @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
-            print("  Second solve: "); @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
+            print("  First solve:  ");
+            @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
+            print("  Second solve: ");
+            @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
             println("  sol.status = $(sol.status)\n")
             # Test that the solver found an optimal solution
-            if  f == :truck_trailer ||
-                f == :space_shuttle
+            if f == :truck_trailer || f == :space_shuttle
                 @test (sol.status == :infeasible) || (sol.status == :max_iter)
             else
                 @test sol.status == :first_order

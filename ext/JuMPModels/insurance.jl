@@ -47,19 +47,19 @@ function OptimalControlProblems.insurance(::JuMPBackend; nh::Int=100, N::Int=30)
         model,
         begin
             step, tf / nh
-            epsilon[t=0:nh], k * t * step / (tf - t * step + 1)
-            fx[t=0:nh], lambda * exp(-lambda * t * step) + exp(-lambda * tf) / tf
-            v[t=0:nh], m[t]^(alpha / 2) / (1 + m[t]^(alpha / 2))
-            vprime[t=0:nh], alpha / 2 * m[t]^(alpha / 2 - 1) / (1 + m[t]^(alpha / 2))^2
+            epsilon[t = 0:nh], k * t * step / (tf - t * step + 1)
+            fx[t = 0:nh], lambda * exp(-lambda * t * step) + exp(-lambda * tf) / tf
+            v[t = 0:nh], m[t]^(alpha / 2) / (1 + m[t]^(alpha / 2))
+            vprime[t = 0:nh], alpha / 2 * m[t]^(alpha / 2 - 1) / (1 + m[t]^(alpha / 2))^2
         end
     )
     @constraints(
         model,
         begin
-            cond1[t=0:nh], R[t] - (w - P + I[t] - m[t] - epsilon[t]) == 0
-            cond2[t=0:nh], H[t] - (h0 - gamma * step * t * (1 - v[t])) == 0
-            cond3[t=0:nh], U[t] - (1 - exp(-s * R[t]) + H[t]) == 0
-            cond4[t=0:nh], dUdR[t] - (s * exp(-s * R[t])) == 0
+            cond1[t = 0:nh], R[t] - (w - P + I[t] - m[t] - epsilon[t]) == 0
+            cond2[t = 0:nh], H[t] - (h0 - gamma * step * t * (1 - v[t])) == 0
+            cond3[t = 0:nh], U[t] - (1 - exp(-s * R[t]) + H[t]) == 0
+            cond4[t = 0:nh], dUdR[t] - (s * exp(-s * R[t])) == 0
         end
     )
 
@@ -67,17 +67,17 @@ function OptimalControlProblems.insurance(::JuMPBackend; nh::Int=100, N::Int=30)
     @expressions(
         model,
         begin
-            dI[t=0:nh], (1 - gamma * t * step * vprime[t] / dUdR[t]) * h[t]
-            dm[t=0:nh], h[t]
-            dx3[t=0:nh], (1 + sigma) * I[t] * fx[t]
+            dI[t = 0:nh], (1 - gamma * t * step * vprime[t] / dUdR[t]) * h[t]
+            dm[t = 0:nh], h[t]
+            dx3[t = 0:nh], (1 + sigma) * I[t] * fx[t]
         end
     )
     @constraints(
         model,
         begin
-            con_dI[t=1:nh], I[t] == I[t - 1] + 0.5 * step * (dI[t] + dI[t - 1])
-            con_dm[t=1:nh], m[t] == m[t - 1] + 0.5 * step * (dm[t] + dm[t - 1])
-            con_dx3[t=1:nh], x3[t] == x3[t - 1] + 0.5 * step * (dx3[t] + dx3[t - 1])
+            con_dI[t = 1:nh], I[t] == I[t - 1] + 0.5 * step * (dI[t] + dI[t - 1])
+            con_dm[t = 1:nh], m[t] == m[t - 1] + 0.5 * step * (dm[t] + dm[t - 1])
+            con_dx3[t = 1:nh], x3[t] == x3[t - 1] + 0.5 * step * (dx3[t] + dx3[t - 1])
         end
     )
 

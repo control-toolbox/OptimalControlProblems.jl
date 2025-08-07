@@ -5,9 +5,9 @@ function test_JuMP()
     functions_list = filter(
         x ->
             isdefined(OptimalControlProblems, x) &&
-                isa(getfield(OptimalControlProblems, x), Function) &&
-                !startswith(string(x), "#") &&
-                !(x in [:eval, :include]),
+            isa(getfield(OptimalControlProblems, x), Function) &&
+            !startswith(string(x), "#") &&
+            !(x in [:eval, :include]),
         all_names,
     )
 
@@ -29,12 +29,15 @@ function test_JuMP()
             set_optimizer_attribute(model, "max_wall_time", max_wall_time)
             set_optimizer_attribute(model, "sb", sb)
             # Solve the model
-            print("  First solve:  "); @time optimize!(model)
-            print("  Second solve: "); @time optimize!(model)
+            print("  First solve:  ");
+            @time optimize!(model)
+            print("  Second solve: ");
+            @time optimize!(model)
             # Test that the solver found an optimal solution
             println("  termination_status = $(termination_status(model))\n")
             if f == :truck_trailer || f == :quadrotor
-                @test (termination_status(model) == MOI.LOCALLY_INFEASIBLE) || (termination_status(model) == MOI.ITERATION_LIMIT)
+                @test (termination_status(model) == MOI.LOCALLY_INFEASIBLE) ||
+                    (termination_status(model) == MOI.ITERATION_LIMIT)
             else
                 @test termination_status(model) == MOI.LOCALLY_SOLVED
             end
