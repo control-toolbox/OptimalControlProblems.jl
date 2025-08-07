@@ -11,28 +11,28 @@ function test_OptimalControl()
     )
 
     println()
-    println("\033[1m#########################################\033[0m")
-    println("\033[1m##### TEST CONVERGED OptimalControl #####\033[0m")
-    println("\033[1m#########################################\033[0m")
+    println("\033[1m###########################################\033[0m")
+    println("\033[1m##### TEST CONVERGENCE OptimalControl #####\033[0m")
+    println("\033[1m###########################################\033[0m")
     println()
 
     for f in list_of_problems
-        println("  $f:")
+        println("$f:")
         @testset "$(f)" verbose=verbose begin
             # Set up the model
             _, model = OptimalControlProblems.eval(f)(OptimalControlBackend()) # !+++ UPDATE
             print("  First solve:  "); @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
             print("  Second solve: "); @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
-            println("  sol.status = $(sol.status)  objective (NLP) = $(sol.objective) \n")
+            println("  sol.status = $(sol.status),  objective (NLP) = $(sol.objective)")
 
             # Test that the solver found an optimal solution
             success = (sol.status == :first_order || sol.status == :acceptable)
             if success
                 @test success
-                print("OptimalControl : $f converged : \033[1;32mTest Passed\033[0m\n")
+                println("  OptimalControl : $f convergence: \033[1;32mTest Passed\033[0m\n")
             else 
                 @test success broken=true
-                print("OptimalControl : $f converged : \033[1;33mTest Broken\033[0m\n")
+                println("  OptimalControl : $f convergence: \033[1;33mTest Broken\033[0m\n")
                 global list_of_problems_final
                 list_of_problems_final = setdiff(list_of_problems_final, [f])
             end
@@ -40,9 +40,9 @@ function test_OptimalControl()
     end
 
     println()
-    println("\033[1m#########################################\033[0m")
-    println("\033[1m### END TEST CONVERGED OptimalControl ###\033[0m")
-    println("\033[1m#########################################\033[0m")
+    println("\033[1m###########################################\033[0m")
+    println("\033[1m### END TEST CONVERGENCE OptimalControl ###\033[0m")
+    println("\033[1m###########################################\033[0m")
     println()
 
 end

@@ -2,14 +2,14 @@
 function test_JuMP()
 
     println()
-    println("\033[1m###########################\033[0m")
-    println("\033[1m### TEST CONVERGED JuMP ###\033[0m")
-    println("\033[1m###########################\033[0m")
+    println("\033[1m#############################\033[0m")
+    println("\033[1m### TEST CONVERGENCE JuMP ###\033[0m")
+    println("\033[1m#############################\033[0m")
     println()
 
     for f in list_of_problems
         @testset "$(f)" verbose=verbose begin
-            println("  $f:")
+            println("$f:")
             # Set up the model
             model = OptimalControlProblems.eval(f)(JuMPBackend())
             set_optimizer(model, Ipopt.Optimizer)
@@ -24,13 +24,13 @@ function test_JuMP()
             print("  First solve:  "); @time optimize!(model)
             print("  Second solve: "); @time optimize!(model)
             # Test that the solver found an optimal solution
-            println("  termination_status = $(termination_status(model))  objective = $(objective_value(model))\n")
+            println("  termination_status = $(termination_status(model)),  objective = $(objective_value(model))")
             if termination_status(model) == MOI.LOCALLY_SOLVED
                 @test termination_status(model) == MOI.LOCALLY_SOLVED
-                print("JuMP: $f converged : \033[1;32mTest Passed\033[0m\n")
+                println("  JuMP: $f convergence: \033[1;32mTest Passed\033[0m\n")
             else 
                 @test termination_status(model) == MOI.LOCALLY_SOLVED broken=true
-                print("JuMP : $f converged : \033[1;33mTest Broken\033[0m\n")
+                println("  JuMP : $f convergence: \033[1;33mTest Broken\033[0m\n")
                 global list_of_problems_final
                 list_of_problems_final = setdiff(list_of_problems_final, [f])
             end
@@ -38,9 +38,9 @@ function test_JuMP()
     end
 
     println()
-    println("\033[1m###############################\033[0m")
-    println("\033[1m### END TEST CONVERGED JuMP ###\033[0m")
-    println("\033[1m###############################\033[0m")
+    println("\033[1m#################################\033[0m")
+    println("\033[1m### END TEST CONVERGENCE JuMP ###\033[0m")
+    println("\033[1m#################################\033[0m")
     println()
 
 end

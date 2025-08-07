@@ -17,7 +17,7 @@ const sb = "yes"
 const max_iter = 1000
 const max_wall_time = 500.0
 
-# Collect all the problem from OptimalControlProblems
+# Collect all the problems from OptimalControlProblems
 all_names = names(OptimalControlProblems; all=true)
 functions_list = filter(
     x ->
@@ -47,8 +47,8 @@ const verbose = true # print or not details during tests
     for name in (
         # :aqua, 
         # :JuMP,                  # convergence tests for JuMP models
-        # :OptimalControl,        # convergence tests for OptimalControl models
-        :Comparison,            # comparison between OptimalControl and JuMP
+        :OptimalControl,        # convergence tests for OptimalControl models
+        # :Comparison,            # comparison between OptimalControl and JuMP
         #:quick,                 # quick comparison: objective rel error only
         )
         @testset "$(name)" verbose=verbose begin
@@ -59,7 +59,7 @@ const verbose = true # print or not details during tests
         end
     end
  
-    # note: not sure I undertand the purpose of the cache ?
+    # note: not sure I understand the purpose of the cache ?
     # the list of available problems is not up to date when the tests are run
     # and we need to run the tests another time to get the proper list
     @testset "available_problems" verbose=verbose begin
@@ -67,7 +67,7 @@ const verbose = true # print or not details during tests
             @test list_of_problems_final == available_problems()
         else
             println("Available problems: ", available_problems())
-            println("Passed problems: ",list_of_problems_final)
+            println("Passed problems: ", list_of_problems_final)
             @test list_of_problems_final == available_problems() broken=true
         end
     end
@@ -79,7 +79,7 @@ end
 println("List of problems working:", list_of_problems_final)
 
 # Save the list of working problems to a cache file
-cache_file = joinpath(@__DIR__, "..", "available_problems_cache.txt")
+cache_file = joinpath(@__DIR__, "..", "src", "available_problems_cache.txt")
 try
     open(cache_file, "w") do f
         for problem in list_of_problems_final

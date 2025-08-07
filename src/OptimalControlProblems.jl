@@ -88,7 +88,7 @@ The list is read from a cache file that gets updated every time tests are run.
 If no cache exists, returns an empty list with a warning to run tests first.
 """
 function available_problems()
-    cache_file = joinpath(dirname(@__FILE__), "..", "available_problems_cache.txt")
+    cache_file = joinpath(dirname(@__FILE__), "available_problems_cache.txt")
     if isfile(cache_file)
         try
             content = read(cache_file, String)

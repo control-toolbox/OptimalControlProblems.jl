@@ -83,5 +83,7 @@ function OptimalControlProblems.ducted_fan(::OptimalControlBackend; nh::Int=100)
     init = (state=xinit, control=uinit, variable=varinit)
 
     # NLPModel + DOCP
-    return direct_transcription(ocp; init=init, grid_size=nh)
+    docp = direct_transcription(ocp; init=init, grid_size=nh)
+    nlp = model(docp)
+    return docp, nlp
 end

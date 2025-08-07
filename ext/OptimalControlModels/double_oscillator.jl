@@ -60,5 +60,7 @@ function OptimalControlProblems.double_oscillator(::OptimalControlBackend; nh::I
     init = (state=xinit, control=uinit)
 
     # NLPModel + DOCP
-    return direct_transcription(ocp; init=init, grid_size=nh)
+    docp = direct_transcription(ocp; init=init, grid_size=nh)
+    nlp = model(docp)
+    return docp, nlp
 end

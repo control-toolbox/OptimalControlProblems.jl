@@ -129,5 +129,7 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=5
     init = (state=x_init, control=[α_s, β_s], variable=[tf_init])
 
     # NLPModel + DOCP
-    return direct_transcription(ocp; init=init, grid_size=nh)
+    docp = direct_transcription(ocp; init=init, grid_size=nh)
+    nlp = model(docp)
+    return docp, nlp
 end
