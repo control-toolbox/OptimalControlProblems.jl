@@ -2,14 +2,16 @@
 The Beam Problem:
     The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.beam(::JuMPBackend; nh::Int=100)
-    # Parameters
+function OptimalControlProblems.beam(::JuMPBackend; nh::Int=500)
+
+    # parameters
     tf = 1
     step = tf / nh
 
-    # Model
+    # model
     model = JuMP.Model()
 
+    # variables and initial guess
     @variables(
         model,
         begin
@@ -19,7 +21,7 @@ function OptimalControlProblems.beam(::JuMPBackend; nh::Int=100)
         end
     )
 
-    # Boundary constraints
+    # boundary constraints
     @constraints(
         model,
         begin
@@ -30,7 +32,7 @@ function OptimalControlProblems.beam(::JuMPBackend; nh::Int=100)
         end
     )
 
-    # Dynamics
+    # dynamics
     @constraints(
         model,
         begin
@@ -39,7 +41,8 @@ function OptimalControlProblems.beam(::JuMPBackend; nh::Int=100)
         end
     )
 
-    @objective(model, Min, step * sum(u[t]^2 for t in 0:nh))
+    # objective
+    @objective(model, Min, 0.5 * step * sum(u[t]^2 + u[t-1]^2 for t in 1:nh))
 
     return model
 end

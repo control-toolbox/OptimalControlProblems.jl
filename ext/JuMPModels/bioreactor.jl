@@ -2,8 +2,9 @@
 The Bioreactor Problem:
     The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=250, N::Int=30)
-    # Parameters
+function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=500, N::Int=30)
+
+    # parameters
     beta = 1
     c = 2
     gamma = 1
@@ -12,11 +13,12 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=250, N::Int=30
     mu2m = 0.1
     mubar = 1
     r = 0.005
-    T = 10 * N
+    T = 10N
 
-    # Model
+    # model
     model = JuMP.Model()
 
+    # variables and initial guess
     @variables(
         model,
         begin
@@ -27,7 +29,7 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=250, N::Int=30
         end
     )
 
-    # Boundary constraints
+    # boundary constraints
     @constraints(
         model,
         begin
@@ -37,23 +39,34 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=250, N::Int=30
         end
     )
 
-    # Dynamics
+    # dynamics
     @expressions(
         model,
         begin
+
+            #
             step, T / nh
+
             # intermediate variables
-            mu2[t=0:nh], mu2m * s[t] / (s[t] + Ks)
+            growth[t=0:nh], mu2m * s[t] / (s[t] + Ks)
+            mu2[t=0:nh], growth[t]
+
             days[t=0:nh], (t * step) / (halfperiod * 2)
-            tau[t=0:nh], (days[t] - floor(days[t])) * 2 * pi
+            tau[t=0:nh], (days[t] - floor(days[t])) * 2π
             light[t=0:nh], max(0, sin(tau[t]))^2
             mu[t=0:nh], light[t] * mubar
+
             # dynamics
             dy[t=0:nh], mu[t] * y[t] / (1 + y[t]) - (r + u[t]) * y[t]
             ds[t=0:nh], -mu2[t] * b[t] + u[t] * beta * (gamma * y[t] - s[t])
             db[t=0:nh], (mu2[t] - u[t] * beta) * b[t]
+
+            # objective
+            dc[t=0:nh], -mu2[t] * b[t] / (beta + c)
+
         end
     )
+
     @constraints(
         model,
         begin
@@ -63,7 +76,7 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=250, N::Int=30
         end
     )
 
-    @objective(model, Max, step * sum(mu2[t] * b[t] / (beta + c) for t in 0:nh-1))
+    @objective(model, Min, 0.5 * step * sum(dc[t] + dc[t-1] for t in 1:nh))
 
     return model
 end

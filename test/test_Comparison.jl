@@ -1,4 +1,4 @@
-function test_Comparison()
+function test_comparison()
 
     # Comparison Parameters
     ε_rel = 1e-1

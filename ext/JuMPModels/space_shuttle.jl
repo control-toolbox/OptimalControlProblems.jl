@@ -6,7 +6,7 @@ Space Shuttle Reentry Trajectory Problem:
     Note: no heating limit path constraint
 """
 function OptimalControlProblems.space_shuttle(
-    ::JuMPBackend; integration_rule::String="trapezoidal", nh::Int64=503
+    ::JuMPBackend; integration_rule::String="trapezoidal", nh::Int=503
 )
     ## Global variables
     w = 203000.0  # weight (lb)

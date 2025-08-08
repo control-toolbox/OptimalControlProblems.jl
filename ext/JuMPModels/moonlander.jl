@@ -5,25 +5,28 @@ The Moonlander Problem:
     The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746)
 """
 function OptimalControlProblems.moonlander(
-    ::JuMPBackend; target::Array{Float64}=[5.0, 5.0], nh::Int64=1000
+    ::JuMPBackend; target::Array{Float64}=[5.0, 5.0], nh::Int=500
 )
-    ## parameters
+    # parameters
     if size(target) != (2,)
-        error("The input matrix must be 3x3.")
+        error("The input target must be of length 2.")
     end
     m = 1.0
     g = 9.81
     I = 0.1
     D = 1.0
-    max_thrust = 2 * g
+    max_thrust = 2g
 
-    ## define the problem
+    # define the problem
     model = JuMP.Model()
 
+    # state, control and final time variables
     @variables(
         model,
         begin
-            0.01 <= tf, (start = 0.1)
+            # final time
+            0.1 <= tf, (start = 1.0)
+
             # state variables
             p1[k=0:nh], (start = 0.1)
             p2[k=0:nh], (start = 0.1)
@@ -31,13 +34,14 @@ function OptimalControlProblems.moonlander(
             dp2[k=0:nh], (start = 0.1)
             theta[k=0:nh], (start = 0.1)
             dtheta[k=0:nh], (start = 0.1)
+
             # control variables
             0 <= F1[k=0:nh] <= max_thrust, (start = 5.0)
             0 <= F2[k=0:nh] <= max_thrust, (start = 5.0)
         end
     )
 
-    # Initial and final conditions
+    # initial and final conditions
     @constraints(
         model,
         begin
@@ -54,14 +58,7 @@ function OptimalControlProblems.moonlander(
         end
     )
 
-    #dynamics
-    @expressions(
-        model,
-        begin
-            step, tf / nh
-        end
-    )
-
+    # dynamics
     @expressions(
         model,
         begin
@@ -88,17 +85,22 @@ function OptimalControlProblems.moonlander(
         end
     )
 
+    @expressions(
+        model,
+        begin
+            step, tf / nh
+        end
+    )
+
     @constraints(
         model,
         begin
-            d_p1[k=1:nh], p1[k] == p1[k - 1] + 0.5 * step * (dp1[k] + dp1[k - 1])
-            d_p2[k=1:nh], p2[k] == p2[k - 1] + 0.5 * step * (dp2[k] + dp2[k - 1])
-            d_dp1[k=1:nh], dp1[k] == dp1[k - 1] + 0.5 * step * (ddp1[k] + ddp1[k - 1])
-            d_dp2[k=1:nh], dp2[k] == dp2[k - 1] + 0.5 * step * (ddp2[k] + ddp2[k - 1])
-            d_theta[k=1:nh],
-            theta[k] == theta[k - 1] + 0.5 * step * (dtheta[k] + dtheta[k - 1])
-            d_dtheta[k=1:nh],
-            dtheta[k] == dtheta[k - 1] + 0.5 * step * (ddtheta[k] + ddtheta[k - 1])
+            d_p1[k=1:nh],       p1[k]       == p1[k - 1]        + 0.5 * step * (dp1[k]     + dp1[k - 1])
+            d_p2[k=1:nh],       p2[k]       == p2[k - 1]        + 0.5 * step * (dp2[k]     + dp2[k - 1])
+            d_dp1[k=1:nh],      dp1[k]      == dp1[k - 1]       + 0.5 * step * (ddp1[k]    + ddp1[k - 1])
+            d_dp2[k=1:nh],      dp2[k]      == dp2[k - 1]       + 0.5 * step * (ddp2[k]    + ddp2[k - 1])
+            d_theta[k=1:nh],    theta[k]    == theta[k - 1]     + 0.5 * step * (dtheta[k]  + dtheta[k - 1])
+            d_dtheta[k=1:nh],   dtheta[k]   == dtheta[k - 1]    + 0.5 * step * (ddtheta[k] + ddtheta[k - 1])
         end
     )
 

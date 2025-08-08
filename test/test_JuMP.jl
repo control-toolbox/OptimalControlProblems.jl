@@ -24,7 +24,11 @@ function test_JuMP()
             print("  First solve:  "); @time optimize!(model)
             print("  Second solve: "); @time optimize!(model)
             # Test that the solver found an optimal solution
-            println("  termination_status = $(termination_status(model)),  objective = $(objective_value(model))")
+            println(
+                "  termination_status = ", termination_status(model),  
+                ", objective = ", objective_value(model),
+                ", iterations = ", barrier_iterations(model)
+            )
             if termination_status(model) == MOI.LOCALLY_SOLVED
                 @test termination_status(model) == MOI.LOCALLY_SOLVED
                 println("  JuMP: $f convergence: \033[1;32mTest Passed\033[0m\n")
