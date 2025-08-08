@@ -5,70 +5,82 @@ The Ducted Fan Problem:
     The problem is formulated as a JuMP model.
 Ref: Graichen, K., & Petit, N. (2009). Incorporating a class of constraints into the dynamics of optimal control problems. Optimal Control Applications and Methods, 30(6), 537-561.
 """
-function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=250)
+function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=500)
+
+    # parameters
     r = 0.2         # [m]
     J = 0.05        # [kg.m2]
     m = 2.2         # [kg]
-    mg = 4.0        # [N]
-    μ = 1000.0
+    mg = 4          # [N]
+    μ = 1000
 
+    # model
     model = Model()
 
-    @variable(model, x1[0:nh], start = 0.1)
-    @variable(model, v1[0:nh], start = 0.1)
-    @variable(model, x2[0:nh], start = 0.1)
-    @variable(model, v2[0:nh], start = 0.1)
-    @variable(model, -deg2rad(30.0) <= α[0:nh] <= deg2rad(30.0), start = 0.1) # radian
+    # state, control, variable (final time) and initial guess
+    @variable(model, x₁[0:nh], start = 0.1)
+    @variable(model, v₁[0:nh], start = 0.1)
+    @variable(model, x₂[0:nh], start = 0.1)
+    @variable(model, v₂[0:nh], start = 0.1)
+    @variable(model, -deg2rad(30) <= α[0:nh] <= deg2rad(30), start = 0.1) # radian
     @variable(model, vα[0:nh], start = 0.1)
-    @variable(model, -5.0 <= u1[0:nh] <= 5.0, start = 0.1) # [nh]
-    @variable(model, 0.0 <= u2[0:nh] <= 17.0, start = 0.1) # [nh]
-    @variable(model, 0 <= tf, start = 1.0)
+    @variable(model, -5 <= u₁[0:nh] <= 5, start = 0.1) # [nh]
+    @variable(model, 0 <= u₂[0:nh] <= 17, start = 0.1) # [nh]
+    @variable(model, 0 <= tf, start = 1)
 
     # Dynamics
     @expressions(
         model,
         begin
+
+            #
             step, tf / nh
-            dx1[t=0:nh], v1[t]
-            dv1[t=0:nh], (u1[t] * cos(α[t]) - u2[t] * sin(α[t])) / m
-            dx2[t=0:nh], v2[t]
-            dv2[t=0:nh], (-mg + u1[t] * sin(α[t]) + u2[t] * cos(α[t])) / m
-            dα[t=0:nh], vα[t]
-            dvα[t=0:nh], r * u1[t] / J
+
+            # dynamics
+            dx₁[k=0:nh], v₁[k]
+            dv₁[k=0:nh], (u₁[k] * cos(α[k]) - u₂[k] * sin(α[k])) / m
+            dx₂[k=0:nh], v₂[k]
+            dv₂[k=0:nh], (-mg + u₁[k] * sin(α[k]) + u₂[k] * cos(α[k])) / m
+            dα[k=0:nh], vα[k]
+            dvα[k=0:nh], r * u₁[k] / J
+
+            # objective
+            dc[k=0:nh], 2 * u₁[k]^2 + u₂[k]^2
+
         end
     )
     # Collocation
     @constraints(
         model,
         begin
-            con_x1[t=1:nh], x1[t] == x1[t - 1] + 0.5 * step * (dx1[t] + dx1[t - 1])
-            con_v1[t=1:nh], v1[t] == v1[t - 1] + 0.5 * step * (dv1[t] + dv1[t - 1])
-            con_x2[t=1:nh], x2[t] == x2[t - 1] + 0.5 * step * (dx2[t] + dx2[t - 1])
-            con_v2[t=1:nh], v2[t] == v2[t - 1] + 0.5 * step * (dv2[t] + dv2[t - 1])
-            con_α[t=1:nh], α[t] == α[t - 1] + 0.5 * step * (dα[t] + dα[t - 1])
-            con_vα[t=1:nh], vα[t] == vα[t - 1] + 0.5 * step * (dvα[t] + dvα[t - 1])
+            ∂x₁[k=1:nh], x₁[k] == x₁[k - 1] + 0.5 * step * (dx₁[k] + dx₁[k - 1])
+            ∂v₁[k=1:nh], v₁[k] == v₁[k - 1] + 0.5 * step * (dv₁[k] + dv₁[k - 1])
+            ∂x₂[k=1:nh], x₂[k] == x₂[k - 1] + 0.5 * step * (dx₂[k] + dx₂[k - 1])
+            ∂v₂[k=1:nh], v₂[k] == v₂[k - 1] + 0.5 * step * (dv₂[k] + dv₂[k - 1])
+            ∂α[k=1:nh],   α[k] ==  α[k - 1] + 0.5 * step * ( dα[k] +  dα[k - 1])
+            ∂vα[k=1:nh], vα[k] == vα[k - 1] + 0.5 * step * (dvα[k] + dvα[k - 1])
         end
     )
     # Boundary constraints
     @constraints(
         model,
         begin
-            x1[0] == 0.0
-            x2[0] == 0.0
-            α[0] == 0.0
-            v1[0] == 0.0
-            v2[0] == 0.0
-            vα[0] == 0.0
-            x1[nh] == 1.0
-            x2[nh] == 0.0
-            α[nh] == 0.0
-            v1[nh] == 0.0
-            v2[nh] == 0.0
-            vα[nh] == 0.0
+            x₁[0] == 0
+            v₁[0] == 0
+            x₂[0] == 0
+            v₂[0] == 0
+            α[0] == 0
+            vα[0] == 0
+            x₁[nh] == 1
+            v₁[nh] == 0
+            x₂[nh] == 0
+            v₂[nh] == 0
+            α[nh] == 0
+            vα[nh] == 0
         end
     )
 
-    @objective(model, Min, 1. / tf * step * sum(2. * u1[t]^2 + u2[t]^2 for t in 0:nh-1) + μ * tf)
+    @objective(model, Min, (1 / tf) * 0.5 * step * sum(dc[k] + dc[k-1] for k in 1:nh) + μ * tf)
 
     return model
 end

@@ -4,8 +4,8 @@ ducted_fan_meta = Dict(
     :nvar => nothing,
     :ncon => nothing,
     :minimize => true,
-    :state_name => ["x1", "v1", "x2", "v2", "α", "vα"],
-    :costate_name => ["px1", "pv1", "px2", "pv2", "pα", "pvα"],
+    :state_name => ["x₁", "v₁", "x₂", "v₂", "α", "vα"],
+    :costate_name => ["px₁", "pv₁", "px₂", "pv₂", "pα", "pvα"],
     :control_name => ["u1", "u2"],
     :time => ("final_time", "tf", nothing)
 )
