@@ -5,7 +5,7 @@ dielectrophoretic_particle_meta = Dict(
     :ncon => 203,
     :minimize => true,
     :state_name => ["x", "y"],
-    :costate_name => ["con_x", "con_y"],
+    :costate_name => ["px", "py"],
     :control_name => "u",
     :time => ("final_time", "tf", nothing)
 )

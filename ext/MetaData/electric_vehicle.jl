@@ -5,7 +5,7 @@ electric_vehicle_meta = Dict(
     :ncon => nothing,
     :minimize => true,
     :state_name => ["x", "v"],
-    :costate_name => ["cond_x", "cond_v"],
+    :costate_name => ["px", "pv"],
     :control_name => "u",
     :time => ("final_time", "tf", 1.0)
 )

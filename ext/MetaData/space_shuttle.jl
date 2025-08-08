@@ -5,7 +5,7 @@ space_shuttle_meta = Dict(
     :ncon => nothing,
     :minimize => false,
     :state_name => ["scaled_h", "ϕ", "θ", "scaled_v", "γ", "ψ"],
-    :costate_name => ["con_dh", "con_dϕ", "con_dθ", "con_dv", "con_dγ", "con_dψ"],
+    :costate_name => ["ph", "pϕ", "pθ", "pv", "pγ", "pψ"],
     :control_name => ["α", "β"],
     :time => ("step", "Δt", nothing)
 )

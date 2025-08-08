@@ -5,7 +5,7 @@ rocket_meta = Dict(
     :ncon => 304,
     :minimize => false,
     :state_name => ["h", "v", "m"],
-    :costate_name => ["con_dh", "con_dv", "con_dm"],
+    :costate_name => ["ph", "pv", "pm"],
     :control_name => ["T"],
     :time => ("step", "step", nothing)
 )

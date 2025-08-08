@@ -5,7 +5,7 @@ bioreactor_meta = Dict(
     :ncon => 404,
     :minimize => false,
     :state_name => ["y", "s", "b"],
-    :costate_name => ["con_y", "con_s", "con_b"],
+    :costate_name => ["py", "ps", "pb"],
     :control_name => ["u"],
     :time => ("final_time", "T", 300.0) # T = 10 * N where N = 30 by default
 )
