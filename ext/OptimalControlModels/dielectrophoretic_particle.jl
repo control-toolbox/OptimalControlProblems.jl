@@ -5,64 +5,44 @@ Dielectrophoretic particle problem:
     The problem is formulated as an OptimalControl model.
 Ref: [CPR2006] Chang, D. E., Petit, N., & Rouchon, P. (2006). Time-optimal control of a particle in a dielectrophoretic system. IEEE Transactions on Automatic Control, 51(7), 1100-1114.
 """
-function OptimalControlProblems.dielectrophoretic_particle(
-    ::OptimalControlBackend; nh::Int=300
-)
+function OptimalControlProblems.dielectrophoretic_particle(::OptimalControlBackend; nh::Int=500)
+
     # parameters
-    x0 = 1.0
-    xf = 2.0
+    x0 = 1
+    xf = 2
     α = -0.75
-    c = 1.0
+    c = 1
 
     ocp = @def begin
-        ## parameters
-        x0 = 1.0
-        xf = 2.0
-        α = -0.75
-        c = 1.0
 
-        ## define the problem
-        tf ∈ R¹, variable
-        t ∈ [0.0, tf], time
-        x ∈ R², state
-        u ∈ R¹, control
+        tf ∈ R, variable
+        t ∈ [0, tf], time
+        q = (x, y) ∈ R², state
+        u ∈ R, control
 
-        ## state variables
-        pos_x = x₁
-        pos_y = x₂
+        x(0) == x0, (x0_con)
+        y(0) == 0, (y0_con)
+        x(tf) == xf, (xf_con)
 
-        ## constraints
-        # state constraints
-        tf ≥ 0.0, (tf_con)
-        # control constraints
-        -1.0 ≤ u(t) ≤ 1.0, (u_con)
-        # initial constraints
-        pos_x(0) == x0, (pos_x0_con)
-        pos_y(0) == 0.0, (pos_y0_con)
-        # final constraints
-        pos_x(tf) == xf, (pos_xf_con)
+        tf ≥ 0, (tf_con)
+        -1 ≤ u(t) ≤ 1, (u_con)
 
-        ## dynamics
-        ẋ(t) == dynamics(x(t), u(t))
+        q̇(t) == dynamics(y(t), u(t))
 
-        ## objective  
         tf → min
+
     end
 
-    function dynamics(x, u)
-        pos_x, pos_y = x
-
-        dx = pos_y * u + α * u^2
-        dy = -c * pos_y + u
-
-        return [dx, dy]
+    function dynamics(y, u)
+        return [y * u + α * u^2, -c * y + u]
     end
 
-    ## Initial guess
-    init = (state=[1.0, 1.0], control=0.0, variable=1.0)
+    # initial guess
+    init = (state=[1, 1], control=0, variable=1)
 
-    # NLPModel + DOCP
+    # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=nh)
     nlp = model(docp)
+
     return docp, nlp
 end
