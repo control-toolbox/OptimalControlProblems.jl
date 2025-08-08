@@ -38,7 +38,7 @@ function OptimalControlProblems.dielectrophoretic_particle(::OptimalControlBacke
     end
 
     # initial guess
-    init = (state=[1, 1], control=0, variable=1)
+    init = (state=[1, 1], control=0.1, variable=5)
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=nh)

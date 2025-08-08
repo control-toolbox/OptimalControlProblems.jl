@@ -19,8 +19,8 @@ function OptimalControlProblems.dielectrophoretic_particle(::JuMPBackend; nh::In
     # state, control and variable (final time)
     @variable(model, x[0:nh], start = 1)
     @variable(model, y[0:nh], start = 1)
-    @variable(model, -1 <= u[0:nh] <= 1, start = 0)
-    @variable(model, 0 <= tf, start = 1)
+    @variable(model, -1 <= u[0:nh] <= 1, start = 0.1)
+    @variable(model, 0 <= tf, start = 5)
 
     # Objective
     @objective(model, Min, tf)
