@@ -2,7 +2,7 @@ using Printf
 
 function test_quick()
 
-    # Comparison Parameters
+    # comparison tolerance
     ε = 1e-2
 
     # options for solvers
@@ -16,12 +16,14 @@ function test_quick()
     )
 
     for f in list_of_problems
+
         nh = OptimalControlProblems.metadata[f][:nh]
         print("$f ")
+        
         ########## OptimalControl ##########
         docp, OC_model = OptimalControlProblems.eval(f)(OptimalControlBackend())
         nlp_sol = NLPModelsIpopt.ipopt(OC_model; kwargs...)
-        sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers)
+        sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers, docp_solution=nlp_sol)
         obj_oc = objective(sol)
 
         ############### JuMP ###############

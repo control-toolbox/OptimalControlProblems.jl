@@ -51,7 +51,7 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=500, N::Int=30
             growth[k=0:nh], mu2m * s[k] / (s[k] + Ks)
             mu2[k=0:nh], growth[k]
 
-            days[k=0:nh], (t * step) / (halfperiod * 2)
+            days[k=0:nh], (k * step) / (halfperiod * 2)
             tau[k=0:nh], (days[k] - floor(days[k])) * 2π
             light[k=0:nh], max(0, sin(tau[k]))^2
             mu[k=0:nh], light[k] * mubar
