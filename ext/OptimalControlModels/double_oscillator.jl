@@ -4,41 +4,32 @@ Double Oscillator Problem:
     The problem is formulated as an OptimalControl model.
 Ref: [CLP2018] Coudurier, C., Lepreux, O., & Petit, N. (2018). Optimal bang-bang control of a mechanical double oscillator using averaging methods. IFAC-PapersOnLine, 51(2), 49-54.
 """
-function OptimalControlProblems.double_oscillator(::OptimalControlBackend; nh::Int=100)
+function OptimalControlProblems.double_oscillator(::OptimalControlBackend; nh::Int=500)
+
     # parameters
-    m1 = 100.0 # [kg]
-    m2 = 2.0   # [kg]
-    c = 0.5    # [Ns/m]
-    k1 = 100.0 # [N/m]
-    k2 = 3.0   # [N/m]
+    m1 = 100    # [kg]
+    m2 = 2      # [kg]
+    c = 0.5     # [Ns/m]
+    k1 = 100    # [N/m]
+    k2 = 3      # [N/m]
     tf = 2π
 
+    # model
     ocp = @def begin
-        ## parameters
-        m1 = 100.0 # [kg]
-        m2 = 2.0   # [kg]
-        c = 0.5    # [Ns/m]
-        k1 = 100.0 # [N/m]
-        k2 = 3.0   # [N/m]
-        tf = 2π
-
-        ## define the problem
-        t ∈ [0.0, tf], time
+        
+        t ∈ [0, tf], time
         x ∈ R⁴, state
-        u ∈ R¹, control
+        u ∈ R, control
 
-        ## constraints
-        # control constraints
-        -1.0 ≤ u(t) ≤ 1.0, (u_con)
-        # initial constraints
-        x₁(0.0) == 0.0, (x1_con)
-        x₂(0.0) == 0.0, (x2_con)
+        -1 ≤ u(t) ≤ 1, (u_con)
 
-        ## dynamics
+        x₁(0) == 0, (x1_con)
+        x₂(0) == 0, (x2_con)
+
         ẋ(t) == dynamics(x(t), u(t), F(t))
 
-        ## objective
         0.5 * ∫(x₁(t)^2 + x₂(t)^2 + u(t)^2) → min
+
     end
 
     function F(t)
@@ -54,13 +45,14 @@ function OptimalControlProblems.double_oscillator(::OptimalControlBackend; nh::I
         return [dx1, dx2, dx3, dx4]
     end
 
-    # Initial guess
+    # initial guess
     xinit = [0.1, 0.1, 0.1, 0.1]  # [x1, x2, x3, x4]
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 
-    # NLPModel + DOCP
+    # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=nh)
     nlp = model(docp)
+
     return docp, nlp
 end

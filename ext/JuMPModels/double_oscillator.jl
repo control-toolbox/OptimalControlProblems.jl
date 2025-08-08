@@ -4,18 +4,20 @@ Double Oscillator Problem:
     The problem is formulated as a JuMP model.
 Ref: [CLP2018] Coudurier, C., Lepreux, O., & Petit, N. (2018). Optimal bang-bang control of a mechanical double oscillator using averaging methods. IFAC-PapersOnLine, 51(2), 49-54.
 """
-function OptimalControlProblems.double_oscillator(::JuMPBackend; nh::Int=100)
-    m1 = 100.0 # [kg]
-    m2 = 2.0   # [kg]
-    c = 0.5    # [Ns/m]
-    k1 = 100.0 # [N/m]
-    k2 = 3.0   # [N/m]
+function OptimalControlProblems.double_oscillator(::JuMPBackend; nh::Int=500)
+    
+    # parameters
+    m1 = 100    # [kg]
+    m2 = 2      # [kg]
+    c = 0.5     # [Ns/m]
+    k1 = 100    # [N/m]
+    k2 = 3      # [N/m]
     tf = 2π
-    step = tf / nh
-    F(t) = sin(t * 2π / tf)
 
+    # model
     model = Model()
 
+    # state, control and initial guess
     @variables(
         model,
         begin
@@ -23,41 +25,53 @@ function OptimalControlProblems.double_oscillator(::JuMPBackend; nh::Int=100)
             x2[0:nh], (start = 0.1)
             x3[0:nh], (start = 0.1)
             x4[0:nh], (start = 0.1)
-            -1.0 <= u[0:nh] <= 1.0, (start = 0.1)
+            -1 <= u[0:nh] <= 1, (start = 0.1)
         end
     )
 
-    # Objective
-    @objective(model, Min, 0.5 * step * sum(x1[t]^2 + x2[t]^2 + u[t]^2 for t in 0:nh-1))
+    # boundary conditions
+    @constraints(
+        model,
+        begin
+            x1[0] == 0
+            x2[0] == 0
+        end
+    )
 
-    # Dynamics
+    # dynamics
     @expressions(
         model,
         begin
-            dx1[t=0:nh], x3[t]
-            dx2[t=0:nh], x4[t]
-            dx3[t=0:nh], -(k1 + k2) / m1 * x1[t] + k2 / m1 * x2[t] + 1 / m1 * F(t * step)
-            dx4[t=0:nh], k2 / m2 * x1[t] - k2 / m2 * x2[t] - c * (1 - u[t]) / m2 * x4[t]
+            
+            #
+            step, tf / nh
+            t[k=0:nh], k * tf / nh
+            F[k=0:nh], sin(t[k] * 2π / tf)
+            
+            # dynamics
+            dx1[k=0:nh], x3[k]
+            dx2[k=0:nh], x4[k]
+            dx3[k=0:nh], -(k1 + k2) / m1 * x1[k] + k2 / m1 * x2[k] + 1 / m1 * F[k]
+            dx4[k=0:nh], k2 / m2 * x1[k] - k2 / m2 * x2[k] - c * (1 - u[k]) / m2 * x4[k]
+
+            # objective
+            dc[k=0:nh], 0.5 * (x1[k]^2 + x2[k]^2 + u[k]^2)
+
         end
     )
-    # Collocation
+
     @constraints(
         model,
         begin
-            con_x1[t=1:nh], x1[t] == x1[t - 1] + 0.5 * step * (dx1[t] + dx1[t - 1])
-            con_x2[t=1:nh], x2[t] == x2[t - 1] + 0.5 * step * (dx2[t] + dx2[t - 1])
-            con_x3[t=1:nh], x3[t] == x3[t - 1] + 0.5 * step * (dx3[t] + dx3[t - 1])
-            con_x4[t=1:nh], x4[t] == x4[t - 1] + 0.5 * step * (dx4[t] + dx4[t - 1])
+            ∂x1[k=1:nh], x1[k] == x1[k - 1] + 0.5 * step * (dx1[k] + dx1[k - 1])
+            ∂x2[k=1:nh], x2[k] == x2[k - 1] + 0.5 * step * (dx2[k] + dx2[k - 1])
+            ∂x3[k=1:nh], x3[k] == x3[k - 1] + 0.5 * step * (dx3[k] + dx3[k - 1])
+            ∂x4[k=1:nh], x4[k] == x4[k - 1] + 0.5 * step * (dx4[k] + dx4[k - 1])
         end
     )
-    # Boundary
-    @constraints(
-        model,
-        begin
-            x1[0] == 0.0
-            x2[0] == 0.0
-        end
-    )
+
+    # objective: trapeze rule
+    @objective(model, Min, 0.5 * step * sum(dc[k] + dc[k-1] for k in 1:nh))
 
     return model
 end

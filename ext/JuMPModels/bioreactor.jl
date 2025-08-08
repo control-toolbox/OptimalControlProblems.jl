@@ -48,21 +48,21 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=500, N::Int=30
             step, T / nh
 
             # intermediate variables
-            growth[t=0:nh], mu2m * s[t] / (s[t] + Ks)
-            mu2[t=0:nh], growth[t]
+            growth[k=0:nh], mu2m * s[k] / (s[k] + Ks)
+            mu2[k=0:nh], growth[k]
 
-            days[t=0:nh], (t * step) / (halfperiod * 2)
-            tau[t=0:nh], (days[t] - floor(days[t])) * 2π
-            light[t=0:nh], max(0, sin(tau[t]))^2
-            mu[t=0:nh], light[t] * mubar
+            days[k=0:nh], (t * step) / (halfperiod * 2)
+            tau[k=0:nh], (days[k] - floor(days[k])) * 2π
+            light[k=0:nh], max(0, sin(tau[k]))^2
+            mu[k=0:nh], light[k] * mubar
 
             # dynamics
-            dy[t=0:nh], mu[t] * y[t] / (1 + y[t]) - (r + u[t]) * y[t]
-            ds[t=0:nh], -mu2[t] * b[t] + u[t] * beta * (gamma * y[t] - s[t])
-            db[t=0:nh], (mu2[t] - u[t] * beta) * b[t]
+            dy[k=0:nh], mu[k] * y[k] / (1 + y[k]) - (r + u[k]) * y[k]
+            ds[k=0:nh], -mu2[k] * b[k] + u[k] * beta * (gamma * y[k] - s[k])
+            db[k=0:nh], (mu2[k] - u[k] * beta) * b[k]
 
             # objective
-            dc[t=0:nh], -mu2[t] * b[t] / (beta + c)
+            dc[k=0:nh], -mu2[k] * b[k] / (beta + c)
 
         end
     )
@@ -70,14 +70,14 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=500, N::Int=30
     @constraints(
         model,
         begin
-            con_y[t=1:nh], y[t] == y[t - 1] + 0.5 * step * (dy[t] + dy[t - 1])
-            con_s[t=1:nh], s[t] == s[t - 1] + 0.5 * step * (ds[t] + ds[t - 1])
-            con_b[t=1:nh], b[t] == b[t - 1] + 0.5 * step * (db[t] + db[t - 1])
+            con_y[k=1:nh], y[k] == y[k - 1] + 0.5 * step * (dy[k] + dy[k - 1])
+            con_s[k=1:nh], s[k] == s[k - 1] + 0.5 * step * (ds[k] + ds[k - 1])
+            con_b[k=1:nh], b[k] == b[k - 1] + 0.5 * step * (db[k] + db[k - 1])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(dc[t] + dc[t-1] for t in 1:nh))
+    @objective(model, Min, 0.5 * step * sum(dc[k] + dc[k-1] for k in 1:nh))
 
     return model
 end

@@ -35,7 +35,7 @@ pbs_with_issues = [
 functions_list = setdiff(functions_list, pbs_with_issues)
 
 functions_list = [
-    :dielectrophoretic_particle
+    :double_oscillator
 ]
 
 # The list of all the problems to test
