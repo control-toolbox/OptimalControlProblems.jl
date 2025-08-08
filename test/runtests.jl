@@ -35,7 +35,7 @@ pbs_with_issues = [
 functions_list = setdiff(functions_list, pbs_with_issues)
 
 functions_list = [
-    :cart_pendulum
+    :chain
 ]
 
 # The list of all the problems to test
