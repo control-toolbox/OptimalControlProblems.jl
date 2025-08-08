@@ -76,6 +76,7 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=500, N::Int=30
         end
     )
 
+    # objective
     @objective(model, Min, 0.5 * step * sum(dc[t] + dc[t-1] for t in 1:nh))
 
     return model

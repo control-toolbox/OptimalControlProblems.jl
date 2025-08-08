@@ -4,95 +4,77 @@
         The objective is to swing the pendulum from the downward position to the upright position in the shortest time possible.
         The problem is formulated as an OptimalControl model.
 """
-function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=100)
+function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=500)
+    
     # parameters
-    # Physical constants
-    g = 9.81      # gravitation [m/s^2]
-    L = 1.0       # pendulum length [m]
-    m = 1.0       # pendulum mass [kg]
-    I = m * L^2 / 12  # pendulum moment of inertia
-    m_cart = 0.5  # cart mass [kg]
-    max_f = 5.0
-    max_x = 1.0
-    max_v = 2.0
+    g = 9.81            # gravitation [m/s^2]
+    L = 1               # pendulum length [m]
+    m = 1               # pendulum mass [kg]
+    I = m * L^2 / 12    # pendulum moment of inertia
+    m_cart = 0.5        # cart mass [kg]
+    max_f = 5
+    max_x = 1
+    max_v = 2
 
     ocp = @def begin
-        ## parameters
-        g = 9.82      # gravitation [m/s^2]
-        L = 1.0       # pendulum length [m]
-        m = 1.0       # pendulum mass [kg]
-        I = m * L^2 / 12  # pendulum moment of inertia
-        m_cart = 0.5  # cart mass [kg]
-        max_f = 5.0
-        max_x = 1.0
-        max_v = 2.0
-        ## define the problem
-        var ∈ R², variable
-        tf = var₁
-        ddx = var₂
-        t ∈ [0.0, tf], time
-        x ∈ R⁴, state
-        u ∈ R¹, control
+        
+        # time, variable, state and control
+        w = (tf, ddx) ∈ R², variable
+        t ∈ [0, tf], time
+        y = (x, v, θ, ω) ∈ R⁴, state
+        Fex ∈ R, control
 
-        ## state variables
-        dx = x₂
-        theta = x₃
-        omega = x₄
-        ## control variables
-        Fex = u
-
-        ## constraints
         # state constraints
-        -max_x ≤ x₁(t) ≤ max_x, (x1_con)
-        -max_v ≤ dx(t) ≤ max_v, (dx_con)
+        -max_x ≤ x(t) ≤ max_x, (x_con)
+        -max_v ≤ v(t) ≤ max_v, (v_con)
+
         # control constraints
         -max_f ≤ Fex(t) ≤ max_f, (Fex_con)
+
         # variables constraints
-        tf ≥ 0.0, (tf_con)
+        tf ≥ 0.1, (tf_con)
+
         # initial conditions
-        x₁(0.0) == 0.0, (x1_ic)
-        theta(0.0) == 0.0, (theta_ic)
-        omega(0.0) == 0.0, (omega_ic)
+        x(0) == 0,  (x_ic)
+        θ(0) == 0,  (θ_ic)
+        ω(0) == 0,  (ω_ic)
+
         # final conditions
-        theta(tf) == pi, (theta_fc)
-        omega(tf) == 0, (omega_fc)
+        θ(tf) == π, (θ_fc)
+        ω(tf) == 0, (ω_fc)
 
-        ## dynamics
-        ẋ(t) == dynamics(x(t), u(t), ddx)
+        # dynamics
+        ẏ(t) == dynamics(v(t), θ(t), ω(t), Fex(t), ddx)
 
-        ## objective
+        # objective
         tf → min
+
     end
 
     # dynamics
-    function dynamics(x, u, ddx)
-        x1, dx, theta, omega = x
-        Fex = u
-        COG(theta) = L / 2 * [sin(theta), -cos(theta)] + [x1, 0]
-        function alpha(ddx)
-            return 1.0 / (I + 0.25 * m * L^2) *
-                   0.5 *
-                   L *
-                   m *
-                   (-ddx * cos(theta) - g * sin(theta))
-        end
-        ddCOG =
-            L * omega * [-sin(theta), cos(theta)] +
-            L / 2 * [cos(theta), sin(theta)] * alpha(ddx) +
-            [ddx, 0]
+    function dynamics(v, θ, ω, Fex, ddx)
+        
+        #
+        α(ddx) = 1 / (I + 0.25 * m * L^2) * 0.5 * L * m * (-ddx * cos(θ) - g * sin(θ))
+        ddCOG = L * ω * [-sin(θ), cos(θ)] + L / 2 * [cos(θ), sin(θ)] * α(ddx) + [ddx, 0]
         FXFY = m * ddCOG + [0, m * g]
-        eq(ddx) = -FXFY[1] + Fex - m_cart * ddx
-        J = m_cart
-        c = eq(ddx) - J * ddx
-        ddx_ = -1.0 / J * c
-        alpha_ = alpha(ddx_)
-        return [dx, ddx_, omega, alpha_]
+        eq = -FXFY[1] + Fex - m_cart * ddx # # eq = J ddx + c
+        J = m_cart # should be -(m+m_cart) but was m_cart?
+        c = eq - J * ddx
+
+        #
+        ẋ = v
+        v̇ = -1 / J * c
+        θ̇ = ω
+        ω̇ = α(v̇)
+
+        return [ẋ, v̇, θ̇, ω̇]
     end
 
     # initial guess
-    xinit = [0.1, 0.1, 0.1, 0.1]  # [x1, dx, theta, omega]
-    uinit = [0.1]  # [Fex]
-    varinit = [0.1, 0.1]  # [tf, ddx]
+    xinit = [0.1, 0.1, 0.1, 0.1]    # [x, v, θ, ω]
+    uinit = [0.1]                   # [Fex]
+    varinit = [1.0, 0.1]            # [tf, ddx]
     init = (state=xinit, control=uinit, variable=varinit)
 
     # NLPModel + DOCP
