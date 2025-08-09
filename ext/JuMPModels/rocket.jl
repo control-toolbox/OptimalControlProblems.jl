@@ -4,48 +4,68 @@ Goddard Rocket Problem:
     The objective is to maximize the final altitude of the rocket.
     The problem is formulated as a JuMP model, and can be found [here](https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/rocket.jl)
 """
-function OptimalControlProblems.rocket(::JuMPBackend; nh::Int=100)
-    h_0 = 1.0
-    v_0 = 0.0
-    m_0 = 1.0
-    g_0 = 1.0
-    T_c = 3.5
-    h_c = 500.0
-    v_c = 620.0
-    m_c = 0.6
+function OptimalControlProblems.rocket(::JuMPBackend; nh::Int=500)
 
-    c = 0.5 * sqrt(g_0 * h_0)
-    m_f = m_c * m_0
-    D_c = 0.5 * v_c * (m_0 / g_0)
-    T_max = T_c * m_0 * g_0
+    # parameters
+    h0 = 1
+    v0 = 0
+    m0 = 1
+    g0 = 1
+    Tc = 3.5
+    hc = 500
+    vc = 620
+    mc = 0.6
+    c = 0.5 * sqrt(g0 * h0)
+    mf = mc * m0
+    Dc = 0.5 * vc * (m0 / g0)
+    Tmax = Tc * m0 * g0
 
+    # model
     model = JuMP.Model()
 
+    # state, control, variable (final time) and initial guess
     @variables(
         model,
         begin
-            1.0 <= h[i=0:nh], (start = 1.0)
-            0.0 <= v[i=0:nh], (start = i / nh * (1.0 - i / nh))
-            m_f <= m[i=0:nh] <= m_0, (start = (m_f - m_0) * (i / nh) + m_0)
-            0.0 <= T[i=0:nh] <= T_max, (start = T_max / 2.0)
-            0.0 <= step, (start = 1 / nh)
+            h[i=0:nh] >= h0, (start = 1)
+            v[i=0:nh] >= v0, (start = i / nh * (1 - i / nh))
+            mf <= m[i=0:nh] <= m0, (start = (mf - m0) * (i / nh) + m0)
+            0 <= T[i=0:nh] <= Tmax, (start = Tmax / 2)
+            0 <= tf, (start = 1)
         end
     )
 
+    # boundary constraints
+    @constraints(
+        model,
+        begin
+            h_ic, h[0] == h0
+            v_ic, v[0] == v0
+            m_ic, m[0] == m0
+            mfc, m[nh] == mf
+        end
+    )
+
+    # dynamics
     @expressions(
         model,
         begin
-            D[i=0:nh], D_c * v[i]^2 * exp(-h_c * (h[i] - h_0)) / h_0
-            g[i=0:nh], g_0 * (h_0 / h[i])^2
+
+            #
+            step, tf / nh
+
+            #
+            D[i=0:nh], Dc * v[i]^2 * exp(-hc * (h[i] - h0)) / h0
+            g[i=0:nh], g0 * (h0 / h[i])^2
+
+            #
             dh[i=0:nh], v[i]
             dv[i=0:nh], (T[i] - D[i] - m[i] * g[i]) / m[i]
             dm[i=0:nh], -T[i] / c
+
         end
     )
 
-    @objective(model, Max, h[nh])
-
-    # Dynamics
     @constraints(
         model,
         begin
@@ -55,16 +75,8 @@ function OptimalControlProblems.rocket(::JuMPBackend; nh::Int=100)
         end
     )
 
-    # Boundary constraints
-    @constraints(
-        model,
-        begin
-            h_ic, h[0] == h_0
-            v_ic, v[0] == v_0
-            m_ic, m[0] == m_0
-            m_fc, m[nh] == m_f
-        end
-    )
+    # objective
+    @objective(model, Min, -h[nh])
 
     return model
 end

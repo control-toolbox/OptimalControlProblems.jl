@@ -11,7 +11,7 @@ function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=5
     L = 1               # pendulum length [m]
     m = 1               # pendulum mass [kg]
     I = m * L^2 / 12    # pendulum moment of inertia
-    m_cart = 0.5        # cart mass [kg]
+    mcart = 0.5        # cart mass [kg]
     max_f = 5
     max_x = 1
     max_v = 2
@@ -58,8 +58,8 @@ function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=5
         α(ddx) = 1 / (I + 0.25 * m * L^2) * 0.5 * L * m * (-ddx * cos(θ) - g * sin(θ))
         ddCOG = L * ω * [-sin(θ), cos(θ)] + L / 2 * [cos(θ), sin(θ)] * α(ddx) + [ddx, 0]
         FXFY = m * ddCOG + [0, m * g]
-        eq = -FXFY[1] + Fex - m_cart * ddx # # eq = J ddx + c
-        J = m_cart # should be -(m+m_cart) but was m_cart?
+        eq = -FXFY[1] + Fex - mcart * ddx # # eq = J ddx + c
+        J = mcart # should be -(m+mcart) but was mcart?
         c = eq - J * ddx
 
         #

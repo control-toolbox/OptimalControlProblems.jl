@@ -11,7 +11,7 @@ function OptimalControlProblems.cart_pendulum(::JuMPBackend; nh::Int=500)
     L = 1               # pendulum length [m]
     m = 1               # pendulum mass [kg]
     I = m * L^2 / 12    # pendulum moment of inertia
-    m_cart = 0.5        # cart mass [kg]
+    mcart = 0.5        # cart mass [kg]
     max_f = 5
     max_x = 1
     max_v = 2
@@ -59,9 +59,9 @@ function OptimalControlProblems.cart_pendulum(::JuMPBackend; nh::Int=500)
             FXFY_1[i=0:nh], m * ddCOG_1[i]
             #FXFY_2[i=0:nh], m * ddCOG_2[i] + m * g
 
-            eq[i=0:nh], -FXFY_1[i] + Fex[i] - m_cart * ddx
+            eq[i=0:nh], -FXFY_1[i] + Fex[i] - mcart * ddx
 
-            J, m_cart
+            J, mcart
             c[i=0:nh], eq[i] - J * ddx
 
             dv[i=0:nh], -1 / J * c[i]
