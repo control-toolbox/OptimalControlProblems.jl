@@ -11,7 +11,7 @@ function OptimalControlProblems.truck_trailer(
 )
     # parameters
     if size(data) != (3, 3)
-        error("The input matrix must be 3x3.")
+        error("The input data matrix must be 3x3.")
     end
     L0 = data[1, 1]
     M0 = data[1, 2]
@@ -23,131 +23,132 @@ function OptimalControlProblems.truck_trailer(
     M2 = data[3, 2]
     W2 = data[3, 3]
     speedf = 1
-    x2_t0 = 0.0
-    y2_t0 = 0.0
-    θ2_t0 = 0.0
-    θ1_t0 = 0.0
-    θ0_t0 = 0.0
-    x2_tf = 0.0
-    y2_tf = -2.0
-    θ2_tf = 2 * pi / 4
-    θ1_tf = 2 * pi / 4
-    θ0_tf = 2 * pi / 4
+    x2_t0 = 0
+    y2_t0 = 0
+    θ2_t0 = 0
+    θ1_t0 = 0
+    θ0_t0 = 0
+    x2_tf = 0
+    y2_tf = -2
+    θ2_tf = π / 2
+    θ1_tf = π / 2
+    θ0_tf = π / 2
 
+    # model
     model = JuMP.Model()
 
+    # state, control, variable (final time) and initial guess
     @variables(
         model,
         begin
+
             # Final time
-            1.0 <= tf <= 1000, (start = 10)
+            1 <= tf <= 1000, (start = 10)
+
             # State variables
             x2[0:nh], (start = 0.1)
             y2[0:nh], (start = 0.1)
-            -pi / 2 <= θ0[0:nh] <= pi / 2, (start = 0.1)
-            -pi / 2 <= θ1[0:nh] <= pi / 2, (start = 0.1)
+            -π / 2 <= θ0[0:nh] <= π / 2, (start = 0.1)
+            -π / 2 <= θ1[0:nh] <= π / 2, (start = 0.1)
             θ2[0:nh], (start = 0.1)
-            # Control variables
             -0.2 * speedf <= v0[0:nh] <= 0.2 * speedf, (start = 0.1)
-            -pi / 6 <= delta0[0:nh] <= pi / 6, (start = 0.1)
+            -π / 6 <= δ0[0:nh] <= π / 6, (start = 0.1)
+
+            # Control variables
+            -1 <= dv0[0:nh] <= 1, (start = 0.1)
+            -π / 10 <= dδ0[0:nh] <= π / 10, (start = 0.1)
+
         end
     )
 
-    # positions
-    @expressions(
-        model,
-        begin
-            x1[j=0:nh], x2[j] + L2 * cos(θ2[j]) + M1 * cos(θ1[j])
-            y1[j=0:nh], y2[j] + L2 * sin(θ2[j]) + M1 * sin(θ1[j])
-            x0[j=0:nh], x1[j] + L1 * cos(θ1[j]) + M0 * cos(θ0[j])
-            y0[j=0:nh], y1[j] + L1 * sin(θ1[j]) + M0 * sin(θ0[j])
-        end
-    )
+    # # positions
+    # @expressions(
+    #     model,
+    #     begin
+    #         x1[i=0:nh], x2[i] + L2 * cos(θ2[i]) + M1 * cos(θ1[i])
+    #         y1[i=0:nh], y2[i] + L2 * sin(θ2[i]) + M1 * sin(θ1[i])
+    #         x0[i=0:nh], x1[i] + L1 * cos(θ1[i]) + M0 * cos(θ0[i])
+    #         y0[i=0:nh], y1[i] + L1 * sin(θ1[i]) + M0 * sin(θ0[i])
+    #     end
+    # )
 
     # intermediate variables
     @expressions(
         model,
         begin
-            beta01[j=0:nh], θ0[j] - θ1[j]
-            beta12[j=0:nh], θ1[j] - θ2[j]
+            β01[i=0:nh], θ0[i] - θ1[i]
+            β12[i=0:nh], θ1[i] - θ2[i]
             step, tf / nh
         end
     )
-    @constraints(
-        model,
-        begin
-            beta01_con[j=0:nh], -pi / 2 <= beta01[j] <= pi / 2
-            beta12_con[j=0:nh], -pi / 2 <= beta12[j] <= pi / 2
-        end
-    )
-
-    # derivatives of the control variables
-    @expressions(
-        model,
-        begin
-            v0_dot[j=1:nh], (v0[j] - v0[j - 1]) / step
-            delta0_dot[j=1:nh], (delta0[j] - delta0[j - 1]) / step
-        end
-    )
-    @constraints(
-        model,
-        begin
-            delta0_dot_con[j=1:nh], -pi / 10 <= delta0_dot[j] <= pi / 10
-            v0_dot_con[j=1:nh], -1 <= v0_dot[j] <= 1
-        end
-    )
 
     @constraints(
         model,
         begin
-            # Initial constraints
+            β01_con[i=0:nh], -π / 2 <= β01[i] <= π / 2
+            β12_con[i=0:nh], -π / 2 <= β12[i] <= π / 2
+        end
+    )
+
+    # boundary conditions
+    @constraints(
+        model,
+        begin
+
+            # initial constraints
             x2[0] == x2_t0
             y2[0] == y2_t0
             θ0[0] == θ0_t0
             θ1[0] == θ1_t0
             θ2[0] == θ2_t0
-            # Final constraint
+
+            # final constraint
             x2[nh] == x2_tf
             y2[nh] == y2_tf
             θ2[nh] == θ2_tf
-            beta01[nh] == θ0_tf - θ1_tf
-            beta12[nh] == θ1_tf - θ2_tf
+            β01[nh] == θ0_tf - θ1_tf
+            β12[nh] == θ1_tf - θ2_tf
+
         end
     )
 
-    @expression(model, dθ0[j=0:nh], v0[j] / L0 * tan(delta0[j]))
+    @expression(model, dθ0[i=0:nh], v0[i] / L0 * tan(δ0[i]))
     @expression(
         model,
-        dθ1[j=0:nh],
-        v0[j] / L1 * sin(beta01[j]) - M0 / L1 * cos(beta01[j]) * dθ0[j]
+        dθ1[i=0:nh],
+        v0[i] / L1 * sin(β01[i]) - M0 / L1 * cos(β01[i]) * dθ0[i]
     )
     @expression(
-        model, v1[j=0:nh], v0[j] * cos(beta01[j]) + M0 * sin(beta01[j]) * dθ0[j]
+        model, v1[i=0:nh], v0[i] * cos(β01[i]) + M0 * sin(β01[i]) * dθ0[i]
     )
     @expression(
         model,
-        dθ2[j=0:nh],
-        v1[j] / L2 * sin(beta12[j]) - M1 / L2 * cos(beta12[j]) * dθ1[j]
+        dθ2[i=0:nh],
+        v1[i] / L2 * sin(β12[i]) - M1 / L2 * cos(β12[i]) * dθ1[i]
     )
     @expression(
-        model, v2[j=0:nh], v1[j] * cos(beta12[j]) + M1 * sin(beta12[j]) * dθ1[j]
+        model, v2[i=0:nh], v1[i] * cos(β12[i]) + M1 * sin(β12[i]) * dθ1[i]
     )
-    @expression(model, dx2[j=0:nh], v2[j] * cos(θ2[j]))
-    @expression(model, dy2[j=0:nh], v2[j] * sin(θ2[j]))
+    @expression(model, dx2[i=0:nh], v2[i] * cos(θ2[i]))
+    @expression(model, dy2[i=0:nh], v2[i] * sin(θ2[i]))
 
     # Dynamics
     @constraints(
         model,
         begin
-            ∂x2[j=1:nh], x2[j] == x2[j - 1] + 0.5 * step * (dx2[j] + dx2[j - 1])
-            ∂y2[j=1:nh], y2[j] == y2[j - 1] + 0.5 * step * (dy2[j] + dy2[j - 1])
-            ∂θ0[j=1:nh], θ0[j] == θ0[j - 1] + 0.5 * step * (dθ0[j] + dθ0[j - 1])
-            ∂θ1[j=1:nh], θ1[j] == θ1[j - 1] + 0.5 * step * (dθ1[j] + dθ1[j - 1])
-            ∂θ2[j=1:nh], θ2[j] == θ2[j - 1] + 0.5 * step * (dθ2[j] + dθ2[j - 1])
+            ∂x2[i=1:nh], x2[i] == x2[i - 1] + 0.5 * step * (dx2[i] + dx2[i - 1])
+            ∂y2[i=1:nh], y2[i] == y2[i - 1] + 0.5 * step * (dy2[i] + dy2[i - 1])
+            ∂θ0[i=1:nh], θ0[i] == θ0[i - 1] + 0.5 * step * (dθ0[i] + dθ0[i - 1])
+            ∂θ1[i=1:nh], θ1[i] == θ1[i - 1] + 0.5 * step * (dθ1[i] + dθ1[i - 1])
+            ∂θ2[i=1:nh], θ2[i] == θ2[i - 1] + 0.5 * step * (dθ2[i] + dθ2[i - 1])
+            ∂v0[i=1:nh], v0[i] == v0[i - 1] + 0.5 * step * (dv0[i] + dv0[i - 1])
+            ∂δ0[i=1:nh], δ0[i] == δ0[i - 1] + 0.5 * step * (dδ0[i] + dδ0[i - 1])
         end
     )
 
-    @objective(model, Min, tf + step * sum((beta01[j]^2 + beta12[j]^2) for j in 0:nh-1))
+    # objective
+    @expression(model, dc[i=0:nh], β01[i]^2 + β12[i]^2)
+    @objective(model, Min, tf + 0.5 * step * sum(dc[i] + dc[i-1] for i in 1:nh))
 
     return model
 end

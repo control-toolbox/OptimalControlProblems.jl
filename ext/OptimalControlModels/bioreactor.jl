@@ -5,16 +5,16 @@ The Bioreactor Problem:
 function OptimalControlProblems.bioreactor(::OptimalControlBackend; nh::Int=500, N::Int=30)
     
     # METHANE PROBLEM
-    # mu2 according to growth model
-    # mu according to light model
+    # μ2 according to growth model
+    # μ according to light model
     # time scale is [0,10] for 24h (day then night)
 
     # growth model MONOD
-    function growth(s, mu2m, Ks)
-        return mu2m * s / (s + Ks)
+    function growth(s, μ2m, Ks)
+        return μ2m * s / (s + Ks)
     end
 
-    # light model: max^2 (0,sin) * mubar
+    # light model: max^2 (0,sin) * μbar
     # DAY/NIGHT CYCLE: [0,2 halfperiod] rescaled to [0,2pi]
     function light(time, halfperiod)
         days = time / (halfperiod * 2)
@@ -23,13 +23,13 @@ function OptimalControlProblems.bioreactor(::OptimalControlBackend; nh::Int=500,
     end
 
     # parameters
-    beta = 1
+    β = 1
     c = 2
     gamma = 1
     halfperiod = 5
     Ks = 0.05
-    mu2m = 0.1
-    mubar = 1
+    μ2m = 0.1
+    μbar = 1
     r = 0.005
     T = 10N
 
@@ -47,16 +47,16 @@ function OptimalControlProblems.bioreactor(::OptimalControlBackend; nh::Int=500,
         0.5 ≤ s(0) ≤ 5
         0.5 ≤ b(0) ≤ 3
 
-        mu = light(t, halfperiod) * mubar
-        mu2 = growth(s(t), mu2m, Ks)
+        μ = light(t, halfperiod) * μbar
+        μ2 = growth(s(t), μ2m, Ks)
 
         ẋ(t) == [
-            mu * y(t) / (1 + y(t)) - (r + u(t)) * y(t),
-            -mu2 * b(t) + u(t) * beta * (gamma * y(t) - s(t)),
-            (mu2 - u(t) * beta) * b(t),
+            μ * y(t) / (1 + y(t)) - (r + u(t)) * y(t),
+            -μ2 * b(t) + u(t) * β * (gamma * y(t) - s(t)),
+            (μ2 - u(t) * β) * b(t),
         ]
 
-        -∫(mu2 * b(t) / (beta + c)) → min
+        -∫(μ2 * b(t) / (β + c)) → min
 
     end
 

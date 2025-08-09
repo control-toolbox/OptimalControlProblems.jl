@@ -5,13 +5,13 @@ The Bioreactor Problem:
 function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=500, N::Int=30)
 
     # parameters
-    beta = 1
+    β = 1
     c = 2
     gamma = 1
     halfperiod = 5
     Ks = 0.05
-    mu2m = 0.1
-    mubar = 1
+    μ2m = 0.1
+    μbar = 1
     r = 0.005
     T = 10N
 
@@ -48,21 +48,21 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=500, N::Int=30
             step, T / nh
 
             # intermediate variables
-            growth[k=0:nh], mu2m * s[k] / (s[k] + Ks)
-            mu2[k=0:nh], growth[k]
+            growth[k=0:nh], μ2m * s[k] / (s[k] + Ks)
+            μ2[k=0:nh], growth[k]
 
             days[k=0:nh], (k * step) / (halfperiod * 2)
             tau[k=0:nh], (days[k] - floor(days[k])) * 2π
             light[k=0:nh], max(0, sin(tau[k]))^2
-            mu[k=0:nh], light[k] * mubar
+            μ[k=0:nh], light[k] * μbar
 
             # dynamics
-            dy[k=0:nh], mu[k] * y[k] / (1 + y[k]) - (r + u[k]) * y[k]
-            ds[k=0:nh], -mu2[k] * b[k] + u[k] * beta * (gamma * y[k] - s[k])
-            db[k=0:nh], (mu2[k] - u[k] * beta) * b[k]
+            dy[k=0:nh], μ[k] * y[k] / (1 + y[k]) - (r + u[k]) * y[k]
+            ds[k=0:nh], -μ2[k] * b[k] + u[k] * β * (gamma * y[k] - s[k])
+            db[k=0:nh], (μ2[k] - u[k] * β) * b[k]
 
             # objective
-            dc[k=0:nh], -mu2[k] * b[k] / (beta + c)
+            dc[k=0:nh], -μ2[k] * b[k] / (β + c)
 
         end
     )
