@@ -82,6 +82,7 @@ function OptimalControlProblems.insurance(::JuMPBackend; nh::Int=500)
 
         end
     )
+    
     @constraints(
         model,
         begin

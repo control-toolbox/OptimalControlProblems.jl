@@ -5,9 +5,9 @@ The Robbins Problem:
 function OptimalControlProblems.robbins(::OptimalControlBackend; nh::Int=500)
     
     # parameters
-    alpha = 3
-    beta = 0
-    gamma = 0.5
+    α = 3
+    β = 0
+    γ = 0.5
     tf = 10
 
     # model
@@ -24,7 +24,7 @@ function OptimalControlProblems.robbins(::OptimalControlBackend; nh::Int=500)
 
         ẋ(t) == [x[2](t), x[3](t), u(t)]
 
-        ∫(alpha * x[1](t) + beta * x[1](t)^2 + gamma * u(t)^2) → min
+        ∫(α * x[1](t) + β * x[1](t)^2 + γ * u(t)^2) → min
 
     end
 

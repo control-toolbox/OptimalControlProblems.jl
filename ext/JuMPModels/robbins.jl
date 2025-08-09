@@ -5,10 +5,12 @@ The Robbins Problem:
 function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=500)
 
     # parameters
-    alpha = 3
-    beta = 0
-    gamma = 0.5
+    α = 3
+    β = 0
+    γ = 0.5
     tf = 10
+
+    #
     step = tf / nh
 
     # model
@@ -42,22 +44,21 @@ function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=500)
     @constraints(
         model,
         begin
-
-            # dynamics
             ∂x1[i=1:nh], x1[i] == x1[i - 1] + 0.5 * step * (x2[i] + x2[i - 1])
             ∂x2[i=1:nh], x2[i] == x2[i - 1] + 0.5 * step * (x3[i] + x3[i - 1])
             ∂x3[i=1:nh], x3[i] == x3[i - 1] + 0.5 * step * (u[i] + u[i - 1])
-
-            # objective
-            
-
         end
     )
 
     # objective
-    @objective(
-        model, Min, step * sum(alpha * x1[i] + beta * x1[i]^2 + gamma * u[i]^2 for i in 0:nh-1)
+    @expressions(
+        model,
+        begin
+            dc[i=0:nh], (α * x1[i] + β * x1[i]^2 + γ * u[i]^2)
+        end
     )
+
+    @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i-1] for i in 1:nh))
 
     return model
 end
