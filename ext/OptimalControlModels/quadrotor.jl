@@ -4,7 +4,7 @@ Quadrotor Problem:
     The objective is to minimize the final time.
     The problem is formulated as an OptimalControl model.
 """
-function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=60)
+function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=100)
 
     # parameters
     g = 9.81
@@ -21,7 +21,7 @@ function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=60)
     ocp = @def begin
 
         tf ∈ R, variable
-        t ∈ [0.0, tf], time
+        t ∈ [0, tf], time
         x ∈ R⁸, state
         u ∈ R⁴, control
 
@@ -42,7 +42,7 @@ function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=60)
         ψ = u₄
 
         # state constraints
-        tf ≥ 0.01, (tf_con)
+        tf ≥ 0.1, (tf_con)
         -π / 2 ≤ ϕ(t) ≤ π / 2, (ϕ_con)
         -π / 2 ≤ θ(t) ≤ π / 2, (θ_con)
 
@@ -105,7 +105,7 @@ function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=60)
     # initial guess
     xinit = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [p1, p2, p3, v1, v2, v3, ϕ, θ]
     uinit = [10, 0.1, 0.1, 0.1]  # [at, dϕ, dθ, ψ] 
-    varinit = [0.1]  # [tf]
+    varinit = [1]  # [tf]
     init = (state=xinit, control=uinit, variable=varinit)
 
     # DOCP and NLP

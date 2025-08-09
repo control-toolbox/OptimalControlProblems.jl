@@ -4,7 +4,7 @@ Quadrotor Problem:
     The objective is to minimize the final time.
     The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746)
 """
-function OptimalControlProblems.quadrotor(::JuMPBackend; nh::Int=60)
+function OptimalControlProblems.quadrotor(::JuMPBackend; nh::Int=100)
 
     # parameters
     g = 9.81
@@ -27,7 +27,7 @@ function OptimalControlProblems.quadrotor(::JuMPBackend; nh::Int=60)
         begin
 
             # variable
-            0.01 <= tf, (start = 0.1)
+            0.1 <= tf, (start = 1)
 
             # state
             p1[0:nh], (start = 0.1)

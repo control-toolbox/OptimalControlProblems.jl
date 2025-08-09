@@ -2,17 +2,19 @@
 The Robbins Problem:
     The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=250)
-    # constants
+function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=500)
+
+    # parameters
     alpha = 3
     beta = 0
     gamma = 0.5
     tf = 10
     step = tf / nh
 
-    # Model
+    # model
     model = JuMP.Model()
 
+    # state, control and initial guess
     @variables(
         model,
         begin
@@ -23,7 +25,7 @@ function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=250)
         end
     )
 
-    # Boundary constraints
+    # boundary constraints
     @constraints(
         model,
         begin
@@ -36,19 +38,25 @@ function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=250)
         end
     )
 
-    # Dynamics
+    # dynamics
     @constraints(
         model,
         begin
-            ∂x1[t=1:nh], x1[t] == x1[t - 1] + 0.5 * step * (x2[t] + x2[t - 1])
-            ∂x2[t=1:nh], x2[t] == x2[t - 1] + 0.5 * step * (x3[t] + x3[t - 1])
-            ∂x3[t=1:nh], x3[t] == x3[t - 1] + 0.5 * step * (u[t] + u[t - 1])
+
+            # dynamics
+            ∂x1[i=1:nh], x1[i] == x1[i - 1] + 0.5 * step * (x2[i] + x2[i - 1])
+            ∂x2[i=1:nh], x2[i] == x2[i - 1] + 0.5 * step * (x3[i] + x3[i - 1])
+            ∂x3[i=1:nh], x3[i] == x3[i - 1] + 0.5 * step * (u[i] + u[i - 1])
+
+            # objective
+            
+
         end
     )
 
-    # Objective
+    # objective
     @objective(
-        model, Min, step * sum(alpha * x1[t] + beta * x1[t]^2 + gamma * u[t]^2 for t in 0:nh-1)
+        model, Min, step * sum(alpha * x1[i] + beta * x1[i]^2 + gamma * u[i]^2 for i in 0:nh-1)
     )
 
     return model
