@@ -4,61 +4,47 @@ The electric Vehicle Problem
     The problem is formulated as an OptimalControl model.
 Ref: [PS2011] Nicolas Petit and Antonio Sciarretta. "Optimal drive of electric vehicles using an inversion-based trajectory generation approach." IFAC Proceedings Volumes 44, no. 1 (2011): 14519-14526.
 """
-function OptimalControlProblems.electric_vehicle(::OptimalControlBackend; nh=500)
+function OptimalControlProblems.electric_vehicle(::OptimalControlBackend; nh=250)
 
     # parameters
-    D = 10.0
-    tf = 1.0
-    b1 = 1e3
-    b2 = 1e3
+    D = 10
+    tf = 1
+    b1 = 1e0
+    b2 = 1e0
     h0 = 0.1
-    h1 = 1.0
+    h1 = 1
     h2 = 1e-3
-    p0, p1, p2, p3 = (3.0, 0.4, -1.0, 0.1)
+    α0, α1, α2, α3 = (3, 0.4, -1, 0.1)
 
+    # model
     ocp = @def begin
         
-        ## define the problem
-        t ∈ [0.0, tf], time
-        x ∈ R², state
+        t ∈ [0, tf], time
+        y = (x, v) ∈ R², state
         u ∈ R, control
 
-        ## state variables
-        pos = x₁
-        v = x₂
+        x(0) == 0, (x_i)
+        v(0) == 0, (v_i)
+        x(tf) == D, (x_f)
+        v(tf) == 0, (v_f)
 
-        ## constraints
-        # initial constraints
-        pos(0) == 0.0, (pos_i)
-        v(0) == 0.0, (v_i)
-        # final constraints
-        pos(tf) == D, (pos_f)
-        v(tf) == 0.0, (v_f)
+        ẏ(t) == dynamics(x(t), v(t), u(t))
 
-        ## dynamics
-        ẋ(t) == dynamics(x(t), u(t))
-
-        ## objective
         ∫(b1 * u(t) * v(t) + b2 * u(t)^2) → min
+
     end
 
-    function road(x)
-        return p0 + p1 * x + p2 * x^2 + p3 * x^3
-    end
+    road(x) = α0 + α1 * x + α2 * x^2 + α3 * x^3
+    dynamics(x, v, u) = [v, h1 * u - h2 * v^2 - h0 - road(x)]
 
-    function dynamics(x, u)
-        pos, v = x
-        a = h1 * u - h2 * v^2 - h0 - road(pos)
-        return [v, a]
-    end
+    # initial guess
+    yinit = [0.1, 0.1]  # [x, v]
+    uinit = [0.1]       # [u]
+    init = (state=yinit, control=uinit)
 
-    ## Initial guess
-    xinit = [0.1, 0.1]  # [pos, v]
-    uinit = [0.1]  # [u]
-    init = (state=xinit, control=uinit)
-
-    # NLPModel + DOCP
+    # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=nh)
     nlp = model(docp)
+
     return docp, nlp
 end
