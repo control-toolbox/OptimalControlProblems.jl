@@ -35,7 +35,7 @@ pbs_with_issues = [
 functions_list = setdiff(functions_list, pbs_with_issues)
 
 functions_list = [
-    :space_shuttle
+    :steering
 ]
 
 # The list of all the problems to test
