@@ -49,22 +49,12 @@ function OptimalControlProblems.robot(::JuMPBackend; nh::Int=100)
     @constraints(
         model,
         begin
-            con_rho[j=2:(nh + 1)],
-            rho[j] == rho[j - 1] + 0.5 * step * (rho_dot[j] + rho_dot[j - 1])
-            con_phi[j=2:(nh + 1)],
-            phi[j] == phi[j - 1] + 0.5 * step * (phi_dot[j] + phi_dot[j - 1])
-            con_the[j=2:(nh + 1)],
-            the[j] == the[j - 1] + 0.5 * step * (the_dot[j] + the_dot[j - 1])
-            con_rho_dot[j=2:(nh + 1)],
-            rho_dot[j] == rho_dot[j - 1] + 0.5 * step * (u_rho[j] + u_rho[j - 1]) / L
-            con_the_dot[j=2:(nh + 1)],
-            the_dot[j] ==
-            the_dot[j - 1] +
-            0.5 * step * ((u_the[j] / I_the[j]) + (u_the[j - 1] / I_the[j - 1]))
-            con_phi_dot[j=2:(nh + 1)],
-            phi_dot[j] ==
-            phi_dot[j - 1] +
-            0.5 * step * ((u_phi[j] / I_phi[j]) + (u_phi[j - 1] / I_phi[j - 1]))
+            ∂ρ[j=2:(nh + 1)], rho[j] == rho[j - 1] + 0.5 * step * (rho_dot[j] + rho_dot[j - 1])
+            ∂ϕ[j=2:(nh + 1)], phi[j] == phi[j - 1] + 0.5 * step * (phi_dot[j] + phi_dot[j - 1])
+            ∂θ[j=2:(nh + 1)], the[j] == the[j - 1] + 0.5 * step * (the_dot[j] + the_dot[j - 1])
+            ∂dρ[j=2:(nh + 1)], rho_dot[j] == rho_dot[j - 1] + 0.5 * step * (u_rho[j] + u_rho[j - 1]) / L
+            ∂dθ[j=2:(nh + 1)], the_dot[j] == the_dot[j - 1] + 0.5 * step * ((u_the[j] / I_the[j]) + (u_the[j - 1] / I_the[j - 1]))
+            ∂dϕ[j=2:(nh + 1)], phi_dot[j] == phi_dot[j - 1] + 0.5 * step * ((u_phi[j] / I_phi[j]) + (u_phi[j - 1] / I_phi[j - 1]))
         end
     )
 

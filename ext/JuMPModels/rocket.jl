@@ -49,9 +49,9 @@ function OptimalControlProblems.rocket(::JuMPBackend; nh::Int=100)
     @constraints(
         model,
         begin
-            con_dh[i=1:nh], h[i] == h[i - 1] + 0.5 * step * (dh[i] + dh[i - 1])
-            con_dv[i=1:nh], v[i] == v[i - 1] + 0.5 * step * (dv[i] + dv[i - 1])
-            con_dm[i=1:nh], m[i] == m[i - 1] + 0.5 * step * (dm[i] + dm[i - 1])
+            ∂h[i=1:nh], h[i] == h[i - 1] + 0.5 * step * (dh[i] + dh[i - 1])
+            ∂v[i=1:nh], v[i] == v[i - 1] + 0.5 * step * (dv[i] + dv[i - 1])
+            ∂m[i=1:nh], m[i] == m[i - 1] + 0.5 * step * (dm[i] + dm[i - 1])
         end
     )
 

@@ -5,7 +5,7 @@ jackson_meta = Dict(
     :ncon => 303,
     :minimize => false,
     :state_name => ["a", "b", "x3"],
-    :costate_name => ["pa", "pb", "p3"],
+    :costate_name => ["∂a", "∂b", "∂3"],
     :control_name => ["u"],
     :time => ("final_time", "tf", 4.0)
 )

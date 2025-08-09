@@ -154,12 +154,12 @@ function OptimalControlProblems.space_shuttle(
         @constraints(
             model,
             begin
-                con_dh[i=2:nh], h[i] == h[i - 1] + Δt[i - 1] * δh[i - 1]
-                con_dϕ[i=2:nh], ϕ[i] == ϕ[i - 1] + Δt[i - 1] * δϕ[i - 1]
-                con_dθ[i=2:nh], θ[i] == θ[i - 1] + Δt[i - 1] * δθ[i - 1]
-                con_dv[i=2:nh], v[i] == v[i - 1] + Δt[i - 1] * δv[i - 1]
-                con_dγ[i=2:nh], γ[i] == γ[i - 1] + Δt[i - 1] * δγ[i - 1]
-                con_dψ[i=2:nh], ψ[i] == ψ[i - 1] + Δt[i - 1] * δψ[i - 1]
+                ∂h[i=2:nh], h[i] == h[i - 1] + Δt[i - 1] * δh[i - 1]
+                ∂ϕ[i=2:nh], ϕ[i] == ϕ[i - 1] + Δt[i - 1] * δϕ[i - 1]
+                ∂θ[i=2:nh], θ[i] == θ[i - 1] + Δt[i - 1] * δθ[i - 1]
+                ∂v[i=2:nh], v[i] == v[i - 1] + Δt[i - 1] * δv[i - 1]
+                ∂γ[i=2:nh], γ[i] == γ[i - 1] + Δt[i - 1] * δγ[i - 1]
+                ∂ψ[i=2:nh], ψ[i] == ψ[i - 1] + Δt[i - 1] * δψ[i - 1]
             end
         )
     elseif integration_rule == "trapezoidal"
@@ -167,12 +167,12 @@ function OptimalControlProblems.space_shuttle(
         @constraints(
             model,
             begin
-                con_dh[i=2:nh], h[i] == h[i - 1] + 0.5 * Δt[i - 1] * (δh[i - 1] + δh[i])
-                con_dϕ[i=2:nh], ϕ[i] == ϕ[i - 1] + 0.5 * Δt[i - 1] * (δϕ[i - 1] + δϕ[i])
-                con_dθ[i=2:nh], θ[i] == θ[i - 1] + 0.5 * Δt[i - 1] * (δθ[i - 1] + δθ[i])
-                con_dv[i=2:nh], v[i] == v[i - 1] + 0.5 * Δt[i - 1] * (δv[i - 1] + δv[i])
-                con_dγ[i=2:nh], γ[i] == γ[i - 1] + 0.5 * Δt[i - 1] * (δγ[i - 1] + δγ[i])
-                con_dψ[i=2:nh], ψ[i] == ψ[i - 1] + 0.5 * Δt[i - 1] * (δψ[i - 1] + δψ[i])
+                ∂h[i=2:nh], h[i] == h[i - 1] + 0.5 * Δt[i - 1] * (δh[i - 1] + δh[i])
+                ∂ϕ[i=2:nh], ϕ[i] == ϕ[i - 1] + 0.5 * Δt[i - 1] * (δϕ[i - 1] + δϕ[i])
+                ∂θ[i=2:nh], θ[i] == θ[i - 1] + 0.5 * Δt[i - 1] * (δθ[i - 1] + δθ[i])
+                ∂v[i=2:nh], v[i] == v[i - 1] + 0.5 * Δt[i - 1] * (δv[i - 1] + δv[i])
+                ∂γ[i=2:nh], γ[i] == γ[i - 1] + 0.5 * Δt[i - 1] * (δγ[i - 1] + δγ[i])
+                ∂ψ[i=2:nh], ψ[i] == ψ[i - 1] + 0.5 * Δt[i - 1] * (δψ[i - 1] + δψ[i])
             end
         )
     else

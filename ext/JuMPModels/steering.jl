@@ -38,10 +38,10 @@ function OptimalControlProblems.steering(::JuMPBackend; nh::Int=100)
     @constraints(
         model,
         begin
-            con_x1[i=1:nh], x1[i + 1] == x1[i] + 0.5 * h * (x3[i] + x3[i + 1])
-            con_x2[i=1:nh], x2[i + 1] == x2[i] + 0.5 * h * (x4[i] + x4[i + 1])
-            con_x3[i=1:nh], x3[i + 1] == x3[i] + 0.5 * h * (a * cos(u[i]) + a * cos(u[i + 1]))
-            con_x4[i=1:nh], x4[i + 1] == x4[i] + 0.5 * h * (a * sin(u[i]) + a * sin(u[i + 1]))
+            ∂x1[i=1:nh], x1[i + 1] == x1[i] + 0.5 * h * (x3[i] + x3[i + 1])
+            ∂x2[i=1:nh], x2[i + 1] == x2[i] + 0.5 * h * (x4[i] + x4[i + 1])
+            ∂x3[i=1:nh], x3[i + 1] == x3[i] + 0.5 * h * (a * cos(u[i]) + a * cos(u[i + 1]))
+            ∂x4[i=1:nh], x4[i + 1] == x4[i] + 0.5 * h * (a * sin(u[i]) + a * sin(u[i + 1]))
         end
     )
 

@@ -95,12 +95,12 @@ function OptimalControlProblems.moonlander(
     @constraints(
         model,
         begin
-            d_p1[k=1:nh],       p1[k]       == p1[k - 1]        + 0.5 * step * (dp1[k]     + dp1[k - 1])
-            d_p2[k=1:nh],       p2[k]       == p2[k - 1]        + 0.5 * step * (dp2[k]     + dp2[k - 1])
-            d_dp1[k=1:nh],      dp1[k]      == dp1[k - 1]       + 0.5 * step * (ddp1[k]    + ddp1[k - 1])
-            d_dp2[k=1:nh],      dp2[k]      == dp2[k - 1]       + 0.5 * step * (ddp2[k]    + ddp2[k - 1])
-            d_θ[k=1:nh],    θ[k]    == θ[k - 1]     + 0.5 * step * (dθ[k]  + dθ[k - 1])
-            d_dθ[k=1:nh],   dθ[k]   == dθ[k - 1]    + 0.5 * step * (ddθ[k] + ddθ[k - 1])
+            ∂p1[k=1:nh],       p1[k]       == p1[k - 1]        + 0.5 * step * (dp1[k]     + dp1[k - 1])
+            ∂p2[k=1:nh],       p2[k]       == p2[k - 1]        + 0.5 * step * (dp2[k]     + dp2[k - 1])
+            ∂dp1[k=1:nh],      dp1[k]      == dp1[k - 1]       + 0.5 * step * (ddp1[k]    + ddp1[k - 1])
+            ∂dp2[k=1:nh],      dp2[k]      == dp2[k - 1]       + 0.5 * step * (ddp2[k]    + ddp2[k - 1])
+            ∂θ[k=1:nh],    θ[k]    == θ[k - 1]     + 0.5 * step * (dθ[k]  + dθ[k - 1])
+            ∂dθ[k=1:nh],   dθ[k]   == dθ[k - 1]    + 0.5 * step * (ddθ[k] + ddθ[k - 1])
         end
     )
 

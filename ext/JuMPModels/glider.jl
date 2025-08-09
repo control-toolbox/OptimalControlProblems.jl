@@ -60,10 +60,10 @@ function OptimalControlProblems.glider(::JuMPBackend; nh::Int=100)
     @constraints(
         model,
         begin
-            x_eqn[j=1:nh], x[j] == x[j - 1] + 0.5 * step * (vx[j] + vx[j - 1])
-            y_eqn[j=1:nh], y[j] == y[j - 1] + 0.5 * step * (vy[j] + vy[j - 1])
-            vx_eqn[j=1:nh], vx[j] == vx[j - 1] + 0.5 * step * (vx_dot[j] + vx_dot[j - 1])
-            vy_eqn[j=1:nh], vy[j] == vy[j - 1] + 0.5 * step * (vy_dot[j] + vy_dot[j - 1])
+            ∂x[j=1:nh], x[j] == x[j - 1] + 0.5 * step * (vx[j] + vx[j - 1])
+            ∂y[j=1:nh], y[j] == y[j - 1] + 0.5 * step * (vy[j] + vy[j - 1])
+            ∂vx[j=1:nh], vx[j] == vx[j - 1] + 0.5 * step * (vx_dot[j] + vx_dot[j - 1])
+            ∂vy[j=1:nh], vy[j] == vy[j - 1] + 0.5 * step * (vy_dot[j] + vy_dot[j - 1])
         end
     )
     # Boundary constraints

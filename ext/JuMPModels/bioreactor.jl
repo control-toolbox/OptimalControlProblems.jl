@@ -70,9 +70,9 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=500, N::Int=30
     @constraints(
         model,
         begin
-            con_y[k=1:nh], y[k] == y[k - 1] + 0.5 * step * (dy[k] + dy[k - 1])
-            con_s[k=1:nh], s[k] == s[k - 1] + 0.5 * step * (ds[k] + ds[k - 1])
-            con_b[k=1:nh], b[k] == b[k - 1] + 0.5 * step * (db[k] + db[k - 1])
+            ∂y[k=1:nh], y[k] == y[k - 1] + 0.5 * step * (dy[k] + dy[k - 1])
+            ∂s[k=1:nh], s[k] == s[k - 1] + 0.5 * step * (ds[k] + ds[k - 1])
+            ∂b[k=1:nh], b[k] == b[k - 1] + 0.5 * step * (db[k] + db[k - 1])
         end
     )
 

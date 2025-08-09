@@ -73,10 +73,10 @@ function OptimalControlProblems.cart_pendulum(::JuMPBackend; nh::Int=500)
     @constraints(
         model,
         begin
-            ẋ[k=1:nh], x[k] == x[k - 1] + 0.5 * step * ( v[k] +  v[k - 1])
-            v̇[k=1:nh], v[k] == v[k - 1] + 0.5 * step * (dv[k] + dv[k - 1])
-            θ̇[k=1:nh], θ[k] == θ[k - 1] + 0.5 * step * ( ω[k] +  ω[k - 1])
-            ω̇[k=1:nh], ω[k] == ω[k - 1] + 0.5 * step * (dω[k] + dω[k - 1])
+            ∂x[k=1:nh], x[k] == x[k - 1] + 0.5 * step * ( v[k] +  v[k - 1])
+            ∂v[k=1:nh], v[k] == v[k - 1] + 0.5 * step * (dv[k] + dv[k - 1])
+            ∂θ[k=1:nh], θ[k] == θ[k - 1] + 0.5 * step * ( ω[k] +  ω[k - 1])
+            ∂ω[k=1:nh], ω[k] == ω[k - 1] + 0.5 * step * (dω[k] + dω[k - 1])
         end
     )
 

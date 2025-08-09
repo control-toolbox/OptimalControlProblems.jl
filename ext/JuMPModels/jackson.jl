@@ -45,9 +45,9 @@ function OptimalControlProblems.jackson(::JuMPBackend; nh::Int=100, N::Int=30)
     @constraints(
         model,
         begin
-            con_da[t=1:nh], a[t] == a[t - 1] + 0.5 * step * (da[t] + da[t - 1])
-            con_db[t=1:nh], b[t] == b[t - 1] + 0.5 * step * (db[t] + db[t - 1])
-            con_dx3[t=1:nh], x3[t] == x3[t - 1] + 0.5 * step * (dx3[t] + dx3[t - 1])
+            ∂a[t=1:nh], a[t] == a[t - 1] + 0.5 * step * (da[t] + da[t - 1])
+            ∂b[t=1:nh], b[t] == b[t - 1] + 0.5 * step * (db[t] + db[t - 1])
+            ∂x3[t=1:nh], x3[t] == x3[t - 1] + 0.5 * step * (dx3[t] + dx3[t - 1])
         end
     )
 

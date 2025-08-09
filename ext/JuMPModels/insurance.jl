@@ -75,9 +75,9 @@ function OptimalControlProblems.insurance(::JuMPBackend; nh::Int=100)
     @constraints(
         model,
         begin
-            con_dI[t=1:nh], I[t] == I[t - 1] + 0.5 * step * (dI[t] + dI[t - 1])
-            con_dm[t=1:nh], m[t] == m[t - 1] + 0.5 * step * (dm[t] + dm[t - 1])
-            con_dx3[t=1:nh], x3[t] == x3[t - 1] + 0.5 * step * (dx3[t] + dx3[t - 1])
+            ∂I[t=1:nh], I[t] == I[t - 1] + 0.5 * step * (dI[t] + dI[t - 1])
+            ∂m[t=1:nh], m[t] == m[t - 1] + 0.5 * step * (dm[t] + dm[t - 1])
+            ∂x3[t=1:nh], x3[t] == x3[t - 1] + 0.5 * step * (dx3[t] + dx3[t - 1])
         end
     )
 

@@ -99,12 +99,12 @@ function OptimalControlProblems.quadrotor(::JuMPBackend; nh::Int=60)
     @constraints(
         model,
         begin
-            d_p1[j=1:nh], p1[j] == p1[j - 1] + 0.5 * step * (v1[j] + v1[j - 1])
-            d_p2[j=1:nh], p2[j] == p2[j - 1] + 0.5 * step * (v2[j] + v2[j - 1])
-            d_p3[j=1:nh], p3[j] == p3[j - 1] + 0.5 * step * (v3[j] + v3[j - 1])
-            d_v1[j=1:nh], v1[j] == v1[j - 1] + 0.5 * step * (a[j][1] + a[j - 1][1])
-            d_v2[j=1:nh], v2[j] == v2[j - 1] + 0.5 * step * (a[j][2] + a[j - 1][2])
-            d_v3[j=1:nh], v3[j] == v3[j - 1] + 0.5 * step * (a[j][3] + a[j - 1][3])
+            ∂p1[j=1:nh], p1[j] == p1[j - 1] + 0.5 * step * (v1[j] + v1[j - 1])
+            ∂p2[j=1:nh], p2[j] == p2[j - 1] + 0.5 * step * (v2[j] + v2[j - 1])
+            ∂p3[j=1:nh], p3[j] == p3[j - 1] + 0.5 * step * (v3[j] + v3[j - 1])
+            ∂v1[j=1:nh], v1[j] == v1[j - 1] + 0.5 * step * (a[j][1] + a[j - 1][1])
+            ∂v2[j=1:nh], v2[j] == v2[j - 1] + 0.5 * step * (a[j][2] + a[j - 1][2])
+            ∂v3[j=1:nh], v3[j] == v3[j - 1] + 0.5 * step * (a[j][3] + a[j - 1][3])
         end
     )
 

@@ -5,7 +5,7 @@ glider_meta = Dict(
     :ncon => 407,
     :minimize => false,
     :state_name => ["x", "y", "vx", "vy"],
-    :costate_name => ["px", "py", "pvx", "pvy"],
+    :costate_name => ["∂x", "∂y", "∂vx", "∂vy"],
     :control_name => ["cL"],
     :time => ("final_time", "tf", nothing)
 )
