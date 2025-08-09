@@ -22,7 +22,7 @@ function OptimalControlProblems.glider(::JuMPBackend; nh::Int=500)
     c0 = 0.034
     c1 = 0.069662
     S = 14
-    rho = 1.13
+    ρ = 1.13
     cL_min = 0
     cL_max = 1.4
 
@@ -69,8 +69,8 @@ function OptimalControlProblems.glider(::JuMPBackend; nh::Int=500)
             u[k=0:nh], u_c * (1 - r[k]) * exp(-r[k])
             w[k=0:nh], vy[k] - u[k]
             v[k=0:nh], √(vx[k]^2 + w[k]^2)
-            D[k=0:nh], 0.5 * (c0 + c1 * cL[k]^2) * rho * S * v[k]^2
-            L[k=0:nh], 0.5 * cL[k] * rho * S * v[k]^2
+            D[k=0:nh], 0.5 * (c0 + c1 * cL[k]^2) * ρ * S * v[k]^2
+            L[k=0:nh], 0.5 * cL[k] * ρ * S * v[k]^2
 
             #
             dvx[k=0:nh], -(L[k] *  w[k] + D[k] * vx[k]) / (m * v[k])

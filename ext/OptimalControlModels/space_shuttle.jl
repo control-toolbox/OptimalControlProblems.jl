@@ -55,15 +55,15 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=5
 
         ## dynamics  
         h_dot = v * sin(γ)
-        ϕ_dot = (v / r) * cos(γ) * sin(ψ) / cos(θ)
-        θ_dot = (v / r) * cos(γ) * cos(ψ)
+        dϕ = (v / r) * cos(γ) * sin(ψ) / cos(θ)
+        dθ = (v / r) * cos(γ) * cos(ψ)
         v_dot = -(D / m) - g * sin(γ)
         γ_dot = (L / (m * v)) * cos(β) + cos(γ) * ((v / r) - (g / v))
         ψ_dot =
             (1 / (m * v * cos(γ))) * L * sin(β) +
             (v / (r * cos(θ))) * cos(γ) * sin(ψ) * sin(θ)
 
-        return [h_dot / 1e5, ϕ_dot, θ_dot, v_dot / 1e4, γ_dot, ψ_dot]
+        return [h_dot / 1e5, dϕ, dθ, v_dot / 1e4, γ_dot, ψ_dot]
     end
 
     ocp = @def begin

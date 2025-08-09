@@ -22,7 +22,7 @@ function OptimalControlProblems.glider(::OptimalControlBackend; nh::Int=500)
     c0 = 0.034
     c1 = 0.069662
     S = 14
-    rho = 1.13
+    ρ = 1.13
     cL_min = 0
     cL_max = 1.4
 
@@ -67,8 +67,8 @@ function OptimalControlProblems.glider(::OptimalControlBackend; nh::Int=500)
         UpD = u_c * (1 - r) * exp(-r)
         w = vy - UpD
         v = √(vx^2 + w^2)
-        D = 0.5 * (c0 + c1 * (cL^2)) * rho * S * (v^2)
-        L = 0.5 * cL * rho * S * (v^2)
+        D = 0.5 * (c0 + c1 * (cL^2)) * ρ * S * (v^2)
+        L = 0.5 * cL * ρ * S * (v^2)
 
         ∂x  = vx
         ∂y  = vy
