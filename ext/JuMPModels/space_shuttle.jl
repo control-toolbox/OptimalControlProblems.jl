@@ -6,28 +6,35 @@ Space Shuttle Reentry Trajectory Problem:
     Note: no heating limit path constraint
 """
 function OptimalControlProblems.space_shuttle(
-    ::JuMPBackend; integration_rule::String="trapezoidal", nh::Int=503
+    ::JuMPBackend; integration_rule::String="trapezoidal", nh::Int=500
 )
+
     ## Global variables
-    w = 203000.0  # weight (lb)
-    g₀ = 32.174    # acceleration (ft/sec^2)
-    m = w / g₀    # mass (slug)
+    w = 203000.0    # weight (lb)
+    g₀ = 32.174     # acceleration (ft/sec^2)
+    m = w / g₀      # mass (slug)
 
     ## Aerodynamic and atmospheric forces on the vehicle
     ρ₀ = 0.002378
-    hᵣ = 23800.0
-    Rₑ = 20902900.0
+    hᵣ = 23800
+    Rₑ = 20902900
     μ = 0.14076539e17
-    S = 2690.0
+    S = 2690
     a₀ = -0.20704
     a₁ = 0.029244
     b₀ = 0.07854
     b₁ = -0.61592e-2
     b₂ = 0.621408e-3
-    c₀ = 1.0672181
-    c₁ = -0.19213774e-1
-    c₂ = 0.21286289e-3
-    c₃ = -0.10117249e-5
+    # c₀ = 1.0672181
+    # c₁ = -0.19213774e-1
+    # c₂ = 0.21286289e-3
+    # c₃ = -0.10117249e-5
+
+    # 
+    Δt_min = 3.5
+    Δt_max = 4.5
+    tf_min = 500*Δt_min
+    tf_max = 500*Δt_max
 
     ## Initial conditions
     h_s = 2.6          # altitude (ft) / 1e5
@@ -45,24 +52,34 @@ function OptimalControlProblems.space_shuttle(
     v_t = 0.25         # velocity (ft/sec) / 1e4
     γ_t = deg2rad(-5)  # flight path angle (rad)
 
+    # model
     model = JuMP.Model()
+
+    # state, control and variable (final time)
     @variables(
         model,
         begin
-            0 ≤ scaled_h[1:nh]                # altitude (ft) / 1e5
-            ϕ[1:nh]                # longitude (rad)
-            deg2rad(-89) ≤ θ[1:nh] ≤ deg2rad(89)  # latitude (rad)
-            1e-4 ≤ scaled_v[1:nh]                # velocity (ft/sec) / 1e4
-            deg2rad(-89) ≤ γ[1:nh] ≤ deg2rad(89)  # flight path angle (rad)
-            ψ[1:nh]                # azimuth (rad)
-            deg2rad(-90) ≤ α[1:nh] ≤ deg2rad(90)  # angle of attack (rad)
-            deg2rad(-89) ≤ β[1:nh] ≤ deg2rad(1)  # bank angle (rad)
-            3.5 ≤ Δt[1:(nh - 1)] ≤ 4.5                 # time step (sec)
+
+            # state
+            0 ≤ scaled_h[1:nh]                          # altitude (ft) / 1e5
+            ϕ[1:nh]                                     # longitude (rad)
+            deg2rad(-89) ≤ θ[1:nh] ≤ deg2rad(89)        # latitude (rad)
+            1e-4 ≤ scaled_v[1:nh]                       # velocity (ft/sec) / 1e4
+            deg2rad(-89) ≤ γ[1:nh] ≤ deg2rad(89)        # flight path angle (rad)
+            ψ[1:nh]                                     # azimuth (rad)
+
+            # control
+            deg2rad(-90) ≤ α[1:nh] ≤ deg2rad(90)        # angle of attack (rad)
+            deg2rad(-89) ≤ β[1:nh] ≤ deg2rad(1)         # bank angle (rad)
+
+            #
+            tf_min ≤ tf ≤ tf_max                        # final time (sec)
+            # 3.5 ≤ Δt[1:(nh - 1)] ≤ 4.5                  # time step (sec)
         end
     )
 
     ## Fix initial conditions
-    # inial and final conditions
+    # initial and final conditions
     @constraints(
         model,
         begin
@@ -79,10 +96,12 @@ function OptimalControlProblems.space_shuttle(
     )
 
     ## Initial guess: linear interpolation between boundary conditions
+
     # Helper function for linear interpolation
     function linear_interpolate(x_s, x_t, n)
         return [x_s + (i - 1) / (n - 1) * (x_t - x_s) for i in 1:n]
     end
+
     # Interpolate each parameter separately
     h_interp = linear_interpolate(h_s, h_t, nh)
     ϕ_interp = linear_interpolate(ϕ_s, ϕ_s, nh) # no change in longitude
@@ -93,6 +112,7 @@ function OptimalControlProblems.space_shuttle(
     α_interp = linear_interpolate(α_s, α_s, nh) # no change in angle of attack
     β_interp = linear_interpolate(β_s, β_s, nh) # no change in bank angle
     t_interp = linear_interpolate(t_s, t_s, nh) # no change in time step
+
     # Combine all interpolated parameters into an array of arrays
     interpolated_values = [
         transpose([h, ϕ, θ, v, γ, ψ, α, β, t]) for (h, ϕ, θ, v, γ, ψ, α, β, t) in zip(
@@ -107,6 +127,7 @@ function OptimalControlProblems.space_shuttle(
             t_interp,
         )
     ]
+
     # Create the initial guess by summing the interpolated values
     initial_guess = reduce(vcat, interpolated_values)
     set_start_value.(model[:scaled_h], vec(initial_guess[:, 1]))
@@ -117,7 +138,8 @@ function OptimalControlProblems.space_shuttle(
     set_start_value.(model[:ψ], vec(initial_guess[:, 6]))
     set_start_value.(model[:α], vec(initial_guess[:, 7]))
     set_start_value.(model[:β], vec(initial_guess[:, 8]))
-    set_start_value.(model[:Δt], vec(initial_guess[1:(end - 1), 9]))
+    set_start_value.(model[:tf], (tf_min+tf_max)/2)
+    #set_start_value.(model[:Δt], vec(initial_guess[1:(end - 1), 9]))
 
     ## Functions to restore `h` and `v` to their true scale
     @expression(model, h[j=1:nh], scaled_h[j] * 1e5)
@@ -147,6 +169,11 @@ function OptimalControlProblems.space_shuttle(
         δψ[j=1:nh],
         (1 / (m * v[j] * cos(γ[j]))) * L[j] * sin(β[j]) +
             (v[j] / (r[j] * cos(θ[j]))) * cos(γ[j]) * sin(ψ[j]) * sin(θ[j])
+    )
+
+    @expression(
+        model,
+        Δt[i=1:(nh - 1)], tf / nh
     )
 
     if integration_rule == "rectangular"
@@ -179,7 +206,7 @@ function OptimalControlProblems.space_shuttle(
         @error "Unexpected integration rule '$(integration_rule)'"
     end
 
-    @objective(model, Max, θ[nh])
+    @objective(model, Min, -θ[nh])
 
     return model
 end

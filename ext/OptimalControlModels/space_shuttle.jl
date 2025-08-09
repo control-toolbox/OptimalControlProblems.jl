@@ -5,7 +5,8 @@ Space Shuttle Reentry Trajectory Problem:
     The original problem formulated as a JuMP model can be found [here](https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/)
     Note: no heating limit path constraint
 """
-function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=503)
+function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=500)
+
     ## Global variables
     w = 203000.0  # weight (lb)
     g₀ = 32.174    # acceleration (ft/sec^2)
@@ -13,15 +14,21 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=5
 
     ## Aerodynamic and atmospheric forces on the vehicle
     ρ₀ = 0.002378
-    hᵣ = 23800.0
-    Rₑ = 20902900.0
+    hᵣ = 23800
+    Rₑ = 20902900
     μ = 0.14076539e17
-    S = 2690.0
+    S = 2690
     a₀ = -0.20704
     a₁ = 0.029244
     b₀ = 0.07854
     b₁ = -0.61592e-2
     b₂ = 0.621408e-3
+
+    # 
+    Δt_min = 3.5
+    Δt_max = 4.5
+    tf_min = 500*Δt_min
+    tf_max = 500*Δt_max
 
     ## Initial conditions
     h_s = 2.6          # altitude (ft) / 1e5
@@ -38,12 +45,58 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=5
     v_t = 0.25         # velocity (ft/sec) / 1e4
     γ_t = deg2rad(-5)  # flight path angle (rad)
 
+    # model
+    ocp = @def begin
+  
+        ## define the problem
+        tf ∈ R¹, variable 
+        t ∈ [0, tf], time
+        x = (scaled_h, ϕ, θ, scaled_v, γ, ψ) ∈ R⁶, state
+        u = (α, β) ∈ R², control
+
+        ## constraints
+        # final time constraints
+        tf_min ≤ tf ≤ tf_max
+
+        # state constraints
+        0 ≤ scaled_h(t) ≤ Inf, (scaled_h_con)
+        deg2rad(-89) ≤ θ(t) ≤ deg2rad(89), (θ_con)
+        0 ≤ scaled_v(t) ≤ Inf, (scaled_v_con)
+        deg2rad(-89) ≤ γ(t) ≤ deg2rad(89), (γ_con)
+
+        # control constraints
+        deg2rad(-90) ≤ α(t) ≤ deg2rad(90), (α_con)
+        deg2rad(-89) ≤ β(t) ≤ deg2rad(1), (β_con)
+
+        # initial conditions
+        scaled_h(0) == h_s, (scaled_h0_con)
+        ϕ(0) == ϕ_s, (ϕ0_con)
+        θ(0) == θ_s, (θ0_con)
+        scaled_v(0) == v_s, (scaled_v0_con)
+        γ(0) == γ_s, (γ0_con)
+        ψ(0) == ψ_s, (ψ0_con)
+
+        # final conditions
+        scaled_h(tf) == h_t, (scaled_hf_con)
+        scaled_v(tf) == v_t, (scaled_vf_con)
+        γ(tf) == γ_t, (γf_con)
+
+        ## dynamics  
+        ẋ(t) == dynamics(x(t), u(t))
+
+        ## objective
+        -θ(tf) → min
+
+    end
+
     ## dynamics
     function dynamics(x, u)
+
         scaled_h, ϕ, θ, scaled_v, γ, ψ = x
         α, β = u
         h = scaled_h * 1e5
         v = scaled_v * 1e4
+
         ## Helper functions
         c_D = b₀ + b₁ * rad2deg(α) + b₂ * (rad2deg(α)^2)
         c_L = a₀ + a₁ * rad2deg(α)
@@ -66,60 +119,10 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=5
         return [h_dot / 1e5, dϕ, dθ, v_dot / 1e4, γ_dot, ψ_dot]
     end
 
-    ocp = @def begin
-  
-        ## define the problem
-        tf ∈ R¹, variable 
-        t ∈ [0, tf], time
-        x ∈ R⁶, state
-        u ∈ R², control
-
-        ## state variables
-        scaled_h = x₁
-        ϕ = x₂
-        θ = x₃
-        scaled_v = x₄
-        γ = x₅
-        ψ = x₆
-
-        ## control variables
-        α = u₁
-        β = u₂
-
-        ## constraints
-        1750 ≤ tf ≤ 2250 # NB jump with 503 steps between 3.5 and 4.5
-        # state constraints
-        0 ≤ scaled_h(t) ≤ Inf, (scaled_h_con)
-        deg2rad(-89) ≤ θ(t) ≤ deg2rad(89), (θ_con)
-        0 ≤ scaled_v(t) ≤ Inf, (scaled_v_con)
-        deg2rad(-89) ≤ γ(t) ≤ deg2rad(89), (γ_con)
-        # control constraints
-        deg2rad(-90) ≤ α(t) ≤ deg2rad(90), (α_con)
-        deg2rad(-89) ≤ β(t) ≤ deg2rad(1), (β_con)
-
-        # initial conditions
-        scaled_h(0) == h_s, (scaled_h0_con)
-        ϕ(0) == ϕ_s, (ϕ0_con)
-        θ(0) == θ_s, (θ0_con)
-        scaled_v(0) == v_s, (scaled_v0_con)
-        γ(0) == γ_s, (γ0_con)
-        ψ(0) == ψ_s, (ψ0_con)
-        # final conditions
-        scaled_h(tf) == h_t, (scaled_hf_con)
-        scaled_v(tf) == v_t, (scaled_vf_con)
-        γ(tf) == γ_t, (γf_con)
-
-        ## dynamics  
-        ẋ(t) == dynamics(x(t), u(t))
-
-        ## objective
-        θ(tf) → max
-    end
-
     # initial guess: linear interpolation for h, v, gamma (NB. t0 = 0), constant for the rest
     # variable time step seems to be initialized at 1 in jump
     # note that ipopt will project the initial guess inside the bounds anyway.
-    tf_init = 500
+    tf_init = (tf_min+tf_max)/2
     x_init = t -> [ h_s + t / tf_init * (h_t - h_s) ,
     ϕ_s,
     θ_s,
@@ -128,8 +131,9 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=5
     ψ_s]
     init = (state=x_init, control=[α_s, β_s], variable=[tf_init])
 
-    # NLPModel + DOCP
+    # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=nh)
     nlp = model(docp)
+
     return docp, nlp
 end

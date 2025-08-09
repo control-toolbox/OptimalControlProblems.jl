@@ -7,5 +7,5 @@ chain_meta = Dict(
     :state_name => ["x1", "x2", "x3"],
     :costate_name => ["∂x1", "∂x2", "∂x3"],
     :control_name => ["u"],
-    :time => ("final_time", "tf", 1.0)
+    :time => ("final_time", "tf", 1)
 )
