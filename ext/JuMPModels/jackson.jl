@@ -2,15 +2,15 @@
 The Jackson Problem:
     The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.jackson(::JuMPBackend; nh::Int=100, N::Int=30)
-    # constants
+function OptimalControlProblems.jackson(::JuMPBackend; nh::Int=500)
+
+    # parameters
     k1 = 1
     k2 = 10
     k3 = 1
     tf = 4
-    step = tf / nh
 
-    # Model
+    # model
     model = JuMP.Model()
 
     @variables(
@@ -23,7 +23,7 @@ function OptimalControlProblems.jackson(::JuMPBackend; nh::Int=100, N::Int=30)
         end
     )
 
-    # Boundary constraints
+    # boundary constraints
     @constraints(
         model,
         begin
@@ -33,26 +33,28 @@ function OptimalControlProblems.jackson(::JuMPBackend; nh::Int=100, N::Int=30)
         end
     )
 
-    # Dynamics
+    # dynamics
     @expressions(
         model,
         begin
-            da[t=0:nh], -u[t] * (k1 * a[t] - k2 * b[t])
-            db[t=0:nh], u[t] * (k1 * a[t] - k2 * b[t]) - (1 - u[t]) * k3 * b[t]
-            dx3[t=0:nh], (1 - u[t]) * k3 * b[t]
+            step, tf / nh
+            da[i=0:nh], -u[i] * (k1 * a[i] - k2 * b[i])
+            db[i=0:nh], u[i] * (k1 * a[i] - k2 * b[i]) - (1 - u[i]) * k3 * b[i]
+            dx3[i=0:nh], (1 - u[i]) * k3 * b[i]
         end
     )
+    
     @constraints(
         model,
         begin
-            ∂a[t=1:nh], a[t] == a[t - 1] + 0.5 * step * (da[t] + da[t - 1])
-            ∂b[t=1:nh], b[t] == b[t - 1] + 0.5 * step * (db[t] + db[t - 1])
-            ∂x3[t=1:nh], x3[t] == x3[t - 1] + 0.5 * step * (dx3[t] + dx3[t - 1])
+            ∂a[i=1:nh],   a[i] ==  a[i - 1] + 0.5 * step * ( da[i] +  da[i - 1])
+            ∂b[i=1:nh],   b[i] ==  b[i - 1] + 0.5 * step * ( db[i] +  db[i - 1])
+            ∂x3[i=1:nh], x3[i] == x3[i - 1] + 0.5 * step * (dx3[i] + dx3[i - 1])
         end
     )
 
-    # Objective
-    @objective(model, Max, x3[nh])
+    # objective
+    @objective(model, Min, -x3[nh])
 
     return model
 end
