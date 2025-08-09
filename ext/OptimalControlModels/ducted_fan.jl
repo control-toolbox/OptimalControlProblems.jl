@@ -5,7 +5,7 @@ The Ducted Fan Problem:
     The problem is formulated as an OptimalControl model.
 Ref: Graichen, K., & Petit, N. (2009). Incorporating a class of constraints into the dynamics of optimal control problems. Optimal Control Applications and Methods, 30(6), 537-561.
 """
-function OptimalControlProblems.ducted_fan(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.ducted_fan(::OptimalControlBackend; nh::Int=250)
 
     # parameters
     r = 0.2         # [m]
@@ -22,7 +22,7 @@ function OptimalControlProblems.ducted_fan(::OptimalControlBackend; nh::Int=500)
         u ∈ R², control
 
         # tf constraints
-        tf ≥ 0, (tf_con)
+        tf ≥ 0.1, (tf_con)
 
         # state constraints
         -deg2rad(30) ≤ α(t) ≤ deg2rad(30), (α_con)
@@ -68,8 +68,8 @@ function OptimalControlProblems.ducted_fan(::OptimalControlBackend; nh::Int=500)
     end
 
     # initial guess
-    xinit = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [x₁, v₁, x₂, v₂, α, vα]
-    uinit = [0.1, 0.1]  # [u₁, u₂]
+    xinit = [0.1, 0.1, -0.1, 0.1, 0.1, 0.1]  # [x₁, v₁, x₂, v₂, α, vα]
+    uinit = [0.1, 1]  # [u₁, u₂]
     varinit = [1]  # [tf] 
     init = (state=xinit, control=uinit, variable=varinit)
 

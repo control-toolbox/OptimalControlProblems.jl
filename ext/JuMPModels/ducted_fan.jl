@@ -5,7 +5,7 @@ The Ducted Fan Problem:
     The problem is formulated as a JuMP model.
 Ref: Graichen, K., & Petit, N. (2009). Incorporating a class of constraints into the dynamics of optimal control problems. Optimal Control Applications and Methods, 30(6), 537-561.
 """
-function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=500)
+function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=250)
 
     # parameters
     r = 0.2         # [m]
@@ -20,15 +20,39 @@ function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=500)
     # state, control, variable (final time) and initial guess
     @variable(model, x₁[0:nh], start = 0.1)
     @variable(model, v₁[0:nh], start = 0.1)
-    @variable(model, x₂[0:nh], start = 0.1)
+    @variable(model, x₂[0:nh], start = -0.1)
     @variable(model, v₂[0:nh], start = 0.1)
     @variable(model, -deg2rad(30) <= α[0:nh] <= deg2rad(30), start = 0.1) # radian
     @variable(model, vα[0:nh], start = 0.1)
     @variable(model, -5 <= u₁[0:nh] <= 5, start = 0.1) # [nh]
-    @variable(model, 0 <= u₂[0:nh] <= 17, start = 0.1) # [nh]
-    @variable(model, 0 <= tf, start = 1)
+    @variable(model, 0 <= u₂[0:nh] <= 17, start = 1) # [nh]
+    @variable(model, 0.1 <= tf, start = 1)
 
-    # Dynamics
+    # Boundary constraints
+    @constraints(
+        model,
+        begin
+
+            # initial
+            x₁[0] == 0
+            v₁[0] == 0
+            x₂[0] == 0
+            v₂[0] == 0
+            α[0] == 0
+            vα[0] == 0
+
+            # final
+            x₁[nh] == 1
+            v₁[nh] == 0
+            x₂[nh] == 0
+            v₂[nh] == 0
+            α[nh] == 0
+            vα[nh] == 0
+
+        end
+    )
+
+    # dynamics
     @expressions(
         model,
         begin
@@ -49,7 +73,7 @@ function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=500)
 
         end
     )
-    # Collocation
+    
     @constraints(
         model,
         begin
@@ -61,26 +85,9 @@ function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=500)
             ∂vα[k=1:nh], vα[k] == vα[k - 1] + 0.5 * step * (dvα[k] + dvα[k - 1])
         end
     )
-    # Boundary constraints
-    @constraints(
-        model,
-        begin
-            x₁[0] == 0
-            v₁[0] == 0
-            x₂[0] == 0
-            v₂[0] == 0
-            α[0] == 0
-            vα[0] == 0
-            x₁[nh] == 1
-            v₁[nh] == 0
-            x₂[nh] == 0
-            v₂[nh] == 0
-            α[nh] == 0
-            vα[nh] == 0
-        end
-    )
 
-    @objective(model, Min, (1 / tf) * 0.5 * step * sum(dc[k] + dc[k-1] for k in 1:nh) + μ * tf)
+    # objective
+    @objective(model, Min, (1 / tf) * 0.5 * step * sum(dc[k] + dc[k-1] for k in 1:nh) + (μ * tf))
 
     return model
 end
