@@ -17,24 +17,6 @@ function OptimalControlProblems.moonlander(
     D = 1
     max_thrust = 2g
 
-    # dynamics
-    function dynamics(x, u)
-        p1, p2, dp1, dp2, θ, dθ = x
-        F1, F2 = u
-
-        F_r = [
-            cos(θ) -sin(θ) p1
-            sin(θ) cos(θ) p2
-            0 0 1
-        ]
-        F_tot = (F_r * [0; F1 + F2; 0])[1:2]
-        ddp1 = (1 / m) * F_tot[1]
-        ddp2 = (1 / m) * F_tot[2] - g
-        ddθ = (1 / I) * (D / 2) * (F2 - F1)
-
-        return [dp1, dp2, ddp1, ddp2, dθ, ddθ]
-    end
-
     # define the problem
     ocp = @def begin
 
@@ -65,11 +47,30 @@ function OptimalControlProblems.moonlander(
         dp1(tf) == 0, (dp1_fc)
         dp2(tf) == 0, (dp2_fc)
 
-        ## dynamics
+        # dynamics
         ẋ(t) == dynamics(x(t), u(t))
 
-        ## objective
+        # objective
         tf → min
+        
+    end
+
+    # dynamics
+    function dynamics(x, u)
+        p1, p2, dp1, dp2, θ, dθ = x
+        F1, F2 = u
+
+        F_r = [
+            cos(θ) -sin(θ) p1
+            sin(θ) cos(θ) p2
+            0 0 1
+        ]
+        F_tot = (F_r * [0; F1 + F2; 0])[1:2]
+        ddp1 = (1 / m) * F_tot[1]
+        ddp2 = (1 / m) * F_tot[2] - g
+        ddθ = (1 / I) * (D / 2) * (F2 - F1)
+
+        return [dp1, dp2, ddp1, ddp2, dθ, ddθ]
     end
 
     # Initial guess
@@ -78,8 +79,9 @@ function OptimalControlProblems.moonlander(
     varinit = [1]  # [tf] 
     init = (state=xinit, control=uinit, variable=varinit)
 
-    # NLPModel + DOCP
+    # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=nh)
     nlp = model(docp)
+
     return docp, nlp
 end

@@ -91,7 +91,7 @@ function OptimalControlProblems.insurance(::JuMPBackend; nh::Int=500)
         end
     )
 
-    # Objective
+    # objective
     @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i-1] for i in 1:nh))
 
     return model
