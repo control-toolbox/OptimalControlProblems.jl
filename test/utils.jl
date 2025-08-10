@@ -11,7 +11,7 @@ macro my_test_broken(e)
     return esc(quote @test $e broken=!$e end)
 end
 
-function comparison(max_iter, test_name)
+function comparison(; max_iter, test_name)
 
     #
     available_test_names = [:init, :solution, :iter1]

@@ -34,9 +34,9 @@ pbs_with_issues = [
 ]
 functions_list = setdiff(functions_list, pbs_with_issues)
 
-# functions_list = [
-#     :beam
-# ]
+functions_list = [
+    :beam
+]
 
 # The list of all the problems to test
 const list_of_problems = deepcopy(functions_list)
@@ -53,8 +53,8 @@ const verbose = true # print or not details during tests
         # :aqua, 
         # :JuMP,                  # convergence tests for JuMP models
         # :OptimalControl,        # convergence tests for OptimalControl models
-        :init,                  # comparison between OptimalControl and JuMP: init
-        # :solution,            # comparison between OptimalControl and JuMP: solution
+        # :init,                  # comparison between OptimalControl and JuMP: init
+        :solution,            # comparison between OptimalControl and JuMP: solution
         # :quick,                 # quick comparison: objective rel error only
         )
         @testset "$(name)" verbose=verbose begin
