@@ -1,6 +1,6 @@
 electric_vehicle_meta = Dict(
     :name => "electric_vehicle",
-    :nh => 100, #:nh => nothing,
+    :nh => 500,
     :nvar => nothing,
     :ncon => nothing,
     :minimize => true,

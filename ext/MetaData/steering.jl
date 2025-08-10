@@ -1,8 +1,8 @@
 steering_meta = Dict(
     :name => "steering",
-    :nh => 100,
-    :nvar => 506,
-    :ncon => 408,
+    :nh => 500,
+    :nvar => nothing,
+    :ncon => nothing,
     :minimize => true,
     :state_name => ["x1", "x2", "x3", "x4"],
     :costate_name => ["∂x1", "∂x2", "∂x3", "∂x4"],

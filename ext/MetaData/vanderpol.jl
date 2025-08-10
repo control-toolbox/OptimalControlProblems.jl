@@ -1,8 +1,8 @@
 vanderpol_meta = Dict(
     :name => "vanderpol",
-    :nh => 100,
-    :nvar => 404,
-    :ncon => 303,
+    :nh => 500,
+    :nvar => nothing,
+    :ncon => nothing,
     :minimize => true,
     :state_name => ["x1", "x2"],
     :costate_name => ["∂x1", "∂x2"],

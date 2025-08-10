@@ -1,6 +1,6 @@
 truck_trailer_meta = Dict(
     :name => "truck_trailer",
-    :nh => 100, #:nh => nothing,
+    :nh => 200,
     :nvar => nothing,
     :ncon => nothing,
     :minimize => true,

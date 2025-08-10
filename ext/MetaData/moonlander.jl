@@ -1,8 +1,8 @@
 moonlander_meta = Dict(
     :name => "moonlander",
-    :nh => 100,
-    :nvar => 610,
-    :ncon => 809,
+    :nh => 500,
+    :nvar => nothing,
+    :ncon => nothing,
     :minimize => true,
     :state_name => ["p1", "p2", "dp1", "dp2", "θ", "dθ"],
     :costate_name => ["∂p1", "∂p2", "∂dp1", "∂dp2", "∂θ", "∂dθ"],

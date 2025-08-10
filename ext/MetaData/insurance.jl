@@ -1,6 +1,6 @@
 insurance_meta = Dict(
     :name => "insurance",
-    :nh => 100, #:nh => nothing,
+    :nh => 500,
     :nvar => nothing,
     :ncon => nothing,
     :minimize => false,

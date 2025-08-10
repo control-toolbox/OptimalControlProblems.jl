@@ -1,8 +1,8 @@
 bioreactor_meta = Dict(
     :name => "bioreactor",
-    :nh => 100,
-    :nvar => 505,
-    :ncon => 404,
+    :nh => 500,
+    :nvar => nothing,
+    :ncon => nothing,
     :minimize => false,
     :state_name => ["y", "s", "b"],
     :costate_name => ["∂y", "∂s", "∂b"],

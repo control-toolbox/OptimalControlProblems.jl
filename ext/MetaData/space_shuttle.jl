@@ -1,6 +1,6 @@
 space_shuttle_meta = Dict(
     :name => "space_shuttle",
-    :nh => 503, #:nh => nothing,
+    :nh => 500,
     :nvar => nothing,
     :ncon => nothing,
     :minimize => false,

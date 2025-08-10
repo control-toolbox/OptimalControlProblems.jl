@@ -1,6 +1,6 @@
 quadrotor_meta = Dict(
     :name => "quadrotor",
-    :nh => 60, #:nh => nothing,
+    :nh => 100,
     :nvar => nothing,
     :ncon => nothing,
     :minimize => true,

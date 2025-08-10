@@ -18,7 +18,7 @@ function OptimalControlProblems.beam(::OptimalControlBackend; nh::Int=500)
     end
 
     # initial guess
-    init = (state=[0.0, 0.0], control=0.0)
+    init = (state=[0.05, 0.1], control=0.1)
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=nh)

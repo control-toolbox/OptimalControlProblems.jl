@@ -15,9 +15,9 @@ function OptimalControlProblems.beam(::JuMPBackend; nh::Int=500)
     @variables(
         model,
         begin
-            0.0 <= x1[0:nh] <= 0.1, (start = 0.0)
-            x2[0:nh], (start = 0.0)
-            -10.0 <= u[0:nh] <= 10.0, (start = 0.0)
+            0.0 <= x1[0:nh] <= 0.1, (start = 0.05)
+            x2[0:nh], (start = 0.1)
+            -10.0 <= u[0:nh] <= 10.0, (start = 0.1)
         end
     )
 

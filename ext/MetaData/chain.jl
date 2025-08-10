@@ -1,8 +1,8 @@
 chain_meta = Dict(
     :name => "chain",
-    :nh => 100,
-    :nvar => 404,
-    :ncon => 305,
+    :nh => 500,
+    :nvar => nothing,
+    :ncon => nothing,
     :minimize => true,
     :state_name => ["x1", "x2", "x3"],
     :costate_name => ["∂x1", "∂x2", "∂x3"],

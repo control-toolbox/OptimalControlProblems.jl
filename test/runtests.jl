@@ -34,9 +34,9 @@ pbs_with_issues = [
 ]
 functions_list = setdiff(functions_list, pbs_with_issues)
 
-# functions_list = [
-
-# ]
+functions_list = [
+    :beam
+]
 
 # The list of all the problems to test
 const list_of_problems = deepcopy(functions_list)
@@ -45,6 +45,7 @@ const list_of_problems = deepcopy(functions_list)
 list_of_problems_final = deepcopy(functions_list)
 
 # Tests
+const debug = true
 const verbose = true # print or not details during tests
 @testset "OptimalControlProblems tests" verbose=verbose showtiming=true begin
 
@@ -52,8 +53,9 @@ const verbose = true # print or not details during tests
         # :aqua, 
         # :JuMP,                  # convergence tests for JuMP models
         # :OptimalControl,        # convergence tests for OptimalControl models
-        # :comparison,            # comparison between OptimalControl and JuMP
-        :quick,                 # quick comparison: objective rel error only
+        :init,                  # comparison between OptimalControl and JuMP: init
+        # :solution,            # comparison between OptimalControl and JuMP: solution
+        # :quick,                 # quick comparison: objective rel error only
         )
         @testset "$(name)" verbose=verbose begin
             test_name = Symbol(:test_, name)
@@ -80,7 +82,7 @@ const verbose = true # print or not details during tests
 end
 
 #
-println("List of problems working:", list_of_problems_final)
+println("\nList of problems working:", list_of_problems_final)
 
 # Save the list of working problems to a cache file
 cache_file = joinpath(@__DIR__, "..", "src", "available_problems_cache.txt")
@@ -90,7 +92,7 @@ try
             println(f, string(problem))
         end
     end
-    println("Available problems cache updated: $cache_file")
+    println("Available problems cache updated: $cache_file", "\n")
 catch e
     @warn "Unable to save problems cache: $e"
 end

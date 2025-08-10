@@ -1,6 +1,6 @@
 double_oscillator_meta = Dict(
     :name => "double_oscillator",
-    :nh => 100, #:nh => nothing,
+    :nh => 500,
     :nvar => nothing,
     :ncon => nothing,
     :minimize => true,
