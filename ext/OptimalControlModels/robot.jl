@@ -76,9 +76,10 @@ function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=250)
     end
 
     # initial guess
-    xinit = t -> [ρ0, 2π/3 * (t^2), ϕ0, 0, 4π/3 * t, 0]
+    tf = 1
+    xinit = t -> [ρ0, 0, 2π/3 * (t/tf)^2, 4π/3 * (t/tf), ϕ0, 0]
     uinit = [0, 0, 0]
-    init = (state=xinit, control=uinit, variable=1)
+    init = (state=xinit, control=uinit, variable=tf)
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=nh)

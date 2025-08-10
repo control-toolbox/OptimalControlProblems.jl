@@ -24,23 +24,24 @@ function OptimalControlProblems.robot(::JuMPBackend; nh::Int=250)
     # model
     model = JuMP.Model()
 
-    # final time: starting value
-    tf_start = 1
-
     # state, control, variable (final time) and initial guess
     @variables(
         model,
         begin
-             0 <= ρ[k=0:nh] <= L,               (start = ρ0)
-            -π <= θ[k=0:nh] <= π,               (start = 2π/3 * (k * tf_start / nh)^2)
-             0 <= ϕ[k=0:nh] <= π,               (start = ϕ0)
+
+            0 <= ρ[k=0:nh] <= L,                (start = ρ0)
+           -π <= θ[k=0:nh] <= π,                (start = 2π/3 * (k / nh)^2)
+            0 <= ϕ[k=0:nh] <= π,                (start = ϕ0)
+
             dρ[k=0:nh],                         (start = 0)
-            dθ[k=0:nh],                         (start = 4π/3 * (k * tf_start / nh))
+            dθ[k=0:nh],                         (start = 4π/3 * (k / nh))
             dϕ[k=0:nh],                         (start = 0)
-            -max_uρ <= uρ[0:nh] <= max_uρ,   (start = 0)
-            -max_uθ <= uθ[0:nh] <= max_uθ,   (start = 0)
-            -max_uϕ <= uϕ[0:nh] <= max_uϕ,   (start = 0)
-            tf >= 0.1,                          (start = tf_start)
+
+            -max_uρ <= uρ[0:nh] <= max_uρ,      (start = 0)
+            -max_uθ <= uθ[0:nh] <= max_uθ,      (start = 0)
+            -max_uϕ <= uϕ[0:nh] <= max_uϕ,      (start = 0)
+
+            tf >= 0.1,                          (start = 1)
         end
     )
 

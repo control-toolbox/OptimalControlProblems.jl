@@ -226,13 +226,16 @@ function comparison(max_iter, test_name)
             end
 
             #
-            debug && println("└─", "\n")
+            debug && println("└─")
 
             # do we keep or remove the problem from the list
             if !keep_problem
                 global list_of_problems_final
                 list_of_problems_final = setdiff(list_of_problems_final, [f])
             end
+
+            # plottings
+            
 
         end
     end
