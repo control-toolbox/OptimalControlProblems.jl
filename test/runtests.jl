@@ -34,9 +34,9 @@ pbs_with_issues = [
 ]
 functions_list = setdiff(functions_list, pbs_with_issues)
 
-functions_list = [
-    :beam
-]
+# functions_list = [
+#     :beam
+# ]
 
 # The list of all the problems to test
 const list_of_problems = deepcopy(functions_list)

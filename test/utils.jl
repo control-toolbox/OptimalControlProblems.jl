@@ -55,6 +55,8 @@ function comparison(max_iter, test_name)
                 dual=nlp_sol.multipliers,
                 docp_solution=nlp_sol)
 
+            sol_oc = deepcopy(sol) # for plotting
+
             # Retrieves values of variables that we compare
             t_oc = time_grid(sol)
             x_oc = state(sol).(t_oc)
@@ -234,8 +236,37 @@ function comparison(max_iter, test_name)
                 list_of_problems_final = setdiff(list_of_problems_final, [f])
             end
 
-            # plottings
-            
+            ############ PLOT ############
+
+            figdir = joinpath(@__DIR__, "figures", string(test_name))
+            isdir(figdir) || mkpath(figdir)
+
+            n = length(x_vars)
+            m = length(u_vars)
+
+            # OptimalControl
+            plt = plot(sol_oc;
+                state_style   = (color=1,),
+                costate_style = (color=1,),
+                control_style = (color=1,),
+                size = (900, 220*(n+m)),
+            )
+            plot!(plt[1], [NaN]; color=1, label="OptimalControl")
+
+            # JuMP
+            for i ∈ eachindex(x_vars)
+                xi_jp = [ x_jp[k][i] for k ∈ eachindex(t_jp)]
+                label = i == 1 ? "JuMP" : :none
+                plot!(plt[i], t_jp, xi_jp; color=2, linestyle=:dash, label=label)
+            end
+
+            for i ∈ eachindex(u_vars)
+                ui_jp = [ u_jp[k][i] for k ∈ eachindex(t_jp)]
+                plot!(plt[2n+i], t_jp, ui_jp; color=2, linestyle=:dash, label=:none)
+            end
+
+            # save figure
+            savefig(plt, joinpath(figdir, "$f" * ".png"))
 
         end
     end
