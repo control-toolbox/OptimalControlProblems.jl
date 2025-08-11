@@ -50,21 +50,21 @@ const DEBUG = true
 const VERBOSE = true # print or not details during tests
 @testset "OptimalControlProblems tests" verbose=VERBOSE showtiming=true begin
 
-    # for name in (
-    #     :aqua, 
-    #     :JuMP,                  # convergence tests for JuMP models
-    #     :OptimalControl,        # convergence tests for OptimalControl models
-    #     :init,                  # comparison between OptimalControl and JuMP: init
-    #     :solution,              # comparison between OptimalControl and JuMP: solution
-    #     :quick,                 # quick comparison: objective rel error only
-    #     )
-    #     @testset "$(name)" verbose=VERBOSE begin
-    #         test_name = Symbol(:test_, name)
-    #         println("Testing: " * string(name))
-    #         include("$(test_name).jl")
-    #         @eval $test_name()
-    #     end
-    # end
+    for name in (
+        :aqua, 
+        :JuMP,                  # convergence tests for JuMP models
+        :OptimalControl,        # convergence tests for OptimalControl models
+        :init,                  # comparison between OptimalControl and JuMP: init
+        :solution,              # comparison between OptimalControl and JuMP: solution
+        :quick,                 # quick comparison: objective rel error only
+        )
+        @testset "$(name)" verbose=VERBOSE begin
+            test_name = Symbol(:test_, name)
+            println("Testing: " * string(name))
+            include("$(test_name).jl")
+            @eval $test_name()
+        end
+    end
  
     # compare the list of problems that passed the tests to the available problems
     println("\nProblems that passed the tests: "); display(LIST_OF_PROBLEMS_FINAL)
