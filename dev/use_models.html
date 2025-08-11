@@ -4,33 +4,33 @@ using OptimalControlProblems</code></pre><p>For instance, to get the JuMP model 
 ├ solver: none
 ├ objective_sense: MIN_SENSE
 │ └ objective_function_type: JuMP.QuadExpr
-├ num_variables: 303
-├ num_constraints: 608
-│ ├ JuMP.AffExpr in MOI.EqualTo{Float64}: 204
-│ ├ JuMP.VariableRef in MOI.GreaterThan{Float64}: 202
-│ └ JuMP.VariableRef in MOI.LessThan{Float64}: 202
+├ num_variables: 1503
+├ num_constraints: 3008
+│ ├ JuMP.AffExpr in MOI.EqualTo{Float64}: 1004
+│ ├ JuMP.VariableRef in MOI.GreaterThan{Float64}: 1002
+│ └ JuMP.VariableRef in MOI.LessThan{Float64}: 1002
 └ Names registered in the model
-  └ :con_x1, :con_x2, :u, :x1, :x2</code></pre><h2 id="Using-OptimalControl-models"><a class="docs-heading-anchor" href="#Using-OptimalControl-models">Using OptimalControl models</a><a id="Using-OptimalControl-models-1"></a><a class="docs-heading-anchor-permalink" href="#Using-OptimalControl-models" title="Permalink"></a></h2><p>To use OptimalControl models from OptimalControlProblems, first install OptimalControl. Then, you can import the packages.</p><pre><code class="language-julia hljs">using OptimalControl
+  └ :u, :x1, :x2, :∂x1, :∂x2</code></pre><h2 id="Using-OptimalControl-models"><a class="docs-heading-anchor" href="#Using-OptimalControl-models">Using OptimalControl models</a><a id="Using-OptimalControl-models-1"></a><a class="docs-heading-anchor-permalink" href="#Using-OptimalControl-models" title="Permalink"></a></h2><p>To use OptimalControl models from OptimalControlProblems, first install OptimalControl. Then, you can import the packages.</p><pre><code class="language-julia hljs">using OptimalControl
 using OptimalControlProblems</code></pre><p>Now, to get the OptimalControl model of the beam problem, execute:</p><pre><code class="language-julia hljs">_, nlp = beam(OptimalControlBackend())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">ADNLPModel - Model with automatic differentiation backend ADModelBackend{
   ReverseDiffADGradient,
-  ReverseDiffADHvprod,
-  ForwardDiffADJprod,
-  ReverseDiffADJtprod,
+  EmptyADbackend,
+  EmptyADbackend,
+  EmptyADbackend,
   SparseADJacobian,
   SparseReverseADHessian,
-  ForwardDiffADGHjvprod,
+  EmptyADbackend,
 }
   Problem name: Generic
-   All variables: ████████████████████ 404    All constraints: ████████████████████ 305   
-            free: ██████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 202               free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+   All variables: ████████████████████ 2004   All constraints: ████████████████████ 1505  
+            free: ██████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 1002              free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
            lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
            upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
-         low/upp: ██████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 202            low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
-           fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                fixed: ████████████████████ 305   
+         low/upp: ██████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 1002           low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                fixed: ████████████████████ 1505  
           infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
-            nnzh: ( 99.88% sparsity)   101             linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
-                                                    nonlinear: ████████████████████ 305   
-                                                         nnzj: ( 99.02% sparsity)   1205  
+            nnzh: ( 99.98% sparsity)   501             linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                    nonlinear: ████████████████████ 1505  
+                                                         nnzj: ( 99.80% sparsity)   6005  
 
   Counters:
              obj: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 grad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 cons: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
@@ -40,4 +40,33 @@ using OptimalControlProblems</code></pre><p>Now, to get the OptimalControl model
        jprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jtprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0           jtprod_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
       jtprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 hess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
            jhess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
-</code></pre><p>And we have also access to the DOCP information:</p><pre><code class="language-julia hljs">docp, _ = beam(OptimalControlBackend())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">CTDirect.DOCP{CTDirect.Trapeze, CTModels.Model{CTModels.TimesModel{CTModels.FixedTimeModel{Int64}, CTModels.FixedTimeModel{Int64}}, CTModels.StateModel, CTModels.ControlModel, CTModels.EmptyVariableModel, OptimalControlModels.var&quot;##246#6&quot;, CTModels.LagrangeObjectiveModel{OptimalControlModels.var&quot;##252#7&quot;}, CTModels.ConstraintsModel{Tuple{Vector{Real}, CTModels.var&quot;#path_cons_nl!#106&quot;{Int64, Vector{Int64}, Tuple{}}, Vector{Real}, Vector{Symbol}}, Tuple{Vector{Real}, CTModels.var&quot;#boundary_cons_nl!#108&quot;{Int64, Vector{Int64}, Tuple{OptimalControlModels.var&quot;##235#4&quot;, OptimalControlModels.var&quot;##240#5&quot;}}, Vector{Real}, Vector{Symbol}}, Tuple{Vector{Real}, Vector{Int64}, Vector{Real}, Vector{Symbol}}, Tuple{Vector{Real}, Vector{Int64}, Vector{Real}, Vector{Symbol}}, Tuple{Vector{Real}, Vector{Int64}, Vector{Real}, Vector{Symbol}}}}}(CTDirect.Trapeze(&quot;Implicit Trapeze aka Crank-Nicolson, 2nd order, A-stable&quot;, 4, 3, 0, true), CTModels.Model{CTModels.TimesModel{CTModels.FixedTimeModel{Int64}, CTModels.FixedTimeModel{Int64}}, CTModels.StateModel, CTModels.ControlModel, CTModels.EmptyVariableModel, OptimalControlModels.var&quot;##246#6&quot;, CTModels.LagrangeObjectiveModel{OptimalControlModels.var&quot;##252#7&quot;}, CTModels.ConstraintsModel{Tuple{Vector{Real}, CTModels.var&quot;#path_cons_nl!#106&quot;{Int64, Vector{Int64}, Tuple{}}, Vector{Real}, Vector{Symbol}}, Tuple{Vector{Real}, CTModels.var&quot;#boundary_cons_nl!#108&quot;{Int64, Vector{Int64}, Tuple{OptimalControlModels.var&quot;##235#4&quot;, OptimalControlModels.var&quot;##240#5&quot;}}, Vector{Real}, Vector{Symbol}}, Tuple{Vector{Real}, Vector{Int64}, Vector{Real}, Vector{Symbol}}, Tuple{Vector{Real}, Vector{Int64}, Vector{Real}, Vector{Symbol}}, Tuple{Vector{Real}, Vector{Int64}, Vector{Real}, Vector{Symbol}}}}, CTDirect.DOCPFlags(false, false, true, false, false), CTDirect.DOCPdims(3, 1, 0, 2, 0, 4), CTDirect.DOCPtime(100, [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09  …  0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99, 1.0], [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09  …  0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99, 1.0]), CTDirect.DOCPbounds([0.0, -Inf, -Inf, -10.0, 0.0, -Inf, -Inf, -10.0, 0.0, -Inf  …  -Inf, -10.0, 0.0, -Inf, -Inf, -10.0, 0.0, -Inf, -Inf, -10.0], [0.1, Inf, Inf, 10.0, 0.1, Inf, Inf, 10.0, 0.1, Inf  …  Inf, 10.0, 0.1, Inf, Inf, 10.0, 0.1, Inf, Inf, 10.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0  …  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, -1.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0  …  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, -1.0, 0.0]), 404, 305)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="list_of_problems.html">« List of the Problems</a><a class="docs-footer-nextpage" href="solve_problem.html">How to solve a problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Tuesday 29 July 2025 09:22">Tuesday 29 July 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</code></pre><p>And we have also access to the DOCP information:</p><pre><code class="language-julia hljs">docp, _ = beam(OptimalControlBackend())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">CTDirect.DOCP{CTDirect.Trapeze, CTModels.Model{CTModels.Autonomous, CTModels.TimesModel{CTModels.FixedTimeModel{Int64}, CTModels.FixedTimeModel{Int64}}, CTModels.StateModel, CTModels.ControlModel, CTModels.EmptyVariableModel, OptimalControlModels.var&quot;#fun##255#20&quot;, CTModels.LagrangeObjectiveModel{OptimalControlModels.var&quot;#fun##264#21&quot;}, CTModels.ConstraintsModel{Tuple{Vector{Float64}, CTModels.var&quot;#path_cons_nl!#108&quot;{Tuple{}, Vector{Int64}, Int64}, Vector{Float64}, Vector{Symbol}}, Tuple{Vector{Float64}, CTModels.var&quot;#boundary_cons_nl!#110&quot;{Int64, Vector{Int64}, Tuple{OptimalControlModels.var&quot;#fun##242#18&quot;, OptimalControlModels.var&quot;#fun##248#19&quot;}}, Vector{Float64}, Vector{Symbol}}, Tuple{Vector{Float64}, Vector{Int64}, Vector{Float64}, Vector{Symbol}}, Tuple{Vector{Float64}, Vector{Int64}, Vector{Float64}, Vector{Symbol}}, Tuple{Vector{Float64}, Vector{Int64}, Vector{Float64}, Vector{Symbol}}}, OptimalControlModels.var&quot;#4#22&quot;{OptimalControlModels.var&quot;#4#5#23&quot;}}}(CTDirect.Trapeze(&quot;Implicit Trapeze aka Crank-Nicolson, 2nd order, A-stable&quot;, 4, 3, 0, true), CTModels.Model{CTModels.Autonomous, CTModels.TimesModel{CTModels.FixedTimeModel{Int64}, CTModels.FixedTimeModel{Int64}}, CTModels.StateModel, CTModels.ControlModel, CTModels.EmptyVariableModel, OptimalControlModels.var&quot;#fun##255#20&quot;, CTModels.LagrangeObjectiveModel{OptimalControlModels.var&quot;#fun##264#21&quot;}, CTModels.ConstraintsModel{Tuple{Vector{Float64}, CTModels.var&quot;#path_cons_nl!#108&quot;{Tuple{}, Vector{Int64}, Int64}, Vector{Float64}, Vector{Symbol}}, Tuple{Vector{Float64}, CTModels.var&quot;#boundary_cons_nl!#110&quot;{Int64, Vector{Int64}, Tuple{OptimalControlModels.var&quot;#fun##242#18&quot;, OptimalControlModels.var&quot;#fun##248#19&quot;}}, Vector{Float64}, Vector{Symbol}}, Tuple{Vector{Float64}, Vector{Int64}, Vector{Float64}, Vector{Symbol}}, Tuple{Vector{Float64}, Vector{Int64}, Vector{Float64}, Vector{Symbol}}, Tuple{Vector{Float64}, Vector{Int64}, Vector{Float64}, Vector{Symbol}}}, OptimalControlModels.var&quot;#4#22&quot;{OptimalControlModels.var&quot;#4#5#23&quot;}}, ADNLPModel - Model with automatic differentiation backend ADModelBackend{
+  ReverseDiffADGradient,
+  EmptyADbackend,
+  EmptyADbackend,
+  EmptyADbackend,
+  SparseADJacobian,
+  SparseReverseADHessian,
+  EmptyADbackend,
+}
+  Problem name: Generic
+   All variables: ████████████████████ 2004   All constraints: ████████████████████ 1505  
+            free: ██████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 1002              free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+         low/upp: ██████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 1002           low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                fixed: ████████████████████ 1505  
+          infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            nnzh: ( 99.98% sparsity)   501             linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                    nonlinear: ████████████████████ 1505  
+                                                         nnzj: ( 99.80% sparsity)   6005  
+
+  Counters:
+             obj: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 grad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 cons: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+        cons_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0             cons_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 jcon: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           jgrad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                  jac: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0              jac_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+         jac_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0            jprod_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+       jprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jtprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0           jtprod_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+      jtprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 hess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           jhess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+, nothing, CTDirect.DOCPFlags(false, false, true, false, true, false), CTDirect.DOCPdims(3, 1, 0, 2, 0, 4), CTDirect.DOCPtime(500, [0.0, 0.002, 0.004, 0.006, 0.008, 0.01, 0.012, 0.014, 0.016, 0.018  …  0.982, 0.984, 0.986, 0.988, 0.99, 0.992, 0.994, 0.996, 0.998, 1.0], [0.0, 0.002, 0.004, 0.006, 0.008, 0.01, 0.012, 0.014, 0.016, 0.018  …  0.982, 0.984, 0.986, 0.988, 0.99, 0.992, 0.994, 0.996, 0.998, 1.0]), CTDirect.DOCPbounds([0.0, -Inf, -Inf, -10.0, 0.0, -Inf, -Inf, -10.0, 0.0, -Inf  …  -Inf, -10.0, 0.0, -Inf, -Inf, -10.0, 0.0, -Inf, -Inf, -10.0], [0.1, Inf, Inf, 10.0, 0.1, Inf, Inf, 10.0, 0.1, Inf  …  Inf, 10.0, 0.1, Inf, Inf, 10.0, 0.1, Inf, Inf, 10.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0  …  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, -1.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0  …  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, -1.0, 0.0]), 2004, 1505)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="list_of_problems.html">« List of the Problems</a><a class="docs-footer-nextpage" href="solve_problem.html">How to solve a problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Monday 11 August 2025 19:43">Monday 11 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
