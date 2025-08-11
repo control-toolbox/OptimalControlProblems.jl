@@ -82,7 +82,7 @@ function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=250)
     init = (state=xinit, control=uinit, variable=tf)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh)
+    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

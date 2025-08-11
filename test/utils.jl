@@ -114,6 +114,13 @@ function comparison(; max_iter, test_name)
             inds_x = axes(x_jp_vars[1], 1)
             x_jp = [[x_jp_vars[j][i] for j in 1:length(x_vars)] for i in inds_x]
 
+            ## costate
+            p_vars = OptimalControlProblems.metadata[f][:costate_name]
+            p_jp_vars = [JuMP.dual.(model[Symbol(pv)]) for pv in p_vars]
+            inds_p = axes(p_jp_vars[1], 1)
+            p_jp = -[[p_jp_vars[j][i] for j in 1:length(p_vars)] for i in inds_p]
+            push!(p_jp, p_jp[end]) # we add one element
+            
             ## control
             u_vars = OptimalControlProblems.metadata[f][:control_name]
             u_jp_vars = [JuMP.value.(model[Symbol(uv)]) for uv in u_vars]
@@ -199,9 +206,9 @@ function comparison(; max_iter, test_name)
                             L2_bd = max(0.5*(L2_oc + L2_jp)*ε_rel, ε_abs)
                             debug && println("├─  control $(u_vars[i])")
                             debug && println("│")
-                            debug && println("│     error = ", L2_di)
                             debug && println("│     L2 oc = ", L2_oc)
                             debug && println("│     L2 jp = ", L2_jp)
+                            debug && println("│     error = ", L2_di)
                             debug && println("│     bound = ", L2_bd)
                             res = @my_test_broken L2_di < L2_bd
                             keep_problem = keep_problem && (typeof(res) == Test.Pass)
@@ -252,6 +259,7 @@ function comparison(; max_iter, test_name)
 
             n = length(x_vars)
             m = length(u_vars)
+            @assert(length(p_vars)==n)
 
             # OptimalControl
             plt = plot(sol_oc;
@@ -263,19 +271,24 @@ function comparison(; max_iter, test_name)
             plot!(plt[1], [NaN]; color=1, label="OptimalControl")
 
             # JuMP
-            for i ∈ eachindex(x_vars)
+            for i ∈ eachindex(x_vars) # state
                 xi_jp = [ x_jp[k][i] for k ∈ eachindex(t_jp)]
                 label = i == 1 ? "JuMP" : :none
                 plot!(plt[i], t_jp, xi_jp; color=2, linestyle=:dash, label=label)
             end
 
-            for i ∈ eachindex(u_vars)
+            for i ∈ eachindex(p_vars) # costate
+                pi_jp = [ p_jp[k][i] for k ∈ eachindex(t_jp)]
+                plot!(plt[n+i], t_jp, pi_jp; color=2, linestyle=:dash, label=:none)
+            end
+
+            for i ∈ eachindex(u_vars) # control
                 ui_jp = [ u_jp[k][i] for k ∈ eachindex(t_jp)]
                 plot!(plt[2n+i], t_jp, ui_jp; color=2, linestyle=:dash, label=:none)
             end
 
             # save figure
-            savefig(plt, joinpath(figdir, "$f" * ".png"))
+            savefig(plt, joinpath(figdir, "$f" * ".pdf"))
 
         end
     end

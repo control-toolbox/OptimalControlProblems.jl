@@ -80,7 +80,7 @@ function OptimalControlProblems.moonlander(
     init = (state=xinit, control=uinit, variable=varinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh)
+    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

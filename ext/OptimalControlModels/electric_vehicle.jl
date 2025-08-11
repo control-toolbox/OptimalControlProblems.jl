@@ -43,7 +43,7 @@ function OptimalControlProblems.electric_vehicle(::OptimalControlBackend; nh=500
     init = (state=yinit, control=uinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh)
+    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

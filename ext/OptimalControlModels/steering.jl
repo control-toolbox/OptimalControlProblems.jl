@@ -51,7 +51,7 @@ function OptimalControlProblems.steering(::OptimalControlBackend; nh::Int=500)
     init = (state=xinit, control=0, variable=1)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh)
+    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

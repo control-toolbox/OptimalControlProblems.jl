@@ -34,9 +34,9 @@ pbs_with_issues = [
 ]
 functions_list = setdiff(functions_list, pbs_with_issues)
 
-# functions_list = [
-#     :beam
-# ]
+functions_list = [
+    :rocket
+]
 
 # The list of all the problems to test
 const list_of_problems = deepcopy(functions_list)
@@ -92,7 +92,7 @@ try
             println(f, string(problem))
         end
     end
-    println("Available problems cache updated: $cache_file", "\n")
+    println("\nAvailable problems cache updated: $cache_file", "\n")
 catch e
     @warn "Unable to save problems cache: $e"
 end
