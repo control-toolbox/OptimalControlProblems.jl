@@ -7,6 +7,15 @@ function L2_norm(T, X)
     return √(s)
 end
 
+function L1_norm(T, U)
+    # T and X are supposed to be one dimensional
+    s = 0.0
+    for i ∈ 1:(length(T)-1)
+        s += 0.5 * (abs(U[i]) + abs(U[i+1])) * (T[i+1]-T[i])
+    end
+    return s
+end
+
 macro my_test_broken(e)
     return esc(quote @test $e broken=!$e end)
 end
@@ -220,19 +229,19 @@ function comparison(; max_iter, test_name)
                         @testset "$(u_vars[i])" verbose=VERBOSE begin
                             ui_oc = [ u_oc[k][i] for k ∈ eachindex(t_oc)]
                             ui_jp = [ u_jp[k][i] for k ∈ eachindex(t_jp)]
-                            L2_di = L2_norm(t_oc, ui_oc-ui_jp)
-                            L2_oc = L2_norm(t_oc, ui_oc)
-                            L2_jp = L2_norm(t_oc, ui_jp)
-                            L2_bd = max(0.5*(L2_oc + L2_jp)*ε_rel_control, ε_abs_control)
+                            L1_di = L1_norm(t_oc, ui_oc-ui_jp)
+                            L1_oc = L1_norm(t_oc, ui_oc)
+                            L1_jp = L1_norm(t_oc, ui_jp)
+                            L1_bd = max(0.5*(L1_oc + L1_jp)*ε_rel_control, ε_abs_control)
                             DEBUG && println("├─  control $(u_vars[i])")
                             DEBUG && println("│")
-                            DEBUG && println("│     L2 oc = ", L2_oc)
-                            DEBUG && println("│     L2 jp = ", L2_jp)
-                            DEBUG && println("│     error = ", L2_di)
-                            DEBUG && println("│     r_err = ", L2_di/(0.5*(L2_oc + L2_jp)))
-                            DEBUG && println("│     a_err = ", L2_di)
-                            DEBUG && println("│     bound = ", L2_bd)
-                            res = @my_test_broken L2_di < L2_bd
+                            DEBUG && println("│     L1 oc = ", L1_oc)
+                            DEBUG && println("│     L1 jp = ", L1_jp)
+                            DEBUG && println("│     error = ", L1_di)
+                            DEBUG && println("│     r_err = ", L1_di/(0.5*(L1_oc + L1_jp)))
+                            DEBUG && println("│     a_err = ", L1_di)
+                            DEBUG && println("│     bound = ", L1_bd)
+                            res = @my_test_broken L1_di < L1_bd
                             keep_problem = keep_problem && (typeof(res) == Test.Pass)
                             DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
                             DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")

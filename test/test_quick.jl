@@ -48,28 +48,24 @@ function test_quick()
 
             ############### TEST ###############
             # objective
-            @testset "objective" verbose=VERBOSE begin
+            o_di = abs(o_oc-o_jp)
+            o_bd = max(0.5*(abs(o_oc) + abs(o_jp))*ε_rel_objective, ε_abs_objective)
 
-                o_di = abs(o_oc-o_jp)
-                o_bd = max(0.5*(abs(o_oc) + abs(o_jp))*ε_rel_objective, ε_abs_objective)
+            DEBUG && println("├─  objective")
+            DEBUG && println("│")
+            DEBUG && println("│     o_oc  = ", o_oc)
+            DEBUG && println("│     o_jp  = ", o_jp)
+            DEBUG && println("│     r_err = ", o_di/(0.5*(abs(o_oc) + abs(o_jp))))
+            DEBUG && println("│     a_err = ", o_di)
+            DEBUG && println("│     bound = ", o_bd)
+        
+            res = @my_test_broken o_di < o_bd
 
-                DEBUG && println("├─  objective")
-                DEBUG && println("│")
-                DEBUG && println("│     o_oc  = ", o_oc)
-                DEBUG && println("│     o_jp  = ", o_jp)
-                DEBUG && println("│     r_err = ", o_di/(0.5*(abs(o_oc) + abs(o_jp))))
-                DEBUG && println("│     a_err = ", o_di)
-                DEBUG && println("│     bound = ", o_bd)
-            
-                res = @my_test_broken o_di < o_bd
+            DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
+            DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
+            DEBUG && println("│")
 
-                DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
-                DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
-                DEBUG && println("│")
-
-                max_r_err = max(max_r_err, o_di/(0.5*(abs(o_oc) + abs(o_jp))))
-
-            end
+            max_r_err = max(max_r_err, o_di/(0.5*(abs(o_oc) + abs(o_jp))))
 
             #
             DEBUG && println("└─")
