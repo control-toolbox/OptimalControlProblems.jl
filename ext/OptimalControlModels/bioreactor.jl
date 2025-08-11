@@ -2,7 +2,7 @@
 The Bioreactor Problem:
     The problem is formulated as an OptimalControl model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.bioreactor(::OptimalControlBackend; nh::Int=500, N::Int=30)
+function OptimalControlProblems.bioreactor(::OptimalControlBackend; nh::Int=500)
     
     # METHANE PROBLEM
     # μ2 according to growth model
@@ -31,7 +31,7 @@ function OptimalControlProblems.bioreactor(::OptimalControlBackend; nh::Int=500,
     μ2m = 0.1
     μbar = 1
     r = 0.005
-    T = 10N
+    T = 10*20
 
     # Model
     ocp = @def begin

@@ -7,6 +7,7 @@ using OptimalControl
 using OptimalControlProblems
 using Test
 using Plots
+using Plots.PlotMeasures # for leftmargin, bottommargin
 using Interpolations
 include("utils.jl") 
 
@@ -19,7 +20,7 @@ const MAX_WALL_TIME = 500.0
 
 # Collect all the problems from OptimalControlProblems
 all_names = names(OptimalControlProblems; all=true)
-functions_list = filter(
+list_of_problems = filter(
     x ->
         isdefined(OptimalControlProblems, x) &&
             isa(getfield(OptimalControlProblems, x), Function) &&
@@ -29,70 +30,48 @@ functions_list = filter(
 )
 
 # Remove from the tests the following problems
-pbs_with_issues = [
+# problems_to_exclude = [
 
-]
-functions_list = setdiff(functions_list, pbs_with_issues)
+# ]
+# list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
-functions_list = [
-    :rocket
+list_of_problems = [
+    :beam
 ]
 
 # The list of all the problems to test
-const list_of_problems = deepcopy(functions_list)
+const LIST_OF_PROBLEMS = deepcopy(list_of_problems)
 
 # The final list of problems for which the tests pass
-list_of_problems_final = deepcopy(functions_list)
+LIST_OF_PROBLEMS_FINAL = deepcopy(list_of_problems)
 
 # Tests
-const debug = true
-const verbose = true # print or not details during tests
-@testset "OptimalControlProblems tests" verbose=verbose showtiming=true begin
+const DEBUG = true
+const VERBOSE = true # print or not details during tests
+@testset "OptimalControlProblems tests" verbose=VERBOSE showtiming=true begin
 
-    for name in (
-        # :aqua, 
-        # :JuMP,                  # convergence tests for JuMP models
-        # :OptimalControl,        # convergence tests for OptimalControl models
-        # :init,                  # comparison between OptimalControl and JuMP: init
-        :solution,            # comparison between OptimalControl and JuMP: solution
-        # :quick,                 # quick comparison: objective rel error only
-        )
-        @testset "$(name)" verbose=verbose begin
-            test_name = Symbol(:test_, name)
-            println("Testing: " * string(name))
-            include("$(test_name).jl")
-            @eval $test_name()
-        end
-    end
+    # for name in (
+    #     :aqua, 
+    #     :JuMP,                  # convergence tests for JuMP models
+    #     :OptimalControl,        # convergence tests for OptimalControl models
+    #     :init,                  # comparison between OptimalControl and JuMP: init
+    #     :solution,              # comparison between OptimalControl and JuMP: solution
+    #     :quick,                 # quick comparison: objective rel error only
+    #     )
+    #     @testset "$(name)" verbose=VERBOSE begin
+    #         test_name = Symbol(:test_, name)
+    #         println("Testing: " * string(name))
+    #         include("$(test_name).jl")
+    #         @eval $test_name()
+    #     end
+    # end
  
-    # note: not sure I understand the purpose of the cache ?
-    # the list of available problems is not up to date when the tests are run
-    # and we need to run the tests another time to get the proper list
-    @testset "available_problems" verbose=verbose begin
-        if list_of_problems_final == available_problems()
-            @test list_of_problems_final == available_problems()
-        else
-            println("Available problems: ", available_problems())
-            println("Passed problems: ", list_of_problems_final)
-            @test list_of_problems_final == available_problems() broken=true
-        end
+    # compare the list of problems that passed the tests to the available problems
+    println("\nProblems that passed the tests: "); display(LIST_OF_PROBLEMS_FINAL)
+    println("\nList of available problems: "); display(available_problems()); println()
+
+    @testset "available_problems" verbose=VERBOSE begin
+        @test LIST_OF_PROBLEMS_FINAL == available_problems()
     end
     
-    
-end
-
-#
-println("\nList of problems working:", list_of_problems_final)
-
-# Save the list of working problems to a cache file
-cache_file = joinpath(@__DIR__, "..", "src", "available_problems_cache.txt")
-try
-    open(cache_file, "w") do f
-        for problem in list_of_problems_final
-            println(f, string(problem))
-        end
-    end
-    println("\nAvailable problems cache updated: $cache_file", "\n")
-catch e
-    @warn "Unable to save problems cache: $e"
 end

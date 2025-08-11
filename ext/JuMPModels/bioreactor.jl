@@ -2,7 +2,7 @@
 The Bioreactor Problem:
     The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=500, N::Int=30)
+function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=500)
 
     # parameters
     β = 1
@@ -13,7 +13,7 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=500, N::Int=30
     μ2m = 0.1
     μbar = 1
     r = 0.005
-    T = 10N
+    T = 10*20
 
     # model
     model = JuMP.Model()

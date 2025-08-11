@@ -4,8 +4,8 @@ truck_trailer_meta = Dict(
     :nvar => nothing,
     :ncon => nothing,
     :minimize => true,
-    :state_name => ["x2", "y2", "θ2", "θ1", "θ0"],
-    :costate_name => ["∂x2", "∂y2", "∂θ2", "∂θ1", "∂θ0"],
-    :control_name => ["v0", "δ0"],
+    :state_name => ["x2", "y2", "θ0", "θ1", "θ2", "v0", "δ0"],
+    :costate_name => ["∂x2", "∂y2", "∂θ0", "∂θ1", "∂θ2", "∂v0", "∂δ0"],
+    :control_name => ["dv0", "dδ0"],
     :time => ("final_time", "tf", nothing)
 )

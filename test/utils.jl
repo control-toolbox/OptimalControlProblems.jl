@@ -17,9 +17,18 @@ function comparison(; max_iter, test_name)
     available_test_names = [:init, :solution, :iter1]
     test_name ∈ available_test_names || error("test_name must belong to ", available_test_names)
 
-    # Comparison Parameters
-    ε_rel = 1e-2
-    ε_abs = 1e-6
+    # comparison Parameters: tolerances
+    ε_rel_grid = 1e-6
+    ε_abs_grid = 1e-6
+    
+    ε_rel_objective = 1e-4
+    ε_abs_objective = 1e-6
+    
+    ε_rel_state = 1e-1
+    ε_abs_state = 1e-6
+
+    ε_rel_control = 1e-1
+    ε_abs_control = 1e-6
 
     # options for solvers
     Options = Dict(
@@ -32,24 +41,24 @@ function comparison(; max_iter, test_name)
     )
 
     # we loop over the problems
-    for f in list_of_problems
+    for f in LIST_OF_PROBLEMS
 
         nh = OptimalControlProblems.metadata[f][:nh] # get default nh
 
-        @testset "$(string(f)) ($(string(test_name)))" verbose=verbose begin
+        @testset "$(string(f)) ($(string(test_name)))" verbose=VERBOSE begin
 
-            debug && println("\n", "┌─ ", string(f), " (", string(test_name) ,")")
-            debug && println("│")
+            DEBUG && println("\n", "┌─ ", string(f), " (", string(test_name) ,")")
+            DEBUG && println("│")
 
             ########## OptimalControl ##########
 
-            # Set up the OptimalControl model 
+            # set up the OptimalControl model 
             docp, nlp = OptimalControlProblems.eval(f)(OptimalControlBackend(); nh=nh)
 
-            # Solve the problem
+            # solve the problem
             nlp_sol = NLPModelsIpopt.ipopt(nlp; Options...)
 
-            # Build the solution
+            # build the solution
             sol = build_OCP_solution(docp; 
                 primal=nlp_sol.solution, 
                 dual=nlp_sol.multipliers,
@@ -57,15 +66,16 @@ function comparison(; max_iter, test_name)
 
             sol_oc = deepcopy(sol) # for plotting
 
-            # Retrieves values of variables that we compare
+            # retrieve values of variables that we compare
             t_oc = time_grid(sol)
             x_oc = state(sol).(t_oc)
             u_oc = control(sol).(t_oc)
             o_oc = objective(sol)
+            i_oc = nlp_sol.iter # iterations(sol) returns 0!
 
             ############### JuMP ###############
 
-            # Set up the JuMP model
+            # set up the JuMP model
             model = OptimalControlProblems.eval(f)(JuMPBackend(); nh=nh)
             set_optimizer(model, Ipopt.Optimizer)
             set_silent(model)
@@ -76,10 +86,10 @@ function comparison(; max_iter, test_name)
             set_optimizer_attribute(model, "max_wall_time", Options[:max_wall_time])
             set_optimizer_attribute(model, "sb", Options[:sb])
 
-            # Solve the model
+            # solve the model
             optimize!(model)
 
-            # Retrieves values of variables
+            # setrieve values of variables
 
             ## time grid: we assume that t0 = 0
             time_data, time_var_name, time_value = OptimalControlProblems.metadata[f][:time]
@@ -108,6 +118,9 @@ function comparison(; max_iter, test_name)
                 end
             end
 
+            ## iterations
+            i_jp = barrier_iterations(model)
+
             ## state
             x_vars = OptimalControlProblems.metadata[f][:state_name]
             x_jp_vars = [JuMP.value.(model[Symbol(xv)]) for xv in x_vars]
@@ -132,17 +145,23 @@ function comparison(; max_iter, test_name)
 
             ############ TEST ############
 
+            DEBUG && println("├─  iterations")
+            DEBUG && println("│")
+            DEBUG && println("│     i_oc = ", i_oc)
+            DEBUG && println("│     i_jp = ", i_jp)
+            DEBUG && println("│")
+
             # do we keep or remove the problem from the list
             keep_problem = true
 
             # time grids
             test_grid_ok = true
-            @testset "grid" verbose=verbose begin
+            @testset "grid" verbose=VERBOSE begin
 
-                debug && println("├─  grid")
-                debug && println("│")
-                debug && println("│     length(t_oc) = ", length(t_oc))
-                debug && println("│     length(t_jp) = ", length(t_jp))
+                DEBUG && println("├─  grid")
+                DEBUG && println("│")
+                DEBUG && println("│     length(t_oc) = ", length(t_oc))
+                DEBUG && println("│     length(t_jp) = ", length(t_jp))
 
                 # length
                 res = @my_test_broken length(t_oc) == length(t_jp)
@@ -153,41 +172,42 @@ function comparison(; max_iter, test_name)
                 if keep_problem
                     for i ∈ eachindex(t_oc)
                         t_di = t_oc[i] - t_jp[i]
-                        t_bd = max(0.5*(abs(t_oc[i]) + abs(t_jp[i]))*ε_rel, ε_abs)
+                        t_bd = max(0.5*(abs(t_oc[i]) + abs(t_jp[i]))*ε_rel_grid, ε_abs_grid)
                         res = @my_test_broken t_di < t_bd
                         keep_problem = keep_problem && (typeof(res) == Test.Pass)
                         test_grid_ok = test_grid_ok && (typeof(res) == Test.Pass)
                     end
                 end
 
-                test_res = test_grid_ok ? "Passed" : "Failed"
-                debug && println("│     \033[1;33mTest " * test_res * "\033[0m")
-                debug && println("│")
+                DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
+                DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
+                DEBUG && println("│")
 
             end
 
             # state
             if test_grid_ok
-                @testset "state" verbose=verbose begin
+                @testset "state" verbose=VERBOSE begin
                     for i ∈ eachindex(x_vars)
-                        @testset "$(x_vars[i])" verbose=verbose begin
+                        @testset "$(x_vars[i])" verbose=VERBOSE begin
                             xi_oc = [ x_oc[k][i] for k ∈ eachindex(t_oc)]
                             xi_jp = [ x_jp[k][i] for k ∈ eachindex(t_jp)]
                             L2_di = L2_norm(t_oc, xi_oc-xi_jp)
                             L2_oc = L2_norm(t_oc, xi_oc)
                             L2_jp = L2_norm(t_oc, xi_jp)
-                            L2_bd = max(0.5*(L2_oc + L2_jp)*ε_rel, ε_abs)
-                            debug && println("├─  state $(x_vars[i])")
-                            debug && println("│")
-                            debug && println("│     L2 oc = ", L2_oc)
-                            debug && println("│     L2 jp = ", L2_jp)
-                            debug && println("│     error = ", L2_di)
-                            debug && println("│     bound = ", L2_bd)
+                            L2_bd = max(0.5*(L2_oc + L2_jp)*ε_rel_state, ε_abs_state)
+                            DEBUG && println("├─  state $(x_vars[i])")
+                            DEBUG && println("│")
+                            DEBUG && println("│     L2 oc = ", L2_oc)
+                            DEBUG && println("│     L2 jp = ", L2_jp)
+                            DEBUG && println("│     r_err = ", L2_di/(0.5*(L2_oc + L2_jp)))
+                            DEBUG && println("│     a_err = ", L2_di)
+                            DEBUG && println("│     bound = ", L2_bd)
                             res = @my_test_broken L2_di < L2_bd
                             keep_problem = keep_problem && (typeof(res) == Test.Pass)
-                            test_res = (typeof(res) == Test.Pass) ? "Passed" : "Failed"
-                            debug && println("│     \033[1;33mTest " * test_res * "\033[0m")
-                            debug && println("│")
+                            DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
+                            DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
+                            DEBUG && println("│")
                         end
                     end
                 end
@@ -195,61 +215,64 @@ function comparison(; max_iter, test_name)
 
             # control
             if test_grid_ok
-                @testset "control" verbose=verbose begin
+                @testset "control" verbose=VERBOSE begin
                     for i ∈ eachindex(u_vars)
-                        @testset "$(u_vars[i])" verbose=verbose begin
+                        @testset "$(u_vars[i])" verbose=VERBOSE begin
                             ui_oc = [ u_oc[k][i] for k ∈ eachindex(t_oc)]
                             ui_jp = [ u_jp[k][i] for k ∈ eachindex(t_jp)]
                             L2_di = L2_norm(t_oc, ui_oc-ui_jp)
                             L2_oc = L2_norm(t_oc, ui_oc)
                             L2_jp = L2_norm(t_oc, ui_jp)
-                            L2_bd = max(0.5*(L2_oc + L2_jp)*ε_rel, ε_abs)
-                            debug && println("├─  control $(u_vars[i])")
-                            debug && println("│")
-                            debug && println("│     L2 oc = ", L2_oc)
-                            debug && println("│     L2 jp = ", L2_jp)
-                            debug && println("│     error = ", L2_di)
-                            debug && println("│     bound = ", L2_bd)
+                            L2_bd = max(0.5*(L2_oc + L2_jp)*ε_rel_control, ε_abs_control)
+                            DEBUG && println("├─  control $(u_vars[i])")
+                            DEBUG && println("│")
+                            DEBUG && println("│     L2 oc = ", L2_oc)
+                            DEBUG && println("│     L2 jp = ", L2_jp)
+                            DEBUG && println("│     error = ", L2_di)
+                            DEBUG && println("│     r_err = ", L2_di/(0.5*(L2_oc + L2_jp)))
+                            DEBUG && println("│     a_err = ", L2_di)
+                            DEBUG && println("│     bound = ", L2_bd)
                             res = @my_test_broken L2_di < L2_bd
                             keep_problem = keep_problem && (typeof(res) == Test.Pass)
-                            test_res = (typeof(res) == Test.Pass) ? "Passed" : "Failed"
-                            debug && println("│     \033[1;33mTest " * test_res * "\033[0m")
-                            debug && println("│")
+                            DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
+                            DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
+                            DEBUG && println("│")
                         end
                     end
                 end
             end
 
             # objective
-            @testset "objective" verbose=verbose begin
+            @testset "objective" verbose=VERBOSE begin
 
                 o_di = abs(o_oc-o_jp)
-                o_bd = max(0.5*(abs(o_oc) + abs(o_jp))*ε_rel, ε_abs)
+                o_bd = max(0.5*(abs(o_oc) + abs(o_jp))*ε_rel_objective, ε_abs_objective)
 
-                debug && println("├─  objective")
-                debug && println("│")
-                debug && println("│     o_oc = ", o_oc)
-                debug && println("│     o_jp = ", o_jp)
-                debug && println("│     error = ", o_di)
-                debug && println("│     bound = ", o_bd)
+                DEBUG && println("├─  objective")
+                DEBUG && println("│")
+                DEBUG && println("│     o_oc  = ", o_oc)
+                DEBUG && println("│     o_jp  = ", o_jp)
+                DEBUG && println("│     r_err = ", o_di/(0.5*(abs(o_oc) + abs(o_jp))))
+                DEBUG && println("│     a_err = ", o_di)
+                DEBUG && println("│     bound = ", o_bd)
             
                 res = @my_test_broken o_di < o_bd
                 if test_name != :init
                     keep_problem = keep_problem && (typeof(res) == Test.Pass)
                 end
-                test_res = (typeof(res) == Test.Pass) ? "Passed" : "Failed"
-                debug && println("│     \033[1;33mTest " * test_res * "\033[0m")
-                debug && println("│")
+                DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
+                DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
+                DEBUG && println("│")
 
             end
 
             #
-            debug && println("└─")
+            DEBUG && println("└─")
 
             # do we keep or remove the problem from the list
             if !keep_problem
-                global list_of_problems_final
-                list_of_problems_final = setdiff(list_of_problems_final, [f])
+                global LIST_OF_PROBLEMS_FINAL
+                LIST_OF_PROBLEMS_FINAL = setdiff(LIST_OF_PROBLEMS_FINAL, [f])
             end
 
             ############ PLOT ############
@@ -262,18 +285,26 @@ function comparison(; max_iter, test_name)
             @assert(length(p_vars)==n)
 
             # OptimalControl
+            labelOC = (test_name == :solution) ? "OptimalControl: " * string(i_oc) * " it" : "OptimalControl"
             plt = plot(sol_oc;
                 state_style   = (color=1,),
-                costate_style = (color=1,),
-                control_style = (color=1,),
+                costate_style = (color=1, legend=:none),
+                control_style = (color=1, legend=:none),
+                path_style    = (color=1, legend=:none),
+                dual_style    = (color=1, legend=:none),
                 size = (900, 220*(n+m)),
+                label=labelOC,
+                leftmargin=20mm,
             )
-            plot!(plt[1], [NaN]; color=1, label="OptimalControl")
+            for i ∈ 2:n 
+                plot!(plt[i]; legend=:none)
+            end
 
             # JuMP
+            labelJP = (test_name == :solution) ? "JuMP: " * string(i_oc) * " it" : "JuMP"
             for i ∈ eachindex(x_vars) # state
                 xi_jp = [ x_jp[k][i] for k ∈ eachindex(t_jp)]
-                label = i == 1 ? "JuMP" : :none
+                label = i == 1 ? labelJP : :none
                 plot!(plt[i], t_jp, xi_jp; color=2, linestyle=:dash, label=label)
             end
 

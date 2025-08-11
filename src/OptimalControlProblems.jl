@@ -83,27 +83,28 @@ end
 """
     available_problems()
 
-Returns the list of problems that are currently working based on the last test execution.
-The list is read from a cache file that gets updated every time tests are run.
-If no cache exists, returns an empty list with a warning to run tests first.
+Returns the list of available optimal control problems.
 """
 function available_problems()
-    cache_file = joinpath(dirname(@__FILE__), "available_problems_cache.txt")
-    if isfile(cache_file)
-        try
-            content = read(cache_file, String)
-            if !isempty(strip(content))
-                # Parse symbols from the file
-                lines = split(strip(content), '\n')
-                return [Symbol(strip(line)) for line in lines if !isempty(strip(line))]
-            end
-        catch e
-            @warn "Error reading the cache: $e"
-        end
-    end
-    # Default list if the cache does not exist or is empty
-    @warn "Available problems cache not found. Run the tests to update the list."
-    return Symbol[]
+
+    # collect all the problems
+    all_names = names(OptimalControlProblems; all=true)
+    list_of_problems = filter(
+        x ->
+            isdefined(OptimalControlProblems, x) &&
+                isa(getfield(OptimalControlProblems, x), Function) &&
+                !startswith(string(x), "#") &&
+                !(x in [:eval, :include, :available_problems]),
+        all_names,
+    )
+
+    # # exclude the following problems
+    # problems_to_exclude = [
+
+    # ]
+    # list_of_problems = setdiff(list_of_problems, problems_to_exclude)
+
+    return list_of_problems
 end
 
 export JuMPBackend, OptimalControlBackend, available_problems

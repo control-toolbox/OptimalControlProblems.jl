@@ -2,8 +2,9 @@ using Printf
 
 function test_quick()
 
-    # comparison tolerance
-    ε = 1e-2
+    # comparison tolerances
+    ε_rel_objective = 1e-4
+    ε_abs_objective = 1e-6
 
     # options for solvers
     kwargs = Dict(
@@ -15,40 +16,64 @@ function test_quick()
         :max_wall_time => MAX_WALL_TIME,
     )
 
-    for f in list_of_problems
+    max_r_err = -Inf # relative error max
+
+    for f in LIST_OF_PROBLEMS
 
         nh = OptimalControlProblems.metadata[f][:nh]
-        print("$f ")
+    
+        DEBUG && println("\n", "┌─ ", string(f))
+        DEBUG && println("│")
         
         ########## OptimalControl ##########
-        docp, OC_model = OptimalControlProblems.eval(f)(OptimalControlBackend())
-        nlp_sol = NLPModelsIpopt.ipopt(OC_model; kwargs...)
+        docp, nlp = OptimalControlProblems.eval(f)(OptimalControlBackend(); nh=nh)
+        nlp_sol = NLPModelsIpopt.ipopt(nlp; kwargs...)
         sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers, docp_solution=nlp_sol)
-        obj_oc = objective(sol)
+        o_oc = objective(sol)
 
         ############### JuMP ###############
-        JuMP_model = OptimalControlProblems.eval(f)(JuMPBackend())
-        set_optimizer(JuMP_model, Ipopt.Optimizer)
-        set_silent(JuMP_model)
-        set_optimizer_attribute(JuMP_model, "tol", TOL)
-        set_optimizer_attribute(JuMP_model, "max_iter", MAX_ITER)
-        set_optimizer_attribute(JuMP_model, "mu_strategy", MU_STRATEGY)
-        set_optimizer_attribute(JuMP_model, "linear_solver", "mumps")
-        set_optimizer_attribute(JuMP_model, "max_wall_time", MAX_WALL_TIME)
-        set_optimizer_attribute(JuMP_model, "sb", SB)
-        optimize!(JuMP_model)
-        obj_jmp = objective_value(JuMP_model)
+        model = OptimalControlProblems.eval(f)(JuMPBackend(); nh=nh)
+        set_optimizer(model, Ipopt.Optimizer)
+        set_silent(model)
+        set_optimizer_attribute(model, "tol", TOL)
+        set_optimizer_attribute(model, "max_iter", MAX_ITER)
+        set_optimizer_attribute(model, "mu_strategy", MU_STRATEGY)
+        set_optimizer_attribute(model, "linear_solver", "mumps")
+        set_optimizer_attribute(model, "max_wall_time", MAX_WALL_TIME)
+        set_optimizer_attribute(model, "sb", SB)
+        optimize!(model)
+        o_jp = objective_value(model)
 
-        # objective relative error
-        dist_obj = abs(obj_oc - obj_jmp) / (0.5 * abs(obj_oc + obj_jmp) + 1e-12)
-        if dist_obj < ε
-            @printf("Objective rel error %5.2g \033[1;32mTest Passed\033[0m\n", dist_obj)
-        else
-            @printf("Objective rel error %5.2g \033[1;33mTest Broken\033[0m JuMP: %5.2g vs OC: %5.2g\n", dist_obj, obj_jmp, obj_oc)
+        ############### TEST ###############
+        # objective
+        @testset "objective" verbose=VERBOSE begin
+
+            o_di = abs(o_oc-o_jp)
+            o_bd = max(0.5*(abs(o_oc) + abs(o_jp))*ε_rel_objective, ε_abs_objective)
+
+            DEBUG && println("├─  objective")
+            DEBUG && println("│")
+            DEBUG && println("│     o_oc  = ", o_oc)
+            DEBUG && println("│     o_jp  = ", o_jp)
+            DEBUG && println("│     r_err = ", o_di/(0.5*(abs(o_oc) + abs(o_jp))))
+            DEBUG && println("│     a_err = ", o_di)
+            DEBUG && println("│     bound = ", o_bd)
+        
+            res = @my_test_broken o_di < o_bd
+
+            DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
+            DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
+            DEBUG && println("│")
+
+            max_r_err = max(max_r_err, o_di/(0.5*(abs(o_oc) + abs(o_jp))))
+
         end
-        println("jmp: $obj_jmp")
-        println("oc: $obj_oc")
+
+        #
+        DEBUG && println("└─")
 
     end
+
+    DEBUG && println("maximal relative error: ", max_r_err)
 
 end

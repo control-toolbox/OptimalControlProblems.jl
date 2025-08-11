@@ -4,7 +4,7 @@ Quadrotor Problem:
     The objective is to minimize the final time.
     The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746)
 """
-function OptimalControlProblems.quadrotor(::JuMPBackend; nh::Int=100)
+function OptimalControlProblems.quadrotor(::JuMPBackend; nh::Int=50)
 
     # parameters
     g = 9.81
@@ -30,12 +30,12 @@ function OptimalControlProblems.quadrotor(::JuMPBackend; nh::Int=100)
             0.1 <= tf, (start = 1)
 
             # state
-            p1[0:nh], (start = 0.1)
-            p2[0:nh], (start = 0.1)
-            p3[0:nh], (start = 0.1)
-            v1[0:nh], (start = 0.1)
-            v2[0:nh], (start = 0.1)
-            v3[0:nh], (start = 0.1)
+            p₁[0:nh], (start = 0.1)
+            p₂[0:nh], (start = 0.1)
+            p₃[0:nh], (start = 0.1)
+            v₁[0:nh], (start = 0.1)
+            v₂[0:nh], (start = 0.1)
+            v₃[0:nh], (start = 0.1)
             -π / 2 <= ϕ[0:nh] <= π / 2, (start = 0.1)
             -π / 2 <= θ[0:nh] <= π / 2, (start = 0.1)
 
@@ -60,20 +60,20 @@ function OptimalControlProblems.quadrotor(::JuMPBackend; nh::Int=100)
     @constraints(
         model,
         begin
-            p1_i, p1[0] == p0[1]
-            p2_i, p2[0] == p0[2]
-            p3_i, p3[0] == p0[3]
-            v1_i, v1[0] == v0[1]
-            v2_i, v2[0] == v0[2]
-            v3_i, v3[0] == v0[3]
+            p₁_i, p₁[0] == p0[1]
+            p₂_i, p₂[0] == p0[2]
+            p₃_i, p₃[0] == p0[3]
+            v₁_i, v₁[0] == v0[1]
+            v₂_i, v₂[0] == v0[2]
+            v₃_i, v₃[0] == v0[3]
             ϕ_i, ϕ[0] == u0[2]
             θ_i, θ[0] == u0[3]
-            p1_f, p1[nh] == pf[1]
-            p2_f, p2[nh] == pf[2]
-            p3_f, p3[nh] == pf[3]
-            v1_f, v1[nh] == vf[1]
-            v2_f, v2[nh] == vf[2]
-            v3_f, v3[nh] == vf[3]
+            p₁_f, p₁[nh] == pf[1]
+            p₂_f, p₂[nh] == pf[2]
+            p₃_f, p₃[nh] == pf[3]
+            v₁_f, v₁[nh] == vf[1]
+            v₂_f, v₂[nh] == vf[2]
+            v₃_f, v₃[nh] == vf[3]
         end
     )
 
@@ -94,9 +94,9 @@ function OptimalControlProblems.quadrotor(::JuMPBackend; nh::Int=100)
             sy[i=0:nh], sin(ψ[i])
             R[i=0:nh],
             [
-                (cy[i]*cp[i]) (cy[i] * sp[i] * sr[i]-sy[i] * cr[i]) (cy[i] * sp[i] * cr[i]+sy[i] * sr[i])
-                (sy[i]*cp[i]) (sy[i] * sp[i] * sr[i]+cy[i] * cr[i]) (sy[i] * sp[i] * cr[i]-cy[i] * sr[i])
-                (-sp[i]) (cp[i]*sr[i]) (cp[i]*cr[i])
+                (cy[i] * cp[i]) (cy[i] * sp[i] * sr[i] - sy[i] * cr[i]) (cy[i] * sp[i] * cr[i] + sy[i] * sr[i])
+                (sy[i] * cp[i]) (sy[i] * sp[i] * sr[i] + cy[i] * cr[i]) (sy[i] * sp[i] * cr[i] - cy[i] * sr[i])
+                (-sp[i]) (cp[i] * sr[i]) (cp[i] * cr[i])
             ]
             at_[i=0:nh], R[i] * [0; 0; at[i]]
             g_, [0; 0; -g]
@@ -111,12 +111,12 @@ function OptimalControlProblems.quadrotor(::JuMPBackend; nh::Int=100)
     @constraints(
         model,
         begin
-            ∂p1[i=1:nh], p1[i] == p1[i - 1] + 0.5 * step * (v1[i] + v1[i - 1])
-            ∂p2[i=1:nh], p2[i] == p2[i - 1] + 0.5 * step * (v2[i] + v2[i - 1])
-            ∂p3[i=1:nh], p3[i] == p3[i - 1] + 0.5 * step * (v3[i] + v3[i - 1])
-            ∂v1[i=1:nh], v1[i] == v1[i - 1] + 0.5 * step * (a[i][1] + a[i - 1][1])
-            ∂v2[i=1:nh], v2[i] == v2[i - 1] + 0.5 * step * (a[i][2] + a[i - 1][2])
-            ∂v3[i=1:nh], v3[i] == v3[i - 1] + 0.5 * step * (a[i][3] + a[i - 1][3])
+            ∂p₁[i=1:nh], p₁[i] == p₁[i - 1] + 0.5 * step * (v₁[i] + v₁[i - 1])
+            ∂p₂[i=1:nh], p₂[i] == p₂[i - 1] + 0.5 * step * (v₂[i] + v₂[i - 1])
+            ∂p₃[i=1:nh], p₃[i] == p₃[i - 1] + 0.5 * step * (v₃[i] + v₃[i - 1])
+            ∂v₁[i=1:nh], v₁[i] == v₁[i - 1] + 0.5 * step * (a[i][1] + a[i - 1][1])
+            ∂v₂[i=1:nh], v₂[i] == v₂[i - 1] + 0.5 * step * (a[i][2] + a[i - 1][2])
+            ∂v₃[i=1:nh], v₃[i] == v₃[i - 1] + 0.5 * step * (a[i][3] + a[i - 1][3])
              ∂ϕ[i=1:nh],  ϕ[i] ==  ϕ[i - 1] + 0.5 * step * (dϕ[i] + dϕ[i - 1])
              ∂θ[i=1:nh],  θ[i] ==  θ[i - 1] + 0.5 * step * (dθ[i] + dθ[i - 1])
         end

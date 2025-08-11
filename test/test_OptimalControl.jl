@@ -10,43 +10,53 @@ function test_OptimalControl()
         :max_wall_time => MAX_WALL_TIME,
     )
 
-    println()
-    println("\033[1m###########################################\033[0m")
-    println("\033[1m##### TEST CONVERGENCE OptimalControl #####\033[0m")
-    println("\033[1m###########################################\033[0m")
-    println()
+    for f in LIST_OF_PROBLEMS
 
-    for f in list_of_problems
-        println("$f:")
-        @testset "$(f)" verbose=verbose begin
+        @testset "$(f)" verbose=VERBOSE begin
+
+            nh = OptimalControlProblems.metadata[f][:nh]
+
+            # do we keep or remove the problem from the list
+            keep_problem = true
+
+            #
+            DEBUG && println("\n", "┌─ ", string(f), " (JuMP)")
+            DEBUG && println("│")
+
             # Set up the model
-            _, model = OptimalControlProblems.eval(f)(OptimalControlBackend()) # !+++ UPDATE
+            _, model = OptimalControlProblems.eval(f)(OptimalControlBackend(); nh=nh)
+
+            # Solve the model
+            DEBUG && println("├─  Solve")
+            DEBUG && println("│")
             print("  First solve:  "); @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
             print("  Second solve: "); @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
-            println(
-                "  sol.status = ", sol.status,  
-                ", objective = ", sol.objective,
-                ", iterations = ", sol.iter
-            )
+            DEBUG && println("│")
 
-            # Test that the solver found an optimal solution
-            success = (sol.status == :first_order || sol.status == :acceptable)
-            if success
-                @test success
-                println("  OptimalControl : $f convergence: \033[1;32mTest Passed\033[0m\n")
-            else 
-                @test success broken=true
-                println("  OptimalControl : $f convergence: \033[1;33mTest Broken\033[0m\n")
-                global list_of_problems_final
-                list_of_problems_final = setdiff(list_of_problems_final, [f])
+            # Infos
+            DEBUG && println("├─  Infos")
+            DEBUG && println("│")
+            DEBUG && println("│     sol.status: ", sol.status)
+            DEBUG && println("│     objective: ", sol.objective)
+            DEBUG && println("│     iterations: ", sol.iter)
+            DEBUG && println("│")
+
+            # Test
+            res = @my_test_broken (sol.status == :first_order || sol.status == :acceptable)
+            keep_problem = keep_problem && (typeof(res) == Test.Pass)
+            DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
+            DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
+            DEBUG && println("│")
+            DEBUG && println("└─")
+
+            # do we keep or remove the problem from the list
+            if !keep_problem
+                global LIST_OF_PROBLEMS_FINAL
+                LIST_OF_PROBLEMS_FINAL = setdiff(LIST_OF_PROBLEMS_FINAL, [f])
             end
-        end
-    end
 
-    println()
-    println("\033[1m###########################################\033[0m")
-    println("\033[1m### END TEST CONVERGENCE OptimalControl ###\033[0m")
-    println("\033[1m###########################################\033[0m")
-    println()
+        end
+        
+    end
 
 end
