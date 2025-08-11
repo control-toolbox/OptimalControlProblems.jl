@@ -25,7 +25,7 @@ function OptimalControlProblems.moonlander(
         model,
         begin
             # final time
-            0.1 <= tf, (start = 1)
+            0.1 <= tf, (start = 0.5)
 
             # state variables
             p1[k=0:nh], (start = 0.1)
