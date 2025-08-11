@@ -8,11 +8,11 @@ function test_quick()
     # options for solvers
     kwargs = Dict(
         :print_level => 0,
-        :tol => tol,
-        :mu_strategy => mu_strategy,
-        :sb => sb,
-        :max_iter => max_iter,
-        :max_wall_time => max_wall_time,
+        :tol => TOL,
+        :mu_strategy => MU_STRATEGY,
+        :sb => SB,
+        :max_iter => MAX_ITER,
+        :max_wall_time => MAX_WALL_TIME,
     )
 
     for f in list_of_problems
@@ -30,12 +30,12 @@ function test_quick()
         JuMP_model = OptimalControlProblems.eval(f)(JuMPBackend())
         set_optimizer(JuMP_model, Ipopt.Optimizer)
         set_silent(JuMP_model)
-        set_optimizer_attribute(JuMP_model, "tol", tol)
-        set_optimizer_attribute(JuMP_model, "max_iter", max_iter)
-        set_optimizer_attribute(JuMP_model, "mu_strategy", mu_strategy)
+        set_optimizer_attribute(JuMP_model, "tol", TOL)
+        set_optimizer_attribute(JuMP_model, "max_iter", MAX_ITER)
+        set_optimizer_attribute(JuMP_model, "mu_strategy", MU_STRATEGY)
         set_optimizer_attribute(JuMP_model, "linear_solver", "mumps")
-        set_optimizer_attribute(JuMP_model, "max_wall_time", max_wall_time)
-        set_optimizer_attribute(JuMP_model, "sb", sb)
+        set_optimizer_attribute(JuMP_model, "max_wall_time", MAX_WALL_TIME)
+        set_optimizer_attribute(JuMP_model, "sb", SB)
         optimize!(JuMP_model)
         obj_jmp = objective_value(JuMP_model)
 

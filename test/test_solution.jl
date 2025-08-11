@@ -1,3 +1,3 @@
 function test_solution()
-    comparison(;max_iter=max_iter, test_name=:solution)
+    comparison(; max_iter=MAX_ITER, test_name=:solution)
 end

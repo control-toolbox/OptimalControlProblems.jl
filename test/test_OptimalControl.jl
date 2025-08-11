@@ -3,11 +3,11 @@ function test_OptimalControl()
 
     kwargs = Dict(
         :print_level => 0,
-        :tol => tol,
-        :mu_strategy => mu_strategy,
-        :sb => sb,
-        :max_iter => max_iter,
-        :max_wall_time => max_wall_time,
+        :tol => TOL,
+        :mu_strategy => MU_STRATEGY,
+        :sb => SB,
+        :max_iter => MAX_ITER,
+        :max_wall_time => MAX_WALL_TIME,
     )
 
     println()

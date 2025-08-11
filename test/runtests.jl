@@ -11,11 +11,11 @@ using Interpolations
 include("utils.jl") 
 
 # Parameters for the solvers
-const tol = 1e-8
-const mu_strategy = "adaptive"
-const sb = "yes"
-const max_iter = 1000
-const max_wall_time = 500.0
+const TOL = 1e-8
+const MU_STRATEGY = "adaptive"
+const SB = "yes"
+const MAX_ITER = 1000
+const MAX_WALL_TIME = 500.0
 
 # Collect all the problems from OptimalControlProblems
 all_names = names(OptimalControlProblems; all=true)
@@ -34,9 +34,9 @@ pbs_with_issues = [
 ]
 functions_list = setdiff(functions_list, pbs_with_issues)
 
-functions_list = [
-    :beam
-]
+# functions_list = [
+#     :beam
+# ]
 
 # The list of all the problems to test
 const list_of_problems = deepcopy(functions_list)

@@ -22,13 +22,13 @@ function comparison(; max_iter, test_name)
     ε_abs = 1e-6
 
     # options for solvers
-    kwargs = Dict(
+    Options = Dict(
         :print_level => 0,
-        :tol => tol,
-        :mu_strategy => mu_strategy,
-        :sb => sb,
+        :tol => TOL,
+        :mu_strategy => MU_STRATEGY,
+        :sb => SB,
         :max_iter => max_iter,
-        :max_wall_time => max_wall_time,
+        :max_wall_time => MAX_WALL_TIME,
     )
 
     # we loop over the problems
@@ -47,7 +47,7 @@ function comparison(; max_iter, test_name)
             docp, nlp = OptimalControlProblems.eval(f)(OptimalControlBackend(); nh=nh)
 
             # Solve the problem
-            nlp_sol = NLPModelsIpopt.ipopt(nlp; kwargs...)
+            nlp_sol = NLPModelsIpopt.ipopt(nlp; Options...)
 
             # Build the solution
             sol = build_OCP_solution(docp; 
@@ -69,12 +69,12 @@ function comparison(; max_iter, test_name)
             model = OptimalControlProblems.eval(f)(JuMPBackend(); nh=nh)
             set_optimizer(model, Ipopt.Optimizer)
             set_silent(model)
-            set_optimizer_attribute(model, "tol", tol)
-            set_optimizer_attribute(model, "max_iter", 0)
-            set_optimizer_attribute(model, "mu_strategy", mu_strategy)
+            set_optimizer_attribute(model, "tol", Options[:tol])
+            set_optimizer_attribute(model, "max_iter", Options[:max_iter])
+            set_optimizer_attribute(model, "mu_strategy", Options[:mu_strategy])
             set_optimizer_attribute(model, "linear_solver", "mumps")
-            set_optimizer_attribute(model, "max_wall_time", max_wall_time)
-            set_optimizer_attribute(model, "sb", sb)
+            set_optimizer_attribute(model, "max_wall_time", Options[:max_wall_time])
+            set_optimizer_attribute(model, "sb", Options[:sb])
 
             # Solve the model
             optimize!(model)
@@ -136,7 +136,6 @@ function comparison(; max_iter, test_name)
                 debug && println("│")
                 debug && println("│     length(t_oc) = ", length(t_oc))
                 debug && println("│     length(t_jp) = ", length(t_jp))
-                debug && println("│")
 
                 # length
                 res = @my_test_broken length(t_oc) == length(t_jp)
@@ -153,6 +152,10 @@ function comparison(; max_iter, test_name)
                         test_grid_ok = test_grid_ok && (typeof(res) == Test.Pass)
                     end
                 end
+
+                test_res = test_grid_ok ? "Passed" : "Failed"
+                debug && println("│     \033[1;33mTest " * test_res * "\033[0m")
+                debug && println("│")
 
             end
 
@@ -173,9 +176,11 @@ function comparison(; max_iter, test_name)
                             debug && println("│     L2 jp = ", L2_jp)
                             debug && println("│     error = ", L2_di)
                             debug && println("│     bound = ", L2_bd)
-                            debug && println("│")
                             res = @my_test_broken L2_di < L2_bd
                             keep_problem = keep_problem && (typeof(res) == Test.Pass)
+                            test_res = (typeof(res) == Test.Pass) ? "Passed" : "Failed"
+                            debug && println("│     \033[1;33mTest " * test_res * "\033[0m")
+                            debug && println("│")
                         end
                     end
                 end
@@ -198,9 +203,11 @@ function comparison(; max_iter, test_name)
                             debug && println("│     L2 oc = ", L2_oc)
                             debug && println("│     L2 jp = ", L2_jp)
                             debug && println("│     bound = ", L2_bd)
-                            debug && println("│")
                             res = @my_test_broken L2_di < L2_bd
                             keep_problem = keep_problem && (typeof(res) == Test.Pass)
+                            test_res = (typeof(res) == Test.Pass) ? "Passed" : "Failed"
+                            debug && println("│     \033[1;33mTest " * test_res * "\033[0m")
+                            debug && println("│")
                         end
                     end
                 end
@@ -218,12 +225,14 @@ function comparison(; max_iter, test_name)
                 debug && println("│     o_jp = ", o_jp)
                 debug && println("│     error = ", o_di)
                 debug && println("│     bound = ", o_bd)
-                debug && println("│")
             
                 res = @my_test_broken o_di < o_bd
                 if test_name != :init
                     keep_problem = keep_problem && (typeof(res) == Test.Pass)
                 end
+                test_res = (typeof(res) == Test.Pass) ? "Passed" : "Failed"
+                debug && println("│     \033[1;33mTest " * test_res * "\033[0m")
+                debug && println("│")
 
             end
 
