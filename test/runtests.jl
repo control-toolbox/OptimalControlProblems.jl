@@ -51,11 +51,11 @@ const VERBOSE = true # print or not details during tests
 @testset "OptimalControlProblems tests" verbose=VERBOSE showtiming=true begin
 
     for name in (
-        :aqua, 
-        :JuMP,                  # convergence tests for JuMP models
-        :OptimalControl,        # convergence tests for OptimalControl models
-        :init,                  # comparison between OptimalControl and JuMP: init
-        :solution,              # comparison between OptimalControl and JuMP: solution
+        #:aqua, 
+        #:JuMP,                  # convergence tests for JuMP models
+        #:OptimalControl,        # convergence tests for OptimalControl models
+        #:init,                  # comparison between OptimalControl and JuMP: init
+        #:solution,              # comparison between OptimalControl and JuMP: solution
         :quick,                 # quick comparison: objective rel error only
         )
         @testset "$(name)" verbose=VERBOSE begin

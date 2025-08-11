@@ -22,55 +22,59 @@ function test_quick()
 
         nh = OptimalControlProblems.metadata[f][:nh]
     
-        DEBUG && println("\n", "┌─ ", string(f))
-        DEBUG && println("│")
-        
-        ########## OptimalControl ##########
-        docp, nlp = OptimalControlProblems.eval(f)(OptimalControlBackend(); nh=nh)
-        nlp_sol = NLPModelsIpopt.ipopt(nlp; kwargs...)
-        sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers, docp_solution=nlp_sol)
-        o_oc = objective(sol)
+        @testset "$(string(f)) (objective)" verbose=VERBOSE begin
 
-        ############### JuMP ###############
-        model = OptimalControlProblems.eval(f)(JuMPBackend(); nh=nh)
-        set_optimizer(model, Ipopt.Optimizer)
-        set_silent(model)
-        set_optimizer_attribute(model, "tol", TOL)
-        set_optimizer_attribute(model, "max_iter", MAX_ITER)
-        set_optimizer_attribute(model, "mu_strategy", MU_STRATEGY)
-        set_optimizer_attribute(model, "linear_solver", "mumps")
-        set_optimizer_attribute(model, "max_wall_time", MAX_WALL_TIME)
-        set_optimizer_attribute(model, "sb", SB)
-        optimize!(model)
-        o_jp = objective_value(model)
-
-        ############### TEST ###############
-        # objective
-        @testset "objective" verbose=VERBOSE begin
-
-            o_di = abs(o_oc-o_jp)
-            o_bd = max(0.5*(abs(o_oc) + abs(o_jp))*ε_rel_objective, ε_abs_objective)
-
-            DEBUG && println("├─  objective")
+            DEBUG && println("\n", "┌─ ", string(f))
             DEBUG && println("│")
-            DEBUG && println("│     o_oc  = ", o_oc)
-            DEBUG && println("│     o_jp  = ", o_jp)
-            DEBUG && println("│     r_err = ", o_di/(0.5*(abs(o_oc) + abs(o_jp))))
-            DEBUG && println("│     a_err = ", o_di)
-            DEBUG && println("│     bound = ", o_bd)
-        
-            res = @my_test_broken o_di < o_bd
+            
+            ########## OptimalControl ##########
+            docp, nlp = OptimalControlProblems.eval(f)(OptimalControlBackend(); nh=nh)
+            nlp_sol = NLPModelsIpopt.ipopt(nlp; kwargs...)
+            sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers, docp_solution=nlp_sol)
+            o_oc = objective(sol)
 
-            DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
-            DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
-            DEBUG && println("│")
+            ############### JuMP ###############
+            model = OptimalControlProblems.eval(f)(JuMPBackend(); nh=nh)
+            set_optimizer(model, Ipopt.Optimizer)
+            set_silent(model)
+            set_optimizer_attribute(model, "tol", TOL)
+            set_optimizer_attribute(model, "max_iter", MAX_ITER)
+            set_optimizer_attribute(model, "mu_strategy", MU_STRATEGY)
+            set_optimizer_attribute(model, "linear_solver", "mumps")
+            set_optimizer_attribute(model, "max_wall_time", MAX_WALL_TIME)
+            set_optimizer_attribute(model, "sb", SB)
+            optimize!(model)
+            o_jp = objective_value(model)
 
-            max_r_err = max(max_r_err, o_di/(0.5*(abs(o_oc) + abs(o_jp))))
+            ############### TEST ###############
+            # objective
+            @testset "objective" verbose=VERBOSE begin
+
+                o_di = abs(o_oc-o_jp)
+                o_bd = max(0.5*(abs(o_oc) + abs(o_jp))*ε_rel_objective, ε_abs_objective)
+
+                DEBUG && println("├─  objective")
+                DEBUG && println("│")
+                DEBUG && println("│     o_oc  = ", o_oc)
+                DEBUG && println("│     o_jp  = ", o_jp)
+                DEBUG && println("│     r_err = ", o_di/(0.5*(abs(o_oc) + abs(o_jp))))
+                DEBUG && println("│     a_err = ", o_di)
+                DEBUG && println("│     bound = ", o_bd)
+            
+                res = @my_test_broken o_di < o_bd
+
+                DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
+                DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
+                DEBUG && println("│")
+
+                max_r_err = max(max_r_err, o_di/(0.5*(abs(o_oc) + abs(o_jp))))
+
+            end
+
+            #
+            DEBUG && println("└─")
 
         end
-
-        #
-        DEBUG && println("└─")
 
     end
 
