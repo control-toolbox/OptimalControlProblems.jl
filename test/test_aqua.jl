@@ -1,10 +1,5 @@
 function test_aqua()
 
-    println()
-    println("\033[1m###########################\033[0m")
-    println("\033[1m######## TEST AQUA ########\033[0m")
-    println("\033[1m###########################\033[0m")
-    println()
     @testset "Aqua.jl" begin
         Aqua.test_all(
             OptimalControlProblems;
@@ -17,9 +12,4 @@ function test_aqua()
         Aqua.test_ambiguities(OptimalControlProblems)
     end
 
-    println()
-    println("\033[1m###########################\033[0m")
-    println("\033[1m##### END TEST AQUA #######\033[0m")
-    println("\033[1m###########################\033[0m")
-    println()
 end
