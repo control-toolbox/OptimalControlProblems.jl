@@ -37,6 +37,10 @@ const infos = [
     :nvar
     :ncon
     :minimize
+    :state_name
+    :costate_name
+    :control_name
+    :time
 ]
 
 const types = [
@@ -45,6 +49,10 @@ const types = [
     Union{Int,Nothing},
     Union{Int,Nothing},
     Union{Bool,Nothing},
+    Union{Vector{String}, String, Nothing}, 
+    Union{Vector{String}, String, Nothing}, 
+    Union{Vector{String}, String, Nothing},  
+    Union{Tuple{String, String, Union{Real,Nothing}}, Nothing},
 ]
 
 """
@@ -71,6 +79,34 @@ for i in 1:number_of_problems
     end
 end
 
-export JuMPBackend, OptimalControlBackend
+# ------- Available Problems Function -------
+"""
+    available_problems()
+
+Returns the list of available optimal control problems.
+"""
+function available_problems()
+
+    # collect all the problems
+    all_names = names(OptimalControlProblems; all=true)
+    list_of_problems = filter(
+        x ->
+            isdefined(OptimalControlProblems, x) &&
+                isa(getfield(OptimalControlProblems, x), Function) &&
+                !startswith(string(x), "#") &&
+                !(x in [:eval, :include, :available_problems]),
+        all_names,
+    )
+
+    # # exclude the following problems
+    # problems_to_exclude = [
+
+    # ]
+    # list_of_problems = setdiff(list_of_problems, problems_to_exclude)
+
+    return list_of_problems
+end
+
+export JuMPBackend, OptimalControlBackend, available_problems
 
 end

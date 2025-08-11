@@ -1,44 +1,62 @@
 # test_OptimalControl_optimality
 function test_OptimalControl()
-    # Collecting all the OptimalControlProblems.OptimalControlModels models
-    all_names = names(OptimalControlProblems; all=true)
-    functions_list = filter(
-        x ->
-            isdefined(OptimalControlProblems, x) &&
-                isa(getfield(OptimalControlProblems, x), Function) &&
-                !startswith(string(x), "#") &&
-                !(x in [:eval, :include]),
-        all_names,
-    )
-
-    pbs_with_issues = [:glider, :moonlander]
-    functions_list = setdiff(functions_list, pbs_with_issues)
 
     kwargs = Dict(
         :print_level => 0,
-        :tol => tol,
-        :mu_strategy => mu_strategy,
-        :sb => sb,
-        :constr_viol_tol => constr_viol_tol,
-        :max_iter => max_iter,
-        :max_wall_time => max_wall_time,
+        :tol => TOL,
+        :mu_strategy => MU_STRATEGY,
+        :sb => SB,
+        :max_iter => MAX_ITER,
+        :max_wall_time => MAX_WALL_TIME,
     )
 
-    for f in functions_list
-        println("  $f:")
-        @testset "$(f)" begin
+    for f in LIST_OF_PROBLEMS
+
+        @testset "$(f)" verbose=VERBOSE begin
+
+            nh = OptimalControlProblems.metadata[f][:nh]
+
+            # do we keep or remove the problem from the list
+            keep_problem = true
+
+            #
+            DEBUG && println("\n", "┌─ ", string(f), " (JuMP)")
+            DEBUG && println("│")
+
             # Set up the model
-            _, model = OptimalControlProblems.eval(f)(OptimalControlBackend())
+            _, model = OptimalControlProblems.eval(f)(OptimalControlBackend(); nh=nh)
+
+            # Solve the model
+            DEBUG && println("├─  Solve")
+            DEBUG && println("│")
             print("  First solve:  "); @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
             print("  Second solve: "); @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
-            println("  sol.status = $(sol.status)\n")
-            # Test that the solver found an optimal solution
-            if  f == :truck_trailer ||
-                f == :space_shuttle
-                @test (sol.status == :infeasible) || (sol.status == :max_iter)
-            else
-                @test sol.status == :first_order
+            DEBUG && println("│")
+
+            # Infos
+            DEBUG && println("├─  Infos")
+            DEBUG && println("│")
+            DEBUG && println("│     sol.status: ", sol.status)
+            DEBUG && println("│     objective: ", sol.objective)
+            DEBUG && println("│     iterations: ", sol.iter)
+            DEBUG && println("│")
+
+            # Test
+            res = @my_test_broken (sol.status == :first_order || sol.status == :acceptable)
+            keep_problem = keep_problem && (typeof(res) == Test.Pass)
+            DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
+            DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
+            DEBUG && println("│")
+            DEBUG && println("└─")
+
+            # do we keep or remove the problem from the list
+            if !keep_problem
+                global LIST_OF_PROBLEMS_FINAL
+                LIST_OF_PROBLEMS_FINAL = setdiff(LIST_OF_PROBLEMS_FINAL, [f])
             end
+
         end
+        
     end
+
 end

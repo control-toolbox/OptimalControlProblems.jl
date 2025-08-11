@@ -2,21 +2,23 @@
 The Bioreactor Problem:
     The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=100, N::Int=30)
-    # Parameters
-    beta = 1
+function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=500)
+
+    # parameters
+    β = 1
     c = 2
     gamma = 1
     halfperiod = 5
     Ks = 0.05
-    mu2m = 0.1
-    mubar = 1
+    μ2m = 0.1
+    μbar = 1
     r = 0.005
-    T = 10 * N
+    T = 10*20
 
-    # Model
+    # model
     model = JuMP.Model()
 
+    # variables and initial guess
     @variables(
         model,
         begin
@@ -27,7 +29,7 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=100, N::Int=30
         end
     )
 
-    # Boundary constraints
+    # boundary constraints
     @constraints(
         model,
         begin
@@ -37,33 +39,45 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=100, N::Int=30
         end
     )
 
-    # Dynamics
+    # dynamics
     @expressions(
         model,
         begin
+
+            #
             step, T / nh
+
             # intermediate variables
-            mu2[t=0:nh], mu2m * s[t] / (s[t] + Ks)
-            days[t=0:nh], (t * step) / (halfperiod * 2)
-            tau[t=0:nh], (days[t] - floor(days[t])) * 2 * pi
-            light[t=0:nh], max(0, sin(tau[t]))^2
-            mu[t=0:nh], light[t] * mubar
+            growth[k=0:nh], μ2m * s[k] / (s[k] + Ks)
+            μ2[k=0:nh], growth[k]
+
+            days[k=0:nh], (k * step) / (halfperiod * 2)
+            tau[k=0:nh], (days[k] - floor(days[k])) * 2π
+            light[k=0:nh], max(0, sin(tau[k]))^2
+            μ[k=0:nh], light[k] * μbar
+
             # dynamics
-            dy[t=0:nh], mu[t] * y[t] / (1 + y[t]) - (r + u[t]) * y[t]
-            ds[t=0:nh], -mu2[t] * b[t] + u[t] * beta * (gamma * y[t] - s[t])
-            db[t=0:nh], (mu2[t] - u[t] * beta) * b[t]
-        end
-    )
-    @constraints(
-        model,
-        begin
-            con_y[t=1:nh], y[t] == y[t - 1] + 0.5 * step * (dy[t] + dy[t - 1])
-            con_s[t=1:nh], s[t] == s[t - 1] + 0.5 * step * (ds[t] + ds[t - 1])
-            con_b[t=1:nh], b[t] == b[t - 1] + 0.5 * step * (db[t] + db[t - 1])
+            dy[k=0:nh], μ[k] * y[k] / (1 + y[k]) - (r + u[k]) * y[k]
+            ds[k=0:nh], -μ2[k] * b[k] + u[k] * β * (gamma * y[k] - s[k])
+            db[k=0:nh], (μ2[k] - u[k] * β) * b[k]
+
+            # objective
+            dc[k=0:nh], -μ2[k] * b[k] / (β + c)
+
         end
     )
 
-    @objective(model, Max, sum(b[t] / (beta + c) for t in 0:nh))
+    @constraints(
+        model,
+        begin
+            ∂y[k=1:nh], y[k] == y[k - 1] + 0.5 * step * (dy[k] + dy[k - 1])
+            ∂s[k=1:nh], s[k] == s[k - 1] + 0.5 * step * (ds[k] + ds[k - 1])
+            ∂b[k=1:nh], b[k] == b[k - 1] + 0.5 * step * (db[k] + db[k - 1])
+        end
+    )
+
+    # objective
+    @objective(model, Min, 0.5 * step * sum(dc[k] + dc[k-1] for k in 1:nh))
 
     return model
 end

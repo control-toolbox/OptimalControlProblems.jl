@@ -4,85 +4,72 @@ Goddard Rocket Problem:
     The objective is to maximize the final altitude of the rocket.
     The problem is formulated as an OptimalControl model.
 """
-function OptimalControlProblems.rocket(::OptimalControlBackend; nh::Int=100)
+function OptimalControlProblems.rocket(::OptimalControlBackend; nh::Int=500)
+
     # parameters
-    h_0 = 1.0
-    v_0 = 0.0
-    m_0 = 1.0
-    g_0 = 1.0
-    T_c = 3.5
-    h_c = 500.0
-    v_c = 620.0
-    m_c = 0.6
-    c = 0.5 * sqrt(g_0 * h_0)
-    m_f = m_c * m_0
-    D_c = 0.5 * v_c * (m_0 / g_0)
-    T_max = T_c * m_0 * g_0
+    h0 = 1
+    v0 = 0
+    m0 = 1
+    g0 = 1
+    Tc = 3.5
+    hc = 500
+    vc = 620
+    mc = 0.6
+    c = 0.5 * sqrt(g0 * h0)
+    mf = mc * m0
+    Dc = 0.5 * vc * (m0 / g0)
+    Tmax = Tc * m0 * g0
 
     # Model
     ocp = @def begin
-        ## parameters
-        h_0 = 1.0
-        v_0 = 0.0
-        m_0 = 1.0
-        g_0 = 1.0
-        T_c = 3.5
-        h_c = 500.0
-        v_c = 620.0
-        m_c = 0.6
-        c = 0.5 * sqrt(g_0 * h_0)
-        m_f = m_c * m_0
-        D_c = 0.5 * v_c * (m_0 / g_0)
-        T_max = T_c * m_0 * g_0
 
-        ## define the Problem
         tf ∈ R, variable
-        t ∈ [0.0, tf], time
-        x ∈ R³, state
-        u ∈ R¹, control
+        t ∈ [0, tf], time
+        x = (h, v, m) ∈ R³, state
+        T ∈ R, control
 
-        ## constraints
         # state constraints
-        x₁(t) ≥ h_0, (x1_con)
-        x₂(t) ≥ v_0, (x2_con)
-        m_f ≤ x₃(t) ≤ m_0, (x3_con)
+        h(t) ≥ h0, (x1_con)
+        v(t) ≥ v0, (x2_con)
+        mf ≤ m(t) ≤ m0, (x3_con)
+
         # control constraints
-        0 ≤ u(t) ≤ T_max, (u_con)
+        0 ≤ T(t) ≤ Tmax, (Tcon)
+
         # time constraints
-        tf ≥ 0.0, (tf_con)
+        tf ≥ 0, (tf_con)
+
         # initial conditions
-        x₁(0.0) == h_0, (x1_ic)
-        x₂(0.0) == v_0, (x2_ic)
-        x₃(0.0) == m_0, (x3_ic)
+        h(0) == h0, (x1_ic)
+        v(0) == v0, (x2_ic)
+        m(0) == m0, (x3_ic)
+
         # final conditions
-        x₃(tf) == m_f, (x3_fc)
+        m(tf) == mf, (x3_fc)
 
-        ## dynamics
-        ẋ(t) == dynamics(x(t), u(t))
+        # dynamics
+        ẋ(t) == dynamics(h(t), v(t), m(t), T(t))
 
-        ## objective
-        x₁(tf) → max
+        # objective
+        -h(tf) → min
+
     end
 
     # dynamics
-    function dynamics(x, u)
-        return [
-            x[2],
-            (
-                u - (D_c * x[2]^2 * exp(-h_c * (x[1] - h_0)) / h_0) -
-                x[3] * g_0 * (h_0 / x[1])^2
-            ) / x[3],
-            -u / c,
-        ]
+    function dynamics(h, v, m, T)
+        D = (Dc * v^2 * exp(-hc * (h - h0)) / h0)
+        g = g0 * (h0 / h)^2
+        return [v, (T - D - m * g) / m, -T / c,]
     end
 
-    # Initial guess
-    xinit = [[1.0, k * (1.0 - k), (m_f - m_0) * k + m_0] for k in 0:nh]
-    time_vec = LinRange(0.0, 1.0, nh + 1)
-    init = (time=time_vec, state=xinit, control=T_max / 2.0, variable=1)
+    # initial guess
+    xinit = [[1, i / nh * (1 - i / nh), (mf - m0) * (i / nh) + m0] for i in 0:nh]
+    time_vec = LinRange(0, 1, nh+1)
+    init = (time=time_vec, state=xinit, control=Tmax/2, variable=1)
 
-    # NLPModel + DOCP
-    docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
+    # DOCP and NLP
+    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    nlp = model(docp)
 
     return docp, nlp
 end

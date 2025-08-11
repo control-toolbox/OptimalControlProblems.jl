@@ -1,4 +1,5 @@
 function test_aqua()
+
     @testset "Aqua.jl" begin
         Aqua.test_all(
             OptimalControlProblems;
@@ -10,4 +11,5 @@ function test_aqua()
         # do not warn about ambiguities in dependencies
         Aqua.test_ambiguities(OptimalControlProblems)
     end
+
 end

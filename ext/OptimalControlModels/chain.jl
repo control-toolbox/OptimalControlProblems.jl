@@ -4,61 +4,58 @@ The Hanging Chain Problem:
     The objective is to minimize the potential energy of the chain.
     The problem is formulated as an OptimalControl model.
 """
-function OptimalControlProblems.chain(::OptimalControlBackend; nh::Int=100)
+function OptimalControlProblems.chain(::OptimalControlBackend; nh::Int=500)
+
     # parameters
     L = 4
     a = 1
     b = 3
-    tf = 1.0
+    tf = 1
 
-    # Model
+    # model
     ocp = @def begin
-        ## parameters
-        L = 4
-        a = 1
-        b = 3
-        tf = 1.0
 
-        ## define the Problem
-        t ∈ [0.0, tf], time
+        #
+        t ∈ [0, tf], time
         x ∈ R³, state
-        u ∈ R¹, control
+        u ∈ R, control
 
-        ## constraints
         # initial conditions
-        x₁(0.0) == a, (x1_ic)
-        x₂(0.0) == 0.0, (x2_ic)
-        x₃(0.0) == 0.0, (x3_ic)
+        x₁(0) == a, (x1_ic)
+        x₂(0) == 0, (x2_ic)
+        x₃(0) == 0, (x3_ic)
+
         # final conditions
         x₁(tf) == b, (x1_con)
         x₃(tf) == L, (x3_con)
 
-        ## dynamics
+        # dynamics
         ẋ(t) == dynamics(x(t), u(t))
 
-        ## objective
+        # objective
         x₂(tf) → min
+
     end
 
     # dynamics
     function dynamics(x, u)
-        return [u, x[1] * sqrt(1 + u^2), sqrt(1 + u^2)]
+        return [u, x[1] * √(1 + u^2), √(1 + u^2)]
     end
 
     # Initial guess
     tmin = b > a ? 1 / 4 : 3 / 4
     xinit =
         t -> [
-            4 * abs(b - a) * t / tf * (1 / 2 * t / tf - tmin) + a,
-            (4 * abs(b - a) * t / tf * (1 / 2 * t / tf - tmin) + a) *
+             4 * abs(b - a) * t / tf * (0.5 * t / tf - tmin) + a,
+            (4 * abs(b - a) * t / tf * (0.5 * t / tf - tmin) + a) *
             (4 * abs(b - a) * (t / tf - tmin)),
-            4 * abs(b - a) * (t / tf - tmin),
+             4 * abs(b - a) * (t / tf - tmin),
         ]
     uinit = t -> 4 * abs(b - a) * (t / tf - tmin)
     init = (state=xinit, control=uinit)
 
     # NLPModel + DOCP
-    docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
-
+    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    nlp = model(docp)
     return docp, nlp
 end

@@ -4,67 +4,44 @@ Robot arm problem:
     The objective is to minimize the time taken to move between the two points.
     The problem is formulated as a JuMP model, and can be found [here](https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/robot.jl)
 """
-function OptimalControlProblems.robot(::JuMPBackend; nh::Int64=100)
-    # total length of arm
-    L = 5.0
-    # Upper bounds on the controls
-    max_u_rho = 1.0
-    max_u_the = 1.0
-    max_u_phi = 1.0
-    # Initial positions of the length and the angles for the robot arm
-    rho0 = 4.5
-    phi0 = pi / 4
+function OptimalControlProblems.robot(::JuMPBackend; nh::Int=250)
 
+    # parameters
+
+    # total length of arm
+    L = 5
+
+    # Upper bounds on the controls
+    max_uρ = 1
+    max_uθ = 1
+    max_uϕ = 1
+
+    # Initial positions of the length and the angles for the robot arm
+    ρ0 = 4.5
+    ϕ0 = π/4
+    θf = 2π/3
+
+    # model
     model = JuMP.Model()
 
+    # state, control, variable (final time) and initial guess
     @variables(
         model,
         begin
-            0 <= rho[k=1:(nh + 1)] <= L, (start = rho0)
-            -pi <= the[k=1:(nh + 1)] <= pi, (start = 2 * pi / 3 * (k / nh)^2)
-            0 <= phi[k=1:(nh + 1)] <= pi, (start = phi0)
-            rho_dot[k=1:(nh + 1)], (start = 0.0)
-            the_dot[k=1:(nh + 1)], (start = 4 * pi / 3 * (k / nh))
-            phi_dot[k=1:(nh + 1)], (start = 0.0)
-            -max_u_rho <= u_rho[1:(nh + 1)] <= max_u_rho, (start = 0.0)
-            -max_u_the <= u_the[1:(nh + 1)] <= max_u_the, (start = 0.0)
-            -max_u_phi <= u_phi[1:(nh + 1)] <= max_u_phi, (start = 0.0)
-            tf >= 0.0, (start = 1.0)
-        end
-    )
 
-    @objective(model, Min, tf)
+            0 <= ρ[k=0:nh] <= L,                (start = ρ0)
+           -π <= θ[k=0:nh] <= π,                (start = 2π/3 * (k / nh)^2)
+            0 <= ϕ[k=0:nh] <= π,                (start = ϕ0)
 
-    # Physical equations
-    @expressions(
-        model,
-        begin
-            step, tf / nh
-            I_the[i=1:(nh + 1)], (((L - rho[i])^3 + rho[i]^3) * (sin(phi[i]))^2) / 3.0
-            I_phi[i=1:(nh + 1)], ((L - rho[i])^3 + rho[i]^3) / 3.0
-        end
-    )
+            dρ[k=0:nh],                         (start = 0)
+            dθ[k=0:nh],                         (start = 4π/3 * (k / nh))
+            dϕ[k=0:nh],                         (start = 0)
 
-    # Dynamics
-    @constraints(
-        model,
-        begin
-            con_rho[j=2:(nh + 1)],
-            rho[j] == rho[j - 1] + 0.5 * step * (rho_dot[j] + rho_dot[j - 1])
-            con_phi[j=2:(nh + 1)],
-            phi[j] == phi[j - 1] + 0.5 * step * (phi_dot[j] + phi_dot[j - 1])
-            con_the[j=2:(nh + 1)],
-            the[j] == the[j - 1] + 0.5 * step * (the_dot[j] + the_dot[j - 1])
-            con_rho_dot[j=2:(nh + 1)],
-            rho_dot[j] == rho_dot[j - 1] + 0.5 * step * (u_rho[j] + u_rho[j - 1]) / L
-            con_the_dot[j=2:(nh + 1)],
-            the_dot[j] ==
-            the_dot[j - 1] +
-            0.5 * step * ((u_the[j] / I_the[j]) + (u_the[j - 1] / I_the[j - 1]))
-            con_phi_dot[j=2:(nh + 1)],
-            phi_dot[j] ==
-            phi_dot[j - 1] +
-            0.5 * step * ((u_phi[j] / I_phi[j]) + (u_phi[j - 1] / I_phi[j - 1]))
+            -max_uρ <= uρ[0:nh] <= max_uρ,      (start = 0)
+            -max_uθ <= uθ[0:nh] <= max_uθ,      (start = 0)
+            -max_uϕ <= uϕ[0:nh] <= max_uϕ,      (start = 0)
+
+            tf >= 0.1,                          (start = 1)
         end
     )
 
@@ -72,20 +49,60 @@ function OptimalControlProblems.robot(::JuMPBackend; nh::Int64=100)
     @constraints(
         model,
         begin
-            rho[1] == 4.5
-            the[1] == 0.0
-            phi[1] == pi / 4.0
-            rho[nh + 1] == 4.5
-            the[nh + 1] == 2.0 * pi / 3
-            phi[nh + 1] == pi / 4.0
-            rho_dot[1] == 0.0
-            the_dot[1] == 0.0
-            phi_dot[1] == 0.0
-            rho_dot[nh + 1] == 0.0
-            the_dot[nh + 1] == 0.0
-            phi_dot[nh + 1] == 0.0
+
+            # initial
+            ρ[0] == ρ0
+            ϕ[0] == ϕ0
+            θ[0] == 0
+            dρ[0] == 0
+            dθ[0] == 0
+            dϕ[0] == 0
+
+            # final
+            ρ[nh] == ρ0
+            θ[nh] == θf
+            ϕ[nh] == ϕ0
+            dρ[nh] == 0
+            dθ[nh] == 0
+            dϕ[nh] == 0
+
         end
     )
+
+    # dynamics
+    @expressions(
+        model,
+        begin
+
+            #
+            step, tf / nh
+
+            #
+            I_θ[i=0:nh], ((L - ρ[i])^3 + ρ[i]^3) * (sin(ϕ[i]))^2
+            I_ϕ[i=0:nh], (L - ρ[i])^3 + ρ[i]^3
+
+            #
+            ddρ[i=0:nh], uρ[i] / L
+            ddθ[i=0:nh], 3 * uθ[i] / I_θ[i]
+            ddϕ[i=0:nh], 3 * uϕ[i] / I_ϕ[i]
+
+        end
+    )
+
+    @constraints(
+        model,
+        begin
+            ∂ρ[i=1:nh],   ρ[i] ==  ρ[i - 1] + 0.5 * step * ( dρ[i] +  dρ[i - 1])
+            ∂ϕ[i=1:nh],   ϕ[i] ==  ϕ[i - 1] + 0.5 * step * ( dϕ[i] +  dϕ[i - 1])
+            ∂θ[i=1:nh],   θ[i] ==  θ[i - 1] + 0.5 * step * ( dθ[i] +  dθ[i - 1])
+            ∂dρ[i=1:nh], dρ[i] == dρ[i - 1] + 0.5 * step * (ddρ[i] + ddρ[i - 1])
+            ∂dθ[i=1:nh], dθ[i] == dθ[i - 1] + 0.5 * step * (ddθ[i] + ddθ[i - 1])
+            ∂dϕ[i=1:nh], dϕ[i] == dϕ[i - 1] + 0.5 * step * (ddϕ[i] + ddϕ[i - 1])
+        end
+    )
+
+    # objective
+    @objective(model, Min, tf)
 
     return model
 end

@@ -4,89 +4,86 @@ Robot arm problem:
     The objective is to minimize the time taken to move between the two points.
     The problem is formulated as an OptimalControl model.
 """
-function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=100)
+function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=250)
+    
     # parameters
-    L = 5.0
-    max_u_rho = 1.0
-    max_u_the = 1.0
-    max_u_phi = 1.0
-    max_u = [max_u_rho, max_u_the, max_u_phi]
-    rho0 = 4.5
-    phi0 = pi / 4
-    thef = 2.0 * pi / 3
-    t0 = 0.0
+
+    # total length of arm
+    L = 5
+
+    # Upper bounds on the controls
+    max_uρ = 1
+    max_uθ = 1
+    max_uϕ = 1
+
+    # Initial positions of the length and the angles for the robot arm
+    ρ0 = 4.5
+    ϕ0 = π/4
+    θf = 2π/3
 
     ocp = @def begin
-        # parameters
-        L = 5.0
-        max_u_rho = 1.0
-        max_u_the = 1.0
-        max_u_phi = 1.0
-        max_u = [max_u_rho, max_u_the, max_u_phi]
-        rho0 = 4.5
-        phi0 = pi / 4
-        thef = 2.0 * pi / 3
-        t0 = 0.0
-
-        ## define the problem
+        
         tf ∈ R, variable
-        t ∈ [t0, tf], time
-        x ∈ R⁶, state
-        u ∈ R³, control
+        t ∈ [0, tf], time
+        x = (ρ, dρ, θ, dθ, ϕ, dϕ) ∈ R⁶, state
+        u = (uρ, uθ, uϕ) ∈ R³, control
 
-        ## state variables
-        rho = x₁
-        rho_dot = x₂
-        the = x₃
-        the_dot = x₄
-        phi = x₅
-        phi_dot = x₆
+        tf ≥ 0.1
 
-        ## constraints
         # state constraints
-        0 ≤ rho(t) ≤ L, (rho_con)
-        -pi ≤ the(t) ≤ pi, (the_con)
-        0 ≤ phi(t) ≤ pi, (phi_con)
-        # control constraints
-        -max_u_rho ≤ u₁(t) ≤ max_u_rho, (u_rho_con)
-        -max_u_the ≤ u₂(t) ≤ max_u_the, (u_the_con)
-        -max_u_phi ≤ u₃(t) ≤ max_u_phi, (u_phi_con)
-        # initial conditions
-        rho(t0) == rho0, (rho0_con)
-        phi(t0) == phi0, (phi0_con)
-        the(t0) == 0.0, (the0_con)
-        the_dot(t0) == 0.0, (the_dot0_con)
-        phi_dot(t0) == 0.0, (phi_dot0_con)
-        rho_dot(t0) == 0.0, (rho_dot0_con)
-        # final conditions
-        rho(tf) == rho0, (rhof_con)
-        the(tf) == thef, (thef_con)
-        phi(tf) == phi0, (phif_con)
-        the_dot(tf) == 0.0, (the_dotf_con)
-        phi_dot(tf) == 0.0, (phi_dotf_con)
-        rho_dot(tf) == 0.0, (rho_dotf_con)
+         0 ≤ ρ(t) ≤ L, (ρ_con)
+        -π ≤ θ(t) ≤ π, (θ_con)
+         0 ≤ ϕ(t) ≤ π, (ϕ_con)
 
-        ## dynamics  
+        # control constraints
+        -max_uρ ≤ uρ(t) ≤ max_uρ, (u_ρ_con)
+        -max_uθ ≤ uθ(t) ≤ max_uθ, (u_θ_con)
+        -max_uϕ ≤ uϕ(t) ≤ max_uϕ, (u_ϕ_con)
+
+        # initial conditions
+        ρ(0) == ρ0, (ρ0_con)
+        ϕ(0) == ϕ0, (ϕ0_con)
+        θ(0) == 0, (θ0_con)
+        dθ(0) == 0, (dθ0_con)
+        dϕ(0) == 0, (dϕ0_con)
+        dρ(0) == 0, (dρ0_con)
+
+        # final conditions
+        ρ(tf) == ρ0, (ρf_con)
+        θ(tf) == θf, (θf_con)
+        ϕ(tf) == ϕ0, (ϕf_con)
+        dθ(tf) == 0, (dθf_con)
+        dϕ(tf) == 0, (dϕf_con)
+        dρ(tf) == 0, (dρf_con)
+
+        # aliases
+        I_θ = ((L - ρ(t))^3 + ρ(t)^3) * sin(ϕ(t))^2
+        I_ϕ = (L - ρ(t))^3 + ρ(t)^3
+
+        # dynamics  
         ẋ(t) == [
-            rho_dot(t),
-            u₁(t) / L,
-            the_dot(t),
-            u₂(t) * 3 / (((L - rho(t))^3 + rho(t)^3) * sin(phi(t))^2),
-            phi_dot(t),
-            u₃(t) * 3 / ((L - rho(t))^3 + rho(t)^3),
+            dρ(t),
+            uρ(t) / L,
+            dθ(t),
+            3 * uθ(t) / I_θ,
+            dϕ(t),
+            3 * uϕ(t) / I_ϕ,
         ]
 
-        ## objective
+        # objective
         tf → min
+
     end
 
-    # Initial guess
-    xinit = t -> [rho0, 2 * pi / 3 * (t^2), phi0, 0.0, 4 * pi / 3 * t, 0.0]
-    uinit = [0.0, 0.0, 0.0]
-    init = (state=xinit, control=uinit, variable=1.0)
+    # initial guess
+    tf = 1
+    xinit = t -> [ρ0, 0, 2π/3 * (t/tf)^2, 4π/3 * (t/tf), ϕ0, 0]
+    uinit = [0, 0, 0]
+    init = (state=xinit, control=uinit, variable=tf)
 
-    # NLPModel + DOCP
-    docp, nlp = direct_transcription(ocp; init=init, grid_size=nh)
+    # DOCP and NLP
+    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    nlp = model(docp)
 
     return docp, nlp
 end
