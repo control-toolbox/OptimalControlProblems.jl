@@ -167,29 +167,54 @@ function comparison(; max_iter, test_name)
             test_grid_ok = true
             @testset "grid" verbose=VERBOSE begin
 
-                DEBUG && println("├─  grid")
-                DEBUG && println("│")
-                DEBUG && println("│     length(t_oc) = ", length(t_oc))
-                DEBUG && println("│     length(t_jp) = ", length(t_jp))
-
                 # length
                 res = @my_test_broken length(t_oc) == length(t_jp)
                 keep_problem = keep_problem && (typeof(res) == Test.Pass)
                 test_grid_ok = test_grid_ok && (typeof(res) == Test.Pass)
 
+                DEBUG && println("├─  grid length")
+                DEBUG && println("│")
+                DEBUG && println("│     length(t_oc) = ", length(t_oc))
+                DEBUG && println("│     length(t_jp) = ", length(t_jp))
+                DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
+                DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
+                DEBUG && println("│")
+
                 # values
-                if keep_problem
+                ti_oc_max = NaN
+                ti_jp_max = NaN
+                ti_di_max = NaN
+                ti_bd_max = NaN
+                ti_te_max = Inf
+                itera_max = NaN
+                if test_grid_ok
                     for i ∈ eachindex(t_oc)
-                        t_di = t_oc[i] - t_jp[i]
-                        t_bd = max(0.5*(abs(t_oc[i]) + abs(t_jp[i]))*ε_rel_grid, ε_abs_grid)
-                        res = @my_test_broken t_di < t_bd
+                        ti_di = t_oc[i] - t_jp[i]
+                        ti_bd = max(0.5*(abs(t_oc[i]) + abs(t_jp[i]))*ε_rel_grid, ε_abs_grid)
+                        res = @my_test_broken ti_di < ti_bd
                         keep_problem = keep_problem && (typeof(res) == Test.Pass)
                         test_grid_ok = test_grid_ok && (typeof(res) == Test.Pass)
+                        if ti_bd - ti_di < ti_te_max
+                            ti_te_max = ti_bd - ti_di
+                            itera_max = i
+                            ti_oc_max = t_oc[i]
+                            ti_jp_max = t_jp[i]
+                            ti_di_max = ti_di
+                            ti_bd_max = ti_bd
+                        end
                     end
                 end
 
-                DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
-                DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
+                DEBUG && println("├─  grid values (max error)")
+                DEBUG && println("│")
+                DEBUG && println("│     iter  = ", itera_max)
+                DEBUG && println("│     ti oc = ", ti_oc_max)
+                DEBUG && println("│     ti jp = ", ti_jp_max)
+                DEBUG && println("│     r_err = ", ti_di_max/(0.5*(abs(ti_oc_max) + abs(ti_jp_max))))
+                DEBUG && println("│     a_err = ", ti_di_max)
+                DEBUG && println("│     bound = ", ti_bd_max)
+                DEBUG &&  test_grid_ok && println("│     \033[1;32mTest Passed\033[0m")
+                DEBUG && !test_grid_ok && println("│     \033[1;31mTest Failed\033[0m")
                 DEBUG && println("│")
 
             end
@@ -199,12 +224,16 @@ function comparison(; max_iter, test_name)
                 @testset "state" verbose=VERBOSE begin
                     for i ∈ eachindex(x_vars)
                         @testset "$(x_vars[i])" verbose=VERBOSE begin
+
                             xi_oc = [ x_oc[k][i] for k ∈ eachindex(t_oc)]
                             xi_jp = [ x_jp[k][i] for k ∈ eachindex(t_jp)]
                             L2_di = L2_norm(t_oc, xi_oc-xi_jp)
                             L2_oc = L2_norm(t_oc, xi_oc)
                             L2_jp = L2_norm(t_oc, xi_jp)
                             L2_bd = max(0.5*(L2_oc + L2_jp)*ε_rel_state, ε_abs_state)
+                            res = @my_test_broken L2_di < L2_bd
+                            keep_problem = keep_problem && (typeof(res) == Test.Pass)
+
                             DEBUG && println("├─  state $(x_vars[i])")
                             DEBUG && println("│")
                             DEBUG && println("│     L2 oc = ", L2_oc)
@@ -212,11 +241,10 @@ function comparison(; max_iter, test_name)
                             DEBUG && println("│     r_err = ", L2_di/(0.5*(L2_oc + L2_jp)))
                             DEBUG && println("│     a_err = ", L2_di)
                             DEBUG && println("│     bound = ", L2_bd)
-                            res = @my_test_broken L2_di < L2_bd
-                            keep_problem = keep_problem && (typeof(res) == Test.Pass)
                             DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
                             DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
                             DEBUG && println("│")
+
                         end
                     end
                 end
@@ -227,25 +255,27 @@ function comparison(; max_iter, test_name)
                 @testset "control" verbose=VERBOSE begin
                     for i ∈ eachindex(u_vars)
                         @testset "$(u_vars[i])" verbose=VERBOSE begin
+
                             ui_oc = [ u_oc[k][i] for k ∈ eachindex(t_oc)]
                             ui_jp = [ u_jp[k][i] for k ∈ eachindex(t_jp)]
-                            L1_di = L1_norm(t_oc, ui_oc-ui_jp)
-                            L1_oc = L1_norm(t_oc, ui_oc)
-                            L1_jp = L1_norm(t_oc, ui_jp)
-                            L1_bd = max(0.5*(L1_oc + L1_jp)*ε_rel_control, ε_abs_control)
+                            L2_di = L2_norm(t_oc, ui_oc-ui_jp)
+                            L2_oc = L2_norm(t_oc, ui_oc)
+                            L2_jp = L2_norm(t_oc, ui_jp)
+                            L2_bd = max(0.5*(L2_oc + L2_jp)*ε_rel_control, ε_abs_control)
+                            res = @my_test_broken L2_di < L2_bd
+                            keep_problem = keep_problem && (typeof(res) == Test.Pass)
+
                             DEBUG && println("├─  control $(u_vars[i])")
                             DEBUG && println("│")
-                            DEBUG && println("│     L1 oc = ", L1_oc)
-                            DEBUG && println("│     L1 jp = ", L1_jp)
-                            DEBUG && println("│     error = ", L1_di)
-                            DEBUG && println("│     r_err = ", L1_di/(0.5*(L1_oc + L1_jp)))
-                            DEBUG && println("│     a_err = ", L1_di)
-                            DEBUG && println("│     bound = ", L1_bd)
-                            res = @my_test_broken L1_di < L1_bd
-                            keep_problem = keep_problem && (typeof(res) == Test.Pass)
+                            DEBUG && println("│     L2 oc = ", L2_oc)
+                            DEBUG && println("│     L2 jp = ", L2_jp)
+                            DEBUG && println("│     r_err = ", L2_di/(0.5*(L2_oc + L2_jp)))
+                            DEBUG && println("│     a_err = ", L2_di)
+                            DEBUG && println("│     bound = ", L2_bd)
                             DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
                             DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
                             DEBUG && println("│")
+
                         end
                     end
                 end
@@ -256,6 +286,10 @@ function comparison(; max_iter, test_name)
 
                 o_di = abs(o_oc-o_jp)
                 o_bd = max(0.5*(abs(o_oc) + abs(o_jp))*ε_rel_objective, ε_abs_objective)
+                res = @my_test_broken o_di < o_bd
+                if test_name != :init
+                    keep_problem = keep_problem && (typeof(res) == Test.Pass)
+                end
 
                 DEBUG && println("├─  objective")
                 DEBUG && println("│")
@@ -264,11 +298,6 @@ function comparison(; max_iter, test_name)
                 DEBUG && println("│     r_err = ", o_di/(0.5*(abs(o_oc) + abs(o_jp))))
                 DEBUG && println("│     a_err = ", o_di)
                 DEBUG && println("│     bound = ", o_bd)
-            
-                res = @my_test_broken o_di < o_bd
-                if test_name != :init
-                    keep_problem = keep_problem && (typeof(res) == Test.Pass)
-                end
                 DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
                 DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
                 DEBUG && println("│")
