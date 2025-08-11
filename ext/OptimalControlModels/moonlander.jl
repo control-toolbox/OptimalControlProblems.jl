@@ -27,7 +27,7 @@ function OptimalControlProblems.moonlander(
         u = (F1, F2) ∈ R², control
 
         # final time constraint
-        tf >= 0.1
+        0.1 ≤ tf ≤ 1.0
 
         # control constraints
         0 ≤ F1(t) ≤ max_thrust, (F1_con)
