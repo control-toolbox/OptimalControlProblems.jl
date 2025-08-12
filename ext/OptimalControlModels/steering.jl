@@ -15,7 +15,6 @@ function OptimalControlProblems.steering(::OptimalControlBackend; nh::Int=500)
 
     # Model
     ocp = @def begin
-
         tf ∈ R, variable
         t ∈ [0.0, tf], time
         x ∈ R⁴, state
@@ -29,7 +28,6 @@ function OptimalControlProblems.steering(::OptimalControlBackend; nh::Int=500)
         ẋ(t) == dynamics(x(t), u(t))
 
         tf → min
-
     end
 
     # dynamics

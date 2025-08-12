@@ -44,7 +44,6 @@ function OptimalControlProblems.quadrotor(::JuMPBackend; nh::Int=50)
             -dtiltmax <= dϕ[0:nh] <= dtiltmax, (start = 0.1)
             -dtiltmax <= dθ[0:nh] <= dtiltmax, (start = 0.1)
             ψ[0:nh], (start = 0.1)
-
         end
     )
 
@@ -52,7 +51,7 @@ function OptimalControlProblems.quadrotor(::JuMPBackend; nh::Int=50)
     @constraints(
         model,
         begin
-            cond_tiltmax[i=0:nh], cos(θ[i]) * cos(ϕ[i]) >= cos(tiltmax)
+            cond_tiltmax[i = 0:nh], cos(θ[i]) * cos(ϕ[i]) >= cos(tiltmax)
         end
     )
 
@@ -86,44 +85,44 @@ function OptimalControlProblems.quadrotor(::JuMPBackend; nh::Int=50)
             step, tf / nh
 
             # dynamics
-            cr[i=0:nh], cos(ϕ[i])
-            sr[i=0:nh], sin(ϕ[i])
-            cp[i=0:nh], cos(θ[i])
-            sp[i=0:nh], sin(θ[i])
-            cy[i=0:nh], cos(ψ[i])
-            sy[i=0:nh], sin(ψ[i])
-            R[i=0:nh],
+            cr[i = 0:nh], cos(ϕ[i])
+            sr[i = 0:nh], sin(ϕ[i])
+            cp[i = 0:nh], cos(θ[i])
+            sp[i = 0:nh], sin(θ[i])
+            cy[i = 0:nh], cos(ψ[i])
+            sy[i = 0:nh], sin(ψ[i])
+            R[i = 0:nh],
             [
                 (cy[i] * cp[i]) (cy[i] * sp[i] * sr[i] - sy[i] * cr[i]) (cy[i] * sp[i] * cr[i] + sy[i] * sr[i])
                 (sy[i] * cp[i]) (sy[i] * sp[i] * sr[i] + cy[i] * cr[i]) (sy[i] * sp[i] * cr[i] - cy[i] * sr[i])
                 (-sp[i]) (cp[i] * sr[i]) (cp[i] * cr[i])
             ]
-            at_[i=0:nh], R[i] * [0; 0; at[i]]
+            at_[i = 0:nh], R[i] * [0; 0; at[i]]
             g_, [0; 0; -g]
-            a[i=0:nh], at_[i] + g_
+            a[i = 0:nh], at_[i] + g_
 
             # objective
-            dc[i=0:nh], 1e-8 * (at[i]^2 + ϕ[i]^2 + θ[i]^2 + ψ[i]^2) + 1e2 * (ψ[i] - u0[3])^2
-
+            dc[i = 0:nh],
+            1e-8 * (at[i]^2 + ϕ[i]^2 + θ[i]^2 + ψ[i]^2) + 1e2 * (ψ[i] - u0[3])^2
         end
     )
 
     @constraints(
         model,
         begin
-            ∂p₁[i=1:nh], p₁[i] == p₁[i - 1] + 0.5 * step * (v₁[i] + v₁[i - 1])
-            ∂p₂[i=1:nh], p₂[i] == p₂[i - 1] + 0.5 * step * (v₂[i] + v₂[i - 1])
-            ∂p₃[i=1:nh], p₃[i] == p₃[i - 1] + 0.5 * step * (v₃[i] + v₃[i - 1])
-            ∂v₁[i=1:nh], v₁[i] == v₁[i - 1] + 0.5 * step * (a[i][1] + a[i - 1][1])
-            ∂v₂[i=1:nh], v₂[i] == v₂[i - 1] + 0.5 * step * (a[i][2] + a[i - 1][2])
-            ∂v₃[i=1:nh], v₃[i] == v₃[i - 1] + 0.5 * step * (a[i][3] + a[i - 1][3])
-             ∂ϕ[i=1:nh],  ϕ[i] ==  ϕ[i - 1] + 0.5 * step * (dϕ[i] + dϕ[i - 1])
-             ∂θ[i=1:nh],  θ[i] ==  θ[i - 1] + 0.5 * step * (dθ[i] + dθ[i - 1])
+            ∂p₁[i = 1:nh], p₁[i] == p₁[i - 1] + 0.5 * step * (v₁[i] + v₁[i - 1])
+            ∂p₂[i = 1:nh], p₂[i] == p₂[i - 1] + 0.5 * step * (v₂[i] + v₂[i - 1])
+            ∂p₃[i = 1:nh], p₃[i] == p₃[i - 1] + 0.5 * step * (v₃[i] + v₃[i - 1])
+            ∂v₁[i = 1:nh], v₁[i] == v₁[i - 1] + 0.5 * step * (a[i][1] + a[i - 1][1])
+            ∂v₂[i = 1:nh], v₂[i] == v₂[i - 1] + 0.5 * step * (a[i][2] + a[i - 1][2])
+            ∂v₃[i = 1:nh], v₃[i] == v₃[i - 1] + 0.5 * step * (a[i][3] + a[i - 1][3])
+            ∂ϕ[i = 1:nh], ϕ[i] == ϕ[i - 1] + 0.5 * step * (dϕ[i] + dϕ[i - 1])
+            ∂θ[i = 1:nh], θ[i] == θ[i - 1] + 0.5 * step * (dθ[i] + dθ[i - 1])
         end
     )
 
     # objective
-    @objective(model, Min, tf + 0.5 * step * sum(dc[i] + dc[i-1] for i in 1:nh))
+    @objective(model, Min, tf + 0.5 * step * sum(dc[i] + dc[i - 1] for i in 1:nh))
 
     return model
 end

@@ -52,7 +52,6 @@ function OptimalControlProblems.moonlander(
 
         # objective
         tf → min
-        
     end
 
     # dynamics

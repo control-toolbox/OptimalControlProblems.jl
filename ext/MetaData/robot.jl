@@ -7,6 +7,5 @@ robot_meta = Dict(
     :state_name => ["ρ", "dρ", "θ", "dθ", "ϕ", "dϕ"],
     :costate_name => ["∂ρ", "∂dρ", "∂θ", "∂dθ", "∂ϕ", "∂dϕ"],
     :control_name => ["uρ", "uθ", "uϕ"],
-    :time => ("final_time", "tf", nothing)
+    :time => ("final_time", "tf", nothing),
 )
-

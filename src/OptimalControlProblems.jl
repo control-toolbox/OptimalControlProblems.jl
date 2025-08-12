@@ -49,10 +49,10 @@ const types = [
     Union{Int,Nothing},
     Union{Int,Nothing},
     Union{Bool,Nothing},
-    Union{Vector{String}, String, Nothing}, 
-    Union{Vector{String}, String, Nothing}, 
-    Union{Vector{String}, String, Nothing},  
-    Union{Tuple{String, String, Union{Real,Nothing}}, Nothing},
+    Union{Vector{String},String,Nothing},
+    Union{Vector{String},String,Nothing},
+    Union{Vector{String},String,Nothing},
+    Union{Tuple{String,String,Union{Real,Nothing}},Nothing},
 ]
 
 """
@@ -92,9 +92,9 @@ function available_problems()
     list_of_problems = filter(
         x ->
             isdefined(OptimalControlProblems, x) &&
-                isa(getfield(OptimalControlProblems, x), Function) &&
-                !startswith(string(x), "#") &&
-                !(x in [:eval, :include, :available_problems]),
+            isa(getfield(OptimalControlProblems, x), Function) &&
+            !startswith(string(x), "#") &&
+            !(x in [:eval, :include, :available_problems]),
         all_names,
     )
 

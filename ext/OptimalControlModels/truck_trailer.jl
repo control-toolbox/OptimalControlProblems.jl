@@ -37,7 +37,6 @@ function OptimalControlProblems.truck_trailer(
 
     # model
     ocp = @def begin
-
         tf ∈ R, variable
         t ∈ [0, tf], time
         x = (x2, y2, θ0, θ1, θ2, v0, δ0) ∈ R⁷, state
@@ -53,7 +52,7 @@ function OptimalControlProblems.truck_trailer(
 
         # final time constraints
         1 ≤ tf ≤ 1000
-        
+
         # state constraints
         -π / 2 ≤ θ0(t) ≤ π / 2, (θ0_con)
         -π / 2 ≤ θ1(t) ≤ π / 2, (θ1_con)
@@ -86,8 +85,7 @@ function OptimalControlProblems.truck_trailer(
         ẋ(t) == dynamics(x(t), u(t))
 
         # objective
-        tf + ∫( β01(t)^2 + β12(t)^2 ) → min
-
+        tf + ∫(β01(t)^2 + β12(t)^2) → min
     end
 
     function dynamics(x, u)

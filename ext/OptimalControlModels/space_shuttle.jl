@@ -47,9 +47,9 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=5
 
     # model
     ocp = @def begin
-  
+
         ## define the problem
-        tf ∈ R¹, variable 
+        tf ∈ R¹, variable
         t ∈ [0, tf], time
         x = (scaled_h, ϕ, θ, scaled_v, γ, ψ) ∈ R⁶, state
         u = (α, β) ∈ R², control
@@ -86,12 +86,10 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=5
 
         ## objective
         -θ(tf) → min
-
     end
 
     ## dynamics
     function dynamics(x, u)
-
         scaled_h, ϕ, θ, scaled_v, γ, ψ = x
         α, β = u
         h = scaled_h * 1e5
@@ -123,12 +121,15 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=5
     # variable time step seems to be initialized at 1 in jump
     # note that ipopt will project the initial guess inside the bounds anyway.
     tf_init = (tf_min+tf_max)/2
-    x_init = t -> [ h_s + t / tf_init * (h_t - h_s) ,
-    ϕ_s,
-    θ_s,
-    v_s + t / tf_init * (v_t - v_s),
-    γ_s + t / tf_init * (γ_t - γ_s),
-    ψ_s]
+    x_init =
+        t -> [
+            h_s + t / tf_init * (h_t - h_s),
+            ϕ_s,
+            θ_s,
+            v_s + t / tf_init * (v_t - v_s),
+            γ_s + t / tf_init * (γ_t - γ_s),
+            ψ_s,
+        ]
     init = (state=x_init, control=[α_s, β_s], variable=[tf_init])
 
     # DOCP and NLP

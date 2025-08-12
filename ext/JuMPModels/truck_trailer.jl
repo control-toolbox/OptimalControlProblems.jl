@@ -57,7 +57,6 @@ function OptimalControlProblems.truck_trailer(
             # Control variables
             -1 <= dv0[0:nh] <= 1, (start = 0.1)
             -π / 10 <= dδ0[0:nh] <= π / 10, (start = 0.1)
-
         end
     )
 
@@ -76,8 +75,8 @@ function OptimalControlProblems.truck_trailer(
     @expressions(
         model,
         begin
-            β01[i=0:nh], θ0[i] - θ1[i]
-            β12[i=0:nh], θ1[i] - θ2[i]
+            β01[i = 0:nh], θ0[i] - θ1[i]
+            β12[i = 0:nh], θ1[i] - θ2[i]
             step, tf / nh
         end
     )
@@ -85,8 +84,8 @@ function OptimalControlProblems.truck_trailer(
     @constraints(
         model,
         begin
-            β01_con[i=0:nh], -π / 2 <= β01[i] <= π / 2
-            β12_con[i=0:nh], -π / 2 <= β12[i] <= π / 2
+            β01_con[i = 0:nh], -π / 2 <= β01[i] <= π / 2
+            β12_con[i = 0:nh], -π / 2 <= β12[i] <= π / 2
         end
     )
 
@@ -108,47 +107,38 @@ function OptimalControlProblems.truck_trailer(
             θ2[nh] == θ2_tf
             β01[nh] == θ0_tf - θ1_tf
             β12[nh] == θ1_tf - θ2_tf
-
         end
     )
 
-    @expression(model, dθ0[i=0:nh], v0[i] / L0 * tan(δ0[i]))
+    @expression(model, dθ0[i = 0:nh], v0[i] / L0 * tan(δ0[i]))
     @expression(
-        model,
-        dθ1[i=0:nh],
-        v0[i] / L1 * sin(β01[i]) - M0 / L1 * cos(β01[i]) * dθ0[i]
+        model, dθ1[i = 0:nh], v0[i] / L1 * sin(β01[i]) - M0 / L1 * cos(β01[i]) * dθ0[i]
     )
+    @expression(model, v1[i = 0:nh], v0[i] * cos(β01[i]) + M0 * sin(β01[i]) * dθ0[i])
     @expression(
-        model, v1[i=0:nh], v0[i] * cos(β01[i]) + M0 * sin(β01[i]) * dθ0[i]
+        model, dθ2[i = 0:nh], v1[i] / L2 * sin(β12[i]) - M1 / L2 * cos(β12[i]) * dθ1[i]
     )
-    @expression(
-        model,
-        dθ2[i=0:nh],
-        v1[i] / L2 * sin(β12[i]) - M1 / L2 * cos(β12[i]) * dθ1[i]
-    )
-    @expression(
-        model, v2[i=0:nh], v1[i] * cos(β12[i]) + M1 * sin(β12[i]) * dθ1[i]
-    )
-    @expression(model, dx2[i=0:nh], v2[i] * cos(θ2[i]))
-    @expression(model, dy2[i=0:nh], v2[i] * sin(θ2[i]))
+    @expression(model, v2[i = 0:nh], v1[i] * cos(β12[i]) + M1 * sin(β12[i]) * dθ1[i])
+    @expression(model, dx2[i = 0:nh], v2[i] * cos(θ2[i]))
+    @expression(model, dy2[i = 0:nh], v2[i] * sin(θ2[i]))
 
     # Dynamics
     @constraints(
         model,
         begin
-            ∂x2[i=1:nh], x2[i] == x2[i - 1] + 0.5 * step * (dx2[i] + dx2[i - 1])
-            ∂y2[i=1:nh], y2[i] == y2[i - 1] + 0.5 * step * (dy2[i] + dy2[i - 1])
-            ∂θ0[i=1:nh], θ0[i] == θ0[i - 1] + 0.5 * step * (dθ0[i] + dθ0[i - 1])
-            ∂θ1[i=1:nh], θ1[i] == θ1[i - 1] + 0.5 * step * (dθ1[i] + dθ1[i - 1])
-            ∂θ2[i=1:nh], θ2[i] == θ2[i - 1] + 0.5 * step * (dθ2[i] + dθ2[i - 1])
-            ∂v0[i=1:nh], v0[i] == v0[i - 1] + 0.5 * step * (dv0[i] + dv0[i - 1])
-            ∂δ0[i=1:nh], δ0[i] == δ0[i - 1] + 0.5 * step * (dδ0[i] + dδ0[i - 1])
+            ∂x2[i = 1:nh], x2[i] == x2[i - 1] + 0.5 * step * (dx2[i] + dx2[i - 1])
+            ∂y2[i = 1:nh], y2[i] == y2[i - 1] + 0.5 * step * (dy2[i] + dy2[i - 1])
+            ∂θ0[i = 1:nh], θ0[i] == θ0[i - 1] + 0.5 * step * (dθ0[i] + dθ0[i - 1])
+            ∂θ1[i = 1:nh], θ1[i] == θ1[i - 1] + 0.5 * step * (dθ1[i] + dθ1[i - 1])
+            ∂θ2[i = 1:nh], θ2[i] == θ2[i - 1] + 0.5 * step * (dθ2[i] + dθ2[i - 1])
+            ∂v0[i = 1:nh], v0[i] == v0[i - 1] + 0.5 * step * (dv0[i] + dv0[i - 1])
+            ∂δ0[i = 1:nh], δ0[i] == δ0[i - 1] + 0.5 * step * (dδ0[i] + dδ0[i - 1])
         end
     )
 
     # objective
-    @expression(model, dc[i=0:nh], β01[i]^2 + β12[i]^2)
-    @objective(model, Min, tf + 0.5 * step * sum(dc[i] + dc[i-1] for i in 1:nh))
+    @expression(model, dc[i = 0:nh], β01[i]^2 + β12[i]^2)
+    @objective(model, Min, tf + 0.5 * step * sum(dc[i] + dc[i - 1] for i in 1:nh))
 
     return model
 end

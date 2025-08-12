@@ -48,36 +48,35 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; nh::Int=500)
             step, T / nh
 
             # intermediate variables
-            growth[k=0:nh], μ2m * s[k] / (s[k] + Ks)
-            μ2[k=0:nh], growth[k]
+            growth[k = 0:nh], μ2m * s[k] / (s[k] + Ks)
+            μ2[k = 0:nh], growth[k]
 
-            days[k=0:nh], (k * step) / (halfperiod * 2)
-            tau[k=0:nh], (days[k] - floor(days[k])) * 2π
-            light[k=0:nh], max(0, sin(tau[k]))^2
-            μ[k=0:nh], light[k] * μbar
+            days[k = 0:nh], (k * step) / (halfperiod * 2)
+            tau[k = 0:nh], (days[k] - floor(days[k])) * 2π
+            light[k = 0:nh], max(0, sin(tau[k]))^2
+            μ[k = 0:nh], light[k] * μbar
 
             # dynamics
-            dy[k=0:nh], μ[k] * y[k] / (1 + y[k]) - (r + u[k]) * y[k]
-            ds[k=0:nh], -μ2[k] * b[k] + u[k] * β * (gamma * y[k] - s[k])
-            db[k=0:nh], (μ2[k] - u[k] * β) * b[k]
+            dy[k = 0:nh], μ[k] * y[k] / (1 + y[k]) - (r + u[k]) * y[k]
+            ds[k = 0:nh], -μ2[k] * b[k] + u[k] * β * (gamma * y[k] - s[k])
+            db[k = 0:nh], (μ2[k] - u[k] * β) * b[k]
 
             # objective
-            dc[k=0:nh], -μ2[k] * b[k] / (β + c)
-
+            dc[k = 0:nh], -μ2[k] * b[k] / (β + c)
         end
     )
 
     @constraints(
         model,
         begin
-            ∂y[k=1:nh], y[k] == y[k - 1] + 0.5 * step * (dy[k] + dy[k - 1])
-            ∂s[k=1:nh], s[k] == s[k - 1] + 0.5 * step * (ds[k] + ds[k - 1])
-            ∂b[k=1:nh], b[k] == b[k - 1] + 0.5 * step * (db[k] + db[k - 1])
+            ∂y[k = 1:nh], y[k] == y[k - 1] + 0.5 * step * (dy[k] + dy[k - 1])
+            ∂s[k = 1:nh], s[k] == s[k - 1] + 0.5 * step * (ds[k] + ds[k - 1])
+            ∂b[k = 1:nh], b[k] == b[k - 1] + 0.5 * step * (db[k] + db[k - 1])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(dc[k] + dc[k-1] for k in 1:nh))
+    @objective(model, Min, 0.5 * step * sum(dc[k] + dc[k - 1] for k in 1:nh))
 
     return model
 end

@@ -7,5 +7,5 @@ electric_vehicle_meta = Dict(
     :state_name => ["x", "v"],
     :costate_name => ["∂x", "∂v"],
     :control_name => "u",
-    :time => ("final_time", "tf", 1)
+    :time => ("final_time", "tf", 1),
 )

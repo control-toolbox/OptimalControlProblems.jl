@@ -15,7 +15,6 @@ function OptimalControlProblems.ducted_fan(::OptimalControlBackend; nh::Int=250)
     μ = 1000
 
     ocp = @def begin
-
         tf ∈ R, variable
         t ∈ [0, tf], time
         x = (x₁, v₁, x₂, v₂, α, vα) ∈ R⁶, state
@@ -52,11 +51,9 @@ function OptimalControlProblems.ducted_fan(::OptimalControlBackend; nh::Int=250)
 
         # objective
         (1 / tf) * ∫(2 * u₁(t)^2 + u₂(t)^2) + (μ * tf) → min
-
     end
 
     function dynamics(v₁, v₂, α, vα, u₁, u₂)
-
         dx₁ = v₁
         dv₁ = (u₁ * cos(α) - u₂ * sin(α)) / m
         dx₂ = v₂

@@ -5,7 +5,7 @@ Particle Steering Problem:
     The problem is formulated as a JuMP model, and can be found [here](https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/steering.jl)
 """
 function OptimalControlProblems.steering(::JuMPBackend; nh::Int=500)
-    
+
     # parameters
     a = 100
     u_min = -π/2
@@ -28,11 +28,11 @@ function OptimalControlProblems.steering(::JuMPBackend; nh::Int=500)
     # model
     model = JuMP.Model()
 
-    @variable(model, u_min <= u[i=1:(nh + 1)] <= u_max, start = 0)   # control
-    @variable(model, x1[i=1:(nh + 1)], start = gen_x0(i, 1))           # state x1
-    @variable(model, x2[i=1:(nh + 1)], start = gen_x0(i, 2))           # state x2
-    @variable(model, x3[i=1:(nh + 1)], start = gen_x0(i, 3))           # state x3
-    @variable(model, x4[i=1:(nh + 1)], start = gen_x0(i, 4))           # state x4
+    @variable(model, u_min <= u[i = 1:(nh + 1)] <= u_max, start = 0)   # control
+    @variable(model, x1[i = 1:(nh + 1)], start = gen_x0(i, 1))           # state x1
+    @variable(model, x2[i = 1:(nh + 1)], start = gen_x0(i, 2))           # state x2
+    @variable(model, x3[i = 1:(nh + 1)], start = gen_x0(i, 3))           # state x3
+    @variable(model, x4[i = 1:(nh + 1)], start = gen_x0(i, 4))           # state x4
     @variable(model, tf, start = tf_start)                             # final time
 
     @expression(model, Δt, tf / nh) # step size
@@ -53,10 +53,12 @@ function OptimalControlProblems.steering(::JuMPBackend; nh::Int=500)
     @constraints(
         model,
         begin
-            ∂x1[i=1:nh], x1[i + 1] == x1[i] + 0.5 * Δt * (x3[i] + x3[i + 1])
-            ∂x2[i=1:nh], x2[i + 1] == x2[i] + 0.5 * Δt * (x4[i] + x4[i + 1])
-            ∂x3[i=1:nh], x3[i + 1] == x3[i] + 0.5 * Δt * (a * cos(u[i]) + a * cos(u[i + 1]))
-            ∂x4[i=1:nh], x4[i + 1] == x4[i] + 0.5 * Δt * (a * sin(u[i]) + a * sin(u[i + 1]))
+            ∂x1[i = 1:nh], x1[i + 1] == x1[i] + 0.5 * Δt * (x3[i] + x3[i + 1])
+            ∂x2[i = 1:nh], x2[i + 1] == x2[i] + 0.5 * Δt * (x4[i] + x4[i + 1])
+            ∂x3[i = 1:nh],
+            x3[i + 1] == x3[i] + 0.5 * Δt * (a * cos(u[i]) + a * cos(u[i + 1]))
+            ∂x4[i = 1:nh],
+            x4[i + 1] == x4[i] + 0.5 * Δt * (a * sin(u[i]) + a * sin(u[i + 1]))
         end
     )
 

@@ -28,12 +28,11 @@ function OptimalControlProblems.glider(::OptimalControlBackend; nh::Int=500)
 
     # model
     ocp = @def begin
-
         tf ∈ R, variable
         t ∈ [0, tf], time
         z = (x, y, vx, vy) ∈ R⁴, state
         cL ∈ R, control
-        
+
         # state constraints
         x(t) ≥ 0, (x_con)
         vx(t) ≥ 0, (vx_con)
@@ -58,11 +57,9 @@ function OptimalControlProblems.glider(::OptimalControlBackend; nh::Int=500)
 
         # objective
         -x(tf) → min
-
     end
 
     function dynamics(x, vx, vy, cL)
-
         r = (x / r_0 - 2.5)^2
         UpD = u_c * (1 - r) * exp(-r)
         w = vy - UpD
@@ -70,13 +67,12 @@ function OptimalControlProblems.glider(::OptimalControlBackend; nh::Int=500)
         D = 0.5 * (c0 + c1 * (cL^2)) * ρ * S * (v^2)
         L = 0.5 * cL * ρ * S * (v^2)
 
-        ∂x  = vx
-        ∂y  = vy
-        ∂vx = -(L *  w + D * vx) / (m * v)
-        ∂vy =  (L * vx - D *  w) / (m * v) - g
+        ∂x = vx
+        ∂y = vy
+        ∂vx = -(L * w + D * vx) / (m * v)
+        ∂vy = (L * vx - D * w) / (m * v) - g
 
         return [∂x, ∂y, ∂vx, ∂vy]
-
     end
 
     # Initial guess

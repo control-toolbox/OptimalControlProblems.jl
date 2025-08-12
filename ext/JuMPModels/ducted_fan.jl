@@ -48,7 +48,6 @@ function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=250)
             v₂[nh] == 0
             α[nh] == 0
             vα[nh] == 0
-
         end
     )
 
@@ -61,33 +60,34 @@ function OptimalControlProblems.ducted_fan(::JuMPBackend; nh::Int=250)
             step, tf / nh
 
             # dynamics
-            dx₁[k=0:nh], v₁[k]
-            dv₁[k=0:nh], (u₁[k] * cos(α[k]) - u₂[k] * sin(α[k])) / m
-            dx₂[k=0:nh], v₂[k]
-            dv₂[k=0:nh], (-mg + u₁[k] * sin(α[k]) + u₂[k] * cos(α[k])) / m
-            dα[k=0:nh], vα[k]
-            dvα[k=0:nh], r * u₁[k] / J
+            dx₁[k = 0:nh], v₁[k]
+            dv₁[k = 0:nh], (u₁[k] * cos(α[k]) - u₂[k] * sin(α[k])) / m
+            dx₂[k = 0:nh], v₂[k]
+            dv₂[k = 0:nh], (-mg + u₁[k] * sin(α[k]) + u₂[k] * cos(α[k])) / m
+            dα[k = 0:nh], vα[k]
+            dvα[k = 0:nh], r * u₁[k] / J
 
             # objective
-            dc[k=0:nh], 2 * u₁[k]^2 + u₂[k]^2
-
+            dc[k = 0:nh], 2 * u₁[k]^2 + u₂[k]^2
         end
     )
-    
+
     @constraints(
         model,
         begin
-            ∂x₁[k=1:nh], x₁[k] == x₁[k - 1] + 0.5 * step * (dx₁[k] + dx₁[k - 1])
-            ∂v₁[k=1:nh], v₁[k] == v₁[k - 1] + 0.5 * step * (dv₁[k] + dv₁[k - 1])
-            ∂x₂[k=1:nh], x₂[k] == x₂[k - 1] + 0.5 * step * (dx₂[k] + dx₂[k - 1])
-            ∂v₂[k=1:nh], v₂[k] == v₂[k - 1] + 0.5 * step * (dv₂[k] + dv₂[k - 1])
-            ∂α[k=1:nh],   α[k] ==  α[k - 1] + 0.5 * step * ( dα[k] +  dα[k - 1])
-            ∂vα[k=1:nh], vα[k] == vα[k - 1] + 0.5 * step * (dvα[k] + dvα[k - 1])
+            ∂x₁[k = 1:nh], x₁[k] == x₁[k - 1] + 0.5 * step * (dx₁[k] + dx₁[k - 1])
+            ∂v₁[k = 1:nh], v₁[k] == v₁[k - 1] + 0.5 * step * (dv₁[k] + dv₁[k - 1])
+            ∂x₂[k = 1:nh], x₂[k] == x₂[k - 1] + 0.5 * step * (dx₂[k] + dx₂[k - 1])
+            ∂v₂[k = 1:nh], v₂[k] == v₂[k - 1] + 0.5 * step * (dv₂[k] + dv₂[k - 1])
+            ∂α[k = 1:nh], α[k] == α[k - 1] + 0.5 * step * (dα[k] + dα[k - 1])
+            ∂vα[k = 1:nh], vα[k] == vα[k - 1] + 0.5 * step * (dvα[k] + dvα[k - 1])
         end
     )
 
     # objective
-    @objective(model, Min, (1 / tf) * 0.5 * step * sum(dc[k] + dc[k-1] for k in 1:nh) + (μ * tf))
+    @objective(
+        model, Min, (1 / tf) * 0.5 * step * sum(dc[k] + dc[k - 1] for k in 1:nh) + (μ * tf)
+    )
 
     return model
 end

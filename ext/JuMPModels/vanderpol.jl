@@ -40,25 +40,24 @@ function OptimalControlProblems.vanderpol(::JuMPBackend; nh::Int=500)
             step, tf / nh
 
             # dynamics
-            dx1[i=0:nh], x2[i]
-            dx2[i=0:nh], ε * ω * (1 - x1[i]^2) * x2[i] - ω^2 * x1[i] + u[i]
+            dx1[i = 0:nh], x2[i]
+            dx2[i = 0:nh], ε * ω * (1 - x1[i]^2) * x2[i] - ω^2 * x1[i] + u[i]
 
             # objective
-            dc[i=0:nh], 0.5 * (x1[i]^2 + x2[i]^2 + u[i]^2)
-
+            dc[i = 0:nh], 0.5 * (x1[i]^2 + x2[i]^2 + u[i]^2)
         end
     )
 
     @constraints(
         model,
         begin
-            ∂x1[i=1:nh], x1[i] == x1[i - 1] + 0.5 * step * (dx1[i] + dx1[i - 1])
-            ∂x2[i=1:nh], x2[i] == x2[i - 1] + 0.5 * step * (dx2[i] + dx2[i - 1])
+            ∂x1[i = 1:nh], x1[i] == x1[i - 1] + 0.5 * step * (dx1[i] + dx1[i - 1])
+            ∂x2[i = 1:nh], x2[i] == x2[i - 1] + 0.5 * step * (dx2[i] + dx2[i - 1])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i-1] for i in 1:nh))
+    @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i - 1] for i in 1:nh))
 
     return model
 end

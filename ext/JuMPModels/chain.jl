@@ -22,7 +22,7 @@ function OptimalControlProblems.chain(::JuMPBackend; nh::Int=500)
     @expressions(
         model,
         begin
-            t[k=0:nh], k * tf / nh
+            t[k = 0:nh], k * tf / nh
         end
     )
 
@@ -30,15 +30,16 @@ function OptimalControlProblems.chain(::JuMPBackend; nh::Int=500)
     @variables(
         model,
         begin
-            u[k=0:nh],    (start = 4 * abs(b - a) * (t[k] / tf - tmin))
-            x1[k=0:nh],   (start = 4 * abs(b - a) * t[k] / tf * (0.5 * t[k] / tf - tmin) + a)
-            x2[k=0:nh],
+            u[k = 0:nh], (start = 4 * abs(b - a) * (t[k] / tf - tmin))
+            x1[k = 0:nh],
+            (start = 4 * abs(b - a) * t[k] / tf * (0.5 * t[k] / tf - tmin) + a)
+            x2[k = 0:nh],
             (
                 start =
                     (4 * abs(b - a) * t[k] / tf * (0.5 * t[k] / tf - tmin) + a) *
                     (4 * abs(b - a) * (t[k] / tf - tmin))
             )
-            x3[k=0:nh],   (start = 4 * abs(b - a) * (t[k] / tf - tmin))
+            x3[k = 0:nh], (start = 4 * abs(b - a) * (t[k] / tf - tmin))
         end
     )
 
@@ -58,18 +59,18 @@ function OptimalControlProblems.chain(::JuMPBackend; nh::Int=500)
         model,
         begin
             step, tf / nh
-            dx1[k=0:nh], u[k]
-            dx2[k=0:nh], x1[k] * √(1 + u[k]^2)
-            dx3[k=0:nh], √(1 + u[k]^2)
+            dx1[k = 0:nh], u[k]
+            dx2[k = 0:nh], x1[k] * √(1 + u[k]^2)
+            dx3[k = 0:nh], √(1 + u[k]^2)
         end
     )
 
     @constraints(
         model,
         begin
-            ∂x1[k=1:nh], x1[k] == x1[k - 1] + 0.5 * step * (dx1[k] + dx1[k - 1])
-            ∂x2[k=1:nh], x2[k] == x2[k - 1] + 0.5 * step * (dx2[k] + dx2[k - 1])
-            ∂x3[k=1:nh], x3[k] == x3[k - 1] + 0.5 * step * (dx3[k] + dx3[k - 1])
+            ∂x1[k = 1:nh], x1[k] == x1[k - 1] + 0.5 * step * (dx1[k] + dx1[k - 1])
+            ∂x2[k = 1:nh], x2[k] == x2[k - 1] + 0.5 * step * (dx2[k] + dx2[k - 1])
+            ∂x3[k = 1:nh], x3[k] == x3[k - 1] + 0.5 * step * (dx3[k] + dx3[k - 1])
         end
     )
 

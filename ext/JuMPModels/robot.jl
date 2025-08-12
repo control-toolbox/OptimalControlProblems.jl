@@ -28,20 +28,19 @@ function OptimalControlProblems.robot(::JuMPBackend; nh::Int=250)
     @variables(
         model,
         begin
+            0 <= ρ[k = 0:nh] <= L, (start = ρ0)
+            -π <= θ[k = 0:nh] <= π, (start = 2π/3 * (k / nh)^2)
+            0 <= ϕ[k = 0:nh] <= π, (start = ϕ0)
 
-            0 <= ρ[k=0:nh] <= L,                (start = ρ0)
-           -π <= θ[k=0:nh] <= π,                (start = 2π/3 * (k / nh)^2)
-            0 <= ϕ[k=0:nh] <= π,                (start = ϕ0)
+            dρ[k = 0:nh], (start = 0)
+            dθ[k = 0:nh], (start = 4π/3 * (k / nh))
+            dϕ[k = 0:nh], (start = 0)
 
-            dρ[k=0:nh],                         (start = 0)
-            dθ[k=0:nh],                         (start = 4π/3 * (k / nh))
-            dϕ[k=0:nh],                         (start = 0)
+            -max_uρ <= uρ[0:nh] <= max_uρ, (start = 0)
+            -max_uθ <= uθ[0:nh] <= max_uθ, (start = 0)
+            -max_uϕ <= uϕ[0:nh] <= max_uϕ, (start = 0)
 
-            -max_uρ <= uρ[0:nh] <= max_uρ,      (start = 0)
-            -max_uθ <= uθ[0:nh] <= max_uθ,      (start = 0)
-            -max_uϕ <= uϕ[0:nh] <= max_uϕ,      (start = 0)
-
-            tf >= 0.1,                          (start = 1)
+            tf >= 0.1, (start = 1)
         end
     )
 
@@ -65,7 +64,6 @@ function OptimalControlProblems.robot(::JuMPBackend; nh::Int=250)
             dρ[nh] == 0
             dθ[nh] == 0
             dϕ[nh] == 0
-
         end
     )
 
@@ -78,26 +76,25 @@ function OptimalControlProblems.robot(::JuMPBackend; nh::Int=250)
             step, tf / nh
 
             #
-            I_θ[i=0:nh], ((L - ρ[i])^3 + ρ[i]^3) * (sin(ϕ[i]))^2
-            I_ϕ[i=0:nh], (L - ρ[i])^3 + ρ[i]^3
+            I_θ[i = 0:nh], ((L - ρ[i])^3 + ρ[i]^3) * (sin(ϕ[i]))^2
+            I_ϕ[i = 0:nh], (L - ρ[i])^3 + ρ[i]^3
 
             #
-            ddρ[i=0:nh], uρ[i] / L
-            ddθ[i=0:nh], 3 * uθ[i] / I_θ[i]
-            ddϕ[i=0:nh], 3 * uϕ[i] / I_ϕ[i]
-
+            ddρ[i = 0:nh], uρ[i] / L
+            ddθ[i = 0:nh], 3 * uθ[i] / I_θ[i]
+            ddϕ[i = 0:nh], 3 * uϕ[i] / I_ϕ[i]
         end
     )
 
     @constraints(
         model,
         begin
-            ∂ρ[i=1:nh],   ρ[i] ==  ρ[i - 1] + 0.5 * step * ( dρ[i] +  dρ[i - 1])
-            ∂ϕ[i=1:nh],   ϕ[i] ==  ϕ[i - 1] + 0.5 * step * ( dϕ[i] +  dϕ[i - 1])
-            ∂θ[i=1:nh],   θ[i] ==  θ[i - 1] + 0.5 * step * ( dθ[i] +  dθ[i - 1])
-            ∂dρ[i=1:nh], dρ[i] == dρ[i - 1] + 0.5 * step * (ddρ[i] + ddρ[i - 1])
-            ∂dθ[i=1:nh], dθ[i] == dθ[i - 1] + 0.5 * step * (ddθ[i] + ddθ[i - 1])
-            ∂dϕ[i=1:nh], dϕ[i] == dϕ[i - 1] + 0.5 * step * (ddϕ[i] + ddϕ[i - 1])
+            ∂ρ[i = 1:nh], ρ[i] == ρ[i - 1] + 0.5 * step * (dρ[i] + dρ[i - 1])
+            ∂ϕ[i = 1:nh], ϕ[i] == ϕ[i - 1] + 0.5 * step * (dϕ[i] + dϕ[i - 1])
+            ∂θ[i = 1:nh], θ[i] == θ[i - 1] + 0.5 * step * (dθ[i] + dθ[i - 1])
+            ∂dρ[i = 1:nh], dρ[i] == dρ[i - 1] + 0.5 * step * (ddρ[i] + ddρ[i - 1])
+            ∂dθ[i = 1:nh], dθ[i] == dθ[i - 1] + 0.5 * step * (ddθ[i] + ddθ[i - 1])
+            ∂dϕ[i = 1:nh], dϕ[i] == dϕ[i - 1] + 0.5 * step * (ddϕ[i] + ddϕ[i - 1])
         end
     )
 

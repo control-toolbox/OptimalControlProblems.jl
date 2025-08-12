@@ -22,7 +22,6 @@ function OptimalControlProblems.rocket(::OptimalControlBackend; nh::Int=500)
 
     # Model
     ocp = @def begin
-
         tf ∈ R, variable
         t ∈ [0, tf], time
         x = (h, v, m) ∈ R³, state
@@ -52,14 +51,13 @@ function OptimalControlProblems.rocket(::OptimalControlBackend; nh::Int=500)
 
         # objective
         -h(tf) → min
-
     end
 
     # dynamics
     function dynamics(h, v, m, T)
         D = (Dc * v^2 * exp(-hc * (h - h0)) / h0)
         g = g0 * (h0 / h)^2
-        return [v, (T - D - m * g) / m, -T / c,]
+        return [v, (T - D - m * g) / m, -T / c]
     end
 
     # initial guess
