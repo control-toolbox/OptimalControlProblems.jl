@@ -34,7 +34,7 @@ function OptimalControlProblems.electric_vehicle(::JuMPBackend; nh::Int=500)
             v[nh] == 0
         end
     )
-    
+
     # dynamics
     @expressions(
         model,
@@ -42,28 +42,27 @@ function OptimalControlProblems.electric_vehicle(::JuMPBackend; nh::Int=500)
 
             #
             step, tf / nh
-            road[k=0:nh], α0 + α1 * x[k] + α2 * x[k]^2 + α3 * x[k]^3
+            road[k = 0:nh], α0 + α1 * x[k] + α2 * x[k]^2 + α3 * x[k]^3
 
             # dynamics
-            dx[k=0:nh], v[k]
-            dv[k=0:nh], h1 * u[k] - h2 * v[k]^2 - h0 - road[k]
-            
-            # objective
-            dc[k=0:nh], b1 * u[k] * v[k] + b2 * u[k]^2
+            dx[k = 0:nh], v[k]
+            dv[k = 0:nh], h1 * u[k] - h2 * v[k]^2 - h0 - road[k]
 
+            # objective
+            dc[k = 0:nh], b1 * u[k] * v[k] + b2 * u[k]^2
         end
     )
 
     @constraints(
         model,
         begin
-            ∂x[k=1:nh], x[k] == x[k - 1] + 0.5 * step * (dx[k - 1] + dx[k])
-            ∂v[k=1:nh], v[k] == v[k - 1] + 0.5 * step * (dv[k - 1] + dv[k])
+            ∂x[k = 1:nh], x[k] == x[k - 1] + 0.5 * step * (dx[k - 1] + dx[k])
+            ∂v[k = 1:nh], v[k] == v[k - 1] + 0.5 * step * (dv[k - 1] + dv[k])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(dc[k] + dc[k-1] for k in 1:nh))
+    @objective(model, Min, 0.5 * step * sum(dc[k] + dc[k - 1] for k in 1:nh))
 
     return model
 end

@@ -11,17 +11,15 @@ function OptimalControlProblems.vanderpol(::OptimalControlBackend; nh::Int=500)
 
     # model
     ocp = @def begin
-
         t ∈ [0, tf], time
         x ∈ R², state
         u ∈ R, control
 
         x(0) == [1, 0]
-        
+
         ẋ(t) == [x[2](t), ε * ω * (1 - x[1](t)^2) * x[2](t) - ω^2 * x[1](t) + u(t)]
 
-        0.5∫( x[1](t)^2 + x[2](t)^2 + u(t)^2 ) → min
-
+        0.5∫(x[1](t)^2 + x[2](t)^2 + u(t)^2) → min
     end
 
     # initial guess

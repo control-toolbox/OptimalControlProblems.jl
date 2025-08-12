@@ -18,7 +18,6 @@ function OptimalControlProblems.electric_vehicle(::OptimalControlBackend; nh=500
 
     # model
     ocp = @def begin
-        
         t ∈ [0, tf], time
         y = (x, v) ∈ R², state
         u ∈ R, control
@@ -31,7 +30,6 @@ function OptimalControlProblems.electric_vehicle(::OptimalControlBackend; nh=500
         ẏ(t) == dynamics(x(t), v(t), u(t))
 
         ∫(b1 * u(t) * v(t) + b2 * u(t)^2) → min
-
     end
 
     road(x) = α0 + α1 * x + α2 * x^2 + α3 * x^3

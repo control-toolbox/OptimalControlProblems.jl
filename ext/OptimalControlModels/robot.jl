@@ -5,7 +5,7 @@ Robot arm problem:
     The problem is formulated as an OptimalControl model.
 """
 function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=250)
-    
+
     # parameters
 
     # total length of arm
@@ -22,7 +22,6 @@ function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=250)
     θf = 2π/3
 
     ocp = @def begin
-        
         tf ∈ R, variable
         t ∈ [0, tf], time
         x = (ρ, dρ, θ, dθ, ϕ, dϕ) ∈ R⁶, state
@@ -31,9 +30,9 @@ function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=250)
         tf ≥ 0.1
 
         # state constraints
-         0 ≤ ρ(t) ≤ L, (ρ_con)
+        0 ≤ ρ(t) ≤ L, (ρ_con)
         -π ≤ θ(t) ≤ π, (θ_con)
-         0 ≤ ϕ(t) ≤ π, (ϕ_con)
+        0 ≤ ϕ(t) ≤ π, (ϕ_con)
 
         # control constraints
         -max_uρ ≤ uρ(t) ≤ max_uρ, (u_ρ_con)
@@ -61,18 +60,10 @@ function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=250)
         I_ϕ = (L - ρ(t))^3 + ρ(t)^3
 
         # dynamics  
-        ẋ(t) == [
-            dρ(t),
-            uρ(t) / L,
-            dθ(t),
-            3 * uθ(t) / I_θ,
-            dϕ(t),
-            3 * uϕ(t) / I_ϕ,
-        ]
+        ẋ(t) == [dρ(t), uρ(t) / L, dθ(t), 3 * uθ(t) / I_θ, dϕ(t), 3 * uϕ(t) / I_ϕ]
 
         # objective
         tf → min
-
     end
 
     # initial guess

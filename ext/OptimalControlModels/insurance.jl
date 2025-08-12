@@ -3,7 +3,7 @@ The Insurance Problem:
     The problem is formulated as an OptimalControl model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
 function OptimalControlProblems.insurance(::OptimalControlBackend; nh::Int=500)
-    
+
     # parameters
     γ = 0.2
     λ = 0.25
@@ -17,7 +17,6 @@ function OptimalControlProblems.insurance(::OptimalControlBackend; nh::Int=500)
 
     # Model
     ocp = @def begin
-        
         t ∈ [0, tf], time
         x ∈ R³, state
         u ∈ R⁵, control
@@ -65,7 +64,6 @@ function OptimalControlProblems.insurance(::OptimalControlBackend; nh::Int=500)
 
         # objective
         -∫(U(t) * fx) → min
-        
     end
 
     # Initial guess

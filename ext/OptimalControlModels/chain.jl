@@ -34,7 +34,6 @@ function OptimalControlProblems.chain(::OptimalControlBackend; nh::Int=500)
 
         # objective
         x₂(tf) → min
-
     end
 
     # dynamics
@@ -46,10 +45,10 @@ function OptimalControlProblems.chain(::OptimalControlBackend; nh::Int=500)
     tmin = b > a ? 1 / 4 : 3 / 4
     xinit =
         t -> [
-             4 * abs(b - a) * t / tf * (0.5 * t / tf - tmin) + a,
+            4 * abs(b - a) * t / tf * (0.5 * t / tf - tmin) + a,
             (4 * abs(b - a) * t / tf * (0.5 * t / tf - tmin) + a) *
             (4 * abs(b - a) * (t / tf - tmin)),
-             4 * abs(b - a) * (t / tf - tmin),
+            4 * abs(b - a) * (t / tf - tmin),
         ]
     uinit = t -> 4 * abs(b - a) * (t / tf - tmin)
     init = (state=xinit, control=uinit)

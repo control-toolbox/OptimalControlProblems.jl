@@ -5,7 +5,9 @@ Dielectrophoretic particle problem:
     The problem is formulated as an OptimalControl model.
 Ref: [CPR2006] Chang, D. E., Petit, N., & Rouchon, P. (2006). Time-optimal control of a particle in a dielectrophoretic system. IEEE Transactions on Automatic Control, 51(7), 1100-1114.
 """
-function OptimalControlProblems.dielectrophoretic_particle(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.dielectrophoretic_particle(
+    ::OptimalControlBackend; nh::Int=500
+)
 
     # parameters
     x0 = 1
@@ -14,7 +16,6 @@ function OptimalControlProblems.dielectrophoretic_particle(::OptimalControlBacke
     c = 1
 
     ocp = @def begin
-
         tf ∈ R, variable
         t ∈ [0, tf], time
         q = (x, y) ∈ R², state
@@ -30,7 +31,6 @@ function OptimalControlProblems.dielectrophoretic_particle(::OptimalControlBacke
         q̇(t) == dynamics(y(t), u(t))
 
         tf → min
-
     end
 
     function dynamics(y, u)

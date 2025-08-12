@@ -19,7 +19,6 @@ function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=50)
     vf = [0, 0, 0]
 
     ocp = @def begin
-
         tf ∈ R, variable
         t ∈ [0, tf], time
         x = (p₁, p₂, p₃, v₁, v₂, v₃, ϕ, θ) ∈ R⁸, state
@@ -60,8 +59,7 @@ function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=50)
         ẋ(t) == dynamics(x(t), u(t))
 
         # objective  
-        tf + ∫( 1e-8 * (at(t)^2 + ϕ(t)^2 + θ(t)^2 + ψ(t)^2) + 1e2 * (ψ(t) - u0[3])^2) → min
-
+        tf + ∫(1e-8 * (at(t)^2 + ϕ(t)^2 + θ(t)^2 + ψ(t)^2) + 1e2 * (ψ(t) - u0[3])^2) → min
     end
 
     function dynamics(x, u)

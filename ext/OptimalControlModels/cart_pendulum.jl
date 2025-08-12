@@ -5,7 +5,7 @@
         The problem is formulated as an OptimalControl model.
 """
 function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=500)
-    
+
     # parameters
     g = 9.81            # gravitation [m/s^2]
     L = 1               # pendulum length [m]
@@ -17,7 +17,7 @@ function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=5
     max_v = 2
 
     ocp = @def begin
-        
+
         # time, variable, state and control
         w = (tf, ddx) ∈ R², variable
         t ∈ [0, tf], time
@@ -35,9 +35,9 @@ function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=5
         tf ≥ 0.1, (tf_con)
 
         # initial conditions
-        x(0) == 0,  (x_ic)
-        θ(0) == 0,  (θ_ic)
-        ω(0) == 0,  (ω_ic)
+        x(0) == 0, (x_ic)
+        θ(0) == 0, (θ_ic)
+        ω(0) == 0, (ω_ic)
 
         # final conditions
         θ(tf) == π, (θ_fc)
@@ -48,12 +48,11 @@ function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=5
 
         # objective
         tf → min
-
     end
 
     # dynamics
     function dynamics(v, θ, ω, Fex, ddx)
-        
+
         #
         α(ddx) = 1 / (I + 0.25 * m * L^2) * 0.5 * L * m * (-ddx * cos(θ) - g * sin(θ))
         ddCOG = L * ω * [-sin(θ), cos(θ)] + L / 2 * [cos(θ), sin(θ)] * α(ddx) + [ddx, 0]

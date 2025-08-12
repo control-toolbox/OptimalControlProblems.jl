@@ -16,7 +16,6 @@ function OptimalControlProblems.double_oscillator(::OptimalControlBackend; nh::I
 
     # model
     ocp = @def begin
-        
         t ∈ [0, tf], time
         x ∈ R⁴, state
         u ∈ R, control
@@ -29,7 +28,6 @@ function OptimalControlProblems.double_oscillator(::OptimalControlBackend; nh::I
         ẋ(t) == dynamics(x(t), u(t), F(t))
 
         0.5 * ∫(x₁(t)^2 + x₂(t)^2 + u(t)^2) → min
-
     end
 
     function F(t)

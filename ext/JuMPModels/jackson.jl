@@ -38,18 +38,18 @@ function OptimalControlProblems.jackson(::JuMPBackend; nh::Int=500)
         model,
         begin
             step, tf / nh
-            da[i=0:nh], -u[i] * (k1 * a[i] - k2 * b[i])
-            db[i=0:nh], u[i] * (k1 * a[i] - k2 * b[i]) - (1 - u[i]) * k3 * b[i]
-            dx3[i=0:nh], (1 - u[i]) * k3 * b[i]
+            da[i = 0:nh], -u[i] * (k1 * a[i] - k2 * b[i])
+            db[i = 0:nh], u[i] * (k1 * a[i] - k2 * b[i]) - (1 - u[i]) * k3 * b[i]
+            dx3[i = 0:nh], (1 - u[i]) * k3 * b[i]
         end
     )
-    
+
     @constraints(
         model,
         begin
-            ∂a[i=1:nh],   a[i] ==  a[i - 1] + 0.5 * step * ( da[i] +  da[i - 1])
-            ∂b[i=1:nh],   b[i] ==  b[i - 1] + 0.5 * step * ( db[i] +  db[i - 1])
-            ∂x3[i=1:nh], x3[i] == x3[i - 1] + 0.5 * step * (dx3[i] + dx3[i - 1])
+            ∂a[i = 1:nh], a[i] == a[i - 1] + 0.5 * step * (da[i] + da[i - 1])
+            ∂b[i = 1:nh], b[i] == b[i - 1] + 0.5 * step * (db[i] + db[i - 1])
+            ∂x3[i = 1:nh], x3[i] == x3[i - 1] + 0.5 * step * (dx3[i] + dx3[i - 1])
         end
     )
 

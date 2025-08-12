@@ -3,7 +3,7 @@ The Robbins Problem:
     The problem is formulated as an OptimalControl model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
 function OptimalControlProblems.robbins(::OptimalControlBackend; nh::Int=500)
-    
+
     # parameters
     α = 3
     β = 0
@@ -12,7 +12,6 @@ function OptimalControlProblems.robbins(::OptimalControlBackend; nh::Int=500)
 
     # model
     ocp = @def begin
-        
         t ∈ [0, tf], time
         x ∈ R³, state
         u ∈ R, control
@@ -25,7 +24,6 @@ function OptimalControlProblems.robbins(::OptimalControlBackend; nh::Int=500)
         ẋ(t) == [x[2](t), x[3](t), u(t)]
 
         ∫(α * x[1](t) + β * x[1](t)^2 + γ * u(t)^2) → min
-
     end
 
     # initial guess

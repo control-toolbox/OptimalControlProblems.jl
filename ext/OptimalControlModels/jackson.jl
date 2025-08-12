@@ -12,7 +12,6 @@ function OptimalControlProblems.jackson(::OptimalControlBackend; nh::Int=500)
 
     # model
     ocp = @def begin
-
         t ∈ [0, tf], time
         x ∈ R³, state
         u ∈ R, control
@@ -24,7 +23,7 @@ function OptimalControlProblems.jackson(::OptimalControlBackend; nh::Int=500)
 
         [0, 0, 0] ≤ x(t) ≤ [1.1, 1.1, 1.1]
         0 ≤ u(t) ≤ 1
-        
+
         ẋ(t) == [
             -u(t) * (k1 * a(t) - k2 * b(t)),
             u(t) * (k1 * a(t) - k2 * b(t)) - (1 - u(t)) * k3 * b(t),
@@ -32,7 +31,6 @@ function OptimalControlProblems.jackson(::OptimalControlBackend; nh::Int=500)
         ]
 
         -x[3](tf) → min
-
     end
 
     # initial guess

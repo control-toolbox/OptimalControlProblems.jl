@@ -36,13 +36,13 @@ function OptimalControlProblems.beam(::JuMPBackend; nh::Int=500)
     @constraints(
         model,
         begin
-            ∂x1[t=1:nh], x1[t] == x1[t - 1] + 0.5 * step * (x2[t] + x2[t - 1])
-            ∂x2[t=1:nh], x2[t] == x2[t - 1] + 0.5 * step * (u[t] + u[t - 1])
+            ∂x1[t = 1:nh], x1[t] == x1[t - 1] + 0.5 * step * (x2[t] + x2[t - 1])
+            ∂x2[t = 1:nh], x2[t] == x2[t - 1] + 0.5 * step * (u[t] + u[t - 1])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(u[t]^2 + u[t-1]^2 for t in 1:nh))
+    @objective(model, Min, 0.5 * step * sum(u[t]^2 + u[t - 1]^2 for t in 1:nh))
 
     return model
 end

@@ -142,51 +142,48 @@ function OptimalControlProblems.space_shuttle(
     #set_start_value.(model[:Δt], vec(initial_guess[1:(end - 1), 9]))
 
     ## Functions to restore `h` and `v` to their true scale
-    @expression(model, h[j=0:nh], scaled_h[j] * 1e5)
-    @expression(model, v[j=0:nh], scaled_v[j] * 1e4)
+    @expression(model, h[j = 0:nh], scaled_h[j] * 1e5)
+    @expression(model, v[j = 0:nh], scaled_v[j] * 1e4)
 
     # Helper functions
-    @expression(model, c_L[j=0:nh], a₀ + a₁ * rad2deg(α[j]))
-    @expression(model, c_D[j=0:nh], b₀ + b₁ * rad2deg(α[j]) + b₂ * rad2deg(α[j])^2)
-    @expression(model, ρ[j=0:nh], ρ₀ * exp(-h[j] / hᵣ))
-    @expression(model, D[j=0:nh], 0.5 * c_D[j] * S * ρ[j] * v[j]^2)
-    @expression(model, L[j=0:nh], 0.5 * c_L[j] * S * ρ[j] * v[j]^2)
-    @expression(model, r[j=0:nh], Rₑ + h[j])
-    @expression(model, g[j=0:nh], μ / r[j]^2)
+    @expression(model, c_L[j = 0:nh], a₀ + a₁ * rad2deg(α[j]))
+    @expression(model, c_D[j = 0:nh], b₀ + b₁ * rad2deg(α[j]) + b₂ * rad2deg(α[j])^2)
+    @expression(model, ρ[j = 0:nh], ρ₀ * exp(-h[j] / hᵣ))
+    @expression(model, D[j = 0:nh], 0.5 * c_D[j] * S * ρ[j] * v[j]^2)
+    @expression(model, L[j = 0:nh], 0.5 * c_L[j] * S * ρ[j] * v[j]^2)
+    @expression(model, r[j = 0:nh], Rₑ + h[j])
+    @expression(model, g[j = 0:nh], μ / r[j]^2)
 
     ## Motion of the vehicle as a differential-algebraic system of equations (DAEs)
-    @expression(model, δh[j=0:nh], v[j] * sin(γ[j]))
-    @expression(model, δϕ[j=0:nh], (v[j] / r[j]) * cos(γ[j]) * sin(ψ[j]) / cos(θ[j]))
-    @expression(model, δθ[j=0:nh], (v[j] / r[j]) * cos(γ[j]) * cos(ψ[j]))
-    @expression(model, δv[j=0:nh], -(D[j] / m) - g[j] * sin(γ[j]))
+    @expression(model, δh[j = 0:nh], v[j] * sin(γ[j]))
+    @expression(model, δϕ[j = 0:nh], (v[j] / r[j]) * cos(γ[j]) * sin(ψ[j]) / cos(θ[j]))
+    @expression(model, δθ[j = 0:nh], (v[j] / r[j]) * cos(γ[j]) * cos(ψ[j]))
+    @expression(model, δv[j = 0:nh], -(D[j] / m) - g[j] * sin(γ[j]))
     @expression(
         model,
-        δγ[j=0:nh],
+        δγ[j = 0:nh],
         (L[j] / (m * v[j])) * cos(β[j]) + cos(γ[j]) * ((v[j] / r[j]) - (g[j] / v[j]))
     )
     @expression(
         model,
-        δψ[j=0:nh],
+        δψ[j = 0:nh],
         (1 / (m * v[j] * cos(γ[j]))) * L[j] * sin(β[j]) +
             (v[j] / (r[j] * cos(θ[j]))) * cos(γ[j]) * sin(ψ[j]) * sin(θ[j])
     )
 
-    @expression(
-        model,
-        Δt[i=1:nh], tf / nh
-    )
+    @expression(model, Δt[i = 1:nh], tf / nh)
 
     if integration_rule == "rectangular"
         ## Rectangular integration
         @constraints(
             model,
             begin
-                ∂h[i=1:nh], h[i] == h[i - 1] + Δt[i] * δh[i - 1]
-                ∂ϕ[i=1:nh], ϕ[i] == ϕ[i - 1] + Δt[i] * δϕ[i - 1]
-                ∂θ[i=1:nh], θ[i] == θ[i - 1] + Δt[i] * δθ[i - 1]
-                ∂v[i=1:nh], v[i] == v[i - 1] + Δt[i] * δv[i - 1]
-                ∂γ[i=1:nh], γ[i] == γ[i - 1] + Δt[i] * δγ[i - 1]
-                ∂ψ[i=1:nh], ψ[i] == ψ[i - 1] + Δt[i] * δψ[i - 1]
+                ∂h[i = 1:nh], h[i] == h[i - 1] + Δt[i] * δh[i - 1]
+                ∂ϕ[i = 1:nh], ϕ[i] == ϕ[i - 1] + Δt[i] * δϕ[i - 1]
+                ∂θ[i = 1:nh], θ[i] == θ[i - 1] + Δt[i] * δθ[i - 1]
+                ∂v[i = 1:nh], v[i] == v[i - 1] + Δt[i] * δv[i - 1]
+                ∂γ[i = 1:nh], γ[i] == γ[i - 1] + Δt[i] * δγ[i - 1]
+                ∂ψ[i = 1:nh], ψ[i] == ψ[i - 1] + Δt[i] * δψ[i - 1]
             end
         )
     elseif integration_rule == "trapezoidal"
@@ -194,12 +191,12 @@ function OptimalControlProblems.space_shuttle(
         @constraints(
             model,
             begin
-                ∂h[i=1:nh], h[i] == h[i - 1] + 0.5 * Δt[i] * (δh[i - 1] + δh[i])
-                ∂ϕ[i=1:nh], ϕ[i] == ϕ[i - 1] + 0.5 * Δt[i] * (δϕ[i - 1] + δϕ[i])
-                ∂θ[i=1:nh], θ[i] == θ[i - 1] + 0.5 * Δt[i] * (δθ[i - 1] + δθ[i])
-                ∂v[i=1:nh], v[i] == v[i - 1] + 0.5 * Δt[i] * (δv[i - 1] + δv[i])
-                ∂γ[i=1:nh], γ[i] == γ[i - 1] + 0.5 * Δt[i] * (δγ[i - 1] + δγ[i])
-                ∂ψ[i=1:nh], ψ[i] == ψ[i - 1] + 0.5 * Δt[i] * (δψ[i - 1] + δψ[i])
+                ∂h[i = 1:nh], h[i] == h[i - 1] + 0.5 * Δt[i] * (δh[i - 1] + δh[i])
+                ∂ϕ[i = 1:nh], ϕ[i] == ϕ[i - 1] + 0.5 * Δt[i] * (δϕ[i - 1] + δϕ[i])
+                ∂θ[i = 1:nh], θ[i] == θ[i - 1] + 0.5 * Δt[i] * (δθ[i - 1] + δθ[i])
+                ∂v[i = 1:nh], v[i] == v[i - 1] + 0.5 * Δt[i] * (δv[i - 1] + δv[i])
+                ∂γ[i = 1:nh], γ[i] == γ[i - 1] + 0.5 * Δt[i] * (δγ[i - 1] + δγ[i])
+                ∂ψ[i = 1:nh], ψ[i] == ψ[i - 1] + 0.5 * Δt[i] * (δψ[i - 1] + δψ[i])
             end
         )
     else

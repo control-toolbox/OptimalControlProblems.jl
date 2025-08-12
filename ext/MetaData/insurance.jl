@@ -7,5 +7,5 @@ insurance_meta = Dict(
     :state_name => ["I", "m", "x3"],
     :costate_name => ["∂I", "∂m", "∂x3"],
     :control_name => ["h", "R", "H", "U", "dUdR"],
-    :time => ("final_time", "tf", 10)
+    :time => ("final_time", "tf", 10),
 )

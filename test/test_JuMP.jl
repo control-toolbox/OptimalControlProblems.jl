@@ -1,10 +1,7 @@
 # test_JuMP_optimality
 function test_JuMP()
-
     for f in LIST_OF_PROBLEMS
-
         @testset "$(f)" verbose=VERBOSE begin
-
             nh = OptimalControlProblems.metadata[f][:nh]
 
             # do we keep or remove the problem from the list
@@ -28,8 +25,10 @@ function test_JuMP()
             # Solve the model
             DEBUG && println("├─  Solve")
             DEBUG && println("│")
-            print("  First solve:  "); @time optimize!(model)
-            print("  Second solve: "); @time optimize!(model)
+            print("  First solve:  ");
+            @time optimize!(model)
+            print("  Second solve: ");
+            @time optimize!(model)
             DEBUG && println("│")
 
             # Infos
@@ -43,8 +42,12 @@ function test_JuMP()
             # Test
             res = @my_test_broken termination_status(model) == MOI.LOCALLY_SOLVED
             keep_problem = keep_problem && (typeof(res) == Test.Pass)
-            DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
-            DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
+            DEBUG &&
+                (typeof(res) == Test.Pass) &&
+                println("│     \033[1;32mTest Passed\033[0m")
+            DEBUG &&
+                (typeof(res) != Test.Pass) &&
+                println("│     \033[1;31mTest Failed\033[0m")
             DEBUG && println("│")
             DEBUG && println("└─")
 
@@ -53,9 +56,6 @@ function test_JuMP()
                 global LIST_OF_PROBLEMS_FINAL
                 LIST_OF_PROBLEMS_FINAL = setdiff(LIST_OF_PROBLEMS_FINAL, [f])
             end
-
         end
-
     end
-
 end
