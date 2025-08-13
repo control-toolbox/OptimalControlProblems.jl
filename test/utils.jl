@@ -54,7 +54,11 @@ function comparison(; max_iter, test_name)
 
     # we loop over the problems
     for f in LIST_OF_PROBLEMS
+
         N = OptimalControlProblems.metadata[f][:N] # get default N
+        x_vars = OptimalControlProblems.metadata[f][:state_name]
+        p_vars = OptimalControlProblems.metadata[f][:costate_name]
+        u_vars = OptimalControlProblems.metadata[f][:control_name]
 
         @testset "$(string(f)) ($(string(test_name)))" verbose=VERBOSE begin
             DEBUG && println("\n", "┌─ ", string(f), " (", string(test_name), ")")
@@ -101,59 +105,13 @@ function comparison(; max_iter, test_name)
             # solve the model
             optimize!(model)
 
-            # setrieve values of variables
-
-            ## time grid: we assume that t0 = 0
-            time_data, time_var_name, time_value = OptimalControlProblems.metadata[f][:time]
-
-            t0 = 0
-            t_jp = if time_data == "final_time"
-                if time_value !== nothing
-                    tf = time_value
-                else
-                    tf = value.(model[Symbol(time_var_name)])
-                end
-                range(t0, tf, N+1)
-            elseif time_data == "step"
-                if time_value !== nothing
-                    h = time_value
-                    tf = h * N
-                    range(t0, tf, N+1)
-                else
-                    h = value.(model[Symbol(time_var_name)])
-                    if isa(h, Number)
-                        tf = h * N
-                        range(t0, tf, N+1)
-                    else
-                        cumsum([0, h...])
-                    end
-                end
-            end
-
-            ## iterations
-            i_jp = barrier_iterations(model)
-
-            ## state
-            x_vars = OptimalControlProblems.metadata[f][:state_name]
-            x_jp_vars = [JuMP.value.(model[Symbol(xv)]) for xv in x_vars]
-            inds_x = axes(x_jp_vars[1], 1)
-            x_jp = [[x_jp_vars[j][i] for j in 1:length(x_vars)] for i in inds_x]
-
-            ## costate
-            p_vars = OptimalControlProblems.metadata[f][:costate_name]
-            p_jp_vars = [JuMP.dual.(model[Symbol(pv)]) for pv in p_vars]
-            inds_p = axes(p_jp_vars[1], 1)
-            p_jp = -[[p_jp_vars[j][i] for j in 1:length(p_vars)] for i in inds_p]
-            push!(p_jp, p_jp[end]) # we add one element
-
-            ## control
-            u_vars = OptimalControlProblems.metadata[f][:control_name]
-            u_jp_vars = [JuMP.value.(model[Symbol(uv)]) for uv in u_vars]
-            inds_u = axes(u_jp_vars[1], 1)
-            u_jp = [[u_jp_vars[j][i] for j in 1:length(u_vars)] for i in inds_u]
-
-            ## objective
+            # retrieve values
+            t_jp = time_grid(f, model)
+            x_jp = state(f, model)
+            u_jp = control(f, model)
             o_jp = objective_value(model)
+            i_jp = barrier_iterations(model)
+            p_jp = costate(f, model)
 
             ############ TEST ############
 

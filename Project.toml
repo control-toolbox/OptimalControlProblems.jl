@@ -5,6 +5,7 @@ version = "0.2.1"
 
 [deps]
 CTBase = "54762871-cc72-4466-b8e8-f6c8b58076cd"
+CTModels = "34c4fa32-2049-4079-8329-de33c2a22e2d"
 OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
 
 [weakdeps]
@@ -17,6 +18,7 @@ OptimalControlModels = "OptimalControl"
 
 [compat]
 CTBase = "0.16"
+CTModels = "0.6.3"
 JuMP = "1.28"
 OptimalControl = "1.1"
 OrderedCollections = "1.8.1"

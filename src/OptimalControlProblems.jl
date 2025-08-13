@@ -1,6 +1,7 @@
 module OptimalControlProblems
 
 using CTBase
+import CTModels: CTModels, time_grid, state, control, costate
 
 abstract type AbstractModelBackend end
 struct JuMPBackend <: AbstractModelBackend end
@@ -18,7 +19,7 @@ files = filter(x -> x[(end - 2):end] == ".jl", readdir(path))
 for file in files
     problem = Symbol(file[1:(end - 3)])
     code = quote
-        function $problem(model_backend::T, args...; kwargs...) where {T<:AbstractModelBackend}
+        function $problem(model_backend::T; N::Int=0) where {T<:AbstractModelBackend}
             throw(CTBase.ExtensionError(weakdeps[T]))
         end
         export $problem
@@ -110,6 +111,21 @@ function available_problems()
     return list_of_problems
 end
 
+# JuMP: getters for the time grid, state, control and costate
+function CTModels.time_grid(::Symbol, model)
+    throw(CTBase.ExtensionError(:JuMP))
+end
+function CTModels.state(::Symbol, model)
+    throw(CTBase.ExtensionError(:JuMP))
+end
+function CTModels.costate(::Symbol, model)
+    throw(CTBase.ExtensionError(:JuMP))
+end
+function CTModels.control(::Symbol, model)
+    throw(CTBase.ExtensionError(:JuMP))
+end
+
 export JuMPBackend, OptimalControlBackend, available_problems
+export time_grid, state, costate, control
 
 end

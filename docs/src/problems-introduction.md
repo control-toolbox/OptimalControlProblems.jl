@@ -27,11 +27,7 @@ b_{\mathrm{lower}} & \le & b(x(t_0), x(t_f)) & \le & b_{\mathrm{upper}}.
 
     The initial time $t_0$, the final time $t_f$ can be free. More generally, we can have a set of variables to optimise under some additional constraints.
 
-The so-called direct approach transforms the infinite dimensional optimal control problem (OCP) into a finite dimensional optimization problem (NLP). This is done by a discretization in time by Runge-Kutta methods applied to the state and control variables, as well as the dynamics equation. These methods are usually less precise than indirect methods based on [Pontryagin’s Maximum Principle](https://en.wikipedia.org/w/index.php?title=Pontryagin's_maximum_principle&oldid=1160355192), but more robust with respect to the initialization. Also, they are more straightforward to apply, hence their wide use in industrial applications. We refer the reader to [^1] and [^2] for more details on direct transcription methods and NLP algorithms.
-
-[^1]: J. T. Betts. Practical methods for optimal control using nonlinear programming. Society for Industrial and Applied Mathematics (SIAM), Philadelphia, PA, 2001.
-
-[^2]: J. Nocedal and S.J. Wright. Numerical optimization. Springer-Verlag, New York, 1999.****
+The so-called direct approach transforms the infinite dimensional optimal control problem (OCP) into a finite dimensional optimization problem (NLP). This is done by a discretization in time by Runge-Kutta methods applied to the state and control variables, as well as the dynamics equation. These methods are usually less precise than indirect methods based on [Pontryagin’s Maximum Principle](https://en.wikipedia.org/w/index.php?title=Pontryagin's_maximum_principle&oldid=1160355192), but more robust with respect to the initialization. Also, they are more straightforward to apply, hence their wide use in industrial applications.
 
 In OptimalControlProblems package, each optimal control problem is discretised by the trapezoidal rule on a uniform grid:
 
@@ -43,12 +39,12 @@ x(\cdot),\, u(\cdot) & \to & X=\{x_0, \ldots, x_N, u_0, \ldots, u_N\} & \\[1em]
 \\
 \text{step} & \to & \displaystyle h = \frac{t_f-t_0}{N}  & \\[0.5em]
 \text{criterion} & \to & \displaystyle g(x_0, x_N) + 
-    \frac{h}{2} \sum_{i=1}^{N} \left( f^0(t_i, x_i, u_i) + f^0(t_{i-1}, x_{i-1}, u_{i-1}) \right)   & \\[0.5em]
+    \frac{h}{2} \sum_{i=1}^{N} \left( f^0(t_i, x_i, u_i) + f^0(t_{i-1}, x_{i-1}, u_{i-1}) \right)   & \\[1em]
 \text{dynamics}  & \to & \displaystyle x_{i} = x_{i-1} + 
-    \frac{h}{2} \left( f(t_i, x_i, u_i) + f(t_{i-1}, x_{i-1}, u_{i-1}) \right),                     & i = 1:N \\[0.5em]
-\text{state constraints}    & \to & x_{\mathrm{lower}} \le x_i              \le x_{\mathrm{upper}}, & i = 0:N \\[0.5em]
-\text{control constraints}  & \to & u_{\mathrm{lower}} \le u_i              \le u_{\mathrm{upper}}, & i = 0:N \\[0.5em]
-\text{path constraints}     & \to & c_{\mathrm{lower}} \le c(t_i, x_i, u_i) \le c_{\mathrm{upper}}, & i = 0:N \\[0.5em]
+    \frac{h}{2} \left( f(t_i, x_i, u_i) + f(t_{i-1}, x_{i-1}, u_{i-1}) \right),                     & i = 1:N \\[1em]
+\text{state constraints}    & \to & x_{\mathrm{lower}} \le x_i              \le x_{\mathrm{upper}}, & i = 0:N \\[1em]
+\text{control constraints}  & \to & u_{\mathrm{lower}} \le u_i              \le u_{\mathrm{upper}}, & i = 0:N \\[1em]
+\text{path constraints}     & \to & c_{\mathrm{lower}} \le c(t_i, x_i, u_i) \le c_{\mathrm{upper}}, & i = 0:N \\[1em]
 \text{boundary constraints} & \to & b_{\mathrm{lower}} \le b(x_0, x_N)      \le b_{\mathrm{upper}}  & 
 \end{array}
 ```

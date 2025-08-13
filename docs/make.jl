@@ -3,15 +3,30 @@ using DocumenterInterLinks
 
 #
 links = InterLinks(
+    "ADNLPModels" => (
+        "https://jso.dev/ADNLPModels.jl/stable/",
+        "https://jso.dev/ADNLPModels.jl/stable/objects.inv",
+        joinpath(@__DIR__, "inventories", "ADNLPModels.toml"),
+    ),
     "CTDirect" => (
         "https://control-toolbox.org/CTDirect.jl/stable/",
         "https://control-toolbox.org/CTDirect.jl/stable/objects.inv",
         joinpath(@__DIR__, "inventories", "CTDirect.toml"),
     ),
-    "ADNLPModels" => (
-        "https://jso.dev/ADNLPModels.jl/stable/",
-        "https://jso.dev/ADNLPModels.jl/stable/objects.inv",
-        joinpath(@__DIR__, "inventories", "ADNLPModels.toml"),
+    "JuMP" => (
+        "https://jump.dev/JuMP.jl/stable/",
+        "https://jump.dev/JuMP.jl/stable/objects.inv",
+        joinpath(@__DIR__, "inventories", "JuMP.toml"),
+    ),
+    "NLPModelsIpopt" => (
+        "https://jso.dev/NLPModelsIpopt.jl/stable/",
+        "https://jso.dev/NLPModelsIpopt.jl/stable/objects.inv",
+        joinpath(@__DIR__, "inventories", "NLPModelsIpopt.toml"),
+    ),
+    "OptimalControl" => (
+        "https://control-toolbox.org/OptimalControl.jl/stable/",
+        "https://control-toolbox.org/OptimalControl.jl/stable/objects.inv",
+        joinpath(@__DIR__, "inventories", "OptimalControl.toml"),
     ),
     "Tutorials" => (
         "https://control-toolbox.org/Tutorials.jl/stable/",

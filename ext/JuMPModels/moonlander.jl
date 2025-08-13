@@ -4,13 +4,10 @@ The Moonlander Problem:
     The objective is to minimize the time taken to land on the moon.
     The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746)
 """
-function OptimalControlProblems.moonlander(
-    ::JuMPBackend; target::Array{Float64}=[5.0, 5.0], N::Int=500
-)
+function OptimalControlProblems.moonlander(::JuMPBackend; N::Int=500)
+    
     # parameters
-    if size(target) != (2,)
-        error("The input target must be of length 2.")
-    end
+    target=[5.0, 5.0]
     m = 1
     g = 9.81
     I = 0.1

@@ -5,9 +5,7 @@ Space Shuttle Reentry Trajectory Problem:
     The problem is formulated as a JuMP model, and can be found [here](https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/)
     Note: no heating limit path constraint
 """
-function OptimalControlProblems.space_shuttle(
-    ::JuMPBackend; integration_rule::String="trapezoidal", N::Int=500
-)
+function OptimalControlProblems.space_shuttle(::JuMPBackend; N::Int=500)
 
     ## Global variables
     w = 203000.0    # weight (lb)
@@ -173,35 +171,17 @@ function OptimalControlProblems.space_shuttle(
 
     @expression(model, Δt[i = 1:N], tf / N)
 
-    if integration_rule == "rectangular"
-        ## Rectangular integration
-        @constraints(
-            model,
-            begin
-                ∂h[i = 1:N], h[i] == h[i - 1] + Δt[i] * δh[i - 1]
-                ∂ϕ[i = 1:N], ϕ[i] == ϕ[i - 1] + Δt[i] * δϕ[i - 1]
-                ∂θ[i = 1:N], θ[i] == θ[i - 1] + Δt[i] * δθ[i - 1]
-                ∂v[i = 1:N], v[i] == v[i - 1] + Δt[i] * δv[i - 1]
-                ∂γ[i = 1:N], γ[i] == γ[i - 1] + Δt[i] * δγ[i - 1]
-                ∂ψ[i = 1:N], ψ[i] == ψ[i - 1] + Δt[i] * δψ[i - 1]
-            end
-        )
-    elseif integration_rule == "trapezoidal"
-        ## Trapezoidal integration
-        @constraints(
-            model,
-            begin
-                ∂h[i = 1:N], h[i] == h[i - 1] + 0.5 * Δt[i] * (δh[i - 1] + δh[i])
-                ∂ϕ[i = 1:N], ϕ[i] == ϕ[i - 1] + 0.5 * Δt[i] * (δϕ[i - 1] + δϕ[i])
-                ∂θ[i = 1:N], θ[i] == θ[i - 1] + 0.5 * Δt[i] * (δθ[i - 1] + δθ[i])
-                ∂v[i = 1:N], v[i] == v[i - 1] + 0.5 * Δt[i] * (δv[i - 1] + δv[i])
-                ∂γ[i = 1:N], γ[i] == γ[i - 1] + 0.5 * Δt[i] * (δγ[i - 1] + δγ[i])
-                ∂ψ[i = 1:N], ψ[i] == ψ[i - 1] + 0.5 * Δt[i] * (δψ[i - 1] + δψ[i])
-            end
-        )
-    else
-        @error "Unexpected integration rule '$(integration_rule)'"
-    end
+    @constraints(
+        model,
+        begin
+            ∂h[i = 1:N], h[i] == h[i - 1] + 0.5 * Δt[i] * (δh[i - 1] + δh[i])
+            ∂ϕ[i = 1:N], ϕ[i] == ϕ[i - 1] + 0.5 * Δt[i] * (δϕ[i - 1] + δϕ[i])
+            ∂θ[i = 1:N], θ[i] == θ[i - 1] + 0.5 * Δt[i] * (δθ[i - 1] + δθ[i])
+            ∂v[i = 1:N], v[i] == v[i - 1] + 0.5 * Δt[i] * (δv[i - 1] + δv[i])
+            ∂γ[i = 1:N], γ[i] == γ[i - 1] + 0.5 * Δt[i] * (δγ[i - 1] + δγ[i])
+            ∂ψ[i = 1:N], ψ[i] == ψ[i - 1] + 0.5 * Δt[i] * (δψ[i - 1] + δψ[i])
+        end
+    )
 
     @objective(model, Min, -θ[N])
 
