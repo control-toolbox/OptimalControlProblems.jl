@@ -1,8 +1,6 @@
-dielectrophoretic_particle_meta = Dict(
+dielectrophoretic_particle_meta = OrderedDict(
     :name => "dielectrophoretic_particle",
-    :nh => 500,
-    :nvar => nothing,
-    :ncon => nothing,
+    :N => 500,
     :minimize => true,
     :state_name => ["x", "y"],
     :costate_name => ["∂x", "∂y"],

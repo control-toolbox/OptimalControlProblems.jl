@@ -2,7 +2,7 @@
 The Jackson Problem:
     The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.jackson(::JuMPBackend; nh::Int=500)
+function OptimalControlProblems.jackson(::JuMPBackend; N::Int=500)
 
     # parameters
     k1 = 1
@@ -16,10 +16,10 @@ function OptimalControlProblems.jackson(::JuMPBackend; nh::Int=500)
     @variables(
         model,
         begin
-            0 <= a[0:nh] <= 1.1, (start = 0.1)
-            0 <= b[0:nh] <= 1.1, (start = 0.1)
-            0 <= x3[0:nh] <= 1.1, (start = 0.1)
-            0 <= u[0:nh] <= 1, (start = 0.1)
+            0 <= a[0:N] <= 1.1, (start = 0.1)
+            0 <= b[0:N] <= 1.1, (start = 0.1)
+            0 <= x3[0:N] <= 1.1, (start = 0.1)
+            0 <= u[0:N] <= 1, (start = 0.1)
         end
     )
 
@@ -37,24 +37,24 @@ function OptimalControlProblems.jackson(::JuMPBackend; nh::Int=500)
     @expressions(
         model,
         begin
-            step, tf / nh
-            da[i = 0:nh], -u[i] * (k1 * a[i] - k2 * b[i])
-            db[i = 0:nh], u[i] * (k1 * a[i] - k2 * b[i]) - (1 - u[i]) * k3 * b[i]
-            dx3[i = 0:nh], (1 - u[i]) * k3 * b[i]
+            step, tf / N
+            da[i = 0:N], -u[i] * (k1 * a[i] - k2 * b[i])
+            db[i = 0:N], u[i] * (k1 * a[i] - k2 * b[i]) - (1 - u[i]) * k3 * b[i]
+            dx3[i = 0:N], (1 - u[i]) * k3 * b[i]
         end
     )
 
     @constraints(
         model,
         begin
-            ∂a[i = 1:nh], a[i] == a[i - 1] + 0.5 * step * (da[i] + da[i - 1])
-            ∂b[i = 1:nh], b[i] == b[i - 1] + 0.5 * step * (db[i] + db[i - 1])
-            ∂x3[i = 1:nh], x3[i] == x3[i - 1] + 0.5 * step * (dx3[i] + dx3[i - 1])
+            ∂a[i = 1:N], a[i] == a[i - 1] + 0.5 * step * (da[i] + da[i - 1])
+            ∂b[i = 1:N], b[i] == b[i - 1] + 0.5 * step * (db[i] + db[i - 1])
+            ∂x3[i = 1:N], x3[i] == x3[i - 1] + 0.5 * step * (dx3[i] + dx3[i - 1])
         end
     )
 
     # objective
-    @objective(model, Min, -x3[nh])
+    @objective(model, Min, -x3[N])
 
     return model
 end

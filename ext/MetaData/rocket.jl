@@ -1,8 +1,6 @@
-rocket_meta = Dict(
+rocket_meta = OrderedDict(
     :name => "rocket",
-    :nh => 500,
-    :nvar => nothing,
-    :ncon => nothing,
+    :N => 500,
     :minimize => false,
     :state_name => ["h", "v", "m"],
     :costate_name => ["∂h", "∂v", "∂m"],

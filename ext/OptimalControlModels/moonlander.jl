@@ -5,7 +5,7 @@ The Moonlander Problem:
     The problem is formulated as an OptimalControl model.
 """
 function OptimalControlProblems.moonlander(
-    ::OptimalControlBackend; target::Array{Float64}=[5.0, 5.0], nh::Int=500
+    ::OptimalControlBackend; target::Array{Float64}=[5.0, 5.0], N::Int=500
 )
     # parameters
     if size(target) != (2,)
@@ -79,7 +79,7 @@ function OptimalControlProblems.moonlander(
     init = (state=xinit, control=uinit, variable=varinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

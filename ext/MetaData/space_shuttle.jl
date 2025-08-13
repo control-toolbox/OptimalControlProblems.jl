@@ -1,8 +1,6 @@
-space_shuttle_meta = Dict(
+space_shuttle_meta = OrderedDict(
     :name => "space_shuttle",
-    :nh => 500,
-    :nvar => nothing,
-    :ncon => nothing,
+    :N => 500,
     :minimize => false,
     :state_name => ["scaled_h", "ϕ", "θ", "scaled_v", "γ", "ψ"],
     :costate_name => ["∂h", "∂ϕ", "∂θ", "∂v", "∂γ", "∂ψ"],

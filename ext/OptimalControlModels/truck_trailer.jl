@@ -7,7 +7,7 @@ The Truck Trailer Problem:
 function OptimalControlProblems.truck_trailer(
     ::OptimalControlBackend;
     data::Array{Float64,2}=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2],
-    nh::Int=200,
+    N::Int=200,
 )
 
     # parameters
@@ -115,7 +115,7 @@ function OptimalControlProblems.truck_trailer(
     init = (state=xinit, control=uinit, variable=varinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

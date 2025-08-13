@@ -1,8 +1,6 @@
-electric_vehicle_meta = Dict(
+electric_vehicle_meta = OrderedDict(
     :name => "electric_vehicle",
-    :nh => 500,
-    :nvar => nothing,
-    :ncon => nothing,
+    :N => 500,
     :minimize => true,
     :state_name => ["x", "v"],
     :costate_name => ["∂x", "∂v"],

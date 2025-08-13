@@ -4,7 +4,7 @@ Robot arm problem:
     The objective is to minimize the time taken to move between the two points.
     The problem is formulated as an OptimalControl model.
 """
-function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=250)
+function OptimalControlProblems.robot(::OptimalControlBackend; N::Int=250)
 
     # parameters
 
@@ -73,7 +73,7 @@ function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=250)
     init = (state=xinit, control=uinit, variable=tf)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

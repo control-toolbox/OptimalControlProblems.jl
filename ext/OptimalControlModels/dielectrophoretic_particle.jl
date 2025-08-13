@@ -6,7 +6,7 @@ Dielectrophoretic particle problem:
 Ref: [CPR2006] Chang, D. E., Petit, N., & Rouchon, P. (2006). Time-optimal control of a particle in a dielectrophoretic system. IEEE Transactions on Automatic Control, 51(7), 1100-1114.
 """
 function OptimalControlProblems.dielectrophoretic_particle(
-    ::OptimalControlBackend; nh::Int=500
+    ::OptimalControlBackend; N::Int=500
 )
 
     # parameters
@@ -41,7 +41,7 @@ function OptimalControlProblems.dielectrophoretic_particle(
     init = (state=[1, 1], control=0.1, variable=5)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

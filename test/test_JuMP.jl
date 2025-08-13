@@ -2,7 +2,7 @@
 function test_JuMP()
     for f in LIST_OF_PROBLEMS
         @testset "$(f)" verbose=VERBOSE begin
-            nh = OptimalControlProblems.metadata[f][:nh]
+            N = OptimalControlProblems.metadata[f][:N]
 
             # do we keep or remove the problem from the list
             keep_problem = true
@@ -12,7 +12,7 @@ function test_JuMP()
             DEBUG && println("│")
 
             # Set up the model
-            model = OptimalControlProblems.eval(f)(JuMPBackend(); nh=nh)
+            model = OptimalControlProblems.eval(f)(JuMPBackend(); N=N)
             set_optimizer(model, Ipopt.Optimizer)
             set_silent(model)
             set_optimizer_attribute(model, "tol", TOL)

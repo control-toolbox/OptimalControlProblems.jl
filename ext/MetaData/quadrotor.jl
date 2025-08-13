@@ -1,8 +1,6 @@
-quadrotor_meta = Dict(
+quadrotor_meta = OrderedDict(
     :name => "quadrotor",
-    :nh => 50,
-    :nvar => nothing,
-    :ncon => nothing,
+    :N => 50,
     :minimize => true,
     :state_name => ["p₁", "p₂", "p₃", "v₁", "v₂", "v₃", "ϕ", "θ"],
     :costate_name => ["∂p₁", "∂p₂", "∂p₃", "∂v₁", "∂v₂", "∂v₃", "∂ϕ", "∂θ"],

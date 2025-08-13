@@ -4,7 +4,7 @@ Double Oscillator Problem:
     The problem is formulated as an OptimalControl model.
 Ref: [CLP2018] Coudurier, C., Lepreux, O., & Petit, N. (2018). Optimal bang-bang control of a mechanical double oscillator using averaging methods. IFAC-PapersOnLine, 51(2), 49-54.
 """
-function OptimalControlProblems.double_oscillator(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.double_oscillator(::OptimalControlBackend; N::Int=500)
 
     # parameters
     m1 = 100    # [kg]
@@ -49,7 +49,7 @@ function OptimalControlProblems.double_oscillator(::OptimalControlBackend; nh::I
     init = (state=xinit, control=uinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

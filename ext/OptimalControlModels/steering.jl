@@ -4,7 +4,7 @@ Particle Steering Problem:
     The objective is to minimize the time taken to achieve a given altitude and terminal velocity.
     The problem is formulated as an OptimalControl model.
 """
-function OptimalControlProblems.steering(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.steering(::OptimalControlBackend; N::Int=500)
 
     # parameters
     a = 100
@@ -49,7 +49,7 @@ function OptimalControlProblems.steering(::OptimalControlBackend; nh::Int=500)
     init = (state=xinit, control=0, variable=1)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

@@ -5,6 +5,7 @@ using CTBase
 abstract type AbstractModelBackend end
 struct JuMPBackend <: AbstractModelBackend end
 struct OptimalControlBackend <: AbstractModelBackend end
+using OrderedCollections: OrderedDict
 
 # weak dependencies
 weakdeps = Dict(OptimalControlBackend => :OptimalControl, JuMPBackend => :JuMP)
@@ -33,9 +34,7 @@ number_of_problems = length(files)
 
 const infos = [
     :name
-    :nh
-    :nvar
-    :ncon
+    :N
     :minimize
     :state_name
     :costate_name
@@ -44,32 +43,36 @@ const infos = [
 ]
 
 const types = [
-    Union{String,Nothing},
-    Union{Int,Nothing},
-    Union{Int,Nothing},
-    Union{Int,Nothing},
-    Union{Bool,Nothing},
-    Union{Vector{String},String,Nothing},
-    Union{Vector{String},String,Nothing},
-    Union{Vector{String},String,Nothing},
-    Union{Tuple{String,String,Union{Real,Nothing}},Nothing},
+    Union{String},
+    Union{Int},
+    Union{Bool},
+    Union{Vector{String},String},
+    Union{Vector{String},String},
+    Union{Vector{String},String},
+    Union{Tuple{String,String,Union{Real,Nothing}}},
 ]
 
 """
 OptimalControlProblems.metadata
----
+
 The following keys are valid:
-    - `name::String`: problem name
-    - `nh::Int`: default number of discretization points
-    - `nvar::Int`: number of variables
-    - `ncon::Int`: number of general constraints
-    - `minimize::Bool`: true if optimize == minimize
+
+    - `name::String`: problem name.
+    - `N::Int`: default number of discretization points.
+    - `minimize::Bool`: true or false depending on whether we minimise or maximise the objective function.
+    - `state_name::Vector{String}`: the names of the components of the state.
+    - `costate_name::Vector{String}`: the names of the differential constraints associated to each component of the costate.
+    - `control_name::Vector{String}`: the names of the components of the control.
+    - `time::Tuple{String, String, Union{Int, Nothing}}`: `time` is of the form `(type, name, value)` where:
+        - `type` is either `final_time` or `step` depending on how the problem is modelled. Either the final time or the time step is a decision variable. If the final time is fixed, then `type="final_time"`.
+        - `name` is the name of the final time variable.
+        - `value` is either the value of the final time or `nothing` if it is free. If the final time is fixed, then it is simply a parameter while if it is free, then it is one of the decision variable. If `type="step"`, then `value` is the value of the time step (assuming the grid is uniform).
 """
 const metadata = Dict()
 
 for i in 1:number_of_problems
     file_key = Symbol(split(files[i], ".")[1])
-    metadata[file_key] = Dict()
+    metadata[file_key] = OrderedDict()
     for (data, T) in zip(infos, types)
         value = eval(Meta.parse("$(file_key)_meta"))[data]
         if !(value isa T)

@@ -1,8 +1,6 @@
-bioreactor_meta = Dict(
+bioreactor_meta = OrderedDict(
     :name => "bioreactor",
-    :nh => 500,
-    :nvar => nothing,
-    :ncon => nothing,
+    :N => 500,
     :minimize => false,
     :state_name => ["y", "s", "b"],
     :costate_name => ["∂y", "∂s", "∂b"],

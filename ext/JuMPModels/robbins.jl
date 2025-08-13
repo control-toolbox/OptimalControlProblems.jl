@@ -2,7 +2,7 @@
 The Robbins Problem:
     The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=500)
+function OptimalControlProblems.robbins(::JuMPBackend; N::Int=500)
 
     # parameters
     α = 3
@@ -11,7 +11,7 @@ function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=500)
     tf = 10
 
     #
-    step = tf / nh
+    step = tf / N
 
     # model
     model = JuMP.Model()
@@ -20,10 +20,10 @@ function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=500)
     @variables(
         model,
         begin
-            0 <= x1[0:nh], (start = 0.1)
-            x2[0:nh], (start = 0.1)
-            x3[0:nh], (start = 0.1)
-            u[0:nh], (start = 0.1)
+            0 <= x1[0:N], (start = 0.1)
+            x2[0:N], (start = 0.1)
+            x3[0:N], (start = 0.1)
+            u[0:N], (start = 0.1)
         end
     )
 
@@ -34,9 +34,9 @@ function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=500)
             x1[0] == 1
             x2[0] == -2
             x3[0] == 0
-            x1[nh] == 0
-            x2[nh] == 0
-            x3[nh] == 0
+            x1[N] == 0
+            x2[N] == 0
+            x3[N] == 0
         end
     )
 
@@ -44,9 +44,9 @@ function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=500)
     @constraints(
         model,
         begin
-            ∂x1[i = 1:nh], x1[i] == x1[i - 1] + 0.5 * step * (x2[i] + x2[i - 1])
-            ∂x2[i = 1:nh], x2[i] == x2[i - 1] + 0.5 * step * (x3[i] + x3[i - 1])
-            ∂x3[i = 1:nh], x3[i] == x3[i - 1] + 0.5 * step * (u[i] + u[i - 1])
+            ∂x1[i = 1:N], x1[i] == x1[i - 1] + 0.5 * step * (x2[i] + x2[i - 1])
+            ∂x2[i = 1:N], x2[i] == x2[i - 1] + 0.5 * step * (x3[i] + x3[i - 1])
+            ∂x3[i = 1:N], x3[i] == x3[i - 1] + 0.5 * step * (u[i] + u[i - 1])
         end
     )
 
@@ -54,11 +54,11 @@ function OptimalControlProblems.robbins(::JuMPBackend; nh::Int=500)
     @expressions(
         model,
         begin
-            dc[i = 0:nh], (α * x1[i] + β * x1[i]^2 + γ * u[i]^2)
+            dc[i = 0:N], (α * x1[i] + β * x1[i]^2 + γ * u[i]^2)
         end
     )
 
-    @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i - 1] for i in 1:nh))
+    @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i - 1] for i in 1:N))
 
     return model
 end

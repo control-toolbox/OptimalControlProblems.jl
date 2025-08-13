@@ -1,8 +1,6 @@
-jackson_meta = Dict(
+jackson_meta = OrderedDict(
     :name => "jackson",
-    :nh => 500,
-    :nvar => nothing,
-    :ncon => nothing,
+    :N => 500,
     :minimize => false,
     :state_name => ["a", "b", "x3"],
     :costate_name => ["∂a", "∂b", "∂x3"],

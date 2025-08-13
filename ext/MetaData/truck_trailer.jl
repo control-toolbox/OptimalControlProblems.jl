@@ -1,8 +1,6 @@
-truck_trailer_meta = Dict(
+truck_trailer_meta = OrderedDict(
     :name => "truck_trailer",
-    :nh => 200,
-    :nvar => nothing,
-    :ncon => nothing,
+    :N => 200,
     :minimize => true,
     :state_name => ["x2", "y2", "θ0", "θ1", "θ2", "v0", "δ0"],
     :costate_name => ["∂x2", "∂y2", "∂θ0", "∂θ1", "∂θ2", "∂v0", "∂δ0"],

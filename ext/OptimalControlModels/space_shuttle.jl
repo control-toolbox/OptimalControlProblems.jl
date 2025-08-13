@@ -5,7 +5,7 @@ Space Shuttle Reentry Trajectory Problem:
     The original problem formulated as a JuMP model can be found [here](https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/)
     Note: no heating limit path constraint
 """
-function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.space_shuttle(::OptimalControlBackend; N::Int=500)
 
     ## Global variables
     w = 203000.0  # weight (lb)
@@ -133,7 +133,7 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=5
     init = (state=x_init, control=[α_s, β_s], variable=[tf_init])
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

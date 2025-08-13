@@ -1,8 +1,6 @@
-robot_meta = Dict(
+robot_meta = OrderedDict(
     :name => "robot",
-    :nh => 250,
-    :nvar => nothing,
-    :ncon => nothing,
+    :N => 250,
     :minimize => true,
     :state_name => ["ρ", "dρ", "θ", "dθ", "ϕ", "dϕ"],
     :costate_name => ["∂ρ", "∂dρ", "∂θ", "∂dθ", "∂ϕ", "∂dϕ"],

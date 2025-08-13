@@ -1,4 +1,24 @@
 using Documenter
+using DocumenterInterLinks
+
+#
+links = InterLinks(
+    "CTDirect" => (
+        "https://control-toolbox.org/CTDirect.jl/stable/",
+        "https://control-toolbox.org/CTDirect.jl/stable/objects.inv",
+        joinpath(@__DIR__, "inventories", "CTDirect.toml"),
+    ),
+    "ADNLPModels" => (
+        "https://jso.dev/ADNLPModels.jl/stable/",
+        "https://jso.dev/ADNLPModels.jl/stable/objects.inv",
+        joinpath(@__DIR__, "inventories", "ADNLPModels.toml"),
+    ),
+    "Tutorials" => (
+        "https://control-toolbox.org/Tutorials.jl/stable/",
+        "https://control-toolbox.org/Tutorials.jl/stable/objects.inv",
+        joinpath(@__DIR__, "inventories", "Tutorials.toml"),
+    ),
+)
 
 # For reproducibility
 mkpath(joinpath(@__DIR__, "src", "assets"))
@@ -15,8 +35,17 @@ cp(
 
 repo_url = "github.com/control-toolbox/OptimalControlProblems.jl"
 
+PROBLEMS_PAGES = [
+    joinpath("problems", "beam.md"),
+]
+
 makedocs(;
-    remotes=nothing,
+    draft=true, # if draft is true, then the julia code from .md is not executed # debug
+    # to disable the draft mode in a specific markdown file, use the following:
+    # ```@meta
+    # Draft = false
+    # ```
+    #remotes=nothing,
     warnonly=:cross_references,
     sitename="OptimalControlProblems.jl",
     format=Documenter.HTML(;
@@ -30,13 +59,17 @@ makedocs(;
     ),
     pages=[
         "Getting Started" => "index.md",
-        "List of the Problems" => "list_of_problems.md",
-        "Tutorials" => [
-            "How to get a problem" => "use_models.md",
-            "How to solve a problem" => "solve_problem.md",
+        "Problems" => [
+            "problems-introduction.md",
+            "List of the problems" => PROBLEMS_PAGES
         ],
-        "Developers" => ["How to add a problem" => "add_problem.md"],
+        "Tutorials" => [
+            "How to get a problem" => "tutorial-get.md",
+            "How to solve a problem" => "tutorial-solve.md",
+        ],
+        "Developers" => ["How to add a problem" => "dev-add.md"],
     ],
+    plugins=[links],
 )
 
 deploydocs(; repo=repo_url * ".git", devbranch="main")

@@ -1,8 +1,6 @@
-chain_meta = Dict(
+chain_meta = OrderedDict(
     :name => "chain",
-    :nh => 500,
-    :nvar => nothing,
-    :ncon => nothing,
+    :N => 500,
     :minimize => true,
     :state_name => ["x1", "x2", "x3"],
     :costate_name => ["∂x1", "∂x2", "∂x3"],

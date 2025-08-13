@@ -1,8 +1,6 @@
-ducted_fan_meta = Dict(
+ducted_fan_meta = OrderedDict(
     :name => "ducted_fan",
-    :nh => 250,
-    :nvar => nothing,
-    :ncon => nothing,
+    :N => 250,
     :minimize => true,
     :state_name => ["x₁", "v₁", "x₂", "v₂", "α", "vα"],
     :costate_name => ["∂x₁", "∂v₁", "∂x₂", "∂v₂", "∂α", "∂vα"],

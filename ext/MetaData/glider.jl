@@ -1,8 +1,6 @@
-glider_meta = Dict(
+glider_meta = OrderedDict(
     :name => "glider",
-    :nh => 500,
-    :nvar => nothing,
-    :ncon => nothing,
+    :N => 500,
     :minimize => false,
     :state_name => ["x", "y", "vx", "vy"],
     :costate_name => ["∂x", "∂y", "∂vx", "∂vy"],

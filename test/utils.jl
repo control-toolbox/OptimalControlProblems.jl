@@ -54,7 +54,7 @@ function comparison(; max_iter, test_name)
 
     # we loop over the problems
     for f in LIST_OF_PROBLEMS
-        nh = OptimalControlProblems.metadata[f][:nh] # get default nh
+        N = OptimalControlProblems.metadata[f][:N] # get default N
 
         @testset "$(string(f)) ($(string(test_name)))" verbose=VERBOSE begin
             DEBUG && println("\n", "┌─ ", string(f), " (", string(test_name), ")")
@@ -63,7 +63,7 @@ function comparison(; max_iter, test_name)
             ########## OptimalControl ##########
 
             # set up the OptimalControl model 
-            docp, nlp = OptimalControlProblems.eval(f)(OptimalControlBackend(); nh=nh)
+            docp, nlp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
 
             # solve the problem
             nlp_sol = NLPModelsIpopt.ipopt(nlp; Options...)
@@ -88,7 +88,7 @@ function comparison(; max_iter, test_name)
             ############### JuMP ###############
 
             # set up the JuMP model
-            model = OptimalControlProblems.eval(f)(JuMPBackend(); nh=nh)
+            model = OptimalControlProblems.eval(f)(JuMPBackend(); N=N)
             set_optimizer(model, Ipopt.Optimizer)
             set_silent(model)
             set_optimizer_attribute(model, "tol", Options[:tol])
@@ -113,17 +113,17 @@ function comparison(; max_iter, test_name)
                 else
                     tf = value.(model[Symbol(time_var_name)])
                 end
-                range(t0, tf, nh+1)
+                range(t0, tf, N+1)
             elseif time_data == "step"
                 if time_value !== nothing
                     h = time_value
-                    tf = h * nh
-                    range(t0, tf, nh+1)
+                    tf = h * N
+                    range(t0, tf, N+1)
                 else
                     h = value.(model[Symbol(time_var_name)])
                     if isa(h, Number)
-                        tf = h * nh
-                        range(t0, tf, nh+1)
+                        tf = h * N
+                        range(t0, tf, N+1)
                     else
                         cumsum([0, h...])
                     end
