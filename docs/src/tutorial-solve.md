@@ -4,17 +4,19 @@ Draft = false
 
 # [Solve a problem](@id solve-problem)
 
-We consider the **Hanging Chain** problem from [COPS package](https://www.mcs.anl.gov/~more/cops/) as an example. The problem is to find the shape of a chain hanging between two points a and b. The chain is assumed to be a uniform cable with a given length L. The aim is to find the shape of the chain that minimizes the potential energy. 
+We consider the **Beam** problem. Let's import the OptimalControlProblems package.
+
+```@example main
+using OptimalControlProblems
+```
 
 ## Solving from OptimalControl model
 
-We need first to import the needed packages and the problem.
+Let's import the problem.
 
-```@example main_oc
-using OptimalControlProblems
+```@example main
 using OptimalControl
-
-docp, model = chain(OptimalControlBackend())
+docp, model = beam(OptimalControlBackend())
 nothing # hide
 ```
 
@@ -22,7 +24,7 @@ The model represents the nonlinear programming problem (NLP) obtained after the 
 
 Then, we can solve the problem using for instance [`NLPModelsIpopt.ipopt`](@extref).
 
-```@example main_oc
+```@example main
 using NLPModelsIpopt
 
 # Solve the model
@@ -37,13 +39,13 @@ nothing # hide
 ```
 
 To get the number of iterations:
-```@example main_oc
+```@example main
 sol.iter
 ```
 
 In order to recover the state, the control and the costate, we advice to build an optimal control solution and then use the associated getters:
 
-```@example main_oc
+```@example main
 ocp_sol = build_OCP_solution(
     docp;
     primal=sol.solution,
@@ -75,25 +77,23 @@ println("objective value: ", o)
 
 From `ocp_sol` you can plot the state, control and costate trajectories. For more details about the `plot` method for optimal control problems, please visit the [Plot Manual](@extref OptimalControl manual-plot).
 
-```@example main_oc
+```@example main
 using Plots
-plot(ocp_sol)
+plt = plot(ocp_sol; color=1, size=(800, 700), control_style=(label="OptimalControl", ))
 ```
 
 ## Solving from JuMP model
 
-Lest's import the needed packages and the problem.
+Lest's import the JuMP model.
 
-```@example main_jp
-using OptimalControlProblems
+```@example main
 using JuMP
-
-model = chain(JuMPBackend())
+model = beam(JuMPBackend())
 ```
 
 Then, we can solve the problem using the [`JuMP.optimize!`](@extref) function.	
 
-```@example main_jp
+```@example main
 using Ipopt
 
 # Set the optimizer
@@ -111,29 +111,49 @@ optimize!(model)
 
 To get the number of iterations:
 
-```@example main_jp
+```@example main
 barrier_iterations(model)
 ```
 
 To get the objective value:
 
-```@example main_jp
+```@example main
 objective_value(model)
 ```
 
 To get the time grid, the state, the control and the costate, OptimalControlProblems provides the following getters:
 
-```@example main_jp
-problem = :chain
+```@example main
+problem = :beam
+
 t = time_grid(problem, model)    # t0, ..., tN = tf
-x = state(problem, model)        # Vector of vectors
-u = control(problem, model)      # Vector of scalars (since there is 1 control)
-p = costate(problem, model)      # Vector of vectors
+x = state(problem, model)        # function of time
+u = control(problem, model)      # function of time
+p = costate(problem, model)      # function of time
 
 tf = t[end]
 println("tf = ", tf)
-println("x(tf) = ", x[end])
-println("u(tf) = ", u[end])
-println("p(tf) = ", p[end])
+println("x(tf) = ", x(tf))
+println("u(tf) = ", u(tf))
+println("p(tf) = ", p(tf))
 ```
 
+We can add the state, costate and control to the plot.
+
+```@example main
+n = length(OptimalControlProblems.metadata[problem][:state_name]) # dimension of the state
+m = length(OptimalControlProblems.metadata[problem][:control_name]) # dimension of the control
+
+for i in 1:n # state
+    plot!(plt[i], t, t -> x(t)[i]; color=2, linestyle=:dash, label=:none)
+end
+
+for i in 1:n # costate
+    plot!(plt[n+i], t, t -> p(t)[i]; color=2, linestyle=:dash, label=:none)
+end
+
+for i in 1:m # control
+    plot!(plt[2n+i], t, t -> u(t)[i]; color=2, linestyle=:dash, label="JuMP")
+end
+plt # hide
+```

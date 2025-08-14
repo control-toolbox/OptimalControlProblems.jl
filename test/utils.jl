@@ -107,11 +107,11 @@ function comparison(; max_iter, test_name)
 
             # retrieve values
             t_jp = time_grid(f, model)
-            x_jp = state(f, model)
-            u_jp = control(f, model)
+            x_jp = state(f, model).(t_jp)
+            u_jp = control(f, model).(t_jp)
             o_jp = objective_value(model)
             i_jp = barrier_iterations(model)
-            p_jp = costate(f, model)
+            p_jp = costate(f, model).(t_jp)
 
             ############ TEST ############
 

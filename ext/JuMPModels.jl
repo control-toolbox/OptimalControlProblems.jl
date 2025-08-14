@@ -54,29 +54,95 @@ end
 
 # todo: function of time
 # todo: return a scalar if of dimension 1
+# todo: add variable getter?!
 function CTModels.state(problem::Symbol, model::JuMP.GenericModel)
-    x_vars = OptimalControlProblems.metadata[problem][:state_name]
-    x_jp_vars = [JuMP.value.(model[Symbol(xv)]) for xv in x_vars]
-    inds_x = axes(x_jp_vars[1], 1)
-    x_jp = [[x_jp_vars[j][i] for j in 1:length(x_vars)] for i in inds_x]
-    return x_jp
-end
 
-function CTModels.costate(problem::Symbol, model::JuMP.GenericModel)
-    p_vars = OptimalControlProblems.metadata[problem][:costate_name]
-    p_jp_vars = [JuMP.dual.(model[Symbol(pv)]) for pv in p_vars]
-    inds_p = axes(p_jp_vars[1], 1)
-    p_jp = -[[p_jp_vars[j][i] for j in 1:length(p_vars)] for i in inds_p]
-    push!(p_jp, p_jp[end]) # we add one element
-    return p_jp
+    # time grid
+    T = CTModels.time_grid(problem, model)
+    N = length(T) - 1
+
+    # get dimension
+    state_names = OptimalControlProblems.metadata[problem][:state_name]
+    dim_x = length(state_names)
+
+    # get state from the model
+    X = zeros(N + 1, dim_x)
+    for i in 1:dim_x
+        x_name = state_names[i]
+        X[:, i] = JuMP.value.(model[Symbol(x_name)])
+    end
+
+    # interpolate
+    N = size(X, 1)
+    V = CTModels.matrix2vec(X[:, 1:dim_x], 1)
+    x = CTModels.ctinterpolate(T[1:N], V)
+
+    # force scalar output when dimension is 1
+    fx = (dim_x == 1) ? deepcopy(t -> x(t)[1]) : deepcopy(t -> x(t))
+
+    return fx
 end
 
 function CTModels.control(problem::Symbol, model::JuMP.GenericModel)
-    u_vars = OptimalControlProblems.metadata[problem][:control_name]
-    u_jp_vars = [JuMP.value.(model[Symbol(uv)]) for uv in u_vars]
-    inds_u = axes(u_jp_vars[1], 1)
-    u_jp = [[u_jp_vars[j][i] for j in 1:length(u_vars)] for i in inds_u]
-    return u_jp
+
+    # time grid
+    T = CTModels.time_grid(problem, model)
+    N = length(T) - 1
+
+    # get dimension
+    control_names = OptimalControlProblems.metadata[problem][:control_name]
+    dim_u = length(control_names)
+
+    # get control from the model
+    U = zeros(N + 1, dim_u)
+    for i in 1:dim_u
+        u_name = control_names[i]
+        U[:, i] = JuMP.value.(model[Symbol(u_name)])
+    end
+
+    # interpolate
+    M = size(U, 1)
+    V = CTModels.matrix2vec(U[:, 1:dim_u], 1)
+    u = CTModels.ctinterpolate(T[1:M], V)
+
+    # force scalar output when dimension is 1
+    fu = (dim_u == 1) ? deepcopy(t -> u(t)[1]) : deepcopy(t -> u(t))
+
+    return fu
 end
+
+function CTModels.costate(problem::Symbol, model::JuMP.GenericModel)
+
+    # time grid
+    T = CTModels.time_grid(problem, model)
+    N = length(T) - 1
+
+    # get dimension
+    costate_names = OptimalControlProblems.metadata[problem][:costate_name]
+    dim_x = length(costate_names)
+
+    # get state from the model
+    P = zeros(N, dim_x)
+    for i in 1:dim_x
+        p_name = costate_names[i]
+        P[:, i] = JuMP.dual.(model[Symbol(p_name)])
+    end
+
+    # interpolate
+    L = size(P, 1)
+    V = CTModels.matrix2vec(P[:, 1:dim_x], 1)
+    p = if length(T) == 2
+        t -> P[1, 1:dim_x]
+    else
+        CTModels.ctinterpolate(T[1:L], V)
+    end
+
+    # force scalar output when dimension is 1
+    fp = (dim_x == 1) ? deepcopy(t -> p(t)[1]) : deepcopy(t -> p(t))
+
+    return fp
+
+end
+
 
 end
