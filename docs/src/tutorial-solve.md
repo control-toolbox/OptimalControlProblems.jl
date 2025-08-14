@@ -1,7 +1,3 @@
-```@meta
-Draft = false
-```
-
 # [Solve a problem](@id solve-problem)
 
 We consider the **Beam** problem. Let's import the OptimalControlProblems package.

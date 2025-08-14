@@ -19,15 +19,23 @@ const MAX_ITER = 1000
 const MAX_WALL_TIME = 500.0
 
 # Collect all the problems from OptimalControlProblems
-all_names = names(OptimalControlProblems; all=true)
-list_of_problems = filter(
-    x ->
-        isdefined(OptimalControlProblems, x) &&
-        isa(getfield(OptimalControlProblems, x), Function) &&
-        !startswith(string(x), "#") &&
-        !(x in [:eval, :include, :available_problems]),
-    all_names,
-)
+path = joinpath(dirname(@__FILE__), "..", "ext", "MetaData")
+list_of_problems = []
+files = filter(x -> x[(end - 2):end] == ".jl", readdir(path))
+for file in files
+    problem = Symbol(file[1:(end - 3)])
+    push!(list_of_problems, problem)
+end
+
+# all_names = names(OptimalControlProblems; all=true)
+# list_of_problems = filter(
+#     x ->
+#         isdefined(OptimalControlProblems, x) &&
+#         isa(getfield(OptimalControlProblems, x), Function) &&
+#         !startswith(string(x), "#") &&
+#         !(x in [:eval, :include, :available_problems]),
+#     all_names,
+# )
 
 # Remove from the tests the following problems
 # problems_to_exclude = [

@@ -91,16 +91,25 @@ Returns the list of available optimal control problems.
 """
 function available_problems()
 
+    #
+    list_of_problems = []
+
     # collect all the problems
-    all_names = names(OptimalControlProblems; all=true)
-    list_of_problems = filter(
-        x ->
-            isdefined(OptimalControlProblems, x) &&
-            isa(getfield(OptimalControlProblems, x), Function) &&
-            !startswith(string(x), "#") &&
-            !(x in [:eval, :include, :available_problems]),
-        all_names,
-    )
+    files = filter(x -> x[(end - 2):end] == ".jl", readdir(path))
+    for file in files
+        problem = Symbol(file[1:(end - 3)])
+        push!(list_of_problems, problem)
+    end
+
+    # all_names = names(OptimalControlProblems; all=true)
+    # list_of_problems = filter(
+    #     x ->
+    #         isdefined(OptimalControlProblems, x) &&
+    #         isa(getfield(OptimalControlProblems, x), Function) &&
+    #         !startswith(string(x), "#") &&
+    #         !(x in [:eval, :include, :available_problems]),
+    #     all_names,
+    # )
 
     # # exclude the following problems
     # problems_to_exclude = [
