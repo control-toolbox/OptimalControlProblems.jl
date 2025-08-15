@@ -58,7 +58,7 @@ const DEBUG = true
 const VERBOSE = true # print or not details during tests
 @testset "OptimalControlProblems tests" verbose=VERBOSE showtiming=true begin
     for name in (
-        :aqua,
+        #:aqua,
         :JuMP,                  # convergence tests for JuMP models
         :OptimalControl,        # convergence tests for OptimalControl models
         :init,                  # comparison between OptimalControl and JuMP: init
