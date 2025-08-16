@@ -5,6 +5,7 @@ using OptimalControl
 using JuMP
 using CTModels
 using ExaModels
+include("problems.jl")
 
 # to add docstrings from external packages
 const JuMPModels = Base.get_extension(OptimalControlProblems, :JuMPModels)
@@ -65,9 +66,7 @@ cp(
 
 repo_url = "github.com/control-toolbox/OptimalControlProblems.jl"
 
-PROBLEMS_PAGES = [
-    joinpath("problems", "cart_pendulum.md"),
-]
+PROBLEMS_PAGES = generate_documentation_problems()
 
 makedocs(;
     draft=true, # if draft is true, then the julia code from .md is not executed # debug
