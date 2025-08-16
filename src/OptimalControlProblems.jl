@@ -105,16 +105,6 @@ function available_problems()
         push!(list_of_problems, problem)
     end
 
-    # all_names = names(OptimalControlProblems; all=true)
-    # list_of_problems = filter(
-    #     x ->
-    #         isdefined(OptimalControlProblems, x) &&
-    #         isa(getfield(OptimalControlProblems, x), Function) &&
-    #         !startswith(string(x), "#") &&
-    #         !(x in [:eval, :include, :available_problems]),
-    #     all_names,
-    # )
-
     # # exclude the following problems
     # problems_to_exclude = [
 
