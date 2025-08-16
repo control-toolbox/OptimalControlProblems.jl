@@ -2,6 +2,8 @@ module OptimalControlProblems
 
 using CTBase
 import CTModels: CTModels, time_grid, state, control, costate
+import ExaModels: ExaModels, variable
+using DocStringExtensions
 
 abstract type AbstractModelBackend end
 struct JuMPBackend <: AbstractModelBackend end
@@ -40,34 +42,36 @@ const infos = [
     :state_name
     :costate_name
     :control_name
-    :time
+    :variable_name
+    :final_time
 ]
 
 const types = [
-    Union{String},
-    Union{Int},
-    Union{Bool},
-    Union{Vector{String},String},
-    Union{Vector{String},String},
-    Union{Vector{String},String},
-    Union{Tuple{String,String,Union{Real,Nothing}}},
+    String,
+    Int,
+    Bool,
+    Vector{String},
+    Vector{String},
+    Vector{String},
+    Union{Vector{String},Nothing},
+    Tuple{Symbol,Union{Float64, Int}},
 ]
 
 """
-OptimalControlProblems.metadata
+OptimalControlProblems.metadata::Dict()
 
 The following keys are valid:
 
-    - `name::String`: problem name.
-    - `N::Int`: default number of discretization points.
-    - `minimize::Bool`: true or false depending on whether we minimise or maximise the objective function.
-    - `state_name::Vector{String}`: the names of the components of the state.
-    - `costate_name::Vector{String}`: the names of the differential constraints associated to each component of the costate.
-    - `control_name::Vector{String}`: the names of the components of the control.
-    - `time::Tuple{String, String, Union{Int, Nothing}}`: `time` is of the form `(type, name, value)` where:
-        - `type` is either `final_time` or `step` depending on how the problem is modelled. Either the final time or the time step is a decision variable. If the final time is fixed, then `type="final_time"`.
-        - `name` is the name of the final time variable.
-        - `value` is either the value of the final time or `nothing` if it is free. If the final time is fixed, then it is simply a parameter while if it is free, then it is one of the decision variable. If `type="step"`, then `value` is the value of the time step (assuming the grid is uniform).
+- `name::String`: the problem name.
+- `N::Int`: the default number of steps.
+- `minimize::Bool`: indicates whether the objective function is minimized (`true`) or maximized (`false`).
+- `state_name::Vector{String}`: names of the state components.
+- `costate_name::Vector{String}`: names of the differential constraints to get the costate (dual variables associated with the differential constraints).
+- `control_name::Vector{String}`: names of the control components.
+- `variable_name::Union{Vector{String},Nothing}`: names of the optimization variables, or `nothing` if no such variable exists. Here, "variable" refers to the optimization variable of the optimal control problem.
+- `final_time::Tuple{Symbol, Union{Float64, Int}}`: of the form `(type, value_or_index)`, where:
+    - `type` is either `:fixed` or `:free`.
+    - `value_or_index` is the index in `variable` if the final time is free, or its value if it is fixed.
 """
 const metadata = Dict()
 
@@ -85,7 +89,7 @@ end
 
 # ------- Available Problems Function -------
 """
-    available_problems()
+$(TYPEDSIGNATURES)
 
 Returns the list of available optimal control problems.
 """
@@ -121,20 +125,23 @@ function available_problems()
 end
 
 # JuMP: getters for the time grid, state, control and costate
-function CTModels.time_grid(::Symbol, model)
+function time_grid(::Symbol, model)
     throw(CTBase.ExtensionError(:JuMP))
 end
-function CTModels.state(::Symbol, model)
+function state(::Symbol, model)
     throw(CTBase.ExtensionError(:JuMP))
 end
-function CTModels.costate(::Symbol, model)
+function costate(::Symbol, model)
     throw(CTBase.ExtensionError(:JuMP))
 end
-function CTModels.control(::Symbol, model)
+function control(::Symbol, model)
+    throw(CTBase.ExtensionError(:JuMP))
+end
+function variable(::Symbol, model)
     throw(CTBase.ExtensionError(:JuMP))
 end
 
 export JuMPBackend, OptimalControlBackend, available_problems
-export time_grid, state, costate, control
+export time_grid, state, costate, control, variable
 
 end

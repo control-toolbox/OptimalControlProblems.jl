@@ -1,39 +1,41 @@
 # [Get a problem](@id get-problem)
 
-Each problem in OptimalControlProblems package is modelled in JuMP and OptimalControl. To get a model, we need to indicate either JuMP or OptimalControl backend.
+Each problem in the **OptimalControlProblems** package is modelled both in JuMP and in OptimalControl. To obtain a model, you need to specify either the JuMP or the OptimalControl backend.
 
 ## Get an OptimalControl model
 
 ### NLP Model
 
-To get an OptimalControl model, first [install OptimalControl](https://control-toolbox.org/OptimalControl.jl/stable/#Installation) and import the packages:
+To get an OptimalControl model, first install [OptimalControl](https://control-toolbox.org/OptimalControl.jl/stable/#Installation) and import the packages:
 
 ```@example main_oc
 using OptimalControl
 using OptimalControlProblems
 ```
 
-Then, to get the OptimalControl model of the beam problem, execute:
+Then, to obtain the OptimalControl model of the beam problem, run:
 
 ```@example main_oc
 _, model = beam(OptimalControlBackend())
 model # hide
 ```
 
-The model represents the nonlinear programming problem (NLP) obtained after the discretisation of the optimal control problem (OCP), see the [Introduction](@ref problems-introduction) page. The model is a [`ADNLPModels.ADNLPModel`](@extref), it provides automatic differentiation (AD)-based models that follows the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API.
+The model represents the nonlinear programming problem (NLP) obtained after discretising the optimal control problem (OCP). See the [Introduction](@ref problems-introduction) page for details. The model is an [`ADNLPModels.ADNLPModel`](@extref), which provides automatic differentiation (AD)-based models that follow the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API.
 
 ### DOCP
 
-You have also access to the DOCP model, which corresponds to the discretised optimal control problem. For further details, we refer to the following [tutorial](@extref Tutorials Discretization-and-NLP-problem) or the documentation of [`CTDirect.DOCP`](@extref).
+You also have access to the DOCP model, which corresponds to the discretised optimal control problem. For more details, see this [tutorial](@extref Tutorials Discretization-and-NLP-problem) or the documentation of [`CTDirect.DOCP`](@extref).
 
 ```@example main_oc
 docp, model = beam(OptimalControlBackend())
 nothing # hide
 ```
 
-### Number of variables, constraints and nonzeros
+### Number of variables, constraints, and nonzeros
 
-The model follows the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API. See the existing [Attributes](https://jso.dev/NLPModels.jl/stable/#Attributes) and the getters (`get_X` functions) [here](https://jso.dev/NLPModels.jl/stable/reference). To get the number of variables, use:
+The model follows the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API. See the existing [Attributes](https://jso.dev/NLPModels.jl/stable/#Attributes) and the available getter functions (`get_X`) [here](https://jso.dev/NLPModels.jl/stable/reference).  
+
+To get the number of variables:
 
 ```@example main_oc
 using NLPModels
@@ -49,7 +51,7 @@ get_ncon(model)
 To get the number of nonzeros:
 
 ```@example main_oc
-nnzo = get_nnzo(model) # Gradient of the Objective
+nnzo = get_nnzo(model) # Gradient of the objective
 nnzj = get_nnzj(model) # Jacobian of the constraints
 nnzh = get_nnzh(model) # Hessian of the Lagrangian
 
@@ -59,22 +61,20 @@ println("nnzh = ", nnzh)
 ```
 
 !!! note
-
-    You can also evaluate the objective function, the constraints... See the [API page](https://jso.dev/NLPModels.jl/stable/api).
+    You can also evaluate the objective function, the constraints, and more. See the [API page](https://jso.dev/NLPModels.jl/stable/api).
 
 ### Number of steps
 
-The number of steps $N$ is given by the metadata:
+The number of steps $N$ is stored in the metadata:
 
 ```@example main_oc
 OptimalControlProblems.metadata[:beam][:N]
 ```
 
 !!! note
+    The grid $\{t_0, \ldots, t_N = t_f\}$ has length $N+1$.
 
-    The grid $\{t_0, \ldots, t_N=t_f\}$ is of length $N+1$.
-
-Each problem is parameterised by the number of steps:
+Each problem can be parameterised by the number of steps:
 
 ```@example main_oc
 docp, model = beam(OptimalControlBackend(); N=100)
@@ -95,12 +95,11 @@ using JuMP
 using OptimalControlProblems
 ```
 
-Then, to get the JuMP model of the beam problem, execute:
+Then, to obtain the JuMP model of the beam problem, run:
 
 ```@example main_jp
 model = beam(JuMPBackend())
 ```
 
 !!! note
-
-    To interact with the JuMP model, we refer to the [JuMP documentation](https://jump.dev/JuMP.jl).
+    For details on how to interact with the JuMP model, see the [JuMP documentation](https://jump.dev/JuMP.jl).

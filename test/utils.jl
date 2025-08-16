@@ -59,6 +59,7 @@ function comparison(; max_iter, test_name)
         x_vars = OptimalControlProblems.metadata[f][:state_name]
         p_vars = OptimalControlProblems.metadata[f][:costate_name]
         u_vars = OptimalControlProblems.metadata[f][:control_name]
+        v_vars = OptimalControlProblems.metadata[f][:variable_name]
 
         @testset "$(string(f)) ($(string(test_name)))" verbose=VERBOSE begin
             DEBUG && println("\n", "┌─ ", string(f), " (", string(test_name), ")")
@@ -88,6 +89,7 @@ function comparison(; max_iter, test_name)
             u_oc = control(sol).(t_oc)
             o_oc = objective(sol)
             i_oc = nlp_sol.iter # iterations(sol) returns 0!
+            v_oc = variable(sol)
 
             ############### JuMP ###############
 
@@ -112,6 +114,7 @@ function comparison(; max_iter, test_name)
             o_jp = objective_value(model)
             i_jp = barrier_iterations(model)
             p_jp = costate(f, model).(t_jp)
+            v_jp = variable(f, model)
 
             ############ TEST ############
 
@@ -251,6 +254,36 @@ function comparison(; max_iter, test_name)
                             DEBUG && println("│     r_err = ", L2_di/(0.5*(L2_oc + L2_jp)))
                             DEBUG && println("│     a_err = ", L2_di)
                             DEBUG && println("│     bound = ", L2_bd)
+                            DEBUG &&
+                                (typeof(res) == Test.Pass) &&
+                                println("│     \033[1;32mTest Passed\033[0m")
+                            DEBUG &&
+                                (typeof(res) != Test.Pass) &&
+                                println("│     \033[1;31mTest Failed\033[0m")
+                            DEBUG && println("│")
+                        end
+                    end
+                end
+            end
+
+            # variable
+            if test_grid_ok && !isnothing(v_vars)
+                @testset "variable" verbose=VERBOSE begin
+                    for i in eachindex(v_vars)
+                        @testset "$(v_vars[i])" verbose=VERBOSE begin
+                            vi_oc = v_oc[i]
+                            vi_jp = v_jp[i]
+                            vi_di = abs(vi_oc-vi_jp)
+                            vi_bd = max(0.5*(abs(vi_oc) + abs(vi_jp))*ε_rel_control, ε_abs_control)
+                            res = @my_test_broken vi_di < vi_bd
+
+                            DEBUG && println("├─  variable $(v_vars[i])")
+                            DEBUG && println("│")
+                            DEBUG && println("│     vi oc = ", vi_oc)
+                            DEBUG && println("│     vi jp = ", vi_jp)
+                            DEBUG && println("│     r_err = ", vi_di/(0.5*(abs(vi_oc) + abs(vi_jp))))
+                            DEBUG && println("│     a_err = ", vi_di)
+                            DEBUG && println("│     bound = ", vi_bd)
                             DEBUG &&
                                 (typeof(res) == Test.Pass) &&
                                 println("│     \033[1;32mTest Passed\033[0m")

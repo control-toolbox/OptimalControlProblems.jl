@@ -3,6 +3,7 @@ module JuMPModels
 using OptimalControlProblems
 using JuMP
 import CTModels: CTModels, time_grid, state, control, costate
+import ExaModels: ExaModels, variable
 
 rel_path_problems = "JuMPModels"
 path = joinpath(dirname(@__FILE__), rel_path_problems)
@@ -15,7 +16,7 @@ for file in files
 end
 
 #
-function CTModels.time_grid(problem::Symbol, model::JuMP.GenericModel)
+function OptimalControlProblems.time_grid(problem::Symbol, model::JuMP.GenericModel)
 
     # get N
     x_vars = OptimalControlProblems.metadata[problem][:state_name]
@@ -23,39 +24,23 @@ function CTModels.time_grid(problem::Symbol, model::JuMP.GenericModel)
     N = length(x_jp_var) - 1
 
     ## time grid: we assume that t0 = 0
-    time_data, time_var_name, time_value = OptimalControlProblems.metadata[problem][:time]
+    time_data, time_value_or_index = OptimalControlProblems.metadata[problem][:final_time]
 
     t0 = 0
-    t_jp = if time_data == "final_time"
-        if time_value !== nothing
-            tf = time_value
-        else
-            tf = value.(model[Symbol(time_var_name)])
-        end
-        range(t0, tf, N+1)
-    elseif time_data == "step"
-        if time_value !== nothing
-            h = time_value
-            tf = h * N
-            range(t0, tf, N+1)
-        else
-            h = value.(model[Symbol(time_var_name)])
-            if isa(h, Number)
-                tf = h * N
-                range(t0, tf, N+1)
-            else
-                cumsum([0, h...])
-            end
-        end
+    tf = if time_data == :fixed
+        time_value_or_index
+    elseif time_data == :free
+        v_vars = OptimalControlProblems.metadata[problem][:variable_name]
+        value.(model[Symbol(v_vars[time_value_or_index])])
+    else
+        error("the final time must be :fixed or :free, not: ", time_data)
     end
+    t_jp = range(t0, tf, N+1)
+    
     return t_jp
-
 end
 
-# todo: function of time
-# todo: return a scalar if of dimension 1
-# todo: add variable getter?!
-function CTModels.state(problem::Symbol, model::JuMP.GenericModel)
+function OptimalControlProblems.state(problem::Symbol, model::JuMP.GenericModel)
 
     # time grid
     T = CTModels.time_grid(problem, model)
@@ -83,7 +68,7 @@ function CTModels.state(problem::Symbol, model::JuMP.GenericModel)
     return fx
 end
 
-function CTModels.control(problem::Symbol, model::JuMP.GenericModel)
+function OptimalControlProblems.control(problem::Symbol, model::JuMP.GenericModel)
 
     # time grid
     T = CTModels.time_grid(problem, model)
@@ -111,7 +96,7 @@ function CTModels.control(problem::Symbol, model::JuMP.GenericModel)
     return fu
 end
 
-function CTModels.costate(problem::Symbol, model::JuMP.GenericModel)
+function OptimalControlProblems.costate(problem::Symbol, model::JuMP.GenericModel)
 
     # time grid
     T = CTModels.time_grid(problem, model)
@@ -121,7 +106,7 @@ function CTModels.costate(problem::Symbol, model::JuMP.GenericModel)
     costate_names = OptimalControlProblems.metadata[problem][:costate_name]
     dim_x = length(costate_names)
 
-    # get state from the model
+    # get costate from the model
     P = zeros(N, dim_x)
     for i in 1:dim_x
         p_name = costate_names[i]
@@ -141,8 +126,29 @@ function CTModels.costate(problem::Symbol, model::JuMP.GenericModel)
     fp = (dim_x == 1) ? deepcopy(t -> p(t)[1]) : deepcopy(t -> p(t))
 
     return fp
-
 end
 
+function OptimalControlProblems.variable(problem::Symbol, model::JuMP.GenericModel)
+
+    variable_names = OptimalControlProblems.metadata[problem][:variable_name]
+
+    if isnothing(variable_names)
+        return nothing
+    end
+
+    dim_v = length(variable_names)
+
+    # get variable from the model
+    v = zeros(dim_v)
+    for i in 1:dim_v
+        v_name = variable_names[i]
+        v[i] = JuMP.value.(model[Symbol(v_name)])
+    end
+
+    # force scalar output when dimension is 1
+    var = (dim_v == 1) ? v[1] : v
+
+    return var
+end
 
 end

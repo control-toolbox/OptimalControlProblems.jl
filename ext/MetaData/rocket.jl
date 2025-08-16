@@ -5,5 +5,6 @@ rocket_meta = OrderedDict(
     :state_name => ["h", "v", "m"],
     :costate_name => ["∂h", "∂v", "∂m"],
     :control_name => ["T"],
-    :time => ("final_time", "tf", nothing),
+    :variable_name => ["tf"],
+    :final_time => (:free, 1), # first component of the variable
 )

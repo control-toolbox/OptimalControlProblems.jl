@@ -1,5 +1,20 @@
 using Documenter
 using DocumenterInterLinks
+using OptimalControlProblems
+using OptimalControl
+using JuMP
+using CTModels
+using ExaModels
+
+# to add docstrings from external packages
+const JuMPModels = Base.get_extension(OptimalControlProblems, :JuMPModels)
+const OptimalControlModels = Base.get_extension(OptimalControlProblems, :OptimalControlModels)
+
+Modules = [JuMPModels, OptimalControlModels]
+for Module in Modules
+    isnothing(DocMeta.getdocmeta(Module, :DocTestSetup)) &&
+        DocMeta.setdocmeta!(Module, :DocTestSetup, :(using $Module); recursive=true)
+end
 
 #
 links = InterLinks(
@@ -51,11 +66,11 @@ cp(
 repo_url = "github.com/control-toolbox/OptimalControlProblems.jl"
 
 PROBLEMS_PAGES = [
-    joinpath("problems", "beam.md"),
+    joinpath("problems", "cart_pendulum.md"),
 ]
 
 makedocs(;
-    draft=false, # if draft is true, then the julia code from .md is not executed # debug
+    draft=true, # if draft is true, then the julia code from .md is not executed # debug
     # to disable the draft mode in a specific markdown file, use the following:
     # ```@meta
     # Draft = false
@@ -82,7 +97,10 @@ makedocs(;
             "How to get a problem" => "tutorial-get.md",
             "How to solve a problem" => "tutorial-solve.md",
         ],
-        "Developers" => ["How to add a problem" => "dev-add.md"],
+        "Developers" => [
+            "How to add a problem" => "dev-add.md",
+            "API" => "dev-api.md"
+        ],
     ],
     plugins=[links],
 )

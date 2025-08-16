@@ -5,5 +5,6 @@ cart_pendulum_meta = OrderedDict(
     :state_name => ["x", "v", "θ", "ω"],
     :costate_name => ["∂x", "∂v", "∂θ", "∂ω"],
     :control_name => ["Fex"],
-    :time => ("final_time", "tf", nothing),
+    :variable_name => ["tf", "ddx"],
+    :final_time => (:free, 1), # first component of the variable
 )

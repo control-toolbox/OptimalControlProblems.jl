@@ -5,5 +5,6 @@ jackson_meta = OrderedDict(
     :state_name => ["a", "b", "x3"],
     :costate_name => ["∂a", "∂b", "∂x3"],
     :control_name => ["u"],
-    :time => ("final_time", "tf", 4),
+    :variable_name => nothing,
+    :final_time => (:fixed, 4),
 )

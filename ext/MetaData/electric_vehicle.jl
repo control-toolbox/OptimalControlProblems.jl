@@ -4,6 +4,7 @@ electric_vehicle_meta = OrderedDict(
     :minimize => true,
     :state_name => ["x", "v"],
     :costate_name => ["∂x", "∂v"],
-    :control_name => "u",
-    :time => ("final_time", "tf", 1),
+    :control_name => ["u"],
+    :variable_name => nothing,
+    :final_time => (:fixed, 1),
 )

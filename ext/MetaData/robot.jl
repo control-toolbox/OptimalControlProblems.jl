@@ -5,5 +5,6 @@ robot_meta = OrderedDict(
     :state_name => ["ρ", "dρ", "θ", "dθ", "ϕ", "dϕ"],
     :costate_name => ["∂ρ", "∂dρ", "∂θ", "∂dθ", "∂ϕ", "∂dϕ"],
     :control_name => ["uρ", "uθ", "uϕ"],
-    :time => ("final_time", "tf", nothing),
+    :variable_name => ["tf"],
+    :final_time => (:free, 1), # first component of the variable
 )

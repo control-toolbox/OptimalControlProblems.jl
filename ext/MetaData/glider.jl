@@ -5,5 +5,6 @@ glider_meta = OrderedDict(
     :state_name => ["x", "y", "vx", "vy"],
     :costate_name => ["∂x", "∂y", "∂vx", "∂vy"],
     :control_name => ["cL"],
-    :time => ("final_time", "tf", nothing),
+    :variable_name => ["tf"],
+    :final_time => (:free, 1), # first component of the variable
 )

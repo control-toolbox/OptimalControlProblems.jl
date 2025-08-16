@@ -49,7 +49,7 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; N::Int=50
     ocp = @def begin
 
         ## define the problem
-        tf ∈ R¹, variable
+        tf ∈ R, variable
         t ∈ [0, tf], time
         x = (scaled_h, ϕ, θ, scaled_v, γ, ψ) ∈ R⁶, state
         u = (α, β) ∈ R², control

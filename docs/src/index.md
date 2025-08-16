@@ -1,12 +1,14 @@
 # OptimalControlProblems.jl
 
-The OptimalControlProblems.jl package is part of the [control-toolbox ecosystem](https://github.com/control-toolbox) and is independent of [OptimalControl.jl](https://control-toolbox.org/OptimalControl.jl). The control-toolbox ecosystem gathers Julia packages for mathematical control and applications. It aims to provide tools to model and solve optimal control problems with ordinary differential equations by direct and indirect methods, both on CPU and GPU. If you want to define an optimal control problem and solve it, please check the following [documentation](https://control-toolbox.org/OptimalControl.jl).
+The **OptimalControlProblems.jl** package is part of the [control-toolbox ecosystem](https://github.com/control-toolbox) and is independent of [OptimalControl.jl](https://control-toolbox.org/OptimalControl.jl). The control-toolbox ecosystem brings together Julia packages for mathematical control and its applications. Its purpose is to provide tools to model and solve optimal control problems governed by ordinary differential equations, using both direct and indirect methods, on CPU and GPU.  
 
-In the OptimalControlProblems.jl package, you can find a list of optimal control problems modelled with JuMP and OptimalControl. There can be used for benchmarking.
+If you would like to define and solve your own optimal control problem, please refer to the [OptimalControl.jl documentation](https://control-toolbox.org/OptimalControl.jl).
+
+In **OptimalControlProblems.jl**, you will find a collection of optimal control problems modelled with JuMP and OptimalControl. These problems can be used for benchmarking.
 
 ## Installation
 
-To install OptimalControlProblems.jl, please [open Julia's interactive session (known as REPL)](https://docs.julialang.org/en/v1/manual/getting-started) and use the Julia package manager:
+To install **OptimalControlProblems.jl**, please [open Julia’s interactive session (known as the REPL)](https://docs.julialang.org/en/v1/manual/getting-started) and use the Julia package manager:
 
 ```julia
 using Pkg
