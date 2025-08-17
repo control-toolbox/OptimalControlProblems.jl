@@ -67,7 +67,7 @@ docp, model_oc = $PROBLEM(OptimalControlBackend())
 # solve
 nlp_sol = NLPModelsIpopt.ipopt(
     model_oc;
-    print_level=5,
+    print_level=4,
     tol=1e-8,
     mu_strategy="adaptive",
     sb="yes",
@@ -158,7 +158,7 @@ model_jp = $PROBLEM(JuMPBackend())
 
 # solve
 set_optimizer(model_jp, Ipopt.Optimizer)
-set_optimizer_attribute(model_jp, "print_level", 5)
+set_optimizer_attribute(model_jp, "print_level", 4)
 set_optimizer_attribute(model_jp, "tol", 1e-8)
 set_optimizer_attribute(model_jp, "mu_strategy", "adaptive")
 set_optimizer_attribute(model_jp, "linear_solver", "mumps")
