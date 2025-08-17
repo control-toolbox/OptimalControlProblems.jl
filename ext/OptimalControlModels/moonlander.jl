@@ -1,7 +1,7 @@
 """
 The Moonlander Problem:
     We want to find the optimal trajectory for a moonlander to land on the moon.
-    The objective is to minimize the time taken to land on the moon.
+    The objective is to minimise the time taken to land on the moon.
     The problem is formulated as an OptimalControl model.
 """
 function OptimalControlProblems.moonlander(::OptimalControlBackend; N::Int=500)

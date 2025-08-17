@@ -67,7 +67,7 @@ cp(
 repo_url = "github.com/control-toolbox/OptimalControlProblems.jl"
 
 #
-draft = false
+draft = true
 exclude_from_draft=Symbol[
 #    :beam
 ]
@@ -85,7 +85,10 @@ makedocs(;
     format=Documenter.HTML(;
         repolink="https://" * repo_url,
         prettyurls=false,
-        size_threshold_ignore=["index.md"],
+        size_threshold_ignore=[
+            "dev-api.md",
+            PROBLEMS_PAGES...
+        ],
         assets=[
             asset("https://control-toolbox.org/assets/css/documentation.css"),
             asset("https://control-toolbox.org/assets/js/documentation.js"),

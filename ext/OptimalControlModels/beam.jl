@@ -1,6 +1,26 @@
 """
-The Beam Problem:
-    The problem is formulated as an OptimalControl model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+$(TYPEDSIGNATURES)
+
+Constructs an OptimalControl problem representing the Beam problem using the OptimalControl backend, as formulated in the BOCOP [repository](https://github.com/control-toolbox/bocop/tree/main/bocop).
+The model includes state and control variables, boundary conditions, dynamics, path constraints, 
+and an objective functional.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder for the OptimalControl backend type, selecting the solver interface.
+- `N::Int=500`: Number of discretisation points for the direct transcription.
+
+# Returns
+
+- `docp`: The direct optimal control problem (DOCP) object.
+- `nlp`: The corresponding nonlinear programming (NLP) model obtained from direct transcription.
+
+# Example
+
+```julia-repl
+julia> docp, nlp = OptimalControlProblems.beam(OptimalControlBackend(); N=500)
+(DOCP object, NLP model)
+```
 """
 function OptimalControlProblems.beam(::OptimalControlBackend; N::Int=500)
 

@@ -1,7 +1,7 @@
 """
 Quadrotor Problem:
     We want to find the optimal trajectory of a quadrotor to reach a target position.
-    The objective is to minimize the final time.
+    The objective is to minimise the final time.
     The problem is formulated as an OptimalControl model.
 """
 function OptimalControlProblems.quadrotor(::OptimalControlBackend; N::Int=50)

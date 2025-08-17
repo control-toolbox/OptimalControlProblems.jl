@@ -1,7 +1,7 @@
 """
 The Truck Trailer Problem:
     We want to find the optimal trajectory of a truck with two trailers that starts horizontally aligned.
-    The objective is to minimize the time taken to park the truck and the trailers aligned vertically at a given target location.
+    The objective is to minimise the time taken to park the truck and the trailers aligned vertically at a given target location.
     The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746)
 """
 function OptimalControlProblems.truck_trailer(::JuMPBackend; N::Int=200)

@@ -1,7 +1,7 @@
 """
 The Hanging Chain Problem:
     We want to find the shape of a chain hanging between two points a and b, with a length L.
-    The objective is to minimize the potential energy of the chain.
+    The objective is to minimise the potential energy of the chain.
     The problem is formulated as an OptimalControl model.
 """
 function OptimalControlProblems.chain(::OptimalControlBackend; N::Int=500)

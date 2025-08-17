@@ -1,3 +1,24 @@
+"""
+L2_norm(T, X)
+
+Compute the L² norm of a one-dimensional signal defined on a time grid.
+
+# Arguments
+
+- `T::AbstractVector`: Time grid, assumed one-dimensional and ordered.
+- `X::AbstractVector`: Signal values at each time point, one-dimensional.
+
+# Returns
+
+- `::Float64`: The L² norm of `X` with respect to the grid `T`.
+
+# Example
+
+```julia-repl
+julia> L2_norm(0:0.1:1, sin.(0:0.1:1))
+0.5229090712505341
+```
+"""
 function L2_norm(T, X)
     # T and X are supposed to be one dimensional
     s = 0.0
@@ -7,21 +28,54 @@ function L2_norm(T, X)
     return √(s)
 end
 
-function L1_norm(T, U)
-    # T and X are supposed to be one dimensional
-    s = 0.0
-    for i in 1:(length(T) - 1)
-        s += 0.5 * (abs(U[i]) + abs(U[i + 1])) * (T[i + 1]-T[i])
-    end
-    return s
-end
+"""
+@my_test_broken e
 
+Mark a test as broken if the given expression fails.  
+This macro wraps a test in the `@test` framework and sets `broken=!e`.
+
+# Arguments
+
+- `e::Expr`: The expression to be tested.
+
+# Returns
+
+- `::Expr`: An expression that expands into a `@test` with a `broken` flag.
+
+# Example
+
+```julia-repl
+julia> @macroexpand @my_test_broken 1 == 2
+:(@test 1 == 2 broken = !(1 == 2))
+```
+"""
 macro my_test_broken(e)
     return esc(quote
         @test $e broken=!$e
     end)
 end
 
+"""
+comparison(; max_iter, test_name)
+
+Run a comparison between the `OptimalControl` backend and a `JuMP` backend for a set of optimal control problems.  
+The function validates solutions by comparing state, control, objective, and other quantities.
+
+# Arguments
+
+- `max_iter::Int`: Maximum number of solver iterations allowed.
+- `test_name::Symbol`: The name of the test to run. Must be one of `:init`, `:solution`, or `:iter1`.
+
+# Returns
+
+- `::Nothing`: Runs the comparison tests and generates plots; does not return a value.
+
+# Example
+
+```julia-repl
+julia> comparison(max_iter=100, test_name=:solution)
+```
+"""
 function comparison(; max_iter, test_name)
 
     #

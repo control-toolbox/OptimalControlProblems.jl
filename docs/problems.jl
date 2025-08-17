@@ -444,8 +444,6 @@ function generate_documentation_problems(; draft::Union{Bool,Nothing}=nothing, e
     # create file for documentation
     for problem in problems
 
-        println("generating doc for ", problem)
-
         # create the file
         filename = joinpath(@__DIR__, "src", "problems", string(problem) * ".md")
         touch(filename)

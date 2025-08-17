@@ -4,6 +4,7 @@ using OptimalControlProblems
 using JuMP
 import CTModels: CTModels, time_grid, state, control, costate
 import ExaModels: ExaModels, variable
+using DocStringExtensions
 
 rel_path_problems = "JuMPModels"
 path = joinpath(dirname(@__FILE__), rel_path_problems)
@@ -15,7 +16,27 @@ for file in files
     end
 end
 
-#
+"""
+$(TYPEDSIGNATURES)
+
+Compute the discretised time grid for a given optimal control problem solved with JuMP.
+
+# Arguments
+
+- `problem::Symbol`: The name of the problem as defined in `OptimalControlProblems.metadata`.
+- `model::JuMP.GenericModel`: The JuMP model containing the problem solution.
+
+# Returns
+
+- `t_jp::AbstractVector{Float64}`: A vector of time points spanning from initial time `t0 = 0` to the final time `tf`.
+
+# Example
+
+```julia-repl
+julia> tgrid = OptimalControlProblems.time_grid(:my_problem, model)
+0.0:0.1:1.0
+```
+"""
 function OptimalControlProblems.time_grid(problem::Symbol, model::JuMP.GenericModel)
 
     # get N
@@ -40,6 +61,29 @@ function OptimalControlProblems.time_grid(problem::Symbol, model::JuMP.GenericMo
     return t_jp
 end
 
+"""
+$(TYPEDSIGNATURES)
+
+Extract and interpolate the state trajectory from a JuMP model of an optimal control problem.
+
+# Arguments
+
+- `problem::Symbol`: The name of the problem as defined in `OptimalControlProblems.metadata`.
+- `model::JuMP.GenericModel`: The JuMP model containing the problem solution.
+
+# Returns
+
+- `fx::Function`: A function of continuous time returning the interpolated state.  
+  If the state is scalar, the function returns a scalar; otherwise, a vector.
+
+# Example
+
+```julia-repl
+julia> x = OptimalControlProblems.state(:my_problem, model)
+julia> x(0.5)
+[0.23, 0.71]
+```
+"""
 function OptimalControlProblems.state(problem::Symbol, model::JuMP.GenericModel)
 
     # time grid
@@ -68,6 +112,29 @@ function OptimalControlProblems.state(problem::Symbol, model::JuMP.GenericModel)
     return fx
 end
 
+"""
+$(TYPEDSIGNATURES)
+
+Extract and interpolate the control trajectory from a JuMP model of an optimal control problem.
+
+# Arguments
+
+- `problem::Symbol`: The name of the problem as defined in `OptimalControlProblems.metadata`.
+- `model::JuMP.GenericModel`: The JuMP model containing the problem solution.
+
+# Returns
+
+- `fu::Function`: A function of continuous time returning the interpolated control.  
+  If the control is scalar, the function returns a scalar; otherwise, a vector.
+
+# Example
+
+```julia-repl
+julia> u = OptimalControlProblems.control(:my_problem, model)
+julia> u(0.25)
+0.42
+```
+"""
 function OptimalControlProblems.control(problem::Symbol, model::JuMP.GenericModel)
 
     # time grid
@@ -96,6 +163,29 @@ function OptimalControlProblems.control(problem::Symbol, model::JuMP.GenericMode
     return fu
 end
 
+"""
+$(TYPEDSIGNATURES)
+
+Extract and interpolate the costate trajectory (dual variables associated with states) from a JuMP model of an optimal control problem.
+
+# Arguments
+
+- `problem::Symbol`: The name of the problem as defined in `OptimalControlProblems.metadata`.
+- `model::JuMP.GenericModel`: The JuMP model containing the problem solution.
+
+# Returns
+
+- `fp::Function`: A function of continuous time returning the interpolated costate.  
+  If the costate is scalar, the function returns a scalar; otherwise, a vector.
+
+# Example
+
+```julia-repl
+julia> p = OptimalControlProblems.costate(:my_problem, model)
+julia> p(0.75)
+[-0.12, 0.05]
+```
+"""
 function OptimalControlProblems.costate(problem::Symbol, model::JuMP.GenericModel)
 
     # time grid
@@ -128,6 +218,30 @@ function OptimalControlProblems.costate(problem::Symbol, model::JuMP.GenericMode
     return fp
 end
 
+"""
+$(TYPEDSIGNATURES)
+
+Extract scalar or vector decision variables (such as final time when free) from a JuMP model of an optimal control problem.
+
+# Arguments
+
+- `problem::Symbol`: The name of the problem as defined in `OptimalControlProblems.metadata`.
+- `model::JuMP.GenericModel`: The JuMP model containing the problem solution.
+
+# Returns
+
+- `var::Union{Nothing,Float64,Vector{Float64}}`:  
+  - `nothing` if the problem defines no additional variables.  
+  - A scalar if there is one variable.  
+  - A vector if multiple variables exist.
+
+# Example
+
+```julia-repl
+julia> v = OptimalControlProblems.variable(:my_problem, model)
+1.5
+```
+"""
 function OptimalControlProblems.variable(problem::Symbol, model::JuMP.GenericModel)
 
     variable_names = OptimalControlProblems.metadata[problem][:variable_name]

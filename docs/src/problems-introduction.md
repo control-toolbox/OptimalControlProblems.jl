@@ -67,18 +67,6 @@ Each optimal control problem in the **OptimalControlProblems** package is modell
 - JuMP models are stored in the [JuMPModels](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/JuMPModels) directory. These codes implement the NLP problem directly.
 - OptimalControl models are stored in the [OptimalControlModels](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/OptimalControlModels) directory. These codes represent the OCP, and the discretisation is handled by the package. The resulting NLP is represented by an [`ADNLPModels.ADNLPModel`](@extref), which provides automatic differentiation (AD)-based models following the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API.
 
-To get the list of available problems, first import the package:
-
-```@example main
-using OptimalControlProblems
-```
-
-Then, call:
-
-```@example main
-available_problems()
-```
-
 ## [Metadata](@id problems-introduction-metadata)
 
 For each problem, additional data is provided in the [MetaData](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/MetaData) directory:
@@ -91,10 +79,87 @@ To list all metadata, use `OptimalControlProblems.metadata`.
 To access the metadata of a specific problem, for example `chain`, run:
 
 ```@example main
+using OptimalControlProblems
 OptimalControlProblems.metadata[:chain]
 ```
 
-## List of the problems
+## Problems
+
+To get the list of available problems, call the [`available_problems`](@ref) method.
+
+```@example main
+available_problems()
+```
+
+We detail below the characteristics of the optimal control problems (OCPs) and their associated nonlinear programming problems (NLPs). For the OCPs, we give the dimension of the state, the control and the variable. For the NLPs, we give the default number of steps, the number of variables and the numbers of constraints.
+
+```@raw html
+<details><summary>Click to unfold and get the code to get the data.</summary>
+```
+
+```@example main
+using NLPModels                 # to get the number of variables and constraints
+using DataFrames
+
+data_ocp = DataFrame(           # to store data of the OCPs
+    Problem=Symbol[],
+    State=Int[],
+    Control=Int[],
+    Variable=Int[],
+)
+
+data_nlp = DataFrame(           # to store data of the NLPs
+    Problem=Symbol[],
+    Steps=Int[],
+    Variables=Int[],
+    Constraints=Int[],
+)
+
+problems = available_problems()
+
+for problem in problems
+
+    x_vars = OptimalControlProblems.metadata[problem][:state_name]
+    u_vars = OptimalControlProblems.metadata[problem][:control_name]
+    v_vars = OptimalControlProblems.metadata[problem][:variable_name]
+
+    push!(data_ocp,
+        (
+            Problem=problem,
+            State=length(x_vars),
+            Control=length(u_vars),
+            Variable=isnothing(v_vars) ? 0 : length(v_vars),
+        )
+    )
+
+    N = OptimalControlProblems.metadata[problem][:N] # get default number of steps
+    docp, model = eval(problem)(OptimalControlBackend())
+
+    push!(data_nlp,
+        (
+            Problem=problem,
+            Steps=N,
+            Variables=get_nvar(model),
+            Constraints=get_ncon(model),
+        )
+    )
+end
+```
+
+```@raw html
+</details>
+</br>
+```
+
+```@example main
+data_ocp
+```
+
+```@example main
+data_nlp
+```
+
+To get more specific details about the problems, visit the following pages.
 
 ```@contents
 Pages = Main.PROBLEMS_PAGES

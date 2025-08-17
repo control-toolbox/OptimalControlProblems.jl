@@ -1,7 +1,7 @@
 """
 Dielectrophoretic particle problem:
     This problem consists of a dielectrophoretic particle system.
-    The goal is to find the trajectory that minimize the time taken for the particle to travel between two points.
+    The goal is to find the trajectory that minimise the time taken for the particle to travel between two points.
     The problem is formulated as an OptimalControl model.
 Ref: [CPR2006] Chang, D. E., Petit, N., & Rouchon, P. (2006). Time-optimal control of a particle in a dielectrophoretic system. IEEE Transactions on Automatic Control, 51(7), 1100-1114.
 """

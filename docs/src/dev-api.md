@@ -25,7 +25,6 @@ Order = [:module, :constant, :type, :function, :macro]
 ```@autodocs
 Modules = [OptimalControlModels]
 Order = [:module, :constant, :type, :function, :macro]
-Pages = ["OptimalControlModels.jl"]
 ```
 
 ## JuMPModels
@@ -39,5 +38,4 @@ Order = [:module, :constant, :type, :function, :macro]
 ```@autodocs
 Modules = [JuMPModels]
 Order = [:module, :constant, :type, :function, :macro]
-Pages = ["JuMPModels.jl"]
 ```

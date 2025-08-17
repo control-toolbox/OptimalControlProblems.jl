@@ -1,7 +1,7 @@
 """
 Robot arm problem:
     We want to find the shape of a robot arm moving between two points.
-    The objective is to minimize the time taken to move between the two points.
+    The objective is to minimise the time taken to move between the two points.
     The problem is formulated as a JuMP model, and can be found [here](https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/robot.jl)
 """
 function OptimalControlProblems.robot(::JuMPBackend; N::Int=250)

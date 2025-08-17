@@ -1,7 +1,7 @@
 """
 Particle Steering Problem:
     We want to find the optimal trajectory of a particle.
-    The objective is to minimize the time taken to achieve a given altitude and terminal velocity.
+    The objective is to minimise the time taken to achieve a given altitude and terminal velocity.
     The problem is formulated as a JuMP model, and can be found [here](https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/steering.jl)
 """
 function OptimalControlProblems.steering(::JuMPBackend; N::Int=500)

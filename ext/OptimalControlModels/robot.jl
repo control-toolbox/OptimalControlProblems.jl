@@ -1,7 +1,7 @@
 """
 Robot arm problem:
     We want to find the shape of a robot arm moving between two points.
-    The objective is to minimize the time taken to move between the two points.
+    The objective is to minimise the time taken to move between the two points.
     The problem is formulated as an OptimalControl model.
 """
 function OptimalControlProblems.robot(::OptimalControlBackend; N::Int=250)

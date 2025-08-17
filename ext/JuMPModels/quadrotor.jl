@@ -1,7 +1,7 @@
 """
 Quadrotor Problem:
     We want to find the optimal trajectory of a quadrotor to reach a target position.
-    The objective is to minimize the final time.
+    The objective is to minimise the final time.
     The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746)
 """
 function OptimalControlProblems.quadrotor(::JuMPBackend; N::Int=50)
