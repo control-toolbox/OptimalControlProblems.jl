@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Ducted fan · OptimalControlProblems.jl</title><meta name="title" content="Ducted fan · OptimalControlProblems.jl"/><meta property="og:title" content="Ducted fan · OptimalControlProblems.jl"/><meta property="twitter:title" content="Ducted fan · OptimalControlProblems.jl"/><meta name="description" content="Documentation for OptimalControlProblems.jl."/><meta property="og:description" content="Documentation for OptimalControlProblems.jl."/><meta property="twitter:description" content="Documentation for OptimalControlProblems.jl."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script><link href="https://control-toolbox.org/assets/css/documentation.css" rel="stylesheet" type="text/css"/><script src="https://control-toolbox.org/assets/js/documentation.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../index.html">OptimalControlProblems.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../index.html">Getting Started</a></li><li><span class="tocitem">Problems</span><ul><li><a class="tocitem" href="../problems-introduction.html">Introduction</a></li><li><input class="collapse-toggle" id="menuitem-2-2" type="checkbox" checked/><label class="tocitem" for="menuitem-2-2"><span class="docs-label">List of the problems</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="beam.html">Beam</a></li><li><a class="tocitem" href="bioreactor.html">Bioreactor</a></li><li><a class="tocitem" href="cart_pendulum.html">Cart pendulum</a></li><li><a class="tocitem" href="chain.html">Chain</a></li><li><a class="tocitem" href="dielectrophoretic_particle.html">Dielectrophoretic particle</a></li><li><a class="tocitem" href="double_oscillator.html">Double oscillator</a></li><li class="is-active"><a class="tocitem" href="ducted_fan.html">Ducted fan</a><ul class="internal"><li><a class="tocitem" href="#Packages"><span>Packages</span></a></li><li><a class="tocitem" href="#OptimalControl-model"><span>OptimalControl model</span></a></li><li><a class="tocitem" href="#JuMP-model"><span>JuMP model</span></a></li><li><a class="tocitem" href="#Initial-guess"><span>Initial guess</span></a></li><li><a class="tocitem" href="#Numerical-comparison"><span>Numerical comparison</span></a></li></ul></li><li><a class="tocitem" href="electric_vehicle.html">Electric vehicle</a></li><li><a class="tocitem" href="glider.html">Glider</a></li><li><a class="tocitem" href="insurance.html">Insurance</a></li><li><a class="tocitem" href="jackson.html">Jackson</a></li><li><a class="tocitem" href="moonlander.html">Moonlander</a></li><li><a class="tocitem" href="quadrotor.html">Quadrotor</a></li><li><a class="tocitem" href="robbins.html">Robbins</a></li><li><a class="tocitem" href="robot.html">Robot</a></li><li><a class="tocitem" href="rocket.html">Rocket</a></li><li><a class="tocitem" href="space_shuttle.html">Space shuttle</a></li><li><a class="tocitem" href="steering.html">Steering</a></li><li><a class="tocitem" href="truck_trailer.html">Truck trailer</a></li><li><a class="tocitem" href="vanderpol.html">Vanderpol</a></li></ul></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../tutorial-get.html">How to get a problem</a></li><li><a class="tocitem" href="../tutorial-solve.html">How to solve a problem</a></li></ul></li><li><span class="tocitem">Developers</span><ul><li><a class="tocitem" href="../dev-add.html">How to add a problem</a></li><li><a class="tocitem" href="../dev-api.html">API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Problems</a></li><li><a class="is-disabled">List of the problems</a></li><li class="is-active"><a href="ducted_fan.html">Ducted fan</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="ducted_fan.html">Ducted fan</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/control-toolbox/OptimalControlProblems.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/control-toolbox/OptimalControlProblems.jl/blob/main/docs/src/problems/ducted_fan.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Ducted-fan"><a class="docs-heading-anchor" href="#Ducted-fan">Ducted fan</a><a id="Ducted-fan-1"></a><a class="docs-heading-anchor-permalink" href="#Ducted-fan" title="Permalink"></a></h1><p>We consider the <code>:ducted_fan</code> problem. </p><h2 id="Packages"><a class="docs-heading-anchor" href="#Packages">Packages</a><a id="Packages-1"></a><a class="docs-heading-anchor-permalink" href="#Packages" title="Permalink"></a></h2><p>First, import all the necessary packages and define the DataFrames to store the data from the model and the resolutions.</p><pre><code class="language-julia hljs">using OptimalControlProblems    # to access the Beam model
+using OptimalControl            # to import the OptimalControl model
+using NLPModelsIpopt            # to solve the model with Ipopt
+using DataFrames                # to store data
+using NLPModels                 # to retrieve data from the NLP solution
+using Plots                     # to plot the trajectories
+using Plots.PlotMeasures        # for leftmargin, bottommargin
+using JuMP                      # to import the JuMP model
+using Ipopt                     # to solve the JuMP model with Ipopt
+
+data_pb = DataFrame(            # to store data about the problem
+    Problem=Symbol[],
+    Grid_Size=Int[],
+    Variables=Int[],
+    Constraints=Int[],
+)
+
+data_re = DataFrame(            # to store data about the resolutions
+    Model=Symbol[],
+    Flag=Any[],
+    Iterations=Int[],
+    Objective=Float64[],
+)</code></pre><h2 id="OptimalControl-model"><a class="docs-heading-anchor" href="#OptimalControl-model">OptimalControl model</a><a id="OptimalControl-model-1"></a><a class="docs-heading-anchor-permalink" href="#OptimalControl-model" title="Permalink"></a></h2><h3 id="Solve-the-problem"><a class="docs-heading-anchor" href="#Solve-the-problem">Solve the problem</a><a id="Solve-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem" title="Permalink"></a></h3><p>Import the problem and solve it.</p><pre><code class="language-julia hljs"># import model
+docp, model_oc = ducted_fan(OptimalControlBackend())
+
+# solve
+nlp_sol = NLPModelsIpopt.ipopt(
+    model_oc;
+    print_level=4,
+    tol=1e-8,
+    mu_strategy=&quot;adaptive&quot;,
+    sb=&quot;yes&quot;,
+)
+
+# build an optimal control solution
+ocp_sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers, docp_solution=nlp_sol)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:     2260
+                     variables with only lower bounds:        1
+                variables with lower and upper bounds:      753
+                     variables with only upper bounds:        0
+Total number of equality constraints.................:     1763
+Total number of inequality constraints...............:        0
+        inequality constraints with only lower bounds:        0
+   inequality constraints with lower and upper bounds:        0
+        inequality constraints with only upper bounds:        0
+
+
+Number of Iterations....: 66
+
+                                   (scaled)                 (unscaled)
+Objective...............:   1.8318278489718085e+02    1.8318278489718084e+03
+Dual infeasibility......:   1.3845392528574080e-09    1.3845392528574079e-08
+Constraint violation....:   6.0350657804519869e-10    6.0350657804519869e-10
+Variable bound violation:   1.6129398971997944e-07    1.6129398971997944e-07
+Complementarity.........:   2.7946047905621479e-10    2.7946047905621477e-09
+Overall NLP error.......:   1.3845392528574080e-09    1.3845392528574079e-08
+
+
+Number of objective function evaluations             = 91
+Number of objective gradient evaluations             = 67
+Number of equality constraint evaluations            = 91
+Number of inequality constraint evaluations          = 0
+Number of equality constraint Jacobian evaluations   = 67
+Number of inequality constraint Jacobian evaluations = 0
+Number of Lagrangian Hessian evaluations             = 66
+Total seconds in IPOPT                               = 2.946
+
+EXIT: Optimal Solution Found.</code></pre><p>For numerical comparison with the JuMP model resolution, define:</p><pre><code class="language-julia hljs">t_oc = time_grid(ocp_sol)
+x_oc = state(ocp_sol).(t_oc)
+u_oc = control(ocp_sol).(t_oc)
+o_oc = objective(ocp_sol)
+v_oc = variable(ocp_sol)
+i_oc = nlp_sol.iter</code></pre><h3 id="Store-and-print-the-data"><a class="docs-heading-anchor" href="#Store-and-print-the-data">Store and print the data</a><a id="Store-and-print-the-data-1"></a><a class="docs-heading-anchor-permalink" href="#Store-and-print-the-data" title="Permalink"></a></h3><p>Store the following data about the problem:</p><pre><code class="language-julia hljs">push!(data_pb,
+    (
+        Problem=:ducted_fan,
+        Grid_Size=OptimalControlProblems.metadata[:ducted_fan][:N],
+        Variables=get_nvar(model_oc),
+        Constraints=get_ncon(model_oc),
+    )
+)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Problem</th><th style = "text-align: left;">Grid_Size</th><th style = "text-align: left;">Variables</th><th style = "text-align: left;">Constraints</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">ducted_fan</td><td style = "text-align: right;">250</td><td style = "text-align: right;">2260</td><td style = "text-align: right;">1763</td></tr></tbody></table></div><p>And store the following data about the resolution:</p><pre><code class="language-julia hljs">push!(data_re,
+    (
+        Model=:OptimalControl,
+        Flag=nlp_sol.status,
+        Iterations=nlp_sol.iter,
+        Objective=objective(ocp_sol),
+    )
+)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">66</td><td style = "text-align: right;">1831.83</td></tr></tbody></table></div><h3 id="Plot-the-solution"><a class="docs-heading-anchor" href="#Plot-the-solution">Plot the solution</a><a id="Plot-the-solution-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution" title="Permalink"></a></h3><p>To plot the solution, get the number of states and controls from the metadata:</p><pre><code class="language-julia hljs">x_vars = OptimalControlProblems.metadata[:ducted_fan][:state_name]
+u_vars = OptimalControlProblems.metadata[:ducted_fan][:control_name]
+
+n = length(x_vars) # number of states
+m = length(u_vars) # number of controls
+
+plt = plot(
+    ocp_sol;
+    state_style=(color=1,),
+    costate_style=(color=1, legend=:none),
+    control_style=(color=1, legend=:none),
+    path_style=(color=1, legend=:none),
+    dual_style=(color=1, legend=:none),
+    size=(816, 240*(n+m)),
+    label=&quot;OptimalControl&quot;,
+    leftmargin=20mm,
+)
+for i in 2:n
+    plot!(plt[i]; legend=:none)
+end</code></pre><img src="ducted_fan-5e7aae45.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
+model_jp = ducted_fan(JuMPBackend())
+
+# solve
+set_optimizer(model_jp, Ipopt.Optimizer)
+set_optimizer_attribute(model_jp, &quot;print_level&quot;, 4)
+set_optimizer_attribute(model_jp, &quot;tol&quot;, 1e-8)
+set_optimizer_attribute(model_jp, &quot;mu_strategy&quot;, &quot;adaptive&quot;)
+set_optimizer_attribute(model_jp, &quot;linear_solver&quot;, &quot;mumps&quot;)
+set_optimizer_attribute(model_jp, &quot;sb&quot;, &quot;yes&quot;)
+optimize!(model_jp)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:     2009
+                     variables with only lower bounds:        1
+                variables with lower and upper bounds:      753
+                     variables with only upper bounds:        0
+Total number of equality constraints.................:     1512
+Total number of inequality constraints...............:        0
+        inequality constraints with only lower bounds:        0
+   inequality constraints with lower and upper bounds:        0
+        inequality constraints with only upper bounds:        0
+
+In iteration 117, 1 Slack too small, adjusting variable bound
+In iteration 118, 1 Slack too small, adjusting variable bound
+In iteration 121, 1 Slack too small, adjusting variable bound
+In iteration 122, 1 Slack too small, adjusting variable bound
+In iteration 126, 1 Slack too small, adjusting variable bound
+In iteration 128, 1 Slack too small, adjusting variable bound
+In iteration 130, 1 Slack too small, adjusting variable bound
+In iteration 131, 1 Slack too small, adjusting variable bound
+In iteration 134, 1 Slack too small, adjusting variable bound
+In iteration 152, 1 Slack too small, adjusting variable bound
+In iteration 162, 1 Slack too small, adjusting variable bound
+In iteration 165, 1 Slack too small, adjusting variable bound
+In iteration 166, 1 Slack too small, adjusting variable bound
+In iteration 167, 1 Slack too small, adjusting variable bound
+
+Number of Iterations....: 187
+
+                                   (scaled)                 (unscaled)
+Objective...............:   1.8318277178166028e+02    1.8318277178166027e+03
+Dual infeasibility......:   1.6325004055901565e-11    1.6325004055901564e-10
+Constraint violation....:   1.5196177649556830e-15    1.5196177649556830e-15
+Variable bound violation:   1.6903329225215202e-07    1.6903329225215202e-07
+Complementarity.........:   1.0001029505019596e-11    1.0001029505019595e-10
+Overall NLP error.......:   1.6325004055901565e-11    1.6325004055901564e-10
+
+
+Number of objective function evaluations             = 335
+Number of objective gradient evaluations             = 188
+Number of equality constraint evaluations            = 335
+Number of inequality constraint evaluations          = 0
+Number of equality constraint Jacobian evaluations   = 188
+Number of inequality constraint Jacobian evaluations = 0
+Number of Lagrangian Hessian evaluations             = 187
+Total seconds in IPOPT                               = 9.574
+
+EXIT: Optimal Solution Found.</code></pre><p>For the numerical comparison, define:</p><pre><code class="language-julia hljs">t_jp = time_grid(:ducted_fan, model_jp)
+x_jp = state(:ducted_fan, model_jp).(t_jp)
+u_jp = control(:ducted_fan, model_jp).(t_jp)
+o_jp = objective_value(model_jp)
+v_jp = variable(:ducted_fan, model_jp)
+i_jp = barrier_iterations(model_jp)</code></pre><h3 id="Store-and-print-the-data-2"><a class="docs-heading-anchor" href="#Store-and-print-the-data-2">Store and print the data</a><a class="docs-heading-anchor-permalink" href="#Store-and-print-the-data-2" title="Permalink"></a></h3><p>Store the results of the resolution:</p><pre><code class="language-julia hljs">push!(data_re,
+    (
+        Model=:JuMP,
+        Flag=termination_status(model_jp),
+        Iterations=barrier_iterations(model_jp),
+        Objective=objective_value(model_jp),
+    )
+)</code></pre><div><div style = "float: left;"><span>2×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">66</td><td style = "text-align: right;">1831.83</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">JuMP</td><td style = "text-align: left;">LOCALLY_SOLVED</td><td style = "text-align: right;">187</td><td style = "text-align: right;">1831.83</td></tr></tbody></table></div><h3 id="Plot-the-solution-2"><a class="docs-heading-anchor" href="#Plot-the-solution-2">Plot the solution</a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution-2" title="Permalink"></a></h3><p>Add the state, costate, and control from the JuMP model to the plot:</p><pre><code class="language-julia hljs">t = time_grid(:ducted_fan, model_jp)     # t0, ..., tN = tf
+x = state(:ducted_fan, model_jp)         # function of time
+u = control(:ducted_fan, model_jp)       # function of time
+p = costate(:ducted_fan, model_jp)       # function of time
+
+for i in 1:n # state
+    label = i == 1 ? &quot;JuMP&quot; : :none
+    plot!(plt[i], t, t -&gt; x(t)[i]; color=2, linestyle=:dash, label=label)
+end
+
+for i in 1:n # costate
+    plot!(plt[n+i], t, t -&gt; -p(t)[i]; color=2, linestyle=:dash, label=:none)
+end
+
+for i in 1:m # control
+    plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
+end</code></pre><img src="ducted_fan-f6988253.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess (or first iterate) is obtained by fixing <code>max_iter=0</code> in the solver:</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
+
+    # import OptimalControl model
+    docp, model_oc = ducted_fan(OptimalControlBackend())
+
+    # solve
+    nlp_sol = NLPModelsIpopt.ipopt(
+        model_oc;
+        max_iter=0,
+        print_level=5,
+        tol=1e-8,
+        mu_strategy=&quot;adaptive&quot;,
+        sb=&quot;yes&quot;,
+    )
+
+    # build an optimal control solution
+    ocp_sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers, docp_solution=nlp_sol)
+
+    # plot the OptimalControl solution
+    plt = plot(
+        ocp_sol;
+        state_style=(color=1,),
+        costate_style=(color=1, legend=:none),
+        control_style=(color=1, legend=:none),
+        path_style=(color=1, legend=:none),
+        dual_style=(color=1, legend=:none),
+        size=(816, 220*(n+m)),
+        label=&quot;OptimalControl&quot;,
+        leftmargin=20mm,
+    )
+    for i in 2:n
+        plot!(plt[i]; legend=:none)
+    end
+
+    # import JuMP model
+    model_jp = ducted_fan(JuMPBackend())
+
+    # solve
+    set_optimizer(model_jp, Ipopt.Optimizer)
+    set_optimizer_attribute(model_jp, &quot;max_iter&quot;, 0)
+    set_optimizer_attribute(model_jp, &quot;print_level&quot;, 5)
+    set_optimizer_attribute(model_jp, &quot;tol&quot;, 1e-8)
+    set_optimizer_attribute(model_jp, &quot;mu_strategy&quot;, &quot;adaptive&quot;)
+    set_optimizer_attribute(model_jp, &quot;linear_solver&quot;, &quot;mumps&quot;)
+    set_optimizer_attribute(model_jp, &quot;sb&quot;, &quot;yes&quot;)
+    optimize!(model_jp)
+
+    # plot
+    t = time_grid(:ducted_fan, model_jp)     # t0, ..., tN = tf
+    x = state(:ducted_fan, model_jp)         # function of time
+    u = control(:ducted_fan, model_jp)       # function of time
+    p = costate(:ducted_fan, model_jp)       # function of time
+
+    for i in 1:n # state
+        label = i == 1 ? &quot;JuMP&quot; : :none
+        plot!(plt[i], t, t -&gt; x(t)[i]; color=2, linestyle=:dash, label=label)
+    end
+
+    for i in 1:n # costate
+        plot!(plt[n+i], t, t -&gt; -p(t)[i]; color=2, linestyle=:dash, label=:none)
+    end
+
+    for i in 1:m # control
+        plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
+    end
+
+    return plt
+end</code></pre></details>
+</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="ducted_fan-5cce3c39.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Next, compare the number of iterations required to obtain the solutions. Also compare the final times, objective values, and the state and costate trajectories in L² norm.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = OptimalControlProblems.metadata[:ducted_fan][:variable_name]
+
+function L2_norm(T, X)
+    # T and X are supposed to be one dimensional
+    s = 0.0
+    for i in 1:(length(T) - 1)
+        s += 0.5 * (X[i]^2 + X[i + 1]^2) * (T[i + 1]-T[i])
+    end
+    return √(s)
+end
+
+function numerical_comparison()
+
+    println(&quot;┌─ &quot;, &quot;ducted_fan&quot;)
+    println(&quot;│&quot;)
+
+    # number of iterations
+    println(&quot;├─  Number of iterations&quot;)
+    println(&quot;│&quot;)
+    println(&quot;│     OptimalControl : &quot;, i_oc)
+    println(&quot;│     JuMP           : &quot;, i_jp)
+    println(&quot;│&quot;)
+
+    # state
+    for i in eachindex(x_vars)
+        xi_oc = [x_oc[k][i] for k in eachindex(t_oc)]
+        xi_jp = [x_jp[k][i] for k in eachindex(t_jp)]
+        L2_oc = L2_norm(t_oc, xi_oc)
+        L2_jp = L2_norm(t_oc, xi_jp)
+        L2_ae = L2_norm(t_oc, xi_oc-xi_jp)
+        L2_re = L2_ae/(0.5*(L2_oc + L2_jp))
+
+        println(&quot;├─  State $(x_vars[i]) (L2 norm)&quot;)
+        println(&quot;│&quot;)
+        println(&quot;│     OptimalControl : &quot;, L2_oc)
+        println(&quot;│     JuMP           : &quot;, L2_jp)
+        println(&quot;│     Absolute error : &quot;, L2_ae)
+        println(&quot;│     Relative error : &quot;, L2_re)
+        println(&quot;│&quot;)
+    end
+
+    # control
+    for i in eachindex(u_vars)
+        ui_oc = [u_oc[k][i] for k in eachindex(t_oc)]
+        ui_jp = [u_jp[k][i] for k in eachindex(t_jp)]
+        L2_oc = L2_norm(t_oc, ui_oc)
+        L2_jp = L2_norm(t_oc, ui_jp)
+        L2_ae = L2_norm(t_oc, ui_oc-ui_jp)
+        L2_re = L2_ae/(0.5*(L2_oc + L2_jp))
+
+        println(&quot;├─  Control $(u_vars[i]) (L2 norm)&quot;)
+        println(&quot;│&quot;)
+        println(&quot;│     OptimalControl : &quot;, L2_oc)
+        println(&quot;│     JuMP           : &quot;, L2_jp)
+        println(&quot;│     Absolute error : &quot;, L2_ae)
+        println(&quot;│     Relative error : &quot;, L2_re)
+        println(&quot;│&quot;)
+    end
+
+    # control
+    if !isnothing(v_vars)
+        for i in eachindex(v_vars)
+            vi_oc = v_oc[i]
+            vi_jp = v_jp[i]
+            vi_ae = abs(vi_oc-vi_jp)
+            vi_re = vi_ae/(0.5*(abs(vi_oc) + abs(vi_jp)))
+
+            println(&quot;├─  Variable $(v_vars[i])&quot;)
+            println(&quot;│&quot;)
+            println(&quot;│     OptimalControl : &quot;, vi_oc)
+            println(&quot;│     JuMP           : &quot;, vi_jp)
+            println(&quot;│     Absolute error : &quot;, vi_ae)
+            println(&quot;│     Relative error : &quot;, vi_re)
+            println(&quot;│&quot;)
+        end
+    end
+
+    # objective
+    o_ae = abs(o_oc-o_jp)
+    o_re = o_ae/(0.5*(abs(o_oc) + abs(o_jp)))
+
+    println(&quot;├─  objective&quot;)
+    println(&quot;│&quot;)
+    println(&quot;│     OptimalControl : &quot;, o_oc)
+    println(&quot;│     JuMP           : &quot;, o_jp)
+    println(&quot;│     Absolute error : &quot;, o_ae)
+    println(&quot;│     Relative error : &quot;, o_re)
+    println(&quot;│&quot;)
+    println(&quot;└─&quot;)
+
+    return nothing
+end</code></pre></details>
+</br><pre><code class="language-julia hljs">numerical_comparison()</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">┌─ ducted_fan
+│
+├─  Number of iterations
+│
+│     OptimalControl : 66
+│     JuMP           : 187
+│
+├─  State x₁ (L2 norm)
+│
+│     OptimalControl : 0.8548843649142756
+│     JuMP           : 0.8546723345715914
+│     Absolute error : 0.0005057735404951139
+│     Relative error : 0.0005917013932877692
+│
+├─  State v₁ (L2 norm)
+│
+│     OptimalControl : 1.0673143045259375
+│     JuMP           : 1.067307544701614
+│     Absolute error : 0.003170270174297988
+│     Relative error : 0.002970334230810205
+│
+├─  State x₂ (L2 norm)
+│
+│     OptimalControl : 0.16229344845165283
+│     JuMP           : 0.16228665286757743
+│     Absolute error : 0.00023086821883070574
+│     Relative error : 0.001422565449282689
+│
+├─  State v₂ (L2 norm)
+│
+│     OptimalControl : 0.5891790277178364
+│     JuMP           : 0.5891573825980907
+│     Absolute error : 0.0013039970583283225
+│     Relative error : 0.002213284842787306
+│
+├─  State α (L2 norm)
+│
+│     OptimalControl : 0.5495776165599078
+│     JuMP           : 0.5495662273912532
+│     Absolute error : 0.0043298562669318846
+│     Relative error : 0.007878598039301353
+│
+├─  State vα (L2 norm)
+│
+│     OptimalControl : 2.317181412397167
+│     JuMP           : 2.3170493328619868
+│     Absolute error : 0.030154002358156344
+│     Relative error : 0.013013595574197108
+│
+├─  Control u₁ (L2 norm)
+│
+│     OptimalControl : 4.973971710642511
+│     JuMP           : 4.97344593360153
+│     Absolute error : 0.10572011661411865
+│     Relative error : 0.021255791280723472
+│
+├─  Control u₂ (L2 norm)
+│
+│     OptimalControl : 11.92974905043818
+│     JuMP           : 11.929696638735868
+│     Absolute error : 0.01808916571899969
+│     Relative error : 0.0015163106431435199
+│
+├─  Variable tf
+│
+│     OptimalControl : 1.7203383246096473
+│     JuMP           : 1.7203450006919356
+│     Absolute error : 6.676082288326057e-6
+│     Relative error : 3.880672329959855e-6
+│
+├─  objective
+│
+│     OptimalControl : 1831.8278489718084
+│     JuMP           : 1831.8277178166027
+│     Absolute error : 0.0001311552057359222
+│     Relative error : 7.159800005484351e-8
+│
+└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="double_oscillator.html">« Double oscillator</a><a class="docs-footer-nextpage" href="electric_vehicle.html">Electric vehicle »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Sunday 17 August 2025 12:59">Sunday 17 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
