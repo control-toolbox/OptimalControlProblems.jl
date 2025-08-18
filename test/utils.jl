@@ -424,7 +424,7 @@ function comparison(; max_iter, test_name)
 
             for i in eachindex(p_vars) # costate
                 pi_jp = [p_jp[k][i] for k in eachindex(t_jp)]
-                plot!(plt[n + i], t_jp, pi_jp; color=2, linestyle=:dash, label=:none)
+                plot!(plt[n + i], t_jp, -pi_jp; color=2, linestyle=:dash, label=:none)
             end
 
             for i in eachindex(u_vars) # control
