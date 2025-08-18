@@ -2,7 +2,7 @@
 The Jackson Problem:
     The problem is formulated as an OptimalControl model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.jackson(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.jackson(::OptimalControlBackend; N::Int=500)
 
     # parameters
     k1 = 1
@@ -39,7 +39,7 @@ function OptimalControlProblems.jackson(::OptimalControlBackend; nh::Int=500)
     init = (state=xinit, control=uinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

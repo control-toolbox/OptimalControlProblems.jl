@@ -1,10 +1,10 @@
 """
 The Hanging Chain Problem:
     We want to find the shape of a chain hanging between two points a and b, with a length L.
-    The objective is to minimize the potential energy of the chain.
+    The objective is to minimise the potential energy of the chain.
     The problem is formulated as an OptimalControl model.
 """
-function OptimalControlProblems.chain(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.chain(::OptimalControlBackend; N::Int=500)
 
     # parameters
     L = 4
@@ -54,7 +54,7 @@ function OptimalControlProblems.chain(::OptimalControlBackend; nh::Int=500)
     init = (state=xinit, control=uinit)
 
     # NLPModel + DOCP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
     return docp, nlp
 end

@@ -1,10 +1,10 @@
 """
 Quadrotor Problem:
     We want to find the optimal trajectory of a quadrotor to reach a target position.
-    The objective is to minimize the final time.
+    The objective is to minimise the final time.
     The problem is formulated as an OptimalControl model.
 """
-function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=50)
+function OptimalControlProblems.quadrotor(::OptimalControlBackend; N::Int=50)
 
     # parameters
     g = 9.81
@@ -91,7 +91,7 @@ function OptimalControlProblems.quadrotor(::OptimalControlBackend; nh::Int=50)
     init = (state=xinit, control=uinit, variable=varinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

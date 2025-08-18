@@ -1,16 +1,13 @@
 """
 The Moonlander Problem:
     We want to find the optimal trajectory for a moonlander to land on the moon.
-    The objective is to minimize the time taken to land on the moon.
+    The objective is to minimise the time taken to land on the moon.
     The problem is formulated as an OptimalControl model.
 """
-function OptimalControlProblems.moonlander(
-    ::OptimalControlBackend; target::Array{Float64}=[5.0, 5.0], nh::Int=500
-)
+function OptimalControlProblems.moonlander(::OptimalControlBackend; N::Int=500)
+
     # parameters
-    if size(target) != (2,)
-        error("The input target must be of length 2.")
-    end
+    target=[5.0, 5.0]
     m = 1
     g = 9.81
     I = 0.1
@@ -79,7 +76,7 @@ function OptimalControlProblems.moonlander(
     init = (state=xinit, control=uinit, variable=varinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

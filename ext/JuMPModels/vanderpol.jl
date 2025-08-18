@@ -2,7 +2,7 @@
 The Van der Pol Problem:
     The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.vanderpol(::JuMPBackend; nh::Int=500)
+function OptimalControlProblems.vanderpol(::JuMPBackend; N::Int=500)
 
     # parameters
     ω = 1
@@ -16,9 +16,9 @@ function OptimalControlProblems.vanderpol(::JuMPBackend; nh::Int=500)
     @variables(
         model,
         begin
-            x1[0:nh], (start = 0.1)
-            x2[0:nh], (start = 0.1)
-            u[0:nh], (start = 0.1)
+            x1[0:N], (start = 0.1)
+            x2[0:N], (start = 0.1)
+            u[0:N], (start = 0.1)
         end
     )
 
@@ -37,27 +37,27 @@ function OptimalControlProblems.vanderpol(::JuMPBackend; nh::Int=500)
         begin
 
             #
-            step, tf / nh
+            step, tf / N
 
             # dynamics
-            dx1[i = 0:nh], x2[i]
-            dx2[i = 0:nh], ε * ω * (1 - x1[i]^2) * x2[i] - ω^2 * x1[i] + u[i]
+            dx1[i = 0:N], x2[i]
+            dx2[i = 0:N], ε * ω * (1 - x1[i]^2) * x2[i] - ω^2 * x1[i] + u[i]
 
             # objective
-            dc[i = 0:nh], 0.5 * (x1[i]^2 + x2[i]^2 + u[i]^2)
+            dc[i = 0:N], 0.5 * (x1[i]^2 + x2[i]^2 + u[i]^2)
         end
     )
 
     @constraints(
         model,
         begin
-            ∂x1[i = 1:nh], x1[i] == x1[i - 1] + 0.5 * step * (dx1[i] + dx1[i - 1])
-            ∂x2[i = 1:nh], x2[i] == x2[i - 1] + 0.5 * step * (dx2[i] + dx2[i - 1])
+            ∂x1[i = 1:N], x1[i] == x1[i - 1] + 0.5 * step * (dx1[i] + dx1[i - 1])
+            ∂x2[i = 1:N], x2[i] == x2[i - 1] + 0.5 * step * (dx2[i] + dx2[i - 1])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i - 1] for i in 1:nh))
+    @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i - 1] for i in 1:N))
 
     return model
 end

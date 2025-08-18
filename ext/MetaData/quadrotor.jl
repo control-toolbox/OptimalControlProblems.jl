@@ -1,11 +1,10 @@
-quadrotor_meta = Dict(
+quadrotor_meta = OrderedDict(
     :name => "quadrotor",
-    :nh => 50,
-    :nvar => nothing,
-    :ncon => nothing,
-    :minimize => true,
+    :N => 50,
+    :minimise => true,
     :state_name => ["p₁", "p₂", "p₃", "v₁", "v₂", "v₃", "ϕ", "θ"],
     :costate_name => ["∂p₁", "∂p₂", "∂p₃", "∂v₁", "∂v₂", "∂v₃", "∂ϕ", "∂θ"],
     :control_name => ["at", "dϕ", "dθ", "ψ"],
-    :time => ("final_time", "tf", nothing),
+    :variable_name => ["tf"],
+    :final_time => (:free, 1), # first component of the variable
 )

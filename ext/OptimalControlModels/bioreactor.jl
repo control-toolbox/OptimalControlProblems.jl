@@ -2,7 +2,7 @@
 The Bioreactor Problem:
     The problem is formulated as an OptimalControl model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.bioreactor(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.bioreactor(::OptimalControlBackend; N::Int=500)
 
     # METHANE PROBLEM
     # μ2 according to growth model
@@ -62,7 +62,7 @@ function OptimalControlProblems.bioreactor(::OptimalControlBackend; nh::Int=500)
     init = (state=[50, 50, 50], control=0.5)
 
     # NLPModel + DOCP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
     return docp, nlp
 end

@@ -1,12 +1,29 @@
 """
-The Beam Problem:
-    The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+$(TYPEDSIGNATURES)
+
+Constructs a JuMP model representing the Beam optimal control problem, as formulated in the BOCOP [repository](https://github.com/control-toolbox/bocop/tree/main/bocop).
+
+# Arguments
+
+- `::JuMPBackend`: Placeholder for JuMP backend type; used to select the solver interface.
+- `N::Int=500`: Number of discretisation steps for the time grid.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model containing the variables, constraints, dynamics, and objective of the beam problem.
+
+# Example
+
+```julia-repl
+julia> model = OptimalControlProblems.beam(JuMPBackend(); N=500)
+# JuMP model with 3*(N+1) variables and corresponding constraints
+```
 """
-function OptimalControlProblems.beam(::JuMPBackend; nh::Int=500)
+function OptimalControlProblems.beam(::JuMPBackend; N::Int=500)
 
     # parameters
     tf = 1
-    step = tf / nh
+    step = tf / N # t0 = 0
 
     # model
     model = JuMP.Model()
@@ -15,9 +32,9 @@ function OptimalControlProblems.beam(::JuMPBackend; nh::Int=500)
     @variables(
         model,
         begin
-            0.0 <= x1[0:nh] <= 0.1, (start = 0.05)
-            x2[0:nh], (start = 0.1)
-            -10.0 <= u[0:nh] <= 10.0, (start = 0.1)
+            0.0 <= x1[0:N] <= 0.1, (start = 0.05)
+            x2[0:N], (start = 0.1)
+            -10 <= u[0:N] <= 5, (start = 0.1)
         end
     )
 
@@ -27,8 +44,8 @@ function OptimalControlProblems.beam(::JuMPBackend; nh::Int=500)
         begin
             x1[0] == 0
             x2[0] == 1
-            x1[nh] == 0
-            x2[nh] == -1
+            x1[N] == 0
+            x2[N] == -1
         end
     )
 
@@ -36,13 +53,13 @@ function OptimalControlProblems.beam(::JuMPBackend; nh::Int=500)
     @constraints(
         model,
         begin
-            ∂x1[t = 1:nh], x1[t] == x1[t - 1] + 0.5 * step * (x2[t] + x2[t - 1])
-            ∂x2[t = 1:nh], x2[t] == x2[t - 1] + 0.5 * step * (u[t] + u[t - 1])
+            ∂x1[i = 1:N], x1[i] == x1[i - 1] + 0.5 * step * (x2[i] + x2[i - 1])
+            ∂x2[i = 1:N], x2[i] == x2[i - 1] + 0.5 * step * (u[i] + u[i - 1])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(u[t]^2 + u[t - 1]^2 for t in 1:nh))
+    @objective(model, Min, 0.5 * step * sum(u[i]^2 + u[i - 1]^2 for i in 1:N))
 
     return model
 end

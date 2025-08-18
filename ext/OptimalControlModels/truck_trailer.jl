@@ -1,19 +1,13 @@
 """
 The Truck Trailer Problem:
     We want to find the optimal trajectory of a truck with two trailers that starts horizontally aligned.
-    The objective is to minimize the time taken to park the truck and the trailers aligned vertically at a given target location.
+    The objective is to minimise the time taken to park the truck and the trailers aligned vertically at a given target location.
     The problem is formulated as an OptimalControl model.
 """
-function OptimalControlProblems.truck_trailer(
-    ::OptimalControlBackend;
-    data::Array{Float64,2}=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2],
-    nh::Int=200,
-)
+function OptimalControlProblems.truck_trailer(::OptimalControlBackend; N::Int=200)
 
     # parameters
-    if size(data) != (3, 3)
-        error("The input data matrix must be 3x3.")
-    end
+    data=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2]
     L0 = data[1, 1]
     M0 = data[1, 2]
     W0 = data[1, 3]
@@ -115,7 +109,7 @@ function OptimalControlProblems.truck_trailer(
     init = (state=xinit, control=uinit, variable=varinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

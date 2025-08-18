@@ -1,3 +1,24 @@
+"""
+L2_norm(T, X)
+
+Compute the L² norm of a one-dimensional signal defined on a time grid.
+
+# Arguments
+
+- `T::AbstractVector`: Time grid, assumed one-dimensional and ordered.
+- `X::AbstractVector`: Signal values at each time point, one-dimensional.
+
+# Returns
+
+- `::Float64`: The L² norm of `X` with respect to the grid `T`.
+
+# Example
+
+```julia-repl
+julia> L2_norm(0:0.1:1, sin.(0:0.1:1))
+0.5229090712505341
+```
+"""
 function L2_norm(T, X)
     # T and X are supposed to be one dimensional
     s = 0.0
@@ -7,21 +28,54 @@ function L2_norm(T, X)
     return √(s)
 end
 
-function L1_norm(T, U)
-    # T and X are supposed to be one dimensional
-    s = 0.0
-    for i in 1:(length(T) - 1)
-        s += 0.5 * (abs(U[i]) + abs(U[i + 1])) * (T[i + 1]-T[i])
-    end
-    return s
-end
+"""
+@my_test_broken e
 
+Mark a test as broken if the given expression fails.  
+This macro wraps a test in the `@test` framework and sets `broken=!e`.
+
+# Arguments
+
+- `e::Expr`: The expression to be tested.
+
+# Returns
+
+- `::Expr`: An expression that expands into a `@test` with a `broken` flag.
+
+# Example
+
+```julia-repl
+julia> @macroexpand @my_test_broken 1 == 2
+:(@test 1 == 2 broken = !(1 == 2))
+```
+"""
 macro my_test_broken(e)
     return esc(quote
         @test $e broken=!$e
     end)
 end
 
+"""
+comparison(; max_iter, test_name)
+
+Run a comparison between the `OptimalControl` backend and a `JuMP` backend for a set of optimal control problems.  
+The function validates solutions by comparing state, control, objective, and other quantities.
+
+# Arguments
+
+- `max_iter::Int`: Maximum number of solver iterations allowed.
+- `test_name::Symbol`: The name of the test to run. Must be one of `:init`, `:solution`, or `:iter1`.
+
+# Returns
+
+- `::Nothing`: Runs the comparison tests and generates plots; does not return a value.
+
+# Example
+
+```julia-repl
+julia> comparison(max_iter=100, test_name=:solution)
+```
+"""
 function comparison(; max_iter, test_name)
 
     #
@@ -54,7 +108,12 @@ function comparison(; max_iter, test_name)
 
     # we loop over the problems
     for f in LIST_OF_PROBLEMS
-        nh = OptimalControlProblems.metadata[f][:nh] # get default nh
+
+        N = OptimalControlProblems.metadata[f][:N] # get default N
+        x_vars = OptimalControlProblems.metadata[f][:state_name]
+        p_vars = OptimalControlProblems.metadata[f][:costate_name]
+        u_vars = OptimalControlProblems.metadata[f][:control_name]
+        v_vars = OptimalControlProblems.metadata[f][:variable_name]
 
         @testset "$(string(f)) ($(string(test_name)))" verbose=VERBOSE begin
             DEBUG && println("\n", "┌─ ", string(f), " (", string(test_name), ")")
@@ -63,7 +122,7 @@ function comparison(; max_iter, test_name)
             ########## OptimalControl ##########
 
             # set up the OptimalControl model 
-            docp, nlp = OptimalControlProblems.eval(f)(OptimalControlBackend(); nh=nh)
+            docp, nlp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
 
             # solve the problem
             nlp_sol = NLPModelsIpopt.ipopt(nlp; Options...)
@@ -84,11 +143,12 @@ function comparison(; max_iter, test_name)
             u_oc = control(sol).(t_oc)
             o_oc = objective(sol)
             i_oc = nlp_sol.iter # iterations(sol) returns 0!
+            v_oc = variable(sol)
 
             ############### JuMP ###############
 
             # set up the JuMP model
-            model = OptimalControlProblems.eval(f)(JuMPBackend(); nh=nh)
+            model = OptimalControlProblems.eval(f)(JuMPBackend(); N=N)
             set_optimizer(model, Ipopt.Optimizer)
             set_silent(model)
             set_optimizer_attribute(model, "tol", Options[:tol])
@@ -101,59 +161,14 @@ function comparison(; max_iter, test_name)
             # solve the model
             optimize!(model)
 
-            # setrieve values of variables
-
-            ## time grid: we assume that t0 = 0
-            time_data, time_var_name, time_value = OptimalControlProblems.metadata[f][:time]
-
-            t0 = 0
-            t_jp = if time_data == "final_time"
-                if time_value !== nothing
-                    tf = time_value
-                else
-                    tf = value.(model[Symbol(time_var_name)])
-                end
-                range(t0, tf, nh+1)
-            elseif time_data == "step"
-                if time_value !== nothing
-                    h = time_value
-                    tf = h * nh
-                    range(t0, tf, nh+1)
-                else
-                    h = value.(model[Symbol(time_var_name)])
-                    if isa(h, Number)
-                        tf = h * nh
-                        range(t0, tf, nh+1)
-                    else
-                        cumsum([0, h...])
-                    end
-                end
-            end
-
-            ## iterations
-            i_jp = barrier_iterations(model)
-
-            ## state
-            x_vars = OptimalControlProblems.metadata[f][:state_name]
-            x_jp_vars = [JuMP.value.(model[Symbol(xv)]) for xv in x_vars]
-            inds_x = axes(x_jp_vars[1], 1)
-            x_jp = [[x_jp_vars[j][i] for j in 1:length(x_vars)] for i in inds_x]
-
-            ## costate
-            p_vars = OptimalControlProblems.metadata[f][:costate_name]
-            p_jp_vars = [JuMP.dual.(model[Symbol(pv)]) for pv in p_vars]
-            inds_p = axes(p_jp_vars[1], 1)
-            p_jp = -[[p_jp_vars[j][i] for j in 1:length(p_vars)] for i in inds_p]
-            push!(p_jp, p_jp[end]) # we add one element
-
-            ## control
-            u_vars = OptimalControlProblems.metadata[f][:control_name]
-            u_jp_vars = [JuMP.value.(model[Symbol(uv)]) for uv in u_vars]
-            inds_u = axes(u_jp_vars[1], 1)
-            u_jp = [[u_jp_vars[j][i] for j in 1:length(u_vars)] for i in inds_u]
-
-            ## objective
+            # retrieve values
+            t_jp = time_grid(f, model)
+            x_jp = state(f, model).(t_jp)
+            u_jp = control(f, model).(t_jp)
             o_jp = objective_value(model)
+            i_jp = barrier_iterations(model)
+            p_jp = costate(f, model).(t_jp)
+            v_jp = variable(f, model)
 
             ############ TEST ############
 
@@ -305,6 +320,36 @@ function comparison(; max_iter, test_name)
                 end
             end
 
+            # variable
+            if test_grid_ok && !isnothing(v_vars)
+                @testset "variable" verbose=VERBOSE begin
+                    for i in eachindex(v_vars)
+                        @testset "$(v_vars[i])" verbose=VERBOSE begin
+                            vi_oc = v_oc[i]
+                            vi_jp = v_jp[i]
+                            vi_di = abs(vi_oc-vi_jp)
+                            vi_bd = max(0.5*(abs(vi_oc) + abs(vi_jp))*ε_rel_control, ε_abs_control)
+                            res = @my_test_broken vi_di < vi_bd
+
+                            DEBUG && println("├─  variable $(v_vars[i])")
+                            DEBUG && println("│")
+                            DEBUG && println("│     vi oc = ", vi_oc)
+                            DEBUG && println("│     vi jp = ", vi_jp)
+                            DEBUG && println("│     r_err = ", vi_di/(0.5*(abs(vi_oc) + abs(vi_jp))))
+                            DEBUG && println("│     a_err = ", vi_di)
+                            DEBUG && println("│     bound = ", vi_bd)
+                            DEBUG &&
+                                (typeof(res) == Test.Pass) &&
+                                println("│     \033[1;32mTest Passed\033[0m")
+                            DEBUG &&
+                                (typeof(res) != Test.Pass) &&
+                                println("│     \033[1;31mTest Failed\033[0m")
+                            DEBUG && println("│")
+                        end
+                    end
+                end
+            end
+
             # objective
             @testset "objective" verbose=VERBOSE begin
                 o_di = abs(o_oc-o_jp)
@@ -379,7 +424,7 @@ function comparison(; max_iter, test_name)
 
             for i in eachindex(p_vars) # costate
                 pi_jp = [p_jp[k][i] for k in eachindex(t_jp)]
-                plot!(plt[n + i], t_jp, pi_jp; color=2, linestyle=:dash, label=:none)
+                plot!(plt[n + i], t_jp, -pi_jp; color=2, linestyle=:dash, label=:none)
             end
 
             for i in eachindex(u_vars) # control

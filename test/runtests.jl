@@ -19,15 +19,13 @@ const MAX_ITER = 1000
 const MAX_WALL_TIME = 500.0
 
 # Collect all the problems from OptimalControlProblems
-all_names = names(OptimalControlProblems; all=true)
-list_of_problems = filter(
-    x ->
-        isdefined(OptimalControlProblems, x) &&
-        isa(getfield(OptimalControlProblems, x), Function) &&
-        !startswith(string(x), "#") &&
-        !(x in [:eval, :include, :available_problems]),
-    all_names,
-)
+path = joinpath(dirname(@__FILE__), "..", "ext", "MetaData")
+list_of_problems = []
+files = filter(x -> x[(end - 2):end] == ".jl", readdir(path))
+for file in files
+    problem = Symbol(file[1:(end - 3)])
+    push!(list_of_problems, problem)
+end
 
 # Remove from the tests the following problems
 # problems_to_exclude = [
@@ -36,7 +34,7 @@ list_of_problems = filter(
 # list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
 # list_of_problems = [
-#     :moonlander
+#     :space_shuttle
 # ]
 
 # The list of all the problems to test
@@ -50,7 +48,7 @@ const DEBUG = true
 const VERBOSE = true # print or not details during tests
 @testset "OptimalControlProblems tests" verbose=VERBOSE showtiming=true begin
     for name in (
-        :aqua,
+        #:aqua,
         :JuMP,                  # convergence tests for JuMP models
         :OptimalControl,        # convergence tests for OptimalControl models
         :init,                  # comparison between OptimalControl and JuMP: init

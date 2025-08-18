@@ -2,7 +2,7 @@
 The Robbins Problem:
     The problem is formulated as an OptimalControl model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.robbins(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.robbins(::OptimalControlBackend; N::Int=500)
 
     # parameters
     α = 3
@@ -32,7 +32,7 @@ function OptimalControlProblems.robbins(::OptimalControlBackend; nh::Int=500)
     init = (state=xinit, control=uinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

@@ -2,7 +2,7 @@
 The Insurance Problem:
     The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.insurance(::JuMPBackend; nh::Int=500)
+function OptimalControlProblems.insurance(::JuMPBackend; N::Int=500)
 
     # parameters
     γ = 0.2
@@ -22,14 +22,14 @@ function OptimalControlProblems.insurance(::JuMPBackend; nh::Int=500)
     @variables(
         model,
         begin
-            0 <= I[0:nh] <= 1.5, (start = 0.1)
-            0 <= m[0:nh] <= 1.5, (start = 0.1)
-            0 <= x3[0:nh] <= 1.5, (start = 0.1)
-            0 <= h[0:nh] <= 25, (start = 0.1)
-            0 <= R[0:nh], (start = 0.1)
-            0 <= H[0:nh], (start = 0.1)
-            0 <= U[0:nh], (start = 0.1)
-            0.001 <= dUdR[0:nh], (start = 0.1)
+            0 <= I[0:N] <= 1.5, (start = 0.1)
+            0 <= m[0:N] <= 1.5, (start = 0.1)
+            0 <= x3[0:N] <= 1.5, (start = 0.1)
+            0 <= h[0:N] <= 25, (start = 0.1)
+            0 <= R[0:N], (start = 0.1)
+            0 <= H[0:N], (start = 0.1)
+            0 <= U[0:N], (start = 0.1)
+            0.001 <= dUdR[0:N], (start = 0.1)
             P >= 0, (start = 0.1)
         end
     )
@@ -41,29 +41,29 @@ function OptimalControlProblems.insurance(::JuMPBackend; nh::Int=500)
             I[0] == 0
             m[0] == 0.001
             x3[0] == 0
-            P - x3[nh] == 0
+            P - x3[N] == 0
         end
     )
 
     @expressions(
         model,
         begin
-            step, tf / nh
-            t[i = 0:nh], i*step
-            ε[i = 0:nh], k * t[i] / (tf - t[i] + 1)
-            fx[i = 0:nh], λ * exp(-λ * t[i]) + exp(-λ * tf) / tf
-            v[i = 0:nh], m[i]^(α / 2) / (1 + m[i]^(α / 2))
-            vprime[i = 0:nh], α / 2 * m[i]^(α / 2 - 1) / (1 + m[i]^(α / 2))^2
+            step, tf / N
+            t[i = 0:N], i*step
+            ε[i = 0:N], k * t[i] / (tf - t[i] + 1)
+            fx[i = 0:N], λ * exp(-λ * t[i]) + exp(-λ * tf) / tf
+            v[i = 0:N], m[i]^(α / 2) / (1 + m[i]^(α / 2))
+            vprime[i = 0:N], α / 2 * m[i]^(α / 2 - 1) / (1 + m[i]^(α / 2))^2
         end
     )
 
     @constraints(
         model,
         begin
-            cond1[i = 0:nh], R[i] - (w - P + I[i] - m[i] - ε[i]) == 0
-            cond2[i = 0:nh], H[i] - (h0 - γ * step * i * (1 - v[i])) == 0
-            cond3[i = 0:nh], U[i] - (1 - exp(-s * R[i]) + H[i]) == 0
-            cond4[i = 0:nh], dUdR[i] - (s * exp(-s * R[i])) == 0
+            cond1[i = 0:N], R[i] - (w - P + I[i] - m[i] - ε[i]) == 0
+            cond2[i = 0:N], H[i] - (h0 - γ * step * i * (1 - v[i])) == 0
+            cond3[i = 0:N], U[i] - (1 - exp(-s * R[i]) + H[i]) == 0
+            cond4[i = 0:N], dUdR[i] - (s * exp(-s * R[i])) == 0
         end
     )
 
@@ -73,26 +73,26 @@ function OptimalControlProblems.insurance(::JuMPBackend; nh::Int=500)
         begin
 
             # dynamics
-            dI[i = 0:nh], (1 - γ * t[i] * vprime[i] / dUdR[i]) * h[i]
-            dm[i = 0:nh], h[i]
-            dx3[i = 0:nh], (1 + σ) * I[i] * fx[i]
+            dI[i = 0:N], (1 - γ * t[i] * vprime[i] / dUdR[i]) * h[i]
+            dm[i = 0:N], h[i]
+            dx3[i = 0:N], (1 + σ) * I[i] * fx[i]
 
             # objective
-            dc[i = 0:nh], -U[i] * fx[i]
+            dc[i = 0:N], -U[i] * fx[i]
         end
     )
 
     @constraints(
         model,
         begin
-            ∂I[i = 1:nh], I[i] == I[i - 1] + 0.5 * step * (dI[i] + dI[i - 1])
-            ∂m[i = 1:nh], m[i] == m[i - 1] + 0.5 * step * (dm[i] + dm[i - 1])
-            ∂x3[i = 1:nh], x3[i] == x3[i - 1] + 0.5 * step * (dx3[i] + dx3[i - 1])
+            ∂I[i = 1:N], I[i] == I[i - 1] + 0.5 * step * (dI[i] + dI[i - 1])
+            ∂m[i = 1:N], m[i] == m[i - 1] + 0.5 * step * (dm[i] + dm[i - 1])
+            ∂x3[i = 1:N], x3[i] == x3[i - 1] + 0.5 * step * (dx3[i] + dx3[i - 1])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i - 1] for i in 1:nh))
+    @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i - 1] for i in 1:N))
 
     return model
 end

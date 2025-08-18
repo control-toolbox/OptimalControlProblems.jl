@@ -4,7 +4,7 @@ Goddard Rocket Problem:
     The objective is to maximize the final altitude of the rocket.
     The problem is formulated as a JuMP model, and can be found [here](https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/rocket.jl)
 """
-function OptimalControlProblems.rocket(::JuMPBackend; nh::Int=500)
+function OptimalControlProblems.rocket(::JuMPBackend; N::Int=500)
 
     # parameters
     h0 = 1
@@ -27,10 +27,10 @@ function OptimalControlProblems.rocket(::JuMPBackend; nh::Int=500)
     @variables(
         model,
         begin
-            h[i = 0:nh] >= h0, (start = 1)
-            v[i = 0:nh] >= v0, (start = i / nh * (1 - i / nh))
-            mf <= m[i = 0:nh] <= m0, (start = (mf - m0) * (i / nh) + m0)
-            0 <= T[i = 0:nh] <= Tmax, (start = Tmax / 2)
+            h[i = 0:N] >= h0, (start = 1)
+            v[i = 0:N] >= v0, (start = i / N * (1 - i / N))
+            mf <= m[i = 0:N] <= m0, (start = (mf - m0) * (i / N) + m0)
+            0 <= T[i = 0:N] <= Tmax, (start = Tmax / 2)
             0 <= tf, (start = 1)
         end
     )
@@ -42,7 +42,7 @@ function OptimalControlProblems.rocket(::JuMPBackend; nh::Int=500)
             h_ic, h[0] == h0
             v_ic, v[0] == v0
             m_ic, m[0] == m0
-            mfc, m[nh] == mf
+            mfc, m[N] == mf
         end
     )
 
@@ -52,30 +52,30 @@ function OptimalControlProblems.rocket(::JuMPBackend; nh::Int=500)
         begin
 
             #
-            step, tf / nh
+            step, tf / N
 
             #
-            D[i = 0:nh], Dc * v[i]^2 * exp(-hc * (h[i] - h0)) / h0
-            g[i = 0:nh], g0 * (h0 / h[i])^2
+            D[i = 0:N], Dc * v[i]^2 * exp(-hc * (h[i] - h0)) / h0
+            g[i = 0:N], g0 * (h0 / h[i])^2
 
             #
-            dh[i = 0:nh], v[i]
-            dv[i = 0:nh], (T[i] - D[i] - m[i] * g[i]) / m[i]
-            dm[i = 0:nh], -T[i] / c
+            dh[i = 0:N], v[i]
+            dv[i = 0:N], (T[i] - D[i] - m[i] * g[i]) / m[i]
+            dm[i = 0:N], -T[i] / c
         end
     )
 
     @constraints(
         model,
         begin
-            ∂h[i = 1:nh], h[i] == h[i - 1] + 0.5 * step * (dh[i] + dh[i - 1])
-            ∂v[i = 1:nh], v[i] == v[i - 1] + 0.5 * step * (dv[i] + dv[i - 1])
-            ∂m[i = 1:nh], m[i] == m[i - 1] + 0.5 * step * (dm[i] + dm[i - 1])
+            ∂h[i = 1:N], h[i] == h[i - 1] + 0.5 * step * (dh[i] + dh[i - 1])
+            ∂v[i = 1:N], v[i] == v[i - 1] + 0.5 * step * (dv[i] + dv[i - 1])
+            ∂m[i = 1:N], m[i] == m[i - 1] + 0.5 * step * (dm[i] + dm[i - 1])
         end
     )
 
     # objective
-    @objective(model, Min, -h[nh])
+    @objective(model, Min, -h[N])
 
     return model
 end

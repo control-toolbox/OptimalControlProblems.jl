@@ -4,7 +4,7 @@
         The objective is to swing the pendulum from the downward position to the upright position in the shortest time possible.
         The problem is formulated as an OptimalControl model.
 """
-function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; N::Int=500)
 
     # parameters
     g = 9.81            # gravitation [m/s^2]
@@ -77,7 +77,7 @@ function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=5
     init = (state=xinit, control=uinit, variable=varinit)
 
     # NLPModel + DOCP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
     return docp, nlp
 end

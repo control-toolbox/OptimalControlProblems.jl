@@ -19,14 +19,14 @@ function test_quick()
     max_r_err = -Inf # relative error max
 
     for f in LIST_OF_PROBLEMS
-        nh = OptimalControlProblems.metadata[f][:nh]
+        N = OptimalControlProblems.metadata[f][:N]
 
         @testset "$(string(f)) (objective)" verbose=VERBOSE begin
             DEBUG && println("\n", "┌─ ", string(f))
             DEBUG && println("│")
 
             ########## OptimalControl ##########
-            docp, nlp = OptimalControlProblems.eval(f)(OptimalControlBackend(); nh=nh)
+            docp, nlp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
             nlp_sol = NLPModelsIpopt.ipopt(nlp; kwargs...)
             sol = build_OCP_solution(
                 docp;
@@ -37,7 +37,7 @@ function test_quick()
             o_oc = objective(sol)
 
             ############### JuMP ###############
-            model = OptimalControlProblems.eval(f)(JuMPBackend(); nh=nh)
+            model = OptimalControlProblems.eval(f)(JuMPBackend(); N=N)
             set_optimizer(model, Ipopt.Optimizer)
             set_silent(model)
             set_optimizer_attribute(model, "tol", TOL)

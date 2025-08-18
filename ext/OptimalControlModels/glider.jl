@@ -5,7 +5,7 @@ Hang Glider Problem:
     The problem is formulated as an OptimalControl model.
     Original formulation from MadNLP/COPSBenchmark
 """
-function OptimalControlProblems.glider(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.glider(::OptimalControlBackend; N::Int=500)
 
     # parameters
     x_0 = 0
@@ -82,7 +82,7 @@ function OptimalControlProblems.glider(::OptimalControlBackend; nh::Int=500)
     init = (state=xinit, control=uinit, variable=tfinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
     nlp = model(docp)
 
     return docp, nlp

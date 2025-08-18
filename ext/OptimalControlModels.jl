@@ -2,6 +2,7 @@ module OptimalControlModels
 
 using OptimalControlProblems
 using OptimalControl
+using DocStringExtensions
 
 rel_path_problems = "OptimalControlModels"
 path = joinpath(dirname(@__FILE__), rel_path_problems)

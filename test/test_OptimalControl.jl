@@ -11,7 +11,7 @@ function test_OptimalControl()
 
     for f in LIST_OF_PROBLEMS
         @testset "$(f)" verbose=VERBOSE begin
-            nh = OptimalControlProblems.metadata[f][:nh]
+            N = OptimalControlProblems.metadata[f][:N]
 
             # do we keep or remove the problem from the list
             keep_problem = true
@@ -21,7 +21,7 @@ function test_OptimalControl()
             DEBUG && println("│")
 
             # Set up the model
-            _, model = OptimalControlProblems.eval(f)(OptimalControlBackend(); nh=nh)
+            _, model = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
 
             # Solve the model
             DEBUG && println("├─  Solve")
