@@ -21,8 +21,7 @@ data_re = DataFrame(            # to store data about the resolutions
     Flag=Any[],
     Iterations=Int[],
     Objective=Float64[],
-)
-nothing # hide</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&lt;&lt; @example-block not executed in draft mode &gt;&gt;</code></pre><h2 id="OptimalControl-model"><a class="docs-heading-anchor" href="#OptimalControl-model">OptimalControl model</a><a id="OptimalControl-model-1"></a><a class="docs-heading-anchor-permalink" href="#OptimalControl-model" title="Permalink"></a></h2><h3 id="Solve-the-problem"><a class="docs-heading-anchor" href="#Solve-the-problem">Solve the problem</a><a id="Solve-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem" title="Permalink"></a></h3><p>Import the problem and solve it.</p><pre><code class="language-julia hljs"># import model
+)</code></pre><h2 id="OptimalControl-model"><a class="docs-heading-anchor" href="#OptimalControl-model">OptimalControl model</a><a id="OptimalControl-model-1"></a><a class="docs-heading-anchor-permalink" href="#OptimalControl-model" title="Permalink"></a></h2><h3 id="Solve-the-problem"><a class="docs-heading-anchor" href="#Solve-the-problem">Solve the problem</a><a id="Solve-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem" title="Permalink"></a></h3><p>Import the problem and solve it.</p><pre><code class="language-julia hljs"># import model
 docp, model_oc = moonlander(OptimalControlBackend())
 
 # solve
@@ -35,28 +34,57 @@ nlp_sol = NLPModelsIpopt.ipopt(
 )
 
 # build an optimal control solution
-ocp_sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers, docp_solution=nlp_sol)
-nothing # hide</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&lt;&lt; @example-block not executed in draft mode &gt;&gt;</code></pre><p>For numerical comparison with the JuMP model resolution, define:</p><pre><code class="language-julia hljs">t_oc = time_grid(ocp_sol)
+ocp_sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers, docp_solution=nlp_sol)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:     4009
+                     variables with only lower bounds:        0
+                variables with lower and upper bounds:     1003
+                     variables with only upper bounds:        0
+Total number of equality constraints.................:     3010
+Total number of inequality constraints...............:        0
+        inequality constraints with only lower bounds:        0
+   inequality constraints with lower and upper bounds:        0
+        inequality constraints with only upper bounds:        0
+
+
+Number of Iterations....: 52
+
+                                   (scaled)                 (unscaled)
+Objective...............:   9.6181005310230261e-01    9.6181005310230261e-01
+Dual infeasibility......:   2.6617528320338479e-10    2.6617528320338479e-10
+Constraint violation....:   2.9204114682102045e-09    2.9204114682102045e-09
+Variable bound violation:   1.0855984555746545e-07    1.0855984555746545e-07
+Complementarity.........:   1.6476450556781885e-11    1.6476450556781885e-11
+Overall NLP error.......:   2.9204114682102045e-09    2.9204114682102045e-09
+
+
+Number of objective function evaluations             = 72
+Number of objective gradient evaluations             = 53
+Number of equality constraint evaluations            = 72
+Number of inequality constraint evaluations          = 0
+Number of equality constraint Jacobian evaluations   = 53
+Number of inequality constraint Jacobian evaluations = 0
+Number of Lagrangian Hessian evaluations             = 52
+Total seconds in IPOPT                               = 4.838
+
+EXIT: Optimal Solution Found.</code></pre><p>For numerical comparison with the JuMP model resolution, define:</p><pre><code class="language-julia hljs">t_oc = time_grid(ocp_sol)
 x_oc = state(ocp_sol).(t_oc)
 u_oc = control(ocp_sol).(t_oc)
 o_oc = objective(ocp_sol)
 v_oc = variable(ocp_sol)
-i_oc = nlp_sol.iter
-nothing # hide</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&lt;&lt; @example-block not executed in draft mode &gt;&gt;</code></pre><h3 id="Store-and-print-the-data"><a class="docs-heading-anchor" href="#Store-and-print-the-data">Store and print the data</a><a id="Store-and-print-the-data-1"></a><a class="docs-heading-anchor-permalink" href="#Store-and-print-the-data" title="Permalink"></a></h3><p>Store the following data about the problem:</p><pre><code class="language-julia hljs">push!(data_pb,
+i_oc = nlp_sol.iter</code></pre><h3 id="Store-and-print-the-data"><a class="docs-heading-anchor" href="#Store-and-print-the-data">Store and print the data</a><a id="Store-and-print-the-data-1"></a><a class="docs-heading-anchor-permalink" href="#Store-and-print-the-data" title="Permalink"></a></h3><p>Store the following data about the problem:</p><pre><code class="language-julia hljs">push!(data_pb,
     (
         Problem=:moonlander,
         Grid_Size=OptimalControlProblems.metadata[:moonlander][:N],
         Variables=get_nvar(model_oc),
         Constraints=get_ncon(model_oc),
     )
-)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&lt;&lt; @example-block not executed in draft mode &gt;&gt;</code></pre><p>And store the following data about the resolution:</p><pre><code class="language-julia hljs">push!(data_re,
+)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Problem</th><th style = "text-align: left;">Grid_Size</th><th style = "text-align: left;">Variables</th><th style = "text-align: left;">Constraints</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">moonlander</td><td style = "text-align: right;">500</td><td style = "text-align: right;">4009</td><td style = "text-align: right;">3010</td></tr></tbody></table></div><p>And store the following data about the resolution:</p><pre><code class="language-julia hljs">push!(data_re,
     (
         Model=:OptimalControl,
         Flag=nlp_sol.status,
         Iterations=nlp_sol.iter,
         Objective=objective(ocp_sol),
     )
-)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&lt;&lt; @example-block not executed in draft mode &gt;&gt;</code></pre><h3 id="Plot-the-solution"><a class="docs-heading-anchor" href="#Plot-the-solution">Plot the solution</a><a id="Plot-the-solution-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution" title="Permalink"></a></h3><p>To plot the solution, get the number of states and controls from the metadata:</p><pre><code class="language-julia hljs">x_vars = OptimalControlProblems.metadata[:moonlander][:state_name]
+)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">52</td><td style = "text-align: right;">0.96181</td></tr></tbody></table></div><h3 id="Plot-the-solution"><a class="docs-heading-anchor" href="#Plot-the-solution">Plot the solution</a><a id="Plot-the-solution-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution" title="Permalink"></a></h3><p>To plot the solution, get the number of states and controls from the metadata:</p><pre><code class="language-julia hljs">x_vars = OptimalControlProblems.metadata[:moonlander][:state_name]
 u_vars = OptimalControlProblems.metadata[:moonlander][:control_name]
 
 n = length(x_vars) # number of states
@@ -75,8 +103,7 @@ plt = plot(
 )
 for i in 2:n
     plot!(plt[i]; legend=:none)
-end
-plt # hide</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&lt;&lt; @example-block not executed in draft mode &gt;&gt;</code></pre><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
+end</code></pre><img src="moonlander-425e3fe7.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
 model_jp = moonlander(JuMPBackend())
 
 # solve
@@ -86,20 +113,50 @@ set_optimizer_attribute(model_jp, &quot;tol&quot;, 1e-8)
 set_optimizer_attribute(model_jp, &quot;mu_strategy&quot;, &quot;adaptive&quot;)
 set_optimizer_attribute(model_jp, &quot;linear_solver&quot;, &quot;mumps&quot;)
 set_optimizer_attribute(model_jp, &quot;sb&quot;, &quot;yes&quot;)
-optimize!(model_jp)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&lt;&lt; @example-block not executed in draft mode &gt;&gt;</code></pre><p>For the numerical comparison, define:</p><pre><code class="language-julia hljs">t_jp = time_grid(:moonlander, model_jp)
+optimize!(model_jp)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:     4009
+                     variables with only lower bounds:        0
+                variables with lower and upper bounds:     1003
+                     variables with only upper bounds:        0
+Total number of equality constraints.................:     3010
+Total number of inequality constraints...............:        0
+        inequality constraints with only lower bounds:        0
+   inequality constraints with lower and upper bounds:        0
+        inequality constraints with only upper bounds:        0
+
+
+Number of Iterations....: 46
+
+                                   (scaled)                 (unscaled)
+Objective...............:   9.6181005310879608e-01    9.6181005310879608e-01
+Dual infeasibility......:   4.4554157141007272e-10    4.4554157141007272e-10
+Constraint violation....:   6.0742708640759702e-09    6.0742708640759702e-09
+Variable bound violation:   1.0855999832415364e-07    1.0855999832415364e-07
+Complementarity.........:   2.3741629783139485e-11    2.3741629783139485e-11
+Overall NLP error.......:   6.0742708640759702e-09    6.0742708640759702e-09
+
+
+Number of objective function evaluations             = 70
+Number of objective gradient evaluations             = 47
+Number of equality constraint evaluations            = 70
+Number of inequality constraint evaluations          = 0
+Number of equality constraint Jacobian evaluations   = 47
+Number of inequality constraint Jacobian evaluations = 0
+Number of Lagrangian Hessian evaluations             = 46
+Total seconds in IPOPT                               = 0.949
+
+EXIT: Optimal Solution Found.</code></pre><p>For the numerical comparison, define:</p><pre><code class="language-julia hljs">t_jp = time_grid(:moonlander, model_jp)
 x_jp = state(:moonlander, model_jp).(t_jp)
 u_jp = control(:moonlander, model_jp).(t_jp)
 o_jp = objective_value(model_jp)
 v_jp = variable(:moonlander, model_jp)
-i_jp = barrier_iterations(model_jp)
-nothing # hide</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&lt;&lt; @example-block not executed in draft mode &gt;&gt;</code></pre><h3 id="Store-and-print-the-data-2"><a class="docs-heading-anchor" href="#Store-and-print-the-data-2">Store and print the data</a><a class="docs-heading-anchor-permalink" href="#Store-and-print-the-data-2" title="Permalink"></a></h3><p>Store the results of the resolution:</p><pre><code class="language-julia hljs">push!(data_re,
+i_jp = barrier_iterations(model_jp)</code></pre><h3 id="Store-and-print-the-data-2"><a class="docs-heading-anchor" href="#Store-and-print-the-data-2">Store and print the data</a><a class="docs-heading-anchor-permalink" href="#Store-and-print-the-data-2" title="Permalink"></a></h3><p>Store the results of the resolution:</p><pre><code class="language-julia hljs">push!(data_re,
     (
         Model=:JuMP,
         Flag=termination_status(model_jp),
         Iterations=barrier_iterations(model_jp),
         Objective=objective_value(model_jp),
     )
-)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&lt;&lt; @example-block not executed in draft mode &gt;&gt;</code></pre><h3 id="Plot-the-solution-2"><a class="docs-heading-anchor" href="#Plot-the-solution-2">Plot the solution</a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution-2" title="Permalink"></a></h3><p>Add the state, costate, and control from the JuMP model to the plot:</p><pre><code class="language-julia hljs">t = time_grid(:moonlander, model_jp)     # t0, ..., tN = tf
+)</code></pre><div><div style = "float: left;"><span>2×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">52</td><td style = "text-align: right;">0.96181</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">JuMP</td><td style = "text-align: left;">LOCALLY_SOLVED</td><td style = "text-align: right;">46</td><td style = "text-align: right;">0.96181</td></tr></tbody></table></div><h3 id="Plot-the-solution-2"><a class="docs-heading-anchor" href="#Plot-the-solution-2">Plot the solution</a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution-2" title="Permalink"></a></h3><p>Add the state, costate, and control from the JuMP model to the plot:</p><pre><code class="language-julia hljs">t = time_grid(:moonlander, model_jp)     # t0, ..., tN = tf
 x = state(:moonlander, model_jp)         # function of time
 u = control(:moonlander, model_jp)       # function of time
 p = costate(:moonlander, model_jp)       # function of time
@@ -115,8 +172,7 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
-end
-plt # hide</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&lt;&lt; @example-block not executed in draft mode &gt;&gt;</code></pre><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess (or first iterate) is obtained by fixing <code>max_iter=0</code> in the solver:</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
+end</code></pre><img src="moonlander-5dd0b493.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess (or first iterate) is obtained by fixing <code>max_iter=0</code> in the solver:</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
 
     # import OptimalControl model
     docp, model_oc = moonlander(OptimalControlBackend())
@@ -183,9 +239,8 @@ plt # hide</code></pre><pre class="documenter-example-output"><code class="nohig
     end
 
     return plt
-end
-nothing # hide</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&lt;&lt; @example-block not executed in draft mode &gt;&gt;</code></pre></details>
-</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&lt;&lt; @example-block not executed in draft mode &gt;&gt;</code></pre><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Next, compare the number of iterations required to obtain the solutions. Also compare the final times, objective values, and the state and costate trajectories in L² norm.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = OptimalControlProblems.metadata[:moonlander][:variable_name]
+end</code></pre></details>
+</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="moonlander-b3b6e8ca.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Next, compare the number of iterations required to obtain the solutions. Also compare the final times, objective values, and the state and costate trajectories in L² norm.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = OptimalControlProblems.metadata[:moonlander][:variable_name]
 
 function L2_norm(T, X)
     # T and X are supposed to be one dimensional
@@ -276,6 +331,82 @@ function numerical_comparison()
     println(&quot;└─&quot;)
 
     return nothing
-end
-nothing # hide</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&lt;&lt; @example-block not executed in draft mode &gt;&gt;</code></pre></details>
-</br><pre><code class="language-julia hljs">numerical_comparison()</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&lt;&lt; @example-block not executed in draft mode &gt;&gt;</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="jackson.html">« Jackson</a><a class="docs-footer-nextpage" href="quadrotor.html">Quadrotor »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Sunday 17 August 2025 21:12">Sunday 17 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre></details>
+</br><pre><code class="language-julia hljs">numerical_comparison()</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">┌─ moonlander
+│
+├─  Number of iterations
+│
+│     OptimalControl : 52
+│     JuMP           : 46
+│
+├─  State p1 (L2 norm)
+│
+│     OptimalControl : 2.815132019386934
+│     JuMP           : 2.815132095106514
+│     Absolute error : 1.3236938720326307e-7
+│     Relative error : 4.702066706338599e-8
+│
+├─  State p2 (L2 norm)
+│
+│     OptimalControl : 2.8630406718794554
+│     JuMP           : 2.863040460930062
+│     Absolute error : 3.682687066729244e-7
+│     Relative error : 1.2862853254481652e-7
+│
+├─  State dp1 (L2 norm)
+│
+│     OptimalControl : 6.182158224906107
+│     JuMP           : 6.1821582288279915
+│     Absolute error : 9.75598131544767e-6
+│     Relative error : 1.5780866418218059e-6
+│
+├─  State dp2 (L2 norm)
+│
+│     OptimalControl : 5.600559740438641
+│     JuMP           : 5.600559808458474
+│     Absolute error : 7.311375142926814e-6
+│     Relative error : 1.3054722094536894e-6
+│
+├─  State θ (L2 norm)
+│
+│     OptimalControl : 1.2711485141977272
+│     JuMP           : 1.2711485192762548
+│     Absolute error : 8.716662876024948e-7
+│     Relative error : 6.857312706779865e-7
+│
+├─  State dθ (L2 norm)
+│
+│     OptimalControl : 6.2099677820050605
+│     JuMP           : 6.209964639206154
+│     Absolute error : 6.028772795420415e-5
+│     Relative error : 9.708221576349734e-6
+│
+├─  Control F1 (L2 norm)
+│
+│     OptimalControl : 16.841720363741004
+│     JuMP           : 16.838597606725518
+│     Absolute error : 0.11431887704631577
+│     Relative error : 0.006788467801673329
+│
+├─  Control F2 (L2 norm)
+│
+│     OptimalControl : 17.285751754057607
+│     JuMP           : 17.285752384026235
+│     Absolute error : 3.0177778937638107e-5
+│     Relative error : 1.7458181059813582e-6
+│
+├─  Variable tf
+│
+│     OptimalControl : 0.9618100531023026
+│     JuMP           : 0.9618100531087961
+│     Absolute error : 6.4934724264276156e-12
+│     Relative error : 6.751304382254175e-12
+│
+├─  objective
+│
+│     OptimalControl : 0.9618100531023026
+│     JuMP           : 0.9618100531087961
+│     Absolute error : 6.4934724264276156e-12
+│     Relative error : 6.751304382254175e-12
+│
+└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="jackson.html">« Jackson</a><a class="docs-footer-nextpage" href="quadrotor.html">Quadrotor »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Monday 18 August 2025 15:50">Monday 18 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

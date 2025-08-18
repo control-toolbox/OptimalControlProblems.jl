@@ -819,9 +819,9 @@ version = "1.11.0"
 
 [[deps.LinearOperators]]
 deps = ["FastClosures", "LinearAlgebra", "Printf", "Requires", "SparseArrays", "TimerOutputs"]
-git-tree-sha1 = "1894a798ed8887895c5ae70f1fe8331c0c1d8480"
+git-tree-sha1 = "db137007d2c4ed948aa5f2518a2b451851ea8bda"
 uuid = "5c8ed15e-5a4c-59e4-a42b-c7e8811fb125"
-version = "2.10.0"
+version = "2.11.0"
 
     [deps.LinearOperators.extensions]
     LinearOperatorsAMDGPUExt = "AMDGPU"
