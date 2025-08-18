@@ -60,11 +60,11 @@ function OptimalControlProblems.space_shuttle(::JuMPBackend; N::Int=500)
 
             # state
             0 ≤ scaled_h[0:N]                          # altitude (ft) / 1e5
-            ϕ[0:N]                                     # longitude (rad)
+            -2π ≤ ϕ[0:N] ≤ 2π                          # longitude (rad)
             deg2rad(-89) ≤ θ[0:N] ≤ deg2rad(89)        # latitude (rad)
             1e-4 ≤ scaled_v[0:N]                       # velocity (ft/sec) / 1e4
             deg2rad(-89) ≤ γ[0:N] ≤ deg2rad(89)        # flight path angle (rad)
-            ψ[0:N]                                     # azimuth (rad)
+            -2π ≤ ψ[0:N] ≤ 2π                          # azimuth (rad)
 
             # control
             deg2rad(-90) ≤ α[0:N] ≤ deg2rad(90)        # angle of attack (rad)
@@ -72,7 +72,6 @@ function OptimalControlProblems.space_shuttle(::JuMPBackend; N::Int=500)
 
             #
             tf_min ≤ tf ≤ tf_max                        # final time (sec)
-            # 3.5 ≤ Δt[1:(N - 1)] ≤ 4.5                  # time step (sec)
         end
     )
 

@@ -34,7 +34,7 @@ end
 # list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
 # list_of_problems = [
-#     :cart_pendulum
+#     :space_shuttle
 # ]
 
 # The list of all the problems to test

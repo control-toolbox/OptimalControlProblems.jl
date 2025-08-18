@@ -55,6 +55,10 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; N::Int=50
         u = (α, β) ∈ R², control
 
         ## constraints
+        # to help convergence and avoid domain value error
+        -2π ≤ ϕ(t) ≤ 2π
+        -2π ≤ ψ(t) ≤ 2π
+
         # final time constraints
         tf_min ≤ tf ≤ tf_max
 
