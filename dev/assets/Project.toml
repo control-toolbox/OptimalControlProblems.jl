@@ -16,9 +16,11 @@ TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 
 [compat]
 Documenter = "1.14"
+DocumenterInterLinks = "1"
 Ipopt = "1.10"
 JuMP = "1.28"
 Markdown = "1.11"
 NLPModelsIpopt = "0.10"
 OptimalControl = "1.1"
+Plots = "1"
 TOML = "1.0"
