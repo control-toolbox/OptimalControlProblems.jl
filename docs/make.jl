@@ -9,7 +9,9 @@ include("problems.jl")
 
 # to add docstrings from external packages
 const JuMPModels = Base.get_extension(OptimalControlProblems, :JuMPModels)
-const OptimalControlModels = Base.get_extension(OptimalControlProblems, :OptimalControlModels)
+const OptimalControlModels = Base.get_extension(
+    OptimalControlProblems, :OptimalControlModels
+)
 
 Modules = [JuMPModels, OptimalControlModels]
 for Module in Modules
@@ -71,7 +73,9 @@ draft = false
 exclude_from_draft=Symbol[
 #    :beam
 ]
-PROBLEMS_PAGES = generate_documentation_problems(; draft=draft, exclude_from_draft=exclude_from_draft)
+PROBLEMS_PAGES = generate_documentation_problems(;
+    draft=draft, exclude_from_draft=exclude_from_draft
+)
 
 makedocs(;
     draft=draft, # if draft is true, then the julia code from .md is not executed # debug
@@ -85,10 +89,7 @@ makedocs(;
     format=Documenter.HTML(;
         repolink="https://" * repo_url,
         prettyurls=false,
-        size_threshold_ignore=[
-            "dev-api.md",
-            PROBLEMS_PAGES...
-        ],
+        size_threshold_ignore=["dev-api.md", PROBLEMS_PAGES...],
         assets=[
             asset("https://control-toolbox.org/assets/css/documentation.css"),
             asset("https://control-toolbox.org/assets/js/documentation.js"),
@@ -96,18 +97,13 @@ makedocs(;
     ),
     pages=[
         "Getting Started" => "index.md",
-        "Problems" => [
-            "problems-introduction.md",
-            "List of the problems" => PROBLEMS_PAGES
-        ],
+        "Problems" =>
+            ["problems-introduction.md", "List of the problems" => PROBLEMS_PAGES],
         "Tutorials" => [
             "How to get a problem" => "tutorial-get.md",
             "How to solve a problem" => "tutorial-solve.md",
         ],
-        "Developers" => [
-            "How to add a problem" => "dev-add.md",
-            "API" => "dev-api.md"
-        ],
+        "Developers" => ["How to add a problem" => "dev-add.md", "API" => "dev-api.md"],
     ],
     plugins=[links],
 )

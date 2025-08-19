@@ -37,7 +37,7 @@ path = joinpath(dirname(@__FILE__), "..", "ext", "MetaData")
 files = filter(x -> x[(end - 2):end] == ".jl", readdir(path))
 for file in files
     problem = Symbol(file[1:(end - 3)])
-        
+
     # Build the docstring string explicitly here
     doc = """
     $(TYPEDSIGNATURES)
@@ -96,7 +96,7 @@ const types = [
     Vector{String},
     Vector{String},
     Union{Vector{String},Nothing},
-    Tuple{Symbol,Union{Float64, Int}},
+    Tuple{Symbol,Union{Float64,Int}},
 ]
 
 """
