@@ -5,7 +5,7 @@ The Truck Trailer Problem:
     The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746)
 """
 function OptimalControlProblems.truck_trailer(::JuMPBackend; N::Int=200)
-    
+
     # parameters
     data=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2]
     L0 = data[1, 1]

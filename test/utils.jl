@@ -108,7 +108,6 @@ function comparison(; max_iter, test_name)
 
     # we loop over the problems
     for f in LIST_OF_PROBLEMS
-
         N = OptimalControlProblems.metadata[f][:N] # get default N
         x_vars = OptimalControlProblems.metadata[f][:state_name]
         p_vars = OptimalControlProblems.metadata[f][:costate_name]
@@ -328,14 +327,18 @@ function comparison(; max_iter, test_name)
                             vi_oc = v_oc[i]
                             vi_jp = v_jp[i]
                             vi_di = abs(vi_oc-vi_jp)
-                            vi_bd = max(0.5*(abs(vi_oc) + abs(vi_jp))*ε_rel_control, ε_abs_control)
+                            vi_bd = max(
+                                0.5*(abs(vi_oc) + abs(vi_jp))*ε_rel_control, ε_abs_control
+                            )
                             res = @my_test_broken vi_di < vi_bd
 
                             DEBUG && println("├─  variable $(v_vars[i])")
                             DEBUG && println("│")
                             DEBUG && println("│     vi oc = ", vi_oc)
                             DEBUG && println("│     vi jp = ", vi_jp)
-                            DEBUG && println("│     r_err = ", vi_di/(0.5*(abs(vi_oc) + abs(vi_jp))))
+                            DEBUG && println(
+                                "│     r_err = ", vi_di/(0.5*(abs(vi_oc) + abs(vi_jp)))
+                            )
                             DEBUG && println("│     a_err = ", vi_di)
                             DEBUG && println("│     bound = ", vi_bd)
                             DEBUG &&

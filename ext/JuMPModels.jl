@@ -57,7 +57,7 @@ function OptimalControlProblems.time_grid(problem::Symbol, model::JuMP.GenericMo
         error("the final time must be :fixed or :free, not: ", time_data)
     end
     t_jp = range(t0, tf, N+1)
-    
+
     return t_jp
 end
 
@@ -243,7 +243,6 @@ julia> v = OptimalControlProblems.variable(:my_problem, model)
 ```
 """
 function OptimalControlProblems.variable(problem::Symbol, model::JuMP.GenericModel)
-
     variable_names = OptimalControlProblems.metadata[problem][:variable_name]
 
     if isnothing(variable_names)
