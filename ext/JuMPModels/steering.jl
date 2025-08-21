@@ -1,8 +1,31 @@
 """
-Particle Steering Problem:
-    We want to find the optimal trajectory of a particle.
-    The objective is to minimise the time taken to achieve a given altitude and terminal velocity.
-    The problem is formulated as a JuMP model, and can be found [here](https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/steering.jl)
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Particle Steering Problem**.  
+The model represents the dynamics of a particle with four state variables (`x1`, `x2`, `x3`, `x4`) and a control input `u`.  
+The objective is to minimise the final time required for the particle to reach a specified altitude and terminal velocity while satisfying the system dynamics and boundary conditions.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the particle steering optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.steering(JuMPBackend(); N=200)
+```
+
+# References
+
+- Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/steering.jl
 """
 function OptimalControlProblems.steering(::JuMPBackend; N::Int=500)
 

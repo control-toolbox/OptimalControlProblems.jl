@@ -1,23 +1,31 @@
 """
 $(TYPEDSIGNATURES)
 
-Constructs a JuMP model representing the Beam optimal control problem, as formulated in the BOCOP [repository](https://github.com/control-toolbox/bocop/tree/main/bocop).
+Constructs a JuMP model representing the **Beam optimal control problem**.  
+The objective is to minimise the control effort while satisfying boundary conditions and the linear beam dynamics.  
+The problem is formulated as in the BOCOP repository.
 
 # Arguments
 
-- `::JuMPBackend`: Placeholder for JuMP backend type; used to select the solver interface.
-- `N::Int=500`: Number of discretisation steps for the time grid.
+- `::JuMPBackend`: Placeholder type to specify the JuMP backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation steps for the time grid.
 
 # Returns
 
-- `model::JuMP.Model`: A JuMP model containing the variables, constraints, dynamics, and objective of the beam problem.
+- `model::JuMP.Model`: A JuMP model containing the decision variables, dynamics constraints, boundary conditions, and the quadratic objective function.
 
 # Example
 
 ```julia-repl
-julia> model = OptimalControlProblems.beam(JuMPBackend(); N=500)
-# JuMP model with 3*(N+1) variables and corresponding constraints
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.beam(JuMPBackend(); N=100)
 ```
+
+# References
+
+- Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.beam(::JuMPBackend; N::Int=500)
 

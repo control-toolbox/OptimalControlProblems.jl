@@ -1,8 +1,33 @@
 """
-Particle Steering Problem:
-    We want to find the optimal trajectory of a particle.
-    The objective is to minimise the time taken to achieve a given altitude and terminal velocity.
-    The problem is formulated as an OptimalControl model.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for steering a particle along a trajectory.  
+The objective is to minimise the total time taken to reach a specified terminal state, subject to control limits and particle dynamics.  
+The state vector has four components, and the control is a single scalar input.  
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the particle steering problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.steering(OptimalControlBackend(); N=500);
+
+julia> docp
+DOCP object with 500 discretisation points
+
+julia> nlp
+NLP model corresponding to the particle steering problem
+```
 """
 function OptimalControlProblems.steering(::OptimalControlBackend; N::Int=500)
 

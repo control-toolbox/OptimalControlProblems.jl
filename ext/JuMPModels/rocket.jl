@@ -1,8 +1,31 @@
 """
-Goddard Rocket Problem:
-    We want to find the optimal trajectory of a Goddard rocket.
-    The objective is to maximize the final altitude of the rocket.
-    The problem is formulated as a JuMP model, and can be found [here](https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/rocket.jl)
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Goddard Rocket Optimal Control Problem**.  
+The model represents the dynamics of a Goddard rocket with three states (altitude `h`, velocity `v`, and mass `m`) and one control input (`T` for thrust).  
+The objective is to maximise the final altitude of the rocket while satisfying boundary conditions and dynamic constraints.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the Goddard rocket optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.rocket(JuMPBackend(); N=200)
+```
+
+# References
+
+- Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/rocket.jl
 """
 function OptimalControlProblems.rocket(::JuMPBackend; N::Int=500)
 

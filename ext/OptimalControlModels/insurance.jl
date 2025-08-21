@@ -1,6 +1,37 @@
 """
-The Insurance Problem:
-    The problem is formulated as an OptimalControl model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for an insurance system optimisation.  
+The function defines state and control variables, system dynamics, constraints on insurance, expenses, revenue, health, utility, and auxiliary variables, and sets up a cost functional aimed at maximising expected utility over time.  
+It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the insurance optimisation problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.insurance(OptimalControlBackend(); N=500);
+
+julia> docp
+DOCP object with 500 discretisation points
+
+julia> nlp
+NLP model corresponding to the insurance optimisation problem
+```
+
+# References
+
+- Problem formulation available at [Bocop repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
 function OptimalControlProblems.insurance(::OptimalControlBackend; N::Int=500)
 

@@ -1,6 +1,32 @@
 """
-The Jackson Problem:
-    The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Jackson Optimal Control Problem**.  
+The model represents a dynamic system with three state variables `a`, `b`, and `x3` and a control variable `u`.  
+The objective is to maximise the final value of `x3` by optimising the control `u` over the time horizon `[0, tf]`.  
+The dynamics are discretised using `N` steps with trapezoidal collocation.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=500`: (Keyword) Number of discretisation steps in the time grid.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the Jackson optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.jackson(JuMPBackend(); N=100)
+```
+
+# References
+
+- Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.jackson(::JuMPBackend; N::Int=500)
 

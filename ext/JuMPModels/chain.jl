@@ -1,8 +1,31 @@
 """
-The Hanging Chain Problem:
-    We want to find the shape of a chain hanging between two points a and b, with a length L.
-    The objective is to minimise the potential energy of the chain.
-    The problem is formulated as a JuMP model, and can be found [here](https://www.mcs.anl.gov/~more/cops/)
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Hanging Chain Problem**.  
+The goal is to determine the equilibrium shape of a chain of fixed length `L` hanging between two fixed points `a` and `b`, by minimising its potential energy.  
+The formulation follows a standard optimal control approach with discretised dynamics and constraints.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=500`: (Keyword) Number of discretisation steps in the time grid.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the hanging chain optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.chain(JuMPBackend(); N=300)
+```
+
+# References
+
+- [COPS Benchmark Problems – Hanging Chain](https://www.mcs.anl.gov/~more/cops/)
 """
 function OptimalControlProblems.chain(::JuMPBackend; N::Int=500)
 

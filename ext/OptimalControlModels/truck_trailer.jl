@@ -1,8 +1,33 @@
 """
-The Truck Trailer Problem:
-    We want to find the optimal trajectory of a truck with two trailers that starts horizontally aligned.
-    The objective is to minimise the time taken to park the truck and the trailers aligned vertically at a given target location.
-    The problem is formulated as an OptimalControl model.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for a truck with two trailers, starting horizontally aligned.  
+The objective is to minimise the total time required to park the truck and trailers such that they are aligned vertically at a specified target location, while respecting vehicle dynamics and control constraints.  
+The problem includes path constraints for articulation angles between the trailers.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=200`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the truck-trailer parking problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.truck_trailer(OptimalControlBackend(); N=200);
+
+julia> docp
+DOCP object with 200 discretisation points
+
+julia> nlp
+NLP model corresponding to the truck-trailer parking problem
+```
 """
 function OptimalControlProblems.truck_trailer(::OptimalControlBackend; N::Int=200)
 

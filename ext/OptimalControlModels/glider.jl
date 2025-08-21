@@ -1,9 +1,38 @@
 """
-Hang Glider Problem:
-    We want to find the optimal trajectory of a hang glider.
-    The objective is to maximize the final horizontal position of the glider while in the presence of a thermal updraft.
-    The problem is formulated as an OptimalControl model.
-    Original formulation from MadNLP/COPSBenchmark
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for a hang glider trajectory.  
+The function defines state and control variables, glider dynamics in a thermal updraft, boundary conditions, and a cost functional aiming to maximise the final horizontal position.  
+It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the hang glider trajectory optimisation.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.glider(OptimalControlBackend(); N=500);
+
+julia> docp
+DOCP object with 500 discretisation points
+
+julia> nlp
+NLP model corresponding to the hang glider problem
+```
+
+# References
+
+- Original formulation from MadNLP/COPSBenchmark.
+- Problem inspired by glider dynamics with thermal updraft and lift modelling.
 """
 function OptimalControlProblems.glider(::OptimalControlBackend; N::Int=500)
 

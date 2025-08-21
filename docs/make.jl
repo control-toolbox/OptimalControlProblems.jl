@@ -69,7 +69,7 @@ cp(
 repo_url = "github.com/control-toolbox/OptimalControlProblems.jl"
 
 #
-draft = false
+draft = true
 exclude_from_draft=Symbol[
 #    :beam
 ]

@@ -1,4 +1,4 @@
-function generate_documentation(PROBLEM::String; draft::Union{Bool,Nothing})
+function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Union{Bool,Nothing})
     TITLE = uppercasefirst(replace(PROBLEM, "_" => " "))
 
     DRAFT = if isnothing(draft)
@@ -20,7 +20,9 @@ function generate_documentation(PROBLEM::String; draft::Union{Bool,Nothing})
     documentation=DRAFT * """
     # $TITLE
 
-    We consider the `:$PROBLEM` problem. 
+    We consider the `:$PROBLEM` problem.
+
+    $DESCRIPTION
 
     ## Packages
 
@@ -448,9 +450,12 @@ function generate_documentation_problems(;
         filename = joinpath(@__DIR__, "src", "problems", string(problem) * ".md")
         touch(filename)
 
+        # get the description
+        description = read(joinpath(@__DIR__, "..", "ext", "Descriptions", string(problem) * ".md"), String)
+
         # generate the content
         draft_problem = problem ∈ exclude_from_draft ? false : draft
-        contents = generate_documentation(string(problem); draft=draft_problem)
+        contents = generate_documentation(string(problem), description; draft=draft_problem)
 
         # write the content in the file
         open(filename, "a") do io

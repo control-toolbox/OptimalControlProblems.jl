@@ -1,8 +1,31 @@
 """
-The Truck Trailer Problem:
-    We want to find the optimal trajectory of a truck with two trailers that starts horizontally aligned.
-    The objective is to minimise the time taken to park the truck and the trailers aligned vertically at a given target location.
-    The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746)
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Truck Trailer Problem**.  
+The model represents the dynamics of a truck with two trailers, including the truck's velocity, steering angles, and articulation angles between the truck and trailers.  
+The objective is to minimise the total time taken to park the truck and trailers aligned vertically at a specified target location while maintaining the physical constraints and vehicle kinematics.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=200`: (Keyword) Number of discretisation steps for the time horizon.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the truck trailer optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.truck_trailer(JuMPBackend(); N=100)
+```
+
+# References
+
+- Problem formulation available at: https://arxiv.org/pdf/2303.16746
 """
 function OptimalControlProblems.truck_trailer(::JuMPBackend; N::Int=200)
 

@@ -1,8 +1,33 @@
 """
-Quadrotor Problem:
-    We want to find the optimal trajectory of a quadrotor to reach a target position.
-    The objective is to minimise the final time.
-    The problem is formulated as an OptimalControl model.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for the Quadrotor benchmark model.  
+This function defines the state and control variables, system dynamics, bounds, initial and final conditions, and the cost functional, which minimises the final time to reach a target position while including small penalties on control inputs.  
+It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=50`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the Quadrotor problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.quadrotor(OptimalControlBackend(); N=50);
+
+julia> docp
+DOCP object with 50 discretisation points
+
+julia> nlp
+NLP model corresponding to the Quadrotor problem
+```
 """
 function OptimalControlProblems.quadrotor(::OptimalControlBackend; N::Int=50)
 

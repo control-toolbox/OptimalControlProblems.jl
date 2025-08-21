@@ -1,8 +1,33 @@
 """
-Goddard Rocket Problem:
-    We want to find the optimal trajectory of a Goddard rocket.
-    The objective is to maximize the final altitude of the rocket.
-    The problem is formulated as an OptimalControl model.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for the Goddard rocket.  
+This function defines the state variables (altitude, velocity, mass), the control variable (thrust), system dynamics, constraints, initial and final conditions, and the cost functional, which maximises the final altitude.  
+Reference: Goddard Rocket Problem [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the Goddard rocket problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.rocket(OptimalControlBackend(); N=500);
+
+julia> docp
+DOCP object with 500 discretisation points
+
+julia> nlp
+NLP model corresponding to the Goddard rocket problem
+```
 """
 function OptimalControlProblems.rocket(::OptimalControlBackend; N::Int=500)
 

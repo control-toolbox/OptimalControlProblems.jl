@@ -1,8 +1,32 @@
 """
-The Moonlander Problem:
-    We want to find the optimal trajectory for a moonlander to land on the moon.
-    The objective is to minimise the time taken to land on the moon.
-    The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746)
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Moonlander Optimal Control Problem**.  
+The model represents the dynamics of a moonlander with two translational and one rotational degrees of freedom.  
+The objective is to minimise the final landing time (`tf`) while ensuring the lander reaches the target position with zero velocity.  
+The dynamics include translational acceleration, rotation, and thrust allocation, discretised with `N` steps using trapezoidal collocation.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=500`: (Keyword) Number of discretisation steps in the time grid.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the Moonlander optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.moonlander(JuMPBackend(); N=100)
+```
+
+# References
+
+- Problem formulation available at: https://arxiv.org/pdf/2303.16746
 """
 function OptimalControlProblems.moonlander(::JuMPBackend; N::Int=500)
 

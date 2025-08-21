@@ -1,8 +1,38 @@
 """
-The Hanging Chain Problem:
-    We want to find the shape of a chain hanging between two points a and b, with a length L.
-    The objective is to minimise the potential energy of the chain.
-    The problem is formulated as an OptimalControl model.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** representing the Hanging Chain problem.  
+The function defines state and control variables, boundary conditions, and system dynamics, with the objective of minimising the vertical displacement of the chain's midpoint.  
+It performs direct transcription to produce a discretised optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the discretised Hanging Chain problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.chain(OptimalControlBackend(); N=100);
+
+julia> docp
+DOCP object with 100 discretisation points
+
+julia> nlp
+NLP model corresponding to the Hanging Chain problem
+```
+
+# References
+
+- Formulation inspired by OptimalControl approach to variational problems and chain equilibrium.
+- Original problem source: [BOCOP repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
 function OptimalControlProblems.chain(::OptimalControlBackend; N::Int=500)
 

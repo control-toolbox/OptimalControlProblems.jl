@@ -1,6 +1,30 @@
 """
-The Van der Pol Problem:
-    The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Van der Pol Problem**, a classic nonlinear oscillator system.  
+The model represents the dynamics of the Van der Pol oscillator with control input `u` and seeks to minimise the quadratic cost over the states and control.  
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the Van der Pol optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.vanderpol(JuMPBackend(); N=100)
+```
+
+# References
+
+- Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.vanderpol(::JuMPBackend; N::Int=500)
 

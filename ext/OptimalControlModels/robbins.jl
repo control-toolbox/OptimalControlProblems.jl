@@ -1,6 +1,34 @@
 """
-The Robbins Problem:
-    The problem is formulated as an OptimalControl model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for the Robbins benchmark model.  
+This function defines the state and control variables, system dynamics, initial and final conditions, and the cost functional, which minimises a weighted sum of the state and control contributions.  
+It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.  
+Reference: [Robbins Problem on BOCOP](https://github.com/control-toolbox/bocop/tree/main/bocop)
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the Robbins problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.robbins(OptimalControlBackend(); N=500);
+
+julia> docp
+DOCP object with 500 discretisation points
+
+julia> nlp
+NLP model corresponding to the Robbins problem
+```
 """
 function OptimalControlProblems.robbins(::OptimalControlBackend; N::Int=500)
 

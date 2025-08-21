@@ -1,8 +1,31 @@
 """
-The Cart-Pendulum Problem: 
-    we want to find the optimal trajectory of a cart-pendulum system.
-    The objective is to swing the pendulum from the downward position to the upright position in the shortest time possible.      
-    The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746).
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Cart–Pendulum Optimal Control Problem**.  
+The objective is to swing a pendulum attached to a cart from the downward position to the upright position in the shortest possible time.  
+The system dynamics, constraints, and objective are discretised over `N` steps.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=500`: (Keyword) Number of discretisation steps in the time grid.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the cart–pendulum optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.cart_pendulum(JuMPBackend(); N=200)
+```
+
+# References
+
+- [Cart–Pendulum Optimal Control Problem](https://arxiv.org/pdf/2303.16746)
 """
 function OptimalControlProblems.cart_pendulum(::JuMPBackend; N::Int=500)
 
