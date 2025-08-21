@@ -63,7 +63,7 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 27
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 26
-Total seconds in IPOPT                               = 2.576
+Total seconds in IPOPT                               = 2.002
 
 EXIT: Optimal Solution Found.</code></pre><p>For numerical comparison with the JuMP model resolution, define:</p><pre><code class="language-julia hljs">t_oc = time_grid(ocp_sol)
 x_oc = state(ocp_sol).(t_oc)
@@ -103,7 +103,7 @@ plt = plot(
 )
 for i in 2:n
     plot!(plt[i]; legend=:none)
-end</code></pre><img src="dielectrophoretic_particle-6155ad49.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
+end</code></pre><img src="dielectrophoretic_particle-e90ad39b.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
 model_jp = dielectrophoretic_particle(JuMPBackend())
 
 # solve
@@ -127,12 +127,12 @@ Total number of inequality constraints...............:        0
 Number of Iterations....: 26
 
                                    (scaled)                 (unscaled)
-Objective...............:   7.8113236810783055e+00    7.8113236810783055e+00
-Dual infeasibility......:   1.3979951071962347e-10    1.3979951071962347e-10
-Constraint violation....:   8.3376860970929556e-11    8.3376860970929556e-11
+Objective...............:   7.8113236810783082e+00    7.8113236810783082e+00
+Dual infeasibility......:   1.3979928867501854e-10    1.3979928867501854e-10
+Constraint violation....:   8.3376638926324631e-11    8.3376638926324631e-11
 Variable bound violation:   9.6453491860160057e-09    9.6453491860160057e-09
-Complementarity.........:   1.3383264404021021e-09    1.3383264404021021e-09
-Overall NLP error.......:   1.3383264404021021e-09    1.3383264404021021e-09
+Complementarity.........:   1.3383265127507633e-09    1.3383265127507633e-09
+Overall NLP error.......:   1.3383265127507633e-09    1.3383265127507633e-09
 
 
 Number of objective function evaluations             = 73
@@ -172,7 +172,7 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
-end</code></pre><img src="dielectrophoretic_particle-8af48ae9.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess (or first iterate) is obtained by fixing <code>max_iter=0</code> in the solver:</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
+end</code></pre><img src="dielectrophoretic_particle-911d19cd.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess (or first iterate) is obtained by fixing <code>max_iter=0</code> in the solver:</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
 
     # import OptimalControl model
     docp, model_oc = dielectrophoretic_particle(OptimalControlBackend())
@@ -240,7 +240,7 @@ end</code></pre><img src="dielectrophoretic_particle-8af48ae9.svg" alt="Example 
 
     return plt
 end</code></pre></details>
-</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="dielectrophoretic_particle-828ef5ff.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Next, compare the number of iterations required to obtain the solutions. Also compare the final times, objective values, and the state and costate trajectories in L² norm.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = OptimalControlProblems.metadata[:dielectrophoretic_particle][:variable_name]
+</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="dielectrophoretic_particle-f80a00df.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Next, compare the number of iterations required to obtain the solutions. Also compare the final times, objective values, and the state and costate trajectories in L² norm.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = OptimalControlProblems.metadata[:dielectrophoretic_particle][:variable_name]
 
 function L2_norm(T, X)
     # T and X are supposed to be one dimensional
@@ -342,36 +342,36 @@ end</code></pre></details>
 ├─  State x (L2 norm)
 │
 │     OptimalControl : 3.410635315620427
-│     JuMP           : 3.4106353156204268
-│     Absolute error : 4.043850528776672e-15
-│     Relative error : 1.185659020844642e-15
+│     JuMP           : 3.410635315620429
+│     Absolute error : 2.9216723594466693e-15
+│     Relative error : 8.566358138806724e-16
 │
 ├─  State y (L2 norm)
 │
 │     OptimalControl : 2.455340423958893
-│     JuMP           : 2.4553404239588965
-│     Absolute error : 5.6815719254038765e-15
-│     Relative error : 2.31396504939349e-15
+│     JuMP           : 2.4553404239588916
+│     Absolute error : 3.809154502827589e-15
+│     Relative error : 1.5513753065189474e-15
 │
 ├─  Control u (L2 norm)
 │
 │     OptimalControl : 2.6839681164173625
-│     JuMP           : 2.683968116417368
-│     Absolute error : 4.617769750050026e-14
-│     Relative error : 1.7205009708587567e-14
+│     JuMP           : 2.6839681164173594
+│     Absolute error : 3.115750328444233e-14
+│     Relative error : 1.1608745682878035e-14
 │
 ├─  Variable tf
 │
 │     OptimalControl : 7.8113236810783055
-│     JuMP           : 7.8113236810783055
-│     Absolute error : 0.0
-│     Relative error : 0.0
+│     JuMP           : 7.811323681078308
+│     Absolute error : 2.6645352591003757e-15
+│     Relative error : 3.4111187397787524e-16
 │
 ├─  objective
 │
 │     OptimalControl : 7.8113236810783055
-│     JuMP           : 7.8113236810783055
-│     Absolute error : 0.0
-│     Relative error : 0.0
+│     JuMP           : 7.811323681078308
+│     Absolute error : 2.6645352591003757e-15
+│     Relative error : 3.4111187397787524e-16
 │
-└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="chain.html">« Chain</a><a class="docs-footer-nextpage" href="double_oscillator.html">Double oscillator »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Tuesday 19 August 2025 07:44">Tuesday 19 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="chain.html">« Chain</a><a class="docs-footer-nextpage" href="double_oscillator.html">Double oscillator »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 21 August 2025 13:00">Thursday 21 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

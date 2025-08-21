@@ -63,7 +63,7 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 112
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 111
-Total seconds in IPOPT                               = 8.106
+Total seconds in IPOPT                               = 7.222
 
 EXIT: Optimal Solution Found.</code></pre><p>For numerical comparison with the JuMP model resolution, define:</p><pre><code class="language-julia hljs">t_oc = time_grid(ocp_sol)
 x_oc = state(ocp_sol).(t_oc)
@@ -103,7 +103,7 @@ plt = plot(
 )
 for i in 2:n
     plot!(plt[i]; legend=:none)
-end</code></pre><img src="space_shuttle-88f0adff.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
+end</code></pre><img src="space_shuttle-1b4fa8ab.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
 model_jp = space_shuttle(JuMPBackend())
 
 # solve
@@ -127,12 +127,12 @@ Total number of inequality constraints...............:        0
 Number of Iterations....: 115
 
                                    (scaled)                 (unscaled)
-Objective...............:  -5.9587501342513838e-01   -5.9587501342513838e-01
-Dual infeasibility......:   3.4752072183537679e-10    3.4752072183537679e-10
-Constraint violation....:   7.0469709373410794e-09    7.0469709373410794e-09
+Objective...............:  -5.9587501342513927e-01   -5.9587501342513927e-01
+Dual infeasibility......:   3.4752779650690412e-10    3.4752779650690412e-10
+Constraint violation....:   7.0471158353235808e-09    7.0471158353235808e-09
 Variable bound violation:   0.0000000000000000e+00    0.0000000000000000e+00
-Complementarity.........:   1.3610631538696402e-10    1.3610631538696402e-10
-Overall NLP error.......:   7.0469709373410794e-09    7.0469709373410794e-09
+Complementarity.........:   1.3610888211002065e-10    1.3610888211002065e-10
+Overall NLP error.......:   7.0471158353235808e-09    7.0471158353235808e-09
 
 
 Number of objective function evaluations             = 116
@@ -142,7 +142,7 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 116
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 115
-Total seconds in IPOPT                               = 7.725
+Total seconds in IPOPT                               = 7.464
 
 EXIT: Optimal Solution Found.</code></pre><p>For the numerical comparison, define:</p><pre><code class="language-julia hljs">t_jp = time_grid(:space_shuttle, model_jp)
 x_jp = state(:space_shuttle, model_jp).(t_jp)
@@ -172,7 +172,7 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
-end</code></pre><img src="space_shuttle-4d6c3422.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess (or first iterate) is obtained by fixing <code>max_iter=0</code> in the solver:</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
+end</code></pre><img src="space_shuttle-dd47fa10.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess (or first iterate) is obtained by fixing <code>max_iter=0</code> in the solver:</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
 
     # import OptimalControl model
     docp, model_oc = space_shuttle(OptimalControlBackend())
@@ -240,7 +240,7 @@ end</code></pre><img src="space_shuttle-4d6c3422.svg" alt="Example block output"
 
     return plt
 end</code></pre></details>
-</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="space_shuttle-0887a43e.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Next, compare the number of iterations required to obtain the solutions. Also compare the final times, objective values, and the state and costate trajectories in L² norm.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = OptimalControlProblems.metadata[:space_shuttle][:variable_name]
+</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="space_shuttle-38e5b0f1.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Next, compare the number of iterations required to obtain the solutions. Also compare the final times, objective values, and the state and costate trajectories in L² norm.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = OptimalControlProblems.metadata[:space_shuttle][:variable_name]
 
 function L2_norm(T, X)
     # T and X are supposed to be one dimensional
@@ -342,71 +342,71 @@ end</code></pre></details>
 ├─  State scaled_h (L2 norm)
 │
 │     OptimalControl : 79.1731280555219
-│     JuMP           : 79.17312805170529
-│     Absolute error : 2.99069509584693e-8
-│     Relative error : 3.7774118180877275e-10
+│     JuMP           : 79.17312805170512
+│     Absolute error : 2.990757986902121e-8
+│     Relative error : 3.777491252937329e-10
 │
 ├─  State ϕ (L2 norm)
 │
 │     OptimalControl : 43.47679651719323
-│     JuMP           : 43.47679652997944
-│     Absolute error : 1.2961626738692676e-8
-│     Relative error : 2.981274559099805e-10
+│     JuMP           : 43.47679652997946
+│     Absolute error : 1.296165822056119e-8
+│     Relative error : 2.981281800173441e-10
 │
 ├─  State θ (L2 norm)
 │
 │     OptimalControl : 14.958461498508582
-│     JuMP           : 14.958461502623162
-│     Absolute error : 4.3901958548134685e-9
-│     Relative error : 2.934924727818693e-10
+│     JuMP           : 14.958461502623235
+│     Absolute error : 4.390275094587482e-9
+│     Relative error : 2.9349777010298746e-10
 │
 ├─  State scaled_v (L2 norm)
 │
 │     OptimalControl : 77.75553438617214
-│     JuMP           : 77.75553437832549
-│     Absolute error : 2.001257730041295e-8
-│     Relative error : 2.573781719771926e-10
+│     JuMP           : 77.75553437832521
+│     Absolute error : 2.00130695151268e-8
+│     Relative error : 2.573845022624617e-10
 │
 ├─  State γ (L2 norm)
 │
 │     OptimalControl : 0.9132791162741378
-│     JuMP           : 0.9132791208847088
-│     Absolute error : 3.9386403258496905e-8
-│     Relative error : 4.312635913515816e-8
+│     JuMP           : 0.913279120884807
+│     Absolute error : 3.938722711290643e-8
+│     Relative error : 4.312726121907823e-8
 │
 ├─  State ψ (L2 norm)
 │
 │     OptimalControl : 46.42502745454384
-│     JuMP           : 46.42502745000782
-│     Absolute error : 9.428602703857325e-7
-│     Relative error : 2.0309309915971026e-8
+│     JuMP           : 46.42502745000765
+│     Absolute error : 9.428800855564053e-7
+│     Relative error : 2.030973673684248e-8
 │
 ├─  Control α (L2 norm)
 │
 │     OptimalControl : 13.605572812759007
-│     JuMP           : 13.605572814830982
-│     Absolute error : 7.338672972928596e-8
-│     Relative error : 5.3938728441390955e-9
+│     JuMP           : 13.605572814831024
+│     Absolute error : 7.33882393603085e-8
+│     Relative error : 5.393983800953857e-9
 │
 ├─  Control β (L2 norm)
 │
 │     OptimalControl : 35.952955702080835
-│     JuMP           : 35.952955697759634
-│     Absolute error : 3.4372711028159936e-5
-│     Relative error : 9.560468773429994e-7
+│     JuMP           : 35.952955697759585
+│     Absolute error : 3.437342039243316e-5
+│     Relative error : 9.560666076894881e-7
 │
 ├─  Variable tf
 │
 │     OptimalControl : 2008.5906160203197
-│     JuMP           : 2008.5906167899025
-│     Absolute error : 7.695828116993653e-7
-│     Relative error : 3.831456770801466e-10
+│     JuMP           : 2008.5906167899127
+│     Absolute error : 7.695930435147602e-7
+│     Relative error : 3.831507711074259e-10
 │
 ├─  objective
 │
 │     OptimalControl : -0.5958750133606235
-│     JuMP           : -0.5958750134251384
-│     Absolute error : 6.451483791636292e-11
-│     Relative error : 1.0826907735066592e-10
+│     JuMP           : -0.5958750134251393
+│     Absolute error : 6.451572609478262e-11
+│     Relative error : 1.0827056789549444e-10
 │
-└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="rocket.html">« Rocket</a><a class="docs-footer-nextpage" href="steering.html">Steering »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Tuesday 19 August 2025 07:44">Tuesday 19 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="rocket.html">« Rocket</a><a class="docs-footer-nextpage" href="steering.html">Steering »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 21 August 2025 13:00">Thursday 21 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

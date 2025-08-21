@@ -63,7 +63,7 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 5
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 4
-Total seconds in IPOPT                               = 1.999
+Total seconds in IPOPT                               = 1.924
 
 EXIT: Optimal Solution Found.</code></pre><p>For numerical comparison with the JuMP model resolution, define:</p><pre><code class="language-julia hljs">t_oc = time_grid(ocp_sol)
 x_oc = state(ocp_sol).(t_oc)
@@ -103,7 +103,7 @@ plt = plot(
 )
 for i in 2:n
     plot!(plt[i]; legend=:none)
-end</code></pre><img src="electric_vehicle-e9558d3d.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
+end</code></pre><img src="electric_vehicle-946cfe86.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
 model_jp = electric_vehicle(JuMPBackend())
 
 # solve
@@ -127,12 +127,12 @@ Total number of inequality constraints...............:        0
 Number of Iterations....: 4
 
                                    (scaled)                 (unscaled)
-Objective...............:   1.2285992844813145e+03    1.2285992844813145e+03
-Dual infeasibility......:   5.3679283240626319e-14    5.3679283240626319e-14
+Objective...............:   1.2285992844813138e+03    1.2285992844813138e+03
+Dual infeasibility......:   5.6288307348495437e-14    5.6288307348495437e-14
 Constraint violation....:   1.7763568394002505e-15    1.7763568394002505e-15
 Variable bound violation:   0.0000000000000000e+00    0.0000000000000000e+00
 Complementarity.........:   0.0000000000000000e+00    0.0000000000000000e+00
-Overall NLP error.......:   3.6447208675063033e-14    5.3679283240626319e-14
+Overall NLP error.......:   3.8218686242516974e-14    5.6288307348495437e-14
 
 
 Number of objective function evaluations             = 5
@@ -172,7 +172,7 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
-end</code></pre><img src="electric_vehicle-81104d62.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess (or first iterate) is obtained by fixing <code>max_iter=0</code> in the solver:</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
+end</code></pre><img src="electric_vehicle-2f236ee6.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess (or first iterate) is obtained by fixing <code>max_iter=0</code> in the solver:</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
 
     # import OptimalControl model
     docp, model_oc = electric_vehicle(OptimalControlBackend())
@@ -240,7 +240,7 @@ end</code></pre><img src="electric_vehicle-81104d62.svg" alt="Example block outp
 
     return plt
 end</code></pre></details>
-</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="electric_vehicle-2182220c.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Next, compare the number of iterations required to obtain the solutions. Also compare the final times, objective values, and the state and costate trajectories in L² norm.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = OptimalControlProblems.metadata[:electric_vehicle][:variable_name]
+</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="electric_vehicle-c6518b1b.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Next, compare the number of iterations required to obtain the solutions. Also compare the final times, objective values, and the state and costate trajectories in L² norm.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = OptimalControlProblems.metadata[:electric_vehicle][:variable_name]
 
 function L2_norm(T, X)
     # T and X are supposed to be one dimensional
@@ -342,29 +342,29 @@ end</code></pre></details>
 ├─  State x (L2 norm)
 │
 │     OptimalControl : 6.01908952306489
-│     JuMP           : 6.019089523064885
-│     Absolute error : 7.740454260070825e-15
-│     Relative error : 1.285984239046411e-15
+│     JuMP           : 6.019089523064886
+│     Absolute error : 7.461137626793059e-15
+│     Relative error : 1.2395791088008086e-15
 │
 ├─  State v (L2 norm)
 │
 │     OptimalControl : 10.913496684428347
-│     JuMP           : 10.913496684428338
-│     Absolute error : 2.7599152106933366e-14
-│     Relative error : 2.5289009476048632e-15
+│     JuMP           : 10.913496684428335
+│     Absolute error : 2.5950549603081327e-14
+│     Relative error : 2.37784005928258e-15
 │
 ├─  Control u (L2 norm)
 │
 │     OptimalControl : 35.48829168891446
-│     JuMP           : 35.488291688914494
-│     Absolute error : 1.2672786103166774e-13
-│     Relative error : 3.570976651751707e-15
+│     JuMP           : 35.48829168891448
+│     Absolute error : 1.1190977180486477e-13
+│     Relative error : 3.1534279752277335e-15
 │
 ├─  objective
 │
 │     OptimalControl : 1228.599284481311
-│     JuMP           : 1228.5992844813145
-│     Absolute error : 3.410605131648481e-12
-│     Relative error : 2.7760110027154724e-15
+│     JuMP           : 1228.5992844813138
+│     Absolute error : 2.7284841053187847e-12
+│     Relative error : 2.2208088021723783e-15
 │
-└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="ducted_fan.html">« Ducted fan</a><a class="docs-footer-nextpage" href="glider.html">Glider »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Tuesday 19 August 2025 07:44">Tuesday 19 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="ducted_fan.html">« Ducted fan</a><a class="docs-footer-nextpage" href="glider.html">Glider »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 21 August 2025 13:00">Thursday 21 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

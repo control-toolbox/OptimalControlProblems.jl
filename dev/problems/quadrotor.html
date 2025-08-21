@@ -63,7 +63,7 @@ Number of inequality constraint evaluations          = 62
 Number of equality constraint Jacobian evaluations   = 49
 Number of inequality constraint Jacobian evaluations = 49
 Number of Lagrangian Hessian evaluations             = 48
-Total seconds in IPOPT                               = 2.940
+Total seconds in IPOPT                               = 2.868
 
 EXIT: Optimal Solution Found.</code></pre><p>For numerical comparison with the JuMP model resolution, define:</p><pre><code class="language-julia hljs">t_oc = time_grid(ocp_sol)
 x_oc = state(ocp_sol).(t_oc)
@@ -103,7 +103,7 @@ plt = plot(
 )
 for i in 2:n
     plot!(plt[i]; legend=:none)
-end</code></pre><img src="quadrotor-e3de54d2.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
+end</code></pre><img src="quadrotor-656dba62.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
 model_jp = quadrotor(JuMPBackend())
 
 # solve
@@ -128,11 +128,11 @@ Number of Iterations....: 42
 
                                    (scaled)                 (unscaled)
 Objective...............:   1.4926817085418598e+00    1.4926817085418598e+00
-Dual infeasibility......:   4.2433448543967613e-09    4.2433448543967613e-09
+Dual infeasibility......:   4.2433440837458571e-09    4.2433440837458571e-09
 Constraint violation....:   4.4408920985006262e-15    4.4408920985006262e-15
 Variable bound violation:   4.2838491509655796e-07    4.2838491509655796e-07
-Complementarity.........:   1.0006998213929481e-11    1.0006998213929481e-11
-Overall NLP error.......:   4.2433448543967613e-09    4.2433448543967613e-09
+Complementarity.........:   1.0006998212392025e-11    1.0006998212392025e-11
+Overall NLP error.......:   4.2433440837458571e-09    4.2433440837458571e-09
 
 
 Number of objective function evaluations             = 51
@@ -142,7 +142,7 @@ Number of inequality constraint evaluations          = 51
 Number of equality constraint Jacobian evaluations   = 43
 Number of inequality constraint Jacobian evaluations = 43
 Number of Lagrangian Hessian evaluations             = 42
-Total seconds in IPOPT                               = 0.427
+Total seconds in IPOPT                               = 0.418
 
 EXIT: Optimal Solution Found.</code></pre><p>For the numerical comparison, define:</p><pre><code class="language-julia hljs">t_jp = time_grid(:quadrotor, model_jp)
 x_jp = state(:quadrotor, model_jp).(t_jp)
@@ -172,7 +172,7 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
-end</code></pre><img src="quadrotor-ee07f3e4.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess (or first iterate) is obtained by fixing <code>max_iter=0</code> in the solver:</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
+end</code></pre><img src="quadrotor-8e1ffaea.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess (or first iterate) is obtained by fixing <code>max_iter=0</code> in the solver:</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
 
     # import OptimalControl model
     docp, model_oc = quadrotor(OptimalControlBackend())
@@ -240,7 +240,7 @@ end</code></pre><img src="quadrotor-ee07f3e4.svg" alt="Example block output"/><h
 
     return plt
 end</code></pre></details>
-</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="quadrotor-2083e7f3.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Next, compare the number of iterations required to obtain the solutions. Also compare the final times, objective values, and the state and costate trajectories in L² norm.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = OptimalControlProblems.metadata[:quadrotor][:variable_name]
+</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="quadrotor-ab273ad6.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Next, compare the number of iterations required to obtain the solutions. Also compare the final times, objective values, and the state and costate trajectories in L² norm.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = OptimalControlProblems.metadata[:quadrotor][:variable_name]
 
 function L2_norm(T, X)
     # T and X are supposed to be one dimensional
@@ -342,86 +342,86 @@ end</code></pre></details>
 ├─  State p₁ (L2 norm)
 │
 │     OptimalControl : 0.012575745246359642
-│     JuMP           : 0.012575745246360986
-│     Absolute error : 1.5395904682974654e-15
-│     Relative error : 1.2242538618083532e-13
+│     JuMP           : 0.012575745246360995
+│     Absolute error : 1.550691896103737e-15
+│     Relative error : 1.2330815118511876e-13
 │
 ├─  State p₂ (L2 norm)
 │
 │     OptimalControl : 3.4944125235375827
 │     JuMP           : 3.4944125235375845
-│     Absolute error : 2.3548334990139746e-15
-│     Relative error : 6.738853764838413e-16
+│     Absolute error : 2.421699199913912e-15
+│     Relative error : 6.930204100408541e-16
 │
 ├─  State p₃ (L2 norm)
 │
 │     OptimalControl : 4.254666439338966
-│     JuMP           : 4.254666439338959
-│     Absolute error : 7.724262284093931e-15
-│     Relative error : 1.8154801073651336e-15
+│     JuMP           : 4.25466643933896
+│     Absolute error : 7.279674201235353e-15
+│     Relative error : 1.7109858798628587e-15
 │
 ├─  State v₁ (L2 norm)
 │
 │     OptimalControl : 0.03463463175041673
-│     JuMP           : 0.03463463175042076
-│     Absolute error : 6.117812336319781e-15
-│     Relative error : 1.7663858476698878e-13
+│     JuMP           : 0.03463463175042081
+│     Absolute error : 6.13712484366535e-15
+│     Relative error : 1.7719619160065548e-13
 │
 ├─  State v₂ (L2 norm)
 │
 │     OptimalControl : 4.430439629284422
 │     JuMP           : 4.430439629284423
-│     Absolute error : 1.2480491102491099e-14
-│     Relative error : 2.8169870592519222e-15
+│     Absolute error : 1.2298227963004357e-14
+│     Relative error : 2.7758482209565044e-15
 │
 ├─  State v₃ (L2 norm)
 │
 │     OptimalControl : 3.4419686260189
-│     JuMP           : 3.4419686260188875
-│     Absolute error : 2.0470926613524068e-14
-│     Relative error : 5.9474471843752645e-15
+│     JuMP           : 3.441968626018888
+│     Absolute error : 1.9409612436863432e-14
+│     Relative error : 5.6391020795890564e-15
 │
 ├─  State ϕ (L2 norm)
 │
 │     OptimalControl : 0.40147310282169135
-│     JuMP           : 0.4014730001276641
-│     Absolute error : 1.469272091915568e-6
-│     Relative error : 3.6597029028939446e-6
+│     JuMP           : 0.4014730001238307
+│     Absolute error : 1.4692767744214077e-6
+│     Relative error : 3.6597145662243646e-6
 │
 ├─  State θ (L2 norm)
 │
 │     OptimalControl : 0.04082654605343001
-│     JuMP           : 0.040826545431573144
-│     Absolute error : 5.672525807655924e-9
-│     Relative error : 1.38942095259131e-7
+│     JuMP           : 0.04082654543163854
+│     Absolute error : 5.671959875952155e-9
+│     Relative error : 1.389282334028799e-7
 │
 ├─  Control at (L2 norm)
 │
 │     OptimalControl : 27.286185666366748
-│     JuMP           : 27.286185666366702
-│     Absolute error : 3.6390491416418314e-13
-│     Relative error : 1.3336598915426153e-14
+│     JuMP           : 27.28618566636671
+│     Absolute error : 3.4482948108146206e-13
+│     Relative error : 1.2637511350899548e-14
 │
 ├─  Control dϕ (L2 norm)
 │
 │     OptimalControl : 2.2275964619802235
-│     JuMP           : 2.2275975923260107
-│     Absolute error : 3.240186693778312e-5
-│     Relative error : 1.4545659085922244e-5
+│     JuMP           : 2.227597592367315
+│     Absolute error : 3.2401941485720565e-5
+│     Relative error : 1.4545692551417187e-5
 │
 ├─  Control dθ (L2 norm)
 │
 │     OptimalControl : 1.4235342540947566
-│     JuMP           : 1.4235342654015317
-│     Absolute error : 1.929301190892221e-7
-│     Relative error : 1.3552896094215243e-7
+│     JuMP           : 1.4235342654003433
+│     Absolute error : 1.9290947212803333e-7
+│     Relative error : 1.3551445692795897e-7
 │
 ├─  Control ψ (L2 norm)
 │
 │     OptimalControl : 0.00028466762989621787
-│     JuMP           : 0.000284667629896222
-│     Absolute error : 4.0528110283598544e-17
-│     Relative error : 1.423699290937073e-13
+│     JuMP           : 0.00028466762989622237
+│     Absolute error : 4.021576820794202e-17
+│     Relative error : 1.4127271240008317e-13
 │
 ├─  Variable tf
 │
@@ -437,4 +437,4 @@ end</code></pre></details>
 │     Absolute error : 8.215650382226158e-15
 │     Relative error : 5.503953277656036e-15
 │
-└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="moonlander.html">« Moonlander</a><a class="docs-footer-nextpage" href="robbins.html">Robbins »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Tuesday 19 August 2025 07:44">Tuesday 19 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="moonlander.html">« Moonlander</a><a class="docs-footer-nextpage" href="robbins.html">Robbins »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 21 August 2025 13:00">Thursday 21 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
