@@ -1,4 +1,4 @@
-The *insurance problem* is a benchmark in stochastic optimal control with applications in actuarial science and financial planning. It models the dynamic interplay between insurance coverage, medical expenses, health, revenue, and utility over time. Both the state trajectory \(x(\cdot)\) and the control \(u(\cdot)\) are decision variables. The aim is to maximise the expected utility subject to constraints on insurance, expenses, health, revenue, and marginal utility.
+The *insurance problem* is a benchmark in stochastic optimal control with applications in actuarial science and financial planning. It models the dynamic interplay between insurance coverage, medical expenses, health, revenue, and utility over time. Both the state trajectory $x(\cdot)$ and the control $u(\cdot)$ are decision variables. The aim is to maximise the expected utility subject to constraints on insurance, expenses, health, revenue, and marginal utility.
 
 The problem can be written as
 
@@ -28,20 +28,20 @@ and the constraints
 \quad 0 \le R(t), H(t), U(t), \quad 0.001 \le dU/dR(t),
 ```
 
-where \(f_x(t)\) is the illness distribution and \(v(m) = m^{\alpha/2} / (1 + m^{\alpha/2})\).
+where $f_x(t)$ is the illness distribution and $v(m) = m^{\alpha/2} / (1 + m^{\alpha/2})$.
 
 ### Qualitative behaviour
 
-- Insurance \(I(t)\) is dynamically adjusted to balance risk coverage and costs.  
-- Medical expenses \(m(t)\) interact with health \(h(t)\) and influence utility.  
-- Utility \(U(t)\) and revenue \(R(t)\) are coupled through marginal utility \(dU/dR(t)\).  
+- Insurance $I(t)$ is dynamically adjusted to balance risk coverage and costs.  
+- Medical expenses $m(t)$ interact with health $h(t)$ and influence utility.  
+- Utility $U(t)$ and revenue $R(t)$ are coupled through marginal utility $dU/dR(t)$.  
 - The system illustrates the trade-offs between health, wealth, and insurance over time.
 
 ### Characteristics
 
 - Nonlinear dynamics linking health, expenses, and utility.  
 - Multiple control variables with inequality constraints.  
-- Stochastic component in the illness distribution \(f_x(t)\).  
+- Stochastic component in the illness distribution $f_x(t)$.  
 - Useful as a benchmark for actuarial optimal control problems.
 
 ### References
