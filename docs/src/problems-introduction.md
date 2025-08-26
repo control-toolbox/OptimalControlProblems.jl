@@ -1,5 +1,7 @@
 # [Introduction](@id problems-introduction)
 
+## Discretise optimal control problems
+
 An optimal control problem (OCP) with fixed initial and final times can be described as minimising the cost functional
 
 ```math
@@ -60,14 +62,21 @@ C_{\mathrm{lower}} \le C(X) \le C_{\mathrm{upper}}
 \right.
 ```
 
-## Models
+## JuMP and OptimalControl models
 
 Each optimal control problem in the **OptimalControlProblems** package is modelled both in [JuMP](https://jump.dev/JuMP.jl) and in [OptimalControl](https://control-toolbox.org/OptimalControl.jl). The problem definitions are stored in the [OptimalControlProblems.jl/ext](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext) directory:
 
 - JuMP models are stored in the [JuMPModels](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/JuMPModels) directory. These codes implement the NLP problem directly.
 - OptimalControl models are stored in the [OptimalControlModels](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/OptimalControlModels) directory. These codes represent the OCP, and the discretisation is handled by the package. The resulting NLP is represented by an [`ADNLPModels.ADNLPModel`](@extref), which provides automatic differentiation (AD)-based models following the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API.
 
-## [Metadata](@id problems-introduction-metadata)
+For more specific details about the problems, see the following pages. We provide descriptions of the optimal control problems and compare the different models.
+
+```@contents
+Pages = Main.PROBLEMS_PAGES
+Depth = 1
+```
+
+## [Problems metadata](@id problems-introduction-metadata)
 
 For each problem, additional data is provided in the [MetaData](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/MetaData) directory:
 
@@ -83,15 +92,20 @@ using OptimalControlProblems
 OptimalControlProblems.metadata[:chain]
 ```
 
-## Problems
+## Problems characteristics
 
-To get the list of available problems, call the [`available_problems`](@ref) method.
+To get the list of available problems, call the [`problems`](@ref) method.
 
 ```@example main
-available_problems()
+problems()
 ```
 
-We detail below the characteristics of the optimal control problems (OCPs) and their associated nonlinear programming problems (NLPs). For the OCPs, we give the dimension of the state, the control and the variable. For the NLPs, we give the default number of steps, the number of variables and the numbers of constraints.
+We detail below the characteristics of the optimal control problems (OCPs) and their associated nonlinear programming problems (NLPs). 
+
+!!! note "Optimal control problems"
+
+    For the OCPs, we provide the dimensions of the state, control, and variable. We also specify the type of objective function (Mayer, Lagrange, or Bolza), indicate whether the final time is free or fixed, and state whether there are constraints on the state (`x`), control (`u`), variable (`v`), path (`p`), or boundary (`b`).
+
 
 ```@raw html
 <details><summary>Click to unfold and get the code to get the data.</summary>
@@ -100,12 +114,16 @@ We detail below the characteristics of the optimal control problems (OCPs) and t
 ```@example main
 using NLPModels                 # to get the number of variables and constraints
 using DataFrames
+using OptimalControl
 
 data_ocp = DataFrame(           # to store data of the OCPs
     Problem=Symbol[],
     State=Int[],
     Control=Int[],
     Variable=Int[],
+    Cost=Symbol[],
+    FinalTime=Symbol[],
+    Constraints=String[],
 )
 
 data_nlp = DataFrame(           # to store data of the NLPs
@@ -115,25 +133,56 @@ data_nlp = DataFrame(           # to store data of the NLPs
     Constraints=Int[],
 )
 
-problems = available_problems()
+for problem in problems()
 
-for problem in problems
+    #
+    docp, model = eval(problem)(OptimalControlBackend())
+    ocp = docp.ocp
 
-    x_vars = OptimalControlProblems.metadata[problem][:state_name]
-    u_vars = OptimalControlProblems.metadata[problem][:control_name]
-    v_vars = OptimalControlProblems.metadata[problem][:variable_name]
+    #
+    cost = if has_mayer_cost(ocp) && has_lagrange_cost(ocp)
+        :Bolza
+    elseif has_mayer_cost(ocp)
+        :Mayer
+    else
+        :Lagrange
+    end
 
+    #
+    final_time = has_fixed_final_time(ocp) ? :fixed : :free
+
+    #
+    using CTModels # these functions should be exported by OptimalControl
+    dim_state_cons_box = CTModels.dim_state_constraints_box(ocp)
+    dim_control_cons_box = CTModels.dim_control_constraints_box(ocp)
+    dim_variable_cons_box = CTModels.dim_variable_constraints_box(ocp)
+    dim_path_cons_nl = CTModels.dim_path_constraints_nl(ocp)
+    dim_boundary_cons_nl = CTModels.dim_boundary_constraints_nl(ocp)
+    constraints = ""
+    constraints *= dim_state_cons_box    > 0 ? "x" : ""
+    constraints *= dim_control_cons_box  > 0 ? (isempty(constraints) ? "" : ", ") * "u" : ""
+    constraints *= dim_variable_cons_box > 0 ? (isempty(constraints) ? "" : ", ") * "v" : ""
+    constraints *= dim_path_cons_nl      > 0 ? (isempty(constraints) ? "" : ", ") * "p" : ""
+    constraints *= dim_boundary_cons_nl  > 0 ? (isempty(constraints) ? "" : ", ") * "b" : ""
+    constraints = if !isempty(constraints)
+        "(" * constraints * ")"
+    end
+
+    #
     push!(data_ocp,
         (
             Problem=problem,
-            State=length(x_vars),
-            Control=length(u_vars),
-            Variable=isnothing(v_vars) ? 0 : length(v_vars),
+            State=state_dimension(ocp),
+            Control=control_dimension(ocp),
+            Variable=variable_dimension(ocp),
+            Cost=cost,
+            FinalTime=final_time,
+            Constraints=constraints,
         )
     )
 
+    #
     N = OptimalControlProblems.metadata[problem][:N] # get default number of steps
-    docp, model = eval(problem)(OptimalControlBackend())
 
     push!(data_nlp,
         (
@@ -155,13 +204,10 @@ end
 data_ocp
 ```
 
+!!! note "Nonlinear programming problems"
+
+    For the NLPs, we give the default number of steps, the number of variables and the numbers of constraints.
+
 ```@example main
 data_nlp
-```
-
-To get more specific details about the problems, visit the following pages.
-
-```@contents
-Pages = Main.PROBLEMS_PAGES
-Depth = 1
 ```

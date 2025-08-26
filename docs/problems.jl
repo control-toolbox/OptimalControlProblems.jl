@@ -428,11 +428,11 @@ function generate_documentation_problems(;
 )
 
     # List of problems
-    problems = available_problems()
+    problems_list = problems()
 
     # 
     problems_pages = []
-    for problem in problems
+    for problem in problems_list
         push!(problems_pages, joinpath("problems", string(problem) * ".md"))
     end
 
@@ -442,7 +442,7 @@ function generate_documentation_problems(;
     mkpath(joinpath(@__DIR__, "src", "problems", "assets"))
 
     # create file for documentation
-    for problem in problems
+    for problem in problems_list
 
         # create the file
         filename = joinpath(@__DIR__, "src", "problems", string(problem) * ".md")

@@ -67,10 +67,10 @@ const VERBOSE = true # print or not details during tests
     println("\nProblems that passed the tests: ");
     display(LIST_OF_PROBLEMS_FINAL)
     println("\nList of available problems: ");
-    display(available_problems());
+    display(problems());
     println()
 
     @testset "available_problems" verbose=VERBOSE begin
-        @test LIST_OF_PROBLEMS_FINAL == available_problems()
+        @test LIST_OF_PROBLEMS_FINAL == problems()
     end
 end

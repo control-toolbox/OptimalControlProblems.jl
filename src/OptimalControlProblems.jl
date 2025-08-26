@@ -151,11 +151,11 @@ Returns the list of available optimal control problems.
 # Example
 
 ```julia-repl
-julia> OptimalControlProblems.available_problems()
+julia> OptimalControlProblems.problems()
 [:problem1, :problem2, :problem3]
 ```
 """
-function available_problems()::Vector{Symbol}
+function problems()::Vector{Symbol}
 
     #
     list_of_problems = Symbol[]
@@ -301,7 +301,7 @@ function variable(::Symbol, model)
     throw(CTBase.ExtensionError(:JuMP))
 end
 
-export JuMPBackend, OptimalControlBackend, available_problems
+export JuMPBackend, OptimalControlBackend, problems
 export time_grid, state, costate, control, variable
 
 end
