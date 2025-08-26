@@ -33,7 +33,7 @@ with
 - State bounds: $y(t) \geq 0,\; s(t) \geq 0,\; b(t) \geq 10^{-3}$,  
 - Initial conditions: $0.05 \leq y(0) \leq 0.25$, $0.5 \leq s(0) \leq 5$, $0.5 \leq b(0) \leq 3$.
 
-The horizon is fixed to $T = 200$ (rescaled units), corresponding to several day–night periods.
+The horizon is fixed to $T = 100$ (rescaled units), corresponding to several day–night periods.
 
 ### Qualitative behaviour
 
