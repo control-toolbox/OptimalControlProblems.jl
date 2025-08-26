@@ -105,9 +105,9 @@ weakdeps = ["HTTP", "JSON"]
 
 [[deps.CTDirect]]
 deps = ["CTBase", "CTModels", "DocStringExtensions", "HSL", "MKL", "SparseArrays"]
-git-tree-sha1 = "a555be516f85b2c45d6348261fa64ee7f743a121"
+git-tree-sha1 = "1b3aa9b9b9bbb32b90bed66d16998fcb89848c21"
 uuid = "790bbbee-bee9-49ee-8912-a9de031322d5"
-version = "0.16.2"
+version = "0.16.3"
 
     [deps.CTDirect.extensions]
     CTDirectExtADNLP = ["ADNLPModels"]
@@ -137,9 +137,9 @@ version = "0.8.8"
 
 [[deps.CTModels]]
 deps = ["CTBase", "DocStringExtensions", "Interpolations", "LinearAlgebra", "MLStyle", "MacroTools", "OrderedCollections", "Parameters", "PrettyTables", "RecipesBase"]
-git-tree-sha1 = "3a520aa1f66e7fef22bacc71d68af960580de615"
+git-tree-sha1 = "81becfc3e56dd8f746edaa023a55251b0a60747a"
 uuid = "34c4fa32-2049-4079-8329-de33c2a22e2d"
-version = "0.6.3"
+version = "0.6.4"
 
     [deps.CTModels.extensions]
     CTModelsJLD = "JLD2"
@@ -270,15 +270,15 @@ version = "1.16.0"
 
 [[deps.DataFrames]]
 deps = ["Compat", "DataAPI", "DataStructures", "Future", "InlineStrings", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrecompileTools", "PrettyTables", "Printf", "Random", "Reexport", "SentinelArrays", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
-git-tree-sha1 = "fb61b4812c49343d7ef0b533ba982c46021938a6"
+git-tree-sha1 = "a37ac0840a1196cd00317b57e39d6586bf0fd6f6"
 uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-version = "1.7.0"
+version = "1.7.1"
 
 [[deps.DataStructures]]
-deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "4e1fe97fdaed23e9dc21d4d664bea76b65fc50a0"
+deps = ["OrderedCollections"]
+git-tree-sha1 = "6c72198e6a101cccdd4c9731d3985e904ba26037"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.18.22"
+version = "0.19.1"
 
 [[deps.DataValueInterfaces]]
 git-tree-sha1 = "bfc1187b79289637fa0ef6d4436ebdfe6905cbd6"
@@ -607,10 +607,10 @@ uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 version = "1.11.0"
 
 [[deps.Interpolations]]
-deps = ["Adapt", "AxisAlgorithms", "ChainRulesCore", "LinearAlgebra", "OffsetArrays", "Random", "Ratios", "Requires", "SharedArrays", "SparseArrays", "StaticArrays", "WoodburyMatrices"]
-git-tree-sha1 = "f2905febca224eade352a573e129ef43aa593354"
+deps = ["Adapt", "AxisAlgorithms", "ChainRulesCore", "LinearAlgebra", "OffsetArrays", "Random", "Ratios", "SharedArrays", "SparseArrays", "StaticArrays", "WoodburyMatrices"]
+git-tree-sha1 = "65d505fa4c0d7072990d659ef3fc086eb6da8208"
 uuid = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
-version = "0.16.1"
+version = "0.16.2"
 weakdeps = ["ForwardDiff", "Unitful"]
 
     [deps.Interpolations.extensions]
@@ -1327,9 +1327,9 @@ version = "1.11.0"
 
 [[deps.SparseConnectivityTracer]]
 deps = ["ADTypes", "DocStringExtensions", "FillArrays", "LinearAlgebra", "Random", "SparseArrays"]
-git-tree-sha1 = "7bd2b8981cc57adcf5cf1add282aba2713a7058f"
+git-tree-sha1 = "339efef69fda0cccf14c06a483561527e9169b8f"
 uuid = "9f842d2f-2579-4b1d-911e-f412cf18a3f5"
-version = "1.0.0"
+version = "1.0.1"
 
     [deps.SparseConnectivityTracer.extensions]
     SparseConnectivityTracerLogExpFunctionsExt = "LogExpFunctions"
