@@ -69,7 +69,7 @@ cp(
 repo_url = "github.com/control-toolbox/OptimalControlProblems.jl"
 
 #
-draft = false
+draft = true
 exclude_from_draft=Symbol[
 #    :beam
 ]
@@ -80,9 +80,11 @@ PROBLEMS_PAGES = generate_documentation_problems(;
 makedocs(;
     draft=draft, # if draft is true, then the julia code from .md is not executed # debug
     # to disable the draft mode in a specific markdown file, use the following:
-    # ```@meta
-    # Draft = false
-    # ```
+#=
+```@meta
+Draft = false
+```
+=#
     #remotes=nothing,
     warnonly=:cross_references,
     sitename="OptimalControlProblems.jl",

@@ -1,9 +1,31 @@
 """
-Hang Glider Problem:
-    We want to find the optimal trajectory of a hang glider.
-    The objective is to maximize the final horizontal position of the glider while in the presence of a thermal updraft.
-    The problem is formulated as a JuMP model, and can be found [here](https://www.mcs.anl.gov/~more/cops/)
+$(TYPEDSIGNATURES)
 
+Constructs and returns a JuMP model for the **Hang Glider Optimal Control Problem**.  
+The objective is to compute the optimal trajectory of a hang glider that maximises the final horizontal position while accounting for aerodynamic forces and a thermal updraft.  
+The system dynamics are discretised over `N` steps, and collocation constraints enforce the kinematic and dynamic equations of the glider.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=500`: (Keyword) Number of discretisation steps in the time grid.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the hang glider optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.glider(JuMPBackend(); N=100)
+```
+
+# References
+
+- Hang Glider Problem formulation as in: https://www.mcs.anl.gov/~more/cops/
 """
 function OptimalControlProblems.glider(::JuMPBackend; N::Int=500)
 

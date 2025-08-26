@@ -1,8 +1,38 @@
 """
-The electric Vehicle Problem
-    Implement optimal control of an electric vehicle.
-    The problem is formulated as an OptimalControl model.
-Ref: [PS2011] Nicolas Petit and Antonio Sciarretta. "Optimal drive of electric vehicles using an inversion-based trajectory generation approach." IFAC Proceedings Volumes 44, no. 1 (2011): 14519-14526.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for an electric vehicle trajectory.  
+The function defines state and control variables, vehicle dynamics, boundary conditions, and a cost functional representing energy and control effort.  
+It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the electric vehicle trajectory optimisation.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.electric_vehicle(OptimalControlBackend(); N=500);
+
+julia> docp
+DOCP object with 500 discretisation points
+
+julia> nlp
+NLP model corresponding to the electric vehicle problem
+```
+
+# References
+
+- Nicolas Petit and Antonio Sciarretta. "Optimal drive of electric vehicles using an inversion-based trajectory generation approach." IFAC Proceedings Volumes 44, no. 1 (2011): 14519-14526. [PS2011]
+- Problem instance follows OptimalControl formulation for electric vehicle trajectory optimisation.
 """
 function OptimalControlProblems.electric_vehicle(::OptimalControlBackend; N=500)
 

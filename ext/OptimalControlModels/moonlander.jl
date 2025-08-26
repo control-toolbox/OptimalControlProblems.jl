@@ -1,8 +1,33 @@
 """
-The Moonlander Problem:
-    We want to find the optimal trajectory for a moonlander to land on the moon.
-    The objective is to minimise the time taken to land on the moon.
-    The problem is formulated as an OptimalControl model.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for the Moonlander benchmark model.  
+The function defines the state and control variables, system dynamics, bounds, initial and final conditions, and the cost functional, which minimises the landing time of a moonlander to a specified target.  
+It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the Moonlander problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.moonlander(OptimalControlBackend(); N=500);
+
+julia> docp
+DOCP object with 500 discretisation points
+
+julia> nlp
+NLP model corresponding to the Moonlander problem
+```
 """
 function OptimalControlProblems.moonlander(::OptimalControlBackend; N::Int=500)
 

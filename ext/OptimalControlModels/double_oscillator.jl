@@ -1,8 +1,38 @@
 """
-Double Oscillator Problem:
-    Implement the optimal control of a double oscillator toy model.
-    The problem is formulated as an OptimalControl model.
-Ref: [CLP2018] Coudurier, C., Lepreux, O., & Petit, N. (2018). Optimal bang-bang control of a mechanical double oscillator using averaging methods. IFAC-PapersOnLine, 51(2), 49-54.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** representing a double oscillator system.  
+The function defines state and control variables, system dynamics, boundary conditions, and an objective functional to be minimised.  
+It uses direct transcription to produce a discretised optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the double oscillator system.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.double_oscillator(OptimalControlBackend(); N=100);
+
+julia> docp
+DOCP object with 100 discretisation points
+
+julia> nlp
+NLP model corresponding to the double oscillator problem
+```
+
+# References
+
+- Coudurier, C., Lepreux, O., & Petit, N. (2018). Optimal bang-bang control of a mechanical double oscillator using averaging methods. *IFAC-PapersOnLine*, 51(2), 49-54. [CLP2018]
+- Formulation follows OptimalControl approach to mechanical oscillator trajectory optimisation.
 """
 function OptimalControlProblems.double_oscillator(::OptimalControlBackend; N::Int=500)
 

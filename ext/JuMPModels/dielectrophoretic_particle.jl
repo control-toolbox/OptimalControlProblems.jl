@@ -1,9 +1,32 @@
 """
-Dielectrophoretic particle problem:
-    This problem consists of a dielectrophoretic particle system.
-    The goal is to find the trajectory that minimise the time taken for the particle to travel between two points.
-    The problem is formulated as a JuMP model.
-Ref: [CPR2006] Chang, D. E., Petit, N., & Rouchon, P. (2006). Time-optimal control of a particle in a dielectrophoretic system. IEEE Transactions on Automatic Control, 51(7), 1100-1114.
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Dielectrophoretic Particle Optimal Control Problem**.  
+The goal is to determine the time–optimal trajectory of a particle in a dielectrophoretic system, moving it from an initial point to a target point.  
+The system dynamics are discretised over `N` steps, with the final time optimised.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=500`: (Keyword) Number of discretisation steps in the time grid.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the dielectrophoretic particle optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.dielectrophoretic_particle(JuMPBackend(); N=200)
+```
+
+# References
+
+- [CPR2006] Chang, D. E., Petit, N., & Rouchon, P. (2006). *Time-optimal control of a particle in a dielectrophoretic system*.  
+  IEEE Transactions on Automatic Control, 51(7), 1100–1114.
 """
 function OptimalControlProblems.dielectrophoretic_particle(::JuMPBackend; N::Int=500)
 

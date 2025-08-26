@@ -1,6 +1,37 @@
 """
-The Bioreactor Problem:
-    The problem is formulated as an OptimalControl model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** representing the Bioreactor problem.  
+The function defines the state and control variables, boundary conditions, path constraints, growth and light dynamics, and an objective functional.  
+It performs direct transcription to create a discretised optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the discretised Bioreactor problem.
+- `nlp`: The corresponding nonlinear programming model generated from the DOCP, ready for solver input.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.bioreactor(OptimalControlBackend(); N=100);
+
+julia> docp
+DOCP object with 100 discretisation points
+
+julia> nlp
+NLP model corresponding to the Bioreactor problem
+```
+
+# References
+
+- BOCOP repository: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.bioreactor(::OptimalControlBackend; N::Int=500)
 

@@ -1,9 +1,32 @@
 """
-The Ducted Fan Problem:
-    Implement the optimal control of a planar ducted fan.
-    Instance taken from [GP2009].
-    The problem is formulated as a JuMP model.
-Ref: Graichen, K., & Petit, N. (2009). Incorporating a class of constraints into the dynamics of optimal control problems. Optimal Control Applications and Methods, 30(6), 537-561.
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Planar Ducted Fan Optimal Control Problem**.  
+The objective is to determine the optimal control inputs for a planar ducted fan to move from a given initial state to a desired final state, minimising a combination of control effort and final time.  
+The system is discretised over `N` steps, with collocation constraints enforcing the dynamics.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=250`: (Keyword) Number of discretisation steps in the time grid.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the planar ducted fan optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.ducted_fan(JuMPBackend(); N=100)
+```
+
+# References
+
+- Graichen, K., & Petit, N. (2009). *Incorporating a class of constraints into the dynamics of optimal control problems*.  
+  Optimal Control Applications and Methods, 30(6), 537–561. [GP2009]
 """
 function OptimalControlProblems.ducted_fan(::JuMPBackend; N::Int=250)
 

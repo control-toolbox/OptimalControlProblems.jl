@@ -1,8 +1,32 @@
 """
-Double Oscillator Problem:
-    Implement the optimal control of a double oscillator toy model.
-    The problem is formulated as a JuMP model.
-Ref: [CLP2018] Coudurier, C., Lepreux, O., & Petit, N. (2018). Optimal bang-bang control of a mechanical double oscillator using averaging methods. IFAC-PapersOnLine, 51(2), 49-54.
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Double Oscillator Optimal Control Problem**.  
+The objective is to compute an optimal control trajectory for a mechanical double oscillator system, minimising a quadratic cost on positions and control.  
+The system dynamics are discretised over `N` steps, with collocation constraints enforcing the dynamics.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=500`: (Keyword) Number of discretisation steps in the time grid.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the double oscillator optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.double_oscillator(JuMPBackend(); N=200)
+```
+
+# References
+
+- [CLP2018] Coudurier, C., Lepreux, O., & Petit, N. (2018). *Optimal bang-bang control of a mechanical double oscillator using averaging methods*.  
+  IFAC-PapersOnLine, 51(2), 49–54.
 """
 function OptimalControlProblems.double_oscillator(::JuMPBackend; N::Int=500)
 

@@ -1,8 +1,33 @@
 """
-Robot arm problem:
-    We want to find the shape of a robot arm moving between two points.
-    The objective is to minimise the time taken to move between the two points.
-    The problem is formulated as an OptimalControl model.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for a robotic arm moving between two points.  
+This function defines the state and control variables, system dynamics, initial and final conditions, and the cost functional, which minimises the total time taken to perform the motion.  
+Reference: Robot arm problem on BOCOP [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=250`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the robot arm problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.robot(OptimalControlBackend(); N=250);
+
+julia> docp
+DOCP object with 250 discretisation points
+
+julia> nlp
+NLP model corresponding to the robot arm problem
+```
 """
 function OptimalControlProblems.robot(::OptimalControlBackend; N::Int=250)
 

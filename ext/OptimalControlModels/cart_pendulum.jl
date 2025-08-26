@@ -1,8 +1,37 @@
 """
-    The Cart-Pendulum Problem:
-        we want to find the optimal trajectory of a cart-pendulum system.
-        The objective is to swing the pendulum from the downward position to the upright position in the shortest time possible.
-        The problem is formulated as an OptimalControl model.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** representing the Cart-Pendulum system.  
+The function defines state and control variables, boundary conditions, path constraints, and system dynamics, with the objective of swinging the pendulum from the downward position to the upright position in minimum time.  
+It performs direct transcription to produce a discretised optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the discretised Cart-Pendulum problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.cart_pendulum(OptimalControlBackend(); N=100);
+
+julia> docp
+DOCP object with 100 discretisation points
+
+julia> nlp
+NLP model corresponding to the Cart-Pendulum problem
+```
+
+# References
+
+- Formulation inspired by OptimalControl approach for swing-up control problems.
 """
 function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; N::Int=500)
 

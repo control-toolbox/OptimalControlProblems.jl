@@ -1,26 +1,37 @@
 """
 $(TYPEDSIGNATURES)
 
-Constructs an OptimalControl problem representing the Beam problem using the OptimalControl backend, as formulated in the BOCOP [repository](https://github.com/control-toolbox/bocop/tree/main/bocop).
-The model includes state and control variables, boundary conditions, dynamics, path constraints, 
-and an objective functional.
+Constructs an **OptimalControl problem** representing the Beam problem using the OptimalControl backend.  
+The function sets up the state and control variables, boundary conditions, dynamics, path constraints, and the objective functional.  
+It then performs direct transcription to generate a discrete optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
 
 # Arguments
 
-- `::OptimalControlBackend`: Placeholder for the OptimalControl backend type, selecting the solver interface.
-- `N::Int=500`: Number of discretisation points for the direct transcription.
+- `::OptimalControlBackend`: Placeholder type to specify the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
 
 # Returns
 
-- `docp`: The direct optimal control problem (DOCP) object.
-- `nlp`: The corresponding nonlinear programming (NLP) model obtained from direct transcription.
+- `docp`: The direct optimal control problem object, representing the discretised problem.
+- `nlp`: The corresponding nonlinear programming model generated from the DOCP, ready for solver input.
 
 # Example
 
 ```julia-repl
-julia> docp, nlp = OptimalControlProblems.beam(OptimalControlBackend(); N=500)
-(DOCP object, NLP model)
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.beam(OptimalControlBackend(); N=100);
+
+julia> docp
+DOCP object with 100 discretisation points
+
+julia> nlp
+NLP model corresponding to the beam problem
 ```
+
+# References
+
+- BOCOP repository: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.beam(::OptimalControlBackend; N::Int=500)
 

@@ -1,4 +1,4 @@
-function generate_documentation(PROBLEM::String; draft::Union{Bool,Nothing})
+function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Union{Bool,Nothing})
     TITLE = uppercasefirst(replace(PROBLEM, "_" => " "))
 
     DRAFT = if isnothing(draft)
@@ -20,11 +20,11 @@ function generate_documentation(PROBLEM::String; draft::Union{Bool,Nothing})
     documentation=DRAFT * """
     # $TITLE
 
-    We consider the `:$PROBLEM` problem. 
+    $DESCRIPTION
 
     ## Packages
 
-    First, import all the necessary packages and define the DataFrames to store the data from the model and the resolutions.
+    Import all necessary packages and define DataFrames to store information about the problem and resolution results.
 
     ```@example main
     using OptimalControlProblems    # to access the Beam model
@@ -57,7 +57,7 @@ function generate_documentation(PROBLEM::String; draft::Union{Bool,Nothing})
 
     ### Solve the problem
 
-    Import the problem and solve it.
+    Import the OptimalControl problem and solve it to obtain the solution.
 
     ```@example main
     # import model
@@ -77,7 +77,7 @@ function generate_documentation(PROBLEM::String; draft::Union{Bool,Nothing})
     nothing # hide
     ```
 
-    For numerical comparison with the JuMP model resolution, define:
+    Compute state, control, objective, and iteration data for comparison:
 
     ```@example main
     t_oc = time_grid(ocp_sol)
@@ -119,7 +119,7 @@ function generate_documentation(PROBLEM::String; draft::Union{Bool,Nothing})
 
     ### Plot the solution
 
-    To plot the solution, get the number of states and controls from the metadata:
+    Visualise states, costates, and controls for the OptimalControl solution:
 
     ```@example main
     x_vars = OptimalControlProblems.metadata[:$PROBLEM][:state_name]
@@ -194,7 +194,7 @@ function generate_documentation(PROBLEM::String; draft::Union{Bool,Nothing})
 
     ### Plot the solution
 
-    Add the state, costate, and control from the JuMP model to the plot:
+    Overlay the JuMP solution on the previous plots:
 
     ```@example main
     t = time_grid(:$PROBLEM, model_jp)     # t0, ..., tN = tf
@@ -219,7 +219,7 @@ function generate_documentation(PROBLEM::String; draft::Union{Bool,Nothing})
 
     ## Initial guess
 
-    The initial guess (or first iterate) is obtained by fixing `max_iter=0` in the solver:
+    The initial guess can also be visualised by running the solver with `max_iter=0`.
 
     ```@raw html
     <details><summary>Unfold to see the code for plotting the initial guess.</summary>
@@ -308,7 +308,7 @@ function generate_documentation(PROBLEM::String; draft::Union{Bool,Nothing})
 
     ## Numerical comparison
 
-    Next, compare the number of iterations required to obtain the solutions. Also compare the final times, objective values, and the state and costate trajectories in L² norm.
+    Compare OptimalControl and JuMP solutions in terms of iterations, \$L^2\$ norms, and objective values.
 
     ```@raw html
     <details><summary>Unfold to get the code of the numerical comparison.</summary>
@@ -448,9 +448,12 @@ function generate_documentation_problems(;
         filename = joinpath(@__DIR__, "src", "problems", string(problem) * ".md")
         touch(filename)
 
+        # get the description
+        description = read(joinpath(@__DIR__, "..", "ext", "Descriptions", string(problem) * ".md"), String)
+
         # generate the content
         draft_problem = problem ∈ exclude_from_draft ? false : draft
-        contents = generate_documentation(string(problem); draft=draft_problem)
+        contents = generate_documentation(string(problem), description; draft=draft_problem)
 
         # write the content in the file
         open(filename, "a") do io

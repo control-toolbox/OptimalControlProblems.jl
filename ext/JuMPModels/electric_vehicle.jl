@@ -1,8 +1,31 @@
 """
-The electric Vehicle Problem
-    Implement optimal control of an electric vehicle.
-    The problem is formulated as a JuMP model.
-Ref: [PS2011] Nicolas Petit and Antonio Sciarretta. "Optimal drive of electric vehicles using an inversion-based trajectory generation approach." IFAC Proceedings Volumes 44, no. 1 (2011): 14519-14526.
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Electric Vehicle Optimal Control Problem**.  
+The objective is to compute the optimal control trajectory for an electric vehicle to travel a fixed distance while minimising a combination of energy consumption and control effort.  
+The system dynamics are discretised over `N` steps, and collocation constraints are used to enforce the vehicle's kinematic and dynamic equations.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=500`: (Keyword) Number of discretisation steps in the time grid.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the electric vehicle optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.electric_vehicle(JuMPBackend(); N=100)
+```
+
+# References
+
+- Petit, N., & Sciarretta, A. (2011). *Optimal drive of electric vehicles using an inversion-based trajectory generation approach.* IFAC Proceedings Volumes, 44(1), 14519–14526. [PS2011]
 """
 function OptimalControlProblems.electric_vehicle(::JuMPBackend; N::Int=500)
 

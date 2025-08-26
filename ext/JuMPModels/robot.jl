@@ -1,8 +1,31 @@
 """
-Robot arm problem:
-    We want to find the shape of a robot arm moving between two points.
-    The objective is to minimise the time taken to move between the two points.
-    The problem is formulated as a JuMP model, and can be found [here](https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/robot.jl)
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Robot Arm Optimal Control Problem**.  
+The model represents a robot arm with three states (ρ, θ, ϕ) controlled by three inputs (uρ, uθ, uϕ).  
+The objective is to minimise the final time required for the robot arm to move between specified initial and final positions while respecting dynamic and boundary constraints.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=250`: (Keyword) Number of discretisation steps for the time horizon.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the robot arm optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.robot(JuMPBackend(); N=100)
+```
+
+# References
+
+- Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/robot.jl
 """
 function OptimalControlProblems.robot(::JuMPBackend; N::Int=250)
 

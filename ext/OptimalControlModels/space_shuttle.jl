@@ -1,9 +1,34 @@
 """
-Space Shuttle Reentry Trajectory Problem:
-    We want to find the optimal trajectory of a space shuttle reentry.
-    The objective is to maximize the latitude (cross range) at the terminal point.
-    The original problem formulated as a JuMP model can be found [here](https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/)
-    Note: no heating limit path constraint
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for the Space Shuttle reentry trajectory.  
+This function defines the state variables (altitude, longitude, latitude, velocity, flight path angle, azimuth), the control variables (angle of attack, bank angle), system dynamics, constraints, initial and terminal conditions, and the cost functional, which maximises the latitude (cross range) at the terminal point.  
+Reference: Original JuMP model formulation [here](https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/).  
+Note: No heating limit path constraint is included.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the Space Shuttle reentry trajectory.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp, nlp = OptimalControlProblems.space_shuttle(OptimalControlBackend(); N=500);
+
+julia> docp
+DOCP object with 500 discretisation points
+
+julia> nlp
+NLP model corresponding to the Space Shuttle reentry trajectory problem
+```
 """
 function OptimalControlProblems.space_shuttle(::OptimalControlBackend; N::Int=500)
 

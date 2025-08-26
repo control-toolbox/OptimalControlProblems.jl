@@ -1,9 +1,32 @@
 """
-Space Shuttle Reentry Trajectory Problem:
-    We want to find the optimal trajectory of a space shuttle reentry.
-    The objective is to maximize the latitude (cross range) at the terminal point.
-    The problem is formulated as a JuMP model, and can be found [here](https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/)
-    Note: no heating limit path constraint
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Space Shuttle Reentry Trajectory Problem**.  
+The model represents the dynamics of a space shuttle reentry with multiple states (altitude `h`, longitude `ϕ`, latitude `θ`, velocity `v`, flight path angle `γ`, azimuth `ψ`) and control inputs (angle of attack `α` and bank angle `β`).  
+The objective is to maximise the terminal latitude (cross-range) while satisfying boundary conditions and vehicle dynamics.  
+Note: no heating limit path constraint is included in this formulation.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the space shuttle reentry optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.space_shuttle(JuMPBackend(); N=200)
+```
+
+# References
+
+- Problem formulation and tutorial available at: https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/
 """
 function OptimalControlProblems.space_shuttle(::JuMPBackend; N::Int=500)
 

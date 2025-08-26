@@ -1,6 +1,34 @@
 """
-The Bioreactor Problem:
-    The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Bioreactor Optimal Control Problem**.  
+The problem formulation follows the version provided in the [control-toolbox/bocop repository](https://github.com/control-toolbox/bocop/tree/main/bocop).
+
+The model includes state variables for biomass (`y`), substrate (`s`), and bacteria (`b`),  
+with control variable `u`, subject to nonlinear dynamics and constraints.  
+The objective is to minimise a cost function derived from the system dynamics.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=500`: (Keyword) Number of discretisation steps in the time grid.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the bioreactor optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.bioreactor(JuMPBackend(); N=100)
+```
+
+# References
+
+- [control-toolbox/bocop](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
 function OptimalControlProblems.bioreactor(::JuMPBackend; N::Int=500)
 

@@ -1,8 +1,31 @@
 """
-Quadrotor Problem:
-    We want to find the optimal trajectory of a quadrotor to reach a target position.
-    The objective is to minimise the final time.
-    The problem is formulated as a JuMP model, and can be found [here](https://arxiv.org/pdf/2303.16746)
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Quadrotor Optimal Control Problem**.  
+The model represents the 3D dynamics of a quadrotor with translational and rotational states, subject to thrust and tilt constraints.  
+The objective is to minimise the final time (`tf`) to reach a specified target position while respecting path and actuation constraints.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=50`: (Keyword) Number of discretisation steps for the time grid.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the Quadrotor optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.quadrotor(JuMPBackend(); N=20)
+```
+
+# References
+
+- Problem formulation available at: https://arxiv.org/pdf/2303.16746
 """
 function OptimalControlProblems.quadrotor(::JuMPBackend; N::Int=50)
 
