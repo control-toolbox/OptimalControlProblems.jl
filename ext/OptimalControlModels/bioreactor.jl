@@ -33,7 +33,7 @@ NLP model corresponding to the Bioreactor problem
 
 - BOCOP repository: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
-function OptimalControlProblems.bioreactor(::OptimalControlBackend; N::Int=500)
+function OptimalControlProblems.bioreactor(::OptimalControlBackend; N::Int=600)
 
     # METHANE PROBLEM
     # μ2 according to growth model

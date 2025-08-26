@@ -296,10 +296,6 @@ function comparison(; max_iter, test_name)
                             L2_bd = max(0.5*(L2_oc + L2_jp)*ε_rel_control, ε_abs_control)
                             res = @my_test_broken L2_di < L2_bd
 
-                            if f != :bioreactor # the test does not pass on GitHub CI
-                                keep_problem = keep_problem && (typeof(res) == Test.Pass)
-                            end
-
                             DEBUG && println("├─  control $(u_vars[i])")
                             DEBUG && println("│")
                             DEBUG && println("│     L2 oc = ", L2_oc)

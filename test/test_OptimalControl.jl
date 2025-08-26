@@ -17,7 +17,7 @@ function test_OptimalControl()
             keep_problem = true
 
             #
-            DEBUG && println("\n", "┌─ ", string(f), " (JuMP)")
+            DEBUG && println("\n", "┌─ ", string(f), " (OptimalControl)")
             DEBUG && println("│")
 
             # Set up the model
