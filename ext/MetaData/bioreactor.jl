@@ -6,5 +6,5 @@ bioreactor_meta = OrderedDict(
     :costate_name => ["∂y", "∂s", "∂b"],
     :control_name => ["u"],
     :variable_name => nothing,
-    :final_time => (:fixed, 100), # the final time is 10N where N = 10 by default
+    :final_time => (:fixed, 200), # the final time is 10N where N = 20 by default
 )

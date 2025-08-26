@@ -62,7 +62,7 @@ function OptimalControlProblems.bioreactor(::OptimalControlBackend; N::Int=500)
     μ2m = 0.1
     μbar = 1
     r = 0.005
-    T = 10*10
+    T = 10*20
 
     # Model
     ocp = @def begin
