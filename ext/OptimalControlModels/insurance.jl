@@ -36,6 +36,7 @@ NLP model corresponding to the insurance optimisation problem
 function OptimalControlProblems.insurance(::OptimalControlBackend; N::Int=steps_number_data(:insurance))
 
     # parameters
+    tf = final_time_data(:insurance)
     γ = 0.2
     λ = 0.25
     h0 = 1.5
@@ -44,7 +45,6 @@ function OptimalControlProblems.insurance(::OptimalControlBackend; N::Int=steps_
     k = 0
     σ = 0
     α = 4
-    tf = 10
 
     # Model
     ocp = @def begin

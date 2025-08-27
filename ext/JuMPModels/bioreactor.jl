@@ -41,7 +41,7 @@ function OptimalControlProblems.bioreactor(::JuMPBackend; N::Int=steps_number_da
     μ2m = 0.1
     μbar = 1
     r = 0.005
-    T = 10*20
+    T = final_time_data(:bioreactor)
 
     # model
     model = JuMP.Model()

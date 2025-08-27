@@ -33,7 +33,7 @@ function OptimalControlProblems.chain(::JuMPBackend; N::Int=steps_number_data(:c
     L = 4
     a = 1
     b = 3
-    tf = 1
+    tf = final_time_data(:chain)
 
     #
     tmin = b > a ? 1 / 4 : 3 / 4

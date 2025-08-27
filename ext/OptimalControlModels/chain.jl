@@ -40,7 +40,7 @@ function OptimalControlProblems.chain(::OptimalControlBackend; N::Int=steps_numb
     L = 4
     a = 1
     b = 3
-    tf = 1
+    tf = final_time_data(:chain)
 
     # model
     ocp = @def begin

@@ -30,6 +30,7 @@ julia> model = OptimalControlProblems.insurance(JuMPBackend(); N=100)
 function OptimalControlProblems.insurance(::JuMPBackend; N::Int=steps_number_data(:insurance))
 
     # parameters
+    tf = final_time_data(:insurance)
     γ = 0.2
     λ = 0.25
     h0 = 1.5
@@ -38,7 +39,6 @@ function OptimalControlProblems.insurance(::JuMPBackend; N::Int=steps_number_dat
     k = 0
     σ = 0
     α = 4
-    tf = 10
 
     # model
     model = JuMP.Model()

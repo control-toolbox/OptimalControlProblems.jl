@@ -29,9 +29,9 @@ julia> model = OptimalControlProblems.vanderpol(JuMPBackend(); N=100)
 function OptimalControlProblems.vanderpol(::JuMPBackend; N::Int=steps_number_data(:vanderpol))
 
     # parameters
+    tf = final_time_data(:vanderpol)
     ω = 1
     ε = 1
-    tf = 2
 
     # model
     model = JuMP.Model()

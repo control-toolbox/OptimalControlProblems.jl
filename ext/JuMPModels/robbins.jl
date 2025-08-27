@@ -30,10 +30,10 @@ julia> model = OptimalControlProblems.robbins(JuMPBackend(); N=100)
 function OptimalControlProblems.robbins(::JuMPBackend; N::Int=steps_number_data(:robbins))
 
     # parameters
+    tf = final_time_data(:robbins)
     α = 3
     β = 0
     γ = 0.5
-    tf = 10
 
     #
     step = tf / N

@@ -42,7 +42,7 @@ function OptimalControlProblems.double_oscillator(::OptimalControlBackend; N::In
     c = 0.5     # [Ns/m]
     k1 = 100    # [N/m]
     k2 = 3      # [N/m]
-    tf = 2π
+    tf = final_time_data(:double_oscillator)
 
     # model
     ocp = @def begin

@@ -30,8 +30,8 @@ julia> model = OptimalControlProblems.electric_vehicle(JuMPBackend(); N=100)
 function OptimalControlProblems.electric_vehicle(::JuMPBackend; N::Int=steps_number_data(:electric_vehicle))
 
     # parameters
+    tf = final_time_data(:electric_vehicle)
     D = 10
-    tf = 1
     b1 = 1e0
     b2 = 1e0
     h0 = 0.1
