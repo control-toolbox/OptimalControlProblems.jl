@@ -20,13 +20,7 @@ It performs direct transcription to produce a discretised optimal control proble
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.dielectrophoretic_particle(OptimalControlBackend(); N=100);
-
-julia> docp
-DOCP object with 100 discretisation points
-
-julia> nlp
-NLP model corresponding to the dielectrophoretic particle problem
+julia> docp = OptimalControlProblems.dielectrophoretic_particle(OptimalControlBackend(); N=100);
 ```
 
 # References
@@ -71,7 +65,6 @@ function OptimalControlProblems.dielectrophoretic_particle(
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
 
-    return docp, nlp
+    return docp
 end

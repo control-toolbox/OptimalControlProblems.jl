@@ -20,13 +20,7 @@ It returns both a discretised direct optimal control problem (DOCP) and the corr
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.glider(OptimalControlBackend(); N=500);
-
-julia> docp
-DOCP object with 500 discretisation points
-
-julia> nlp
-NLP model corresponding to the hang glider problem
+julia> docp = OptimalControlProblems.glider(OptimalControlBackend(); N=500);
 ```
 
 # References
@@ -112,7 +106,6 @@ function OptimalControlProblems.glider(::OptimalControlBackend; N::Int=steps_num
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
 
-    return docp, nlp
+    return docp
 end

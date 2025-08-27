@@ -121,7 +121,8 @@ function comparison(; max_iter, test_name)
             ########## OptimalControl ##########
 
             # set up the OptimalControl model 
-            docp, nlp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
+            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
+            nlp = nlp_model(docp)
 
             # solve the problem
             nlp_sol = NLPModelsIpopt.ipopt(nlp; Options...)
@@ -147,27 +148,27 @@ function comparison(; max_iter, test_name)
             ############### JuMP ###############
 
             # set up the JuMP model
-            model = OptimalControlProblems.eval(f)(JuMPBackend(); N=N)
-            set_optimizer(model, Ipopt.Optimizer)
-            set_silent(model)
-            set_optimizer_attribute(model, "tol", Options[:tol])
-            set_optimizer_attribute(model, "max_iter", Options[:max_iter])
-            set_optimizer_attribute(model, "mu_strategy", Options[:mu_strategy])
-            set_optimizer_attribute(model, "linear_solver", "mumps")
-            set_optimizer_attribute(model, "max_wall_time", Options[:max_wall_time])
-            set_optimizer_attribute(model, "sb", Options[:sb])
+            nlp = OptimalControlProblems.eval(f)(JuMPBackend(); N=N)
+            set_optimizer(nlp, Ipopt.Optimizer)
+            set_silent(nlp)
+            set_optimizer_attribute(nlp, "tol", Options[:tol])
+            set_optimizer_attribute(nlp, "max_iter", Options[:max_iter])
+            set_optimizer_attribute(nlp, "mu_strategy", Options[:mu_strategy])
+            set_optimizer_attribute(nlp, "linear_solver", "mumps")
+            set_optimizer_attribute(nlp, "max_wall_time", Options[:max_wall_time])
+            set_optimizer_attribute(nlp, "sb", Options[:sb])
 
             # solve the model
-            optimize!(model)
+            optimize!(nlp)
 
             # retrieve values
-            t_jp = time_grid(f, model)
-            x_jp = state(f, model).(t_jp)
-            u_jp = control(f, model).(t_jp)
-            o_jp = objective_value(model)
-            i_jp = barrier_iterations(model)
-            p_jp = costate(f, model).(t_jp)
-            v_jp = variable(f, model)
+            t_jp = time_grid(f, nlp)
+            x_jp = state(f, nlp).(t_jp)
+            u_jp = control(f, nlp).(t_jp)
+            o_jp = objective_value(nlp)
+            i_jp = barrier_iterations(nlp)
+            p_jp = costate(f, nlp).(t_jp)
+            v_jp = variable(f, nlp)
 
             ############ TEST ############
 

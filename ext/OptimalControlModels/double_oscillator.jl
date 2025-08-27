@@ -20,13 +20,7 @@ It uses direct transcription to produce a discretised optimal control problem (D
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.double_oscillator(OptimalControlBackend(); N=100);
-
-julia> docp
-DOCP object with 100 discretisation points
-
-julia> nlp
-NLP model corresponding to the double oscillator problem
+julia> docp = OptimalControlProblems.double_oscillator(OptimalControlBackend(); N=100);
 ```
 
 # References
@@ -80,7 +74,6 @@ function OptimalControlProblems.double_oscillator(::OptimalControlBackend; N::In
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
 
-    return docp, nlp
+    return docp
 end

@@ -4,7 +4,7 @@ Each problem in the **OptimalControlProblems** package is modelled both in JuMP 
 
 ## Get an OptimalControl model
 
-### NLP Model
+### DOCP and NLP Model
 
 To get an OptimalControl model, first install [OptimalControl](https://control-toolbox.org/OptimalControl.jl/stable/#Installation) and import the packages:
 
@@ -16,44 +16,48 @@ using OptimalControlProblems
 Then, to obtain the OptimalControl model of the beam problem, run:
 
 ```@example main_oc
-_, model = beam(OptimalControlBackend())
-model # hide
+docp = beam(OptimalControlBackend())
+nlp = nlp_model(docp)
 ```
 
-The model represents the nonlinear programming problem (NLP) obtained after discretising the optimal control problem (OCP). See the [Introduction](@ref problems-introduction) page for details. The model is an [`ADNLPModels.ADNLPModel`](@extref), which provides automatic differentiation (AD)-based models that follow the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API.
+The `nlp` model represents the nonlinear programming problem (NLP) obtained after discretising the optimal control problem (OCP). See the [Introduction](@ref problems-introduction) page for details. The model is an [`ADNLPModels.ADNLPModel`](@extref), which provides automatic differentiation (AD)-based models that follow the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API.
 
-### DOCP
+!!! note
 
-You also have access to the DOCP model, which corresponds to the discretised optimal control problem. For more details, see this [tutorial](@extref Tutorials Discretization-and-NLP-problem) or the documentation of [`CTDirect.DOCP`](@extref).
+    You also have access to the DOCP model, which corresponds to the discretised optimal control problem. Roughly speaking, the DOCP model is the union of the NLP and OCP models. For more details, see this [tutorial](@extref Tutorials Discretization-and-NLP-problem) or the documentation of [`CTDirect.DOCP`](@extref).
+
+### OCP
+
+You also have access to the OCP model, which corresponds to the optimal control problem.
 
 ```@example main_oc
-docp, model = beam(OptimalControlBackend())
+ocp = ocp_model(docp)
 nothing # hide
 ```
 
 ### Number of variables, constraints, and nonzeros
 
-The model follows the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API. See the existing [Attributes](https://jso.dev/NLPModels.jl/stable/#Attributes) and the available getter functions (`get_X`) [here](https://jso.dev/NLPModels.jl/stable/reference).  
+The `nlp` model follows the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API. See the existing [Attributes](https://jso.dev/NLPModels.jl/stable/#Attributes) and the available getter functions (`get_X`) [here](https://jso.dev/NLPModels.jl/stable/reference).  
 
 To get the number of variables:
 
 ```@example main_oc
 using NLPModels
-get_nvar(model)
+get_nvar(nlp)
 ```
 
 To get the number of constraints:
 
 ```@example main_oc
-get_ncon(model)
+get_ncon(nlp)
 ```
 
 To get the number of nonzeros:
 
 ```@example main_oc
-nnzo = get_nnzo(model) # Gradient of the objective
-nnzj = get_nnzj(model) # Jacobian of the constraints
-nnzh = get_nnzh(model) # Hessian of the Lagrangian
+nnzo = get_nnzo(nlp) # Gradient of the objective
+nnzj = get_nnzj(nlp) # Jacobian of the constraints
+nnzh = get_nnzh(nlp) # Hessian of the Lagrangian
 
 println("nnzo = ", nnzo)
 println("nnzj = ", nnzj)
@@ -77,13 +81,15 @@ OptimalControlProblems.metadata[:beam][:N]
 Each problem can be parameterised by the number of steps:
 
 ```@example main_oc
-docp, model = beam(OptimalControlBackend(); N=100)
-get_nvar(model)
+docp = beam(OptimalControlBackend(); N=100)
+nlp = nlp_model(docp)
+get_nvar(nlp)
 ```
 
 ```@example main_oc
-docp, model = beam(OptimalControlBackend(); N=200)
-get_nvar(model)
+docp = beam(OptimalControlBackend(); N=200)
+nlp = nlp_model(docp)
+get_nvar(nlp)
 ```
 
 ## Get a JuMP model
@@ -98,7 +104,7 @@ using OptimalControlProblems
 Then, to obtain the JuMP model of the beam problem, run:
 
 ```@example main_jp
-model = beam(JuMPBackend())
+nlp = beam(JuMPBackend())
 ```
 
 !!! note

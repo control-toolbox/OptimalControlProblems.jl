@@ -20,13 +20,7 @@ It then performs direct transcription to generate a discrete optimal control pro
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.beam(OptimalControlBackend(); N=100);
-
-julia> docp
-DOCP object with 100 discretisation points
-
-julia> nlp
-NLP model corresponding to the beam problem
+julia> docp = OptimalControlProblems.beam(OptimalControlBackend(); N=100);
 ```
 
 # References
@@ -56,6 +50,6 @@ function OptimalControlProblems.beam(::OptimalControlBackend; N::Int=steps_numbe
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
-    return docp, nlp
+
+    return docp
 end

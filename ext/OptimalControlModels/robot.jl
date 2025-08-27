@@ -20,13 +20,7 @@ Reference: Robot arm problem on BOCOP [here](https://github.com/control-toolbox/
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.robot(OptimalControlBackend(); N=250);
-
-julia> docp
-DOCP object with 250 discretisation points
-
-julia> nlp
-NLP model corresponding to the robot arm problem
+julia> docp = OptimalControlProblems.robot(OptimalControlBackend(); N=250);
 ```
 """
 function OptimalControlProblems.robot(::OptimalControlBackend; N::Int=steps_number_data(:robot))
@@ -99,7 +93,6 @@ function OptimalControlProblems.robot(::OptimalControlBackend; N::Int=steps_numb
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
 
-    return docp, nlp
+    return docp
 end

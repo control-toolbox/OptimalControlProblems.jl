@@ -20,13 +20,7 @@ It returns both a discretised direct optimal control problem (DOCP) and the corr
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.moonlander(OptimalControlBackend(); N=500);
-
-julia> docp
-DOCP object with 500 discretisation points
-
-julia> nlp
-NLP model corresponding to the Moonlander problem
+julia> docp = OptimalControlProblems.moonlander(OptimalControlBackend(); N=500);
 ```
 """
 function OptimalControlProblems.moonlander(::OptimalControlBackend; N::Int=steps_number_data(:moonlander))
@@ -102,7 +96,6 @@ function OptimalControlProblems.moonlander(::OptimalControlBackend; N::Int=steps
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
 
-    return docp, nlp
+    return docp
 end

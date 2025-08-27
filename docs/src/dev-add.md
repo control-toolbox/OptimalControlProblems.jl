@@ -42,9 +42,9 @@ function OptimalControlProblems.new_problem(::OptimalControlBackend; N::Int=step
     init = () 
 
     # DOCP and NLP
-    docp, nlp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
+    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
 
-    return docp, nlp
+    return docp
 
 end
 ```
@@ -61,11 +61,11 @@ function OptimalControlProblems.new_problem(::JuMPBackend; N::Int=steps_number_d
     tf = final_time_data(:new_problem)
 
     # model
-    model = JuMP.Model()
+    nlp = JuMP.Model()
 
     # Define the problem here
     # ...
 
-    return model
+    return nlp
 end
 ```

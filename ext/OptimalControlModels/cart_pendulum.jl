@@ -20,13 +20,7 @@ It performs direct transcription to produce a discretised optimal control proble
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.cart_pendulum(OptimalControlBackend(); N=100);
-
-julia> docp
-DOCP object with 100 discretisation points
-
-julia> nlp
-NLP model corresponding to the Cart-Pendulum problem
+julia> docp = OptimalControlProblems.cart_pendulum(OptimalControlBackend(); N=100);
 ```
 
 # References
@@ -107,6 +101,6 @@ function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; N::Int=st
 
     # NLPModel + DOCP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
-    return docp, nlp
+
+    return docp
 end

@@ -1,5 +1,5 @@
 This problem models the **minimum-time maneuvering of a quadrotor** from an initial position to a target position while respecting thrust and tilt constraints.  
-The quadrotor is modeled as a rigid body with translational and rotational dynamics, subject to actuator limits and tilt angle restrictions.
+The quadrotor is modelled as a rigid body with translational and rotational dynamics, subject to actuator limits and tilt angle restrictions.
 
 ### System Description
 

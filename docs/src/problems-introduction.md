@@ -136,8 +136,9 @@ data_nlp = DataFrame(           # to store data of the NLPs
 for problem in problems()
 
     #
-    docp, model = eval(problem)(OptimalControlBackend())
-    ocp = docp.ocp
+    docp = eval(problem)(OptimalControlBackend())
+    nlp = nlp_model(docp)
+    ocp = ocp_model(docp)
 
     #
     cost = if has_mayer_cost(ocp) && has_lagrange_cost(ocp)
@@ -188,8 +189,8 @@ for problem in problems()
         (
             Problem=problem,
             Steps=N,
-            Variables=get_nvar(model),
-            Constraints=get_ncon(model),
+            Variables=get_nvar(nlp),
+            Constraints=get_ncon(nlp),
         )
     )
 end

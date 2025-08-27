@@ -20,13 +20,7 @@ Reference: Goddard Rocket Problem [here](https://github.com/control-toolbox/boco
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.rocket(OptimalControlBackend(); N=500);
-
-julia> docp
-DOCP object with 500 discretisation points
-
-julia> nlp
-NLP model corresponding to the Goddard rocket problem
+julia> docp = OptimalControlProblems.rocket(OptimalControlBackend(); N=500);
 ```
 """
 function OptimalControlProblems.rocket(::OptimalControlBackend; N::Int=steps_number_data(:rocket))
@@ -92,7 +86,6 @@ function OptimalControlProblems.rocket(::OptimalControlBackend; N::Int=steps_num
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
 
-    return docp, nlp
+    return docp
 end

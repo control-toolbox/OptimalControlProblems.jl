@@ -20,13 +20,7 @@ It returns both a discretised direct optimal control problem (DOCP) and the corr
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.electric_vehicle(OptimalControlBackend(); N=500);
-
-julia> docp
-DOCP object with 500 discretisation points
-
-julia> nlp
-NLP model corresponding to the electric vehicle problem
+julia> docp = OptimalControlProblems.electric_vehicle(OptimalControlBackend(); N=500);
 ```
 
 # References
@@ -72,7 +66,6 @@ function OptimalControlProblems.electric_vehicle(::OptimalControlBackend; N::Int
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
 
-    return docp, nlp
+    return docp
 end

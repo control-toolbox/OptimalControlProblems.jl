@@ -20,13 +20,7 @@ The problem formulation can be found [here](https://github.com/control-toolbox/b
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.vanderpol(OptimalControlBackend(); N=500);
-
-julia> docp
-DOCP object for the Van der Pol problem with 500 discretisation points
-
-julia> nlp
-NLP model corresponding to the Van der Pol control problem
+julia> docp = OptimalControlProblems.vanderpol(OptimalControlBackend(); N=500);
 ```
 """
 function OptimalControlProblems.vanderpol(::OptimalControlBackend; N::Int=steps_number_data(:vanderpol))
@@ -56,7 +50,6 @@ function OptimalControlProblems.vanderpol(::OptimalControlBackend; N::Int=steps_
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
 
-    return docp, nlp
+    return docp
 end
