@@ -1042,7 +1042,7 @@ uuid = "5f98b655-cc9a-415a-b60e-744165666948"
 version = "1.1.1"
 
 [[deps.OptimalControlProblems]]
-deps = ["CTBase", "CTModels", "DocStringExtensions", "ExaModels", "OrderedCollections"]
+deps = ["CTBase", "CTDirect", "CTModels", "DocStringExtensions", "ExaModels", "OrderedCollections"]
 path = "/home/runner/work/OptimalControlProblems.jl/OptimalControlProblems.jl"
 uuid = "59046045-fb9c-4c23-964f-ff0a25704f96"
 version = "0.2.1"
