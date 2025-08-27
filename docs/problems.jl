@@ -1,4 +1,6 @@
-function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Union{Bool,Nothing})
+function generate_documentation(
+    PROBLEM::String, DESCRIPTION::String; draft::Union{Bool,Nothing}
+)
     TITLE = uppercasefirst(replace(PROBLEM, "_" => " "))
 
     DRAFT = if isnothing(draft)
@@ -449,7 +451,9 @@ function generate_documentation_problems(;
         touch(filename)
 
         # get the description
-        description = read(joinpath(@__DIR__, "..", "ext", "Descriptions", string(problem) * ".md"), String)
+        description = read(
+            joinpath(@__DIR__, "..", "ext", "Descriptions", string(problem) * ".md"), String
+        )
 
         # generate the content
         draft_problem = problem ∈ exclude_from_draft ? false : draft
