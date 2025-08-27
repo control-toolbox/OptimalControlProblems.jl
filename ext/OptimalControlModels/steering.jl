@@ -29,7 +29,7 @@ julia> nlp
 NLP model corresponding to the particle steering problem
 ```
 """
-function OptimalControlProblems.steering(::OptimalControlBackend; N::Int=500)
+function OptimalControlProblems.steering(::OptimalControlBackend; N::Int=steps_number_data(:steering))
 
     # parameters
     a = 100

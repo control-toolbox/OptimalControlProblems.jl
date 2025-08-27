@@ -29,7 +29,7 @@ julia> nlp
 NLP model corresponding to the Goddard rocket problem
 ```
 """
-function OptimalControlProblems.rocket(::OptimalControlBackend; N::Int=500)
+function OptimalControlProblems.rocket(::OptimalControlBackend; N::Int=steps_number_data(:rocket))
 
     # parameters
     h0 = 1

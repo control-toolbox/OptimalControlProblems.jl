@@ -27,7 +27,7 @@ julia> model = OptimalControlProblems.insurance(JuMPBackend(); N=100)
 
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
-function OptimalControlProblems.insurance(::JuMPBackend; N::Int=500)
+function OptimalControlProblems.insurance(::JuMPBackend; N::Int=steps_number_data(:insurance))
 
     # parameters
     γ = 0.2

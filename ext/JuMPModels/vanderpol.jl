@@ -26,7 +26,7 @@ julia> model = OptimalControlProblems.vanderpol(JuMPBackend(); N=100)
 
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
-function OptimalControlProblems.vanderpol(::JuMPBackend; N::Int=500)
+function OptimalControlProblems.vanderpol(::JuMPBackend; N::Int=steps_number_data(:vanderpol))
 
     # parameters
     ω = 1

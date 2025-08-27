@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.space_shuttle(JuMPBackend(); N=200)
 
 - Problem formulation and tutorial available at: https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/
 """
-function OptimalControlProblems.space_shuttle(::JuMPBackend; N::Int=500)
+function OptimalControlProblems.space_shuttle(::JuMPBackend; N::Int=steps_number_data(:space_shuttle))
 
     ## Global variables
     w = 203000.0    # weight (lb)

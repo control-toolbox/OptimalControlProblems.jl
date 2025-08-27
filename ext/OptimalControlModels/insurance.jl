@@ -33,7 +33,7 @@ NLP model corresponding to the insurance optimisation problem
 
 - Problem formulation available at [Bocop repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.insurance(::OptimalControlBackend; N::Int=500)
+function OptimalControlProblems.insurance(::OptimalControlBackend; N::Int=steps_number_data(:insurance))
 
     # parameters
     γ = 0.2

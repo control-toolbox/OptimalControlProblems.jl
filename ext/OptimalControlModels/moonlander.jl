@@ -29,7 +29,7 @@ julia> nlp
 NLP model corresponding to the Moonlander problem
 ```
 """
-function OptimalControlProblems.moonlander(::OptimalControlBackend; N::Int=500)
+function OptimalControlProblems.moonlander(::OptimalControlBackend; N::Int=steps_number_data(:moonlander))
 
     # parameters
     target=[5.0, 5.0]

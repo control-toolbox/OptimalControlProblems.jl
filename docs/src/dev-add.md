@@ -27,7 +27,10 @@ new_problem_meta = OrderedDict(
 """
     Description of the new problem
 """
-function OptimalControlProblems.new_problem(::OptimalControlBackend; N::Int=default_value)
+function OptimalControlProblems.new_problem(::OptimalControlBackend; N::Int=steps_number_data(:new_problem))
+
+    # if tf is fixed
+    tf = final_time_data(:new_problem)
 
     # model
     @def ocp begin
@@ -52,7 +55,10 @@ end
 """
     Description of the new problem
 """
-function OptimalControlProblems.new_problem(::JuMPBackend; N::Int=default_value)
+function OptimalControlProblems.new_problem(::JuMPBackend; N::Int=steps_number_data(:new_problem))
+
+    # if tf is fixed
+    tf = final_time_data(:new_problem)
 
     # model
     model = JuMP.Model()

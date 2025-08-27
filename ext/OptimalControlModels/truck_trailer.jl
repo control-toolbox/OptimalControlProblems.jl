@@ -29,7 +29,7 @@ julia> nlp
 NLP model corresponding to the truck-trailer parking problem
 ```
 """
-function OptimalControlProblems.truck_trailer(::OptimalControlBackend; N::Int=200)
+function OptimalControlProblems.truck_trailer(::OptimalControlBackend; N::Int=steps_number_data(:truck_trailer))
 
     # parameters
     data=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2]

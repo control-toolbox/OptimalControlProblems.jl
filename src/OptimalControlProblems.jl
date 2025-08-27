@@ -301,7 +301,17 @@ function variable(::Symbol, model)
     throw(CTBase.ExtensionError(:JuMP))
 end
 
+function final_time_data(problem::Symbol)
+    @assert metadata[problem][:final_time][1] == :fixed
+    return metadata[problem][:final_time][2]
+end
+
+function steps_number_data(problem::Symbol)
+    return metadata[problem][:N]
+end
+
 export JuMPBackend, OptimalControlBackend, problems
 export time_grid, state, costate, control, variable
+export metadata, final_time_data, steps_number_data
 
 end

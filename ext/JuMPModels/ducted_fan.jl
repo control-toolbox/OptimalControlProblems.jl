@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.ducted_fan(JuMPBackend(); N=100)
 - Graichen, K., & Petit, N. (2009). *Incorporating a class of constraints into the dynamics of optimal control problems*.  
   Optimal Control Applications and Methods, 30(6), 537–561. [GP2009]
 """
-function OptimalControlProblems.ducted_fan(::JuMPBackend; N::Int=250)
+function OptimalControlProblems.ducted_fan(::JuMPBackend; N::Int=steps_number_data(:ducted_fan))
 
     # parameters
     r = 0.2         # [m]

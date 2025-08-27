@@ -30,7 +30,7 @@ julia> nlp
 NLP model corresponding to the Space Shuttle reentry trajectory problem
 ```
 """
-function OptimalControlProblems.space_shuttle(::OptimalControlBackend; N::Int=500)
+function OptimalControlProblems.space_shuttle(::OptimalControlBackend; N::Int=steps_number_data(:space_shuttle))
 
     ## Global variables
     w = 203000.0  # weight (lb)

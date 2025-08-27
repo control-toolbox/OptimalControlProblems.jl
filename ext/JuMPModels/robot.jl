@@ -27,7 +27,7 @@ julia> model = OptimalControlProblems.robot(JuMPBackend(); N=100)
 
 - Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/robot.jl
 """
-function OptimalControlProblems.robot(::JuMPBackend; N::Int=250)
+function OptimalControlProblems.robot(::JuMPBackend; N::Int=steps_number_data(:robot))
 
     # parameters
 

@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.jackson(JuMPBackend(); N=100)
 
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
-function OptimalControlProblems.jackson(::JuMPBackend; N::Int=500)
+function OptimalControlProblems.jackson(::JuMPBackend; N::Int=steps_number_data(:jackson))
 
     # parameters
     k1 = 1

@@ -30,7 +30,7 @@ julia> nlp
 NLP model corresponding to the Robbins problem
 ```
 """
-function OptimalControlProblems.robbins(::OptimalControlBackend; N::Int=500)
+function OptimalControlProblems.robbins(::OptimalControlBackend; N::Int=steps_number_data(:robbins))
 
     # parameters
     α = 3

@@ -35,7 +35,7 @@ NLP model corresponding to the dielectrophoretic particle problem
 - Formulation inspired by OptimalControl approach to time-optimal trajectory problems.
 """
 function OptimalControlProblems.dielectrophoretic_particle(
-    ::OptimalControlBackend; N::Int=500
+    ::OptimalControlBackend; N::Int=steps_number_data(:dielectrophoretic_particle)
 )
 
     # parameters

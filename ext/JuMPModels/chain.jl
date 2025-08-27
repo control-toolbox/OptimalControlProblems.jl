@@ -27,7 +27,7 @@ julia> model = OptimalControlProblems.chain(JuMPBackend(); N=300)
 
 - [COPS Benchmark Problems – Hanging Chain](https://www.mcs.anl.gov/~more/cops/)
 """
-function OptimalControlProblems.chain(::JuMPBackend; N::Int=500)
+function OptimalControlProblems.chain(::JuMPBackend; N::Int=steps_number_data(:chain))
 
     # parameters
     L = 4

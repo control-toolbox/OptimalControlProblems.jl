@@ -33,7 +33,7 @@ NLP model corresponding to the Cart-Pendulum problem
 
 - Formulation inspired by OptimalControl approach for swing-up control problems.
 """
-function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; N::Int=500)
+function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; N::Int=steps_number_data(:cart_pendulum))
 
     # parameters
     g = 9.81            # gravitation [m/s^2]

@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.double_oscillator(JuMPBackend(); N=200)
 - [CLP2018] Coudurier, C., Lepreux, O., & Petit, N. (2018). *Optimal bang-bang control of a mechanical double oscillator using averaging methods*.  
   IFAC-PapersOnLine, 51(2), 49–54.
 """
-function OptimalControlProblems.double_oscillator(::JuMPBackend; N::Int=500)
+function OptimalControlProblems.double_oscillator(::JuMPBackend; N::Int=steps_number_data(:double_oscillator))
 
     # parameters
     m1 = 100    # [kg]
