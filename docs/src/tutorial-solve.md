@@ -12,11 +12,12 @@ First, import the problem:
 
 ```@example main
 using OptimalControl
-docp, model = beam(OptimalControlBackend())
+docp = beam(OptimalControlBackend())
+nlp = nlp_model(docp)
 nothing # hide
 ```
 
-The model represents the nonlinear programming problem (NLP) obtained after discretising the optimal control problem (OCP). See the [Introduction](@ref problems-introduction) page for details. The model is an [`ADNLPModels.ADNLPModel`](@extref), which provides automatic differentiation (AD)-based models that follow the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API. 
+The `nlp` model represents the nonlinear programming problem (NLP) obtained after discretising the optimal control problem (OCP). See the [Introduction](@ref problems-introduction) page for details. The model is an [`ADNLPModels.ADNLPModel`](@extref), which provides automatic differentiation (AD)-based models that follow the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API. 
 
 We can then solve the problem using, for instance, [`NLPModelsIpopt.ipopt`](@extref):
 
@@ -25,7 +26,7 @@ using NLPModelsIpopt
 
 # Solve the model
 sol = NLPModelsIpopt.ipopt(
-    model;
+    nlp;
     print_level=5,
     tol=1e-8,
     mu_strategy="adaptive",
@@ -84,7 +85,7 @@ First, import the JuMP model:
 
 ```@example main
 using JuMP
-model = beam(JuMPBackend())
+nlp = beam(JuMPBackend())
 ```
 
 We can then solve the problem using the [`JuMP.optimize!`](@extref) function:
@@ -93,28 +94,28 @@ We can then solve the problem using the [`JuMP.optimize!`](@extref) function:
 using Ipopt
 
 # Set the optimiser
-set_optimizer(model, Ipopt.Optimizer)
+set_optimizer(nlp, Ipopt.Optimizer)
 
 # Set optimiser attributes
-set_optimizer_attribute(model, "tol", 1e-8)
-set_optimizer_attribute(model, "mu_strategy", "adaptive")
-set_optimizer_attribute(model, "linear_solver", "mumps")
-set_optimizer_attribute(model, "sb", "yes")
+set_optimizer_attribute(nlp, "tol", 1e-8)
+set_optimizer_attribute(nlp, "mu_strategy", "adaptive")
+set_optimizer_attribute(nlp, "linear_solver", "mumps")
+set_optimizer_attribute(nlp, "sb", "yes")
 
 # Solve the model
-optimize!(model)
+optimize!(nlp)
 ```
 
 To get the number of iterations:
 
 ```@example main
-barrier_iterations(model)
+barrier_iterations(nlp)
 ```
 
 To get the objective value:
 
 ```@example main
-objective_value(model)
+objective_value(nlp)
 ```
 
 To get the time grid, state, control, and costate, OptimalControlProblems provides the following getters:
@@ -122,10 +123,10 @@ To get the time grid, state, control, and costate, OptimalControlProblems provid
 ```@example main
 problem = :beam
 
-t = time_grid(problem, model)    # t0, ..., tN = tf
-x = state(problem, model)        # function of time
-u = control(problem, model)      # function of time
-p = costate(problem, model)      # function of time
+t = time_grid(problem, nlp)    # t0, ..., tN = tf
+x = state(problem, nlp)        # function of time
+u = control(problem, nlp)      # function of time
+p = costate(problem, nlp)      # function of time
 
 tf = t[end]
 println("tf = ", tf)
@@ -138,7 +139,7 @@ println("p(tf) = ", p(tf))
     If the problem includes additional optimisation variables, such as the final time, you can retrieve them with:
 
     ```julia
-    v = variable(problem, model)
+    v = variable(problem, nlp)
     ```
 
 We can add the state, costate, and control to the plot:

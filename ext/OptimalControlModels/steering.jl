@@ -20,13 +20,7 @@ The state vector has four components, and the control is a single scalar input.
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.steering(OptimalControlBackend(); N=500);
-
-julia> docp
-DOCP object with 500 discretisation points
-
-julia> nlp
-NLP model corresponding to the particle steering problem
+julia> docp = OptimalControlProblems.steering(OptimalControlBackend(); N=500);
 ```
 """
 function OptimalControlProblems.steering(::OptimalControlBackend; N::Int=steps_number_data(:steering))
@@ -75,7 +69,6 @@ function OptimalControlProblems.steering(::OptimalControlBackend; N::Int=steps_n
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
 
-    return docp, nlp
+    return docp
 end

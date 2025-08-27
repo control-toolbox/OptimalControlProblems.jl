@@ -63,11 +63,12 @@ function generate_documentation(
 
     ```@example main
     # import model
-    docp, model_oc = $PROBLEM(OptimalControlBackend())
+    docp = $PROBLEM(OptimalControlBackend())
+    nlp_oc = nlp_model(docp)
 
     # solve
     nlp_sol = NLPModelsIpopt.ipopt(
-        model_oc;
+        nlp_oc;
         print_level=4,
         tol=1e-8,
         mu_strategy="adaptive",
@@ -100,8 +101,8 @@ function generate_documentation(
         (
             Problem=:$PROBLEM,
             Grid_Size=OptimalControlProblems.metadata[:$PROBLEM][:N],
-            Variables=get_nvar(model_oc),
-            Constraints=get_ncon(model_oc),
+            Variables=get_nvar(nlp_oc),
+            Constraints=get_ncon(nlp_oc),
         )
     )
     ```
@@ -155,27 +156,27 @@ function generate_documentation(
 
     ```@example main
     # import model
-    model_jp = $PROBLEM(JuMPBackend())
+    nlp_jp = $PROBLEM(JuMPBackend())
 
     # solve
-    set_optimizer(model_jp, Ipopt.Optimizer)
-    set_optimizer_attribute(model_jp, "print_level", 4)
-    set_optimizer_attribute(model_jp, "tol", 1e-8)
-    set_optimizer_attribute(model_jp, "mu_strategy", "adaptive")
-    set_optimizer_attribute(model_jp, "linear_solver", "mumps")
-    set_optimizer_attribute(model_jp, "sb", "yes")
-    optimize!(model_jp)
+    set_optimizer(nlp_jp, Ipopt.Optimizer)
+    set_optimizer_attribute(nlp_jp, "print_level", 4)
+    set_optimizer_attribute(nlp_jp, "tol", 1e-8)
+    set_optimizer_attribute(nlp_jp, "mu_strategy", "adaptive")
+    set_optimizer_attribute(nlp_jp, "linear_solver", "mumps")
+    set_optimizer_attribute(nlp_jp, "sb", "yes")
+    optimize!(nlp_jp)
     ```
 
     For the numerical comparison, define:
 
     ```@example main
-    t_jp = time_grid(:$PROBLEM, model_jp)
-    x_jp = state(:$PROBLEM, model_jp).(t_jp)
-    u_jp = control(:$PROBLEM, model_jp).(t_jp)
-    o_jp = objective_value(model_jp)
-    v_jp = variable(:$PROBLEM, model_jp)
-    i_jp = barrier_iterations(model_jp)
+    t_jp = time_grid(:$PROBLEM, nlp_jp)
+    x_jp = state(:$PROBLEM, nlp_jp).(t_jp)
+    u_jp = control(:$PROBLEM, nlp_jp).(t_jp)
+    o_jp = objective_value(nlp_jp)
+    v_jp = variable(:$PROBLEM, nlp_jp)
+    i_jp = barrier_iterations(nlp_jp)
     nothing # hide
     ```
 
@@ -187,9 +188,9 @@ function generate_documentation(
     push!(data_re,
         (
             Model=:JuMP,
-            Flag=termination_status(model_jp),
-            Iterations=barrier_iterations(model_jp),
-            Objective=objective_value(model_jp),
+            Flag=termination_status(nlp_jp),
+            Iterations=barrier_iterations(nlp_jp),
+            Objective=objective_value(nlp_jp),
         )
     )
     ```
@@ -199,10 +200,10 @@ function generate_documentation(
     Overlay the JuMP solution on the previous plots:
 
     ```@example main
-    t = time_grid(:$PROBLEM, model_jp)     # t0, ..., tN = tf
-    x = state(:$PROBLEM, model_jp)         # function of time
-    u = control(:$PROBLEM, model_jp)       # function of time
-    p = costate(:$PROBLEM, model_jp)       # function of time
+    t = time_grid(:$PROBLEM, nlp_jp)     # t0, ..., tN = tf
+    x = state(:$PROBLEM, nlp_jp)         # function of time
+    u = control(:$PROBLEM, nlp_jp)       # function of time
+    p = costate(:$PROBLEM, nlp_jp)       # function of time
 
     for i in 1:n # state
         label = i == 1 ? "JuMP" : :none
@@ -231,11 +232,12 @@ function generate_documentation(
     function plot_initial_guess()
 
         # import OptimalControl model
-        docp, model_oc = $PROBLEM(OptimalControlBackend())
+        docp = $PROBLEM(OptimalControlBackend())
+        nlp_oc = nlp_model(docp)
 
         # solve
         nlp_sol = NLPModelsIpopt.ipopt(
-            model_oc;
+            nlp_oc;
             max_iter=0,
             print_level=5,
             tol=1e-8,
@@ -263,23 +265,23 @@ function generate_documentation(
         end
 
         # import JuMP model
-        model_jp = $PROBLEM(JuMPBackend())
+        nlp_jp = $PROBLEM(JuMPBackend())
 
         # solve
-        set_optimizer(model_jp, Ipopt.Optimizer)
-        set_optimizer_attribute(model_jp, "max_iter", 0)
-        set_optimizer_attribute(model_jp, "print_level", 5)
-        set_optimizer_attribute(model_jp, "tol", 1e-8)
-        set_optimizer_attribute(model_jp, "mu_strategy", "adaptive")
-        set_optimizer_attribute(model_jp, "linear_solver", "mumps")
-        set_optimizer_attribute(model_jp, "sb", "yes")
-        optimize!(model_jp)
+        set_optimizer(nlp_jp, Ipopt.Optimizer)
+        set_optimizer_attribute(nlp_jp, "max_iter", 0)
+        set_optimizer_attribute(nlp_jp, "print_level", 5)
+        set_optimizer_attribute(nlp_jp, "tol", 1e-8)
+        set_optimizer_attribute(nlp_jp, "mu_strategy", "adaptive")
+        set_optimizer_attribute(nlp_jp, "linear_solver", "mumps")
+        set_optimizer_attribute(nlp_jp, "sb", "yes")
+        optimize!(nlp_jp)
 
         # plot
-        t = time_grid(:$PROBLEM, model_jp)     # t0, ..., tN = tf
-        x = state(:$PROBLEM, model_jp)         # function of time
-        u = control(:$PROBLEM, model_jp)       # function of time
-        p = costate(:$PROBLEM, model_jp)       # function of time
+        t = time_grid(:$PROBLEM, nlp_jp)     # t0, ..., tN = tf
+        x = state(:$PROBLEM, nlp_jp)         # function of time
+        u = control(:$PROBLEM, nlp_jp)       # function of time
+        p = costate(:$PROBLEM, nlp_jp)       # function of time
 
         for i in 1:n # state
             label = i == 1 ? "JuMP" : :none

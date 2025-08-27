@@ -20,13 +20,7 @@ The problem includes path constraints for articulation angles between the traile
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.truck_trailer(OptimalControlBackend(); N=200);
-
-julia> docp
-DOCP object with 200 discretisation points
-
-julia> nlp
-NLP model corresponding to the truck-trailer parking problem
+julia> docp = OptimalControlProblems.truck_trailer(OptimalControlBackend(); N=200);
 ```
 """
 function OptimalControlProblems.truck_trailer(::OptimalControlBackend; N::Int=steps_number_data(:truck_trailer))
@@ -135,7 +129,6 @@ function OptimalControlProblems.truck_trailer(::OptimalControlBackend; N::Int=st
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
 
-    return docp, nlp
+    return docp
 end

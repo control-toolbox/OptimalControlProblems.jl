@@ -20,13 +20,7 @@ It returns both a discretised direct optimal control problem (DOCP) and the corr
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.ducted_fan(OptimalControlBackend(); N=250);
-
-julia> docp
-DOCP object with 250 discretisation points
-
-julia> nlp
-NLP model corresponding to the planar ducted fan problem
+julia> docp = OptimalControlProblems.ducted_fan(OptimalControlBackend(); N=250);
 ```
 
 # References
@@ -101,7 +95,6 @@ function OptimalControlProblems.ducted_fan(::OptimalControlBackend; N::Int=steps
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
 
-    return docp, nlp
+    return docp
 end

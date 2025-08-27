@@ -1,10 +1,21 @@
 module OptimalControlProblems
 
 using CTBase
+using CTDirect
 import CTModels: CTModels, time_grid, state, control, costate
 import ExaModels: ExaModels, variable
 using DocStringExtensions
 using OrderedCollections: OrderedDict
+
+# -----------------
+# SHOULD NO BE HERE
+nlp_model(docp::CTDirect.DOCP) = docp.nlp
+ocp_model(docp::CTDirect.DOCP) = docp.ocp
+
+export nlp_model, ocp_model
+
+# -----------------
+
 
 """
 $(TYPEDEF)

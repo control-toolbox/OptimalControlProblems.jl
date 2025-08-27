@@ -20,13 +20,7 @@ It returns both a discretised direct optimal control problem (DOCP) and the corr
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.insurance(OptimalControlBackend(); N=500);
-
-julia> docp
-DOCP object with 500 discretisation points
-
-julia> nlp
-NLP model corresponding to the insurance optimisation problem
+julia> docp = OptimalControlProblems.insurance(OptimalControlBackend(); N=500);
 ```
 
 # References
@@ -105,7 +99,6 @@ function OptimalControlProblems.insurance(::OptimalControlBackend; N::Int=steps_
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
 
-    return docp, nlp
+    return docp
 end

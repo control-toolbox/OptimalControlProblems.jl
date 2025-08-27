@@ -21,15 +21,16 @@ function test_OptimalControl()
             DEBUG && println("│")
 
             # Set up the model
-            _, model = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
+            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
+            nlp = nlp_model(docp)
 
             # Solve the model
             DEBUG && println("├─  Solve")
             DEBUG && println("│")
             print("  First solve:  ");
-            @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
+            @time sol = NLPModelsIpopt.ipopt(nlp; kwargs...)
             print("  Second solve: ");
-            @time sol = NLPModelsIpopt.ipopt(model; kwargs...)
+            @time sol = NLPModelsIpopt.ipopt(nlp; kwargs...)
             DEBUG && println("│")
 
             # Infos

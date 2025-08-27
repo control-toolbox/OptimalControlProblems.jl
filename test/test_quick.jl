@@ -26,7 +26,8 @@ function test_quick()
             DEBUG && println("│")
 
             ########## OptimalControl ##########
-            docp, nlp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
+            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
+            nlp = nlp_model(docp)
             nlp_sol = NLPModelsIpopt.ipopt(nlp; kwargs...)
             sol = build_OCP_solution(
                 docp;
@@ -37,17 +38,17 @@ function test_quick()
             o_oc = objective(sol)
 
             ############### JuMP ###############
-            model = OptimalControlProblems.eval(f)(JuMPBackend(); N=N)
-            set_optimizer(model, Ipopt.Optimizer)
-            set_silent(model)
-            set_optimizer_attribute(model, "tol", TOL)
-            set_optimizer_attribute(model, "max_iter", MAX_ITER)
-            set_optimizer_attribute(model, "mu_strategy", MU_STRATEGY)
-            set_optimizer_attribute(model, "linear_solver", "mumps")
-            set_optimizer_attribute(model, "max_wall_time", MAX_WALL_TIME)
-            set_optimizer_attribute(model, "sb", SB)
-            optimize!(model)
-            o_jp = objective_value(model)
+            nlp = OptimalControlProblems.eval(f)(JuMPBackend(); N=N)
+            set_optimizer(nlp, Ipopt.Optimizer)
+            set_silent(nlp)
+            set_optimizer_attribute(nlp, "tol", TOL)
+            set_optimizer_attribute(nlp, "max_iter", MAX_ITER)
+            set_optimizer_attribute(nlp, "mu_strategy", MU_STRATEGY)
+            set_optimizer_attribute(nlp, "linear_solver", "mumps")
+            set_optimizer_attribute(nlp, "max_wall_time", MAX_WALL_TIME)
+            set_optimizer_attribute(nlp, "sb", SB)
+            optimize!(nlp)
+            o_jp = objective_value(nlp)
 
             ############### TEST ###############
             # objective

@@ -21,13 +21,7 @@ Note: No heating limit path constraint is included.
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.space_shuttle(OptimalControlBackend(); N=500);
-
-julia> docp
-DOCP object with 500 discretisation points
-
-julia> nlp
-NLP model corresponding to the Space Shuttle reentry trajectory problem
+julia> docp = OptimalControlProblems.space_shuttle(OptimalControlBackend(); N=500);
 ```
 """
 function OptimalControlProblems.space_shuttle(::OptimalControlBackend; N::Int=steps_number_data(:space_shuttle))
@@ -163,7 +157,6 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; N::Int=st
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
 
-    return docp, nlp
+    return docp
 end

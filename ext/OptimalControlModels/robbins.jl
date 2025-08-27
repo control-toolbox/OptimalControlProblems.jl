@@ -21,13 +21,7 @@ Reference: [Robbins Problem on BOCOP](https://github.com/control-toolbox/bocop/t
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.robbins(OptimalControlBackend(); N=500);
-
-julia> docp
-DOCP object with 500 discretisation points
-
-julia> nlp
-NLP model corresponding to the Robbins problem
+julia> docp = OptimalControlProblems.robbins(OptimalControlBackend(); N=500);
 ```
 """
 function OptimalControlProblems.robbins(::OptimalControlBackend; N::Int=steps_number_data(:robbins))
@@ -61,7 +55,6 @@ function OptimalControlProblems.robbins(::OptimalControlBackend; N::Int=steps_nu
 
     # DOCP and NLP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
 
-    return docp, nlp
+    return docp
 end

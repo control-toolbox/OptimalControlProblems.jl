@@ -20,13 +20,7 @@ It performs direct transcription to produce a discretised optimal control proble
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.chain(OptimalControlBackend(); N=100);
-
-julia> docp
-DOCP object with 100 discretisation points
-
-julia> nlp
-NLP model corresponding to the Hanging Chain problem
+julia> docp = OptimalControlProblems.chain(OptimalControlBackend(); N=100);
 ```
 
 # References
@@ -85,6 +79,6 @@ function OptimalControlProblems.chain(::OptimalControlBackend; N::Int=steps_numb
 
     # NLPModel + DOCP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
-    return docp, nlp
+
+    return docp
 end

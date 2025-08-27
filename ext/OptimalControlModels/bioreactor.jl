@@ -20,13 +20,7 @@ It performs direct transcription to create a discretised optimal control problem
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp, nlp = OptimalControlProblems.bioreactor(OptimalControlBackend(); N=100);
-
-julia> docp
-DOCP object with 100 discretisation points
-
-julia> nlp
-NLP model corresponding to the Bioreactor problem
+julia> docp = OptimalControlProblems.bioreactor(OptimalControlBackend(); N=100);
 ```
 
 # References
@@ -94,6 +88,6 @@ function OptimalControlProblems.bioreactor(::OptimalControlBackend; N::Int=steps
 
     # NLPModel + DOCP
     docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
-    nlp = model(docp)
-    return docp, nlp
+
+    return docp
 end
