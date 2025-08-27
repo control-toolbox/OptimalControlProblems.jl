@@ -34,11 +34,11 @@ NLP model corresponding to the electric vehicle problem
 - Nicolas Petit and Antonio Sciarretta. "Optimal drive of electric vehicles using an inversion-based trajectory generation approach." IFAC Proceedings Volumes 44, no. 1 (2011): 14519-14526. [PS2011]
 - Problem instance follows OptimalControl formulation for electric vehicle trajectory optimisation.
 """
-function OptimalControlProblems.electric_vehicle(::OptimalControlBackend; N=500)
+function OptimalControlProblems.electric_vehicle(::OptimalControlBackend; N::Int=steps_number_data(:electric_vehicle))
 
     # parameters
+    tf = final_time_data(:electric_vehicle)
     D = 10
-    tf = 1
     b1 = 1e0
     b2 = 1e0
     h0 = 0.1

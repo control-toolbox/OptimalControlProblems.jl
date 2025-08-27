@@ -33,13 +33,13 @@ NLP model corresponding to the Jackson problem
 
 - Problem formulation available at [Bocop repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.jackson(::OptimalControlBackend; N::Int=500)
+function OptimalControlProblems.jackson(::OptimalControlBackend; N::Int=steps_number_data(:jackson))
 
     # parameters
+    tf = final_time_data(:jackson)
     k1 = 1
     k2 = 10
     k3 = 1
-    tf = 4
 
     # model
     ocp = @def begin

@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.moonlander(JuMPBackend(); N=100)
 
 - Problem formulation available at: https://arxiv.org/pdf/2303.16746
 """
-function OptimalControlProblems.moonlander(::JuMPBackend; N::Int=500)
+function OptimalControlProblems.moonlander(::JuMPBackend; N::Int=steps_number_data(:moonlander))
 
     # parameters
     target=[5.0, 5.0]

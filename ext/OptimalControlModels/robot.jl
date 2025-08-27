@@ -29,7 +29,7 @@ julia> nlp
 NLP model corresponding to the robot arm problem
 ```
 """
-function OptimalControlProblems.robot(::OptimalControlBackend; N::Int=250)
+function OptimalControlProblems.robot(::OptimalControlBackend; N::Int=steps_number_data(:robot))
 
     # parameters
 

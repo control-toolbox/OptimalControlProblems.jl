@@ -34,7 +34,7 @@ NLP model corresponding to the double oscillator problem
 - Coudurier, C., Lepreux, O., & Petit, N. (2018). Optimal bang-bang control of a mechanical double oscillator using averaging methods. *IFAC-PapersOnLine*, 51(2), 49-54. [CLP2018]
 - Formulation follows OptimalControl approach to mechanical oscillator trajectory optimisation.
 """
-function OptimalControlProblems.double_oscillator(::OptimalControlBackend; N::Int=500)
+function OptimalControlProblems.double_oscillator(::OptimalControlBackend; N::Int=steps_number_data(:double_oscillator))
 
     # parameters
     m1 = 100    # [kg]
@@ -42,7 +42,7 @@ function OptimalControlProblems.double_oscillator(::OptimalControlBackend; N::In
     c = 0.5     # [Ns/m]
     k1 = 100    # [N/m]
     k2 = 3      # [N/m]
-    tf = 2π
+    tf = final_time_data(:double_oscillator)
 
     # model
     ocp = @def begin

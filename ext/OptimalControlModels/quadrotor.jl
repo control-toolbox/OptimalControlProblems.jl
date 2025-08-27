@@ -29,7 +29,7 @@ julia> nlp
 NLP model corresponding to the Quadrotor problem
 ```
 """
-function OptimalControlProblems.quadrotor(::OptimalControlBackend; N::Int=50)
+function OptimalControlProblems.quadrotor(::OptimalControlBackend; N::Int=steps_number_data(:quadrotor))
 
     # parameters
     g = 9.81

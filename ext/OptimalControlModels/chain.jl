@@ -34,13 +34,13 @@ NLP model corresponding to the Hanging Chain problem
 - Formulation inspired by OptimalControl approach to variational problems and chain equilibrium.
 - Original problem source: [BOCOP repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.chain(::OptimalControlBackend; N::Int=500)
+function OptimalControlProblems.chain(::OptimalControlBackend; N::Int=steps_number_data(:chain))
 
     # parameters
     L = 4
     a = 1
     b = 3
-    tf = 1
+    tf = final_time_data(:chain)
 
     # model
     ocp = @def begin

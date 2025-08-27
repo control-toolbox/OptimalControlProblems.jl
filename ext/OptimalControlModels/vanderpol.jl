@@ -29,12 +29,12 @@ julia> nlp
 NLP model corresponding to the Van der Pol control problem
 ```
 """
-function OptimalControlProblems.vanderpol(::OptimalControlBackend; N::Int=500)
+function OptimalControlProblems.vanderpol(::OptimalControlBackend; N::Int=steps_number_data(:vanderpol))
 
     # parameters
+    tf = final_time_data(:vanderpol)
     ω = 1
     ε = 1
-    tf = 2
 
     # model
     ocp = @def begin

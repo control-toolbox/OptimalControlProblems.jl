@@ -33,15 +33,18 @@ NLP model corresponding to the beam problem
 
 - BOCOP repository: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
-function OptimalControlProblems.beam(::OptimalControlBackend; N::Int=500)
+function OptimalControlProblems.beam(::OptimalControlBackend; N::Int=steps_number_data(:beam))
+
+    #
+    tf = final_time_data(:beam)
 
     # model
     ocp = @def begin
-        t ∈ [0, 1], time
+        t ∈ [0, tf], time
         x ∈ R², state
         u ∈ R, control
         x(0) == [0, 1]
-        x(1) == [0, -1]
+        x(tf) == [0, -1]
         ẋ(t) == [x₂(t), u(t)]
         0 ≤ x₁(t) ≤ 0.1
         -10 ≤ u(t) ≤ 5

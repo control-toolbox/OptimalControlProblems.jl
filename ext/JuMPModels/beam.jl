@@ -27,10 +27,10 @@ julia> model = OptimalControlProblems.beam(JuMPBackend(); N=100)
 
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
-function OptimalControlProblems.beam(::JuMPBackend; N::Int=500)
+function OptimalControlProblems.beam(::JuMPBackend; N::Int=steps_number_data(:beam))
 
     # parameters
-    tf = 1
+    tf = final_time_data(:beam)
     step = tf / N # t0 = 0
 
     # model

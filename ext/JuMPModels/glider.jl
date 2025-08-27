@@ -27,7 +27,7 @@ julia> model = OptimalControlProblems.glider(JuMPBackend(); N=100)
 
 - Hang Glider Problem formulation as in: https://www.mcs.anl.gov/~more/cops/
 """
-function OptimalControlProblems.glider(::JuMPBackend; N::Int=500)
+function OptimalControlProblems.glider(::JuMPBackend; N::Int=steps_number_data(:glider))
 
     # parameters
     x_0 = 0

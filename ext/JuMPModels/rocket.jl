@@ -27,7 +27,7 @@ julia> model = OptimalControlProblems.rocket(JuMPBackend(); N=200)
 
 - Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/rocket.jl
 """
-function OptimalControlProblems.rocket(::JuMPBackend; N::Int=500)
+function OptimalControlProblems.rocket(::JuMPBackend; N::Int=steps_number_data(:rocket))
 
     # parameters
     h0 = 1

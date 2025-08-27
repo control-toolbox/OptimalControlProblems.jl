@@ -301,7 +301,57 @@ function variable(::Symbol, model)
     throw(CTBase.ExtensionError(:JuMP))
 end
 
+"""
+$(TYPEDSIGNATURES)
+
+Return the fixed final time, from the metadata, associated with a given optimal control problem.
+
+# Arguments
+
+- `problem::Symbol`: The name of the problem, used as a key in the global `metadata` dictionary.
+
+# Returns
+
+- `Float64`: The fixed final time of the specified problem.
+
+# Example
+
+```julia-repl
+julia> final_time_data(:beam)
+10.0
+```
+"""
+function final_time_data(problem::Symbol)
+    @assert metadata[problem][:final_time][1] == :fixed
+    return metadata[problem][:final_time][2]
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+Return the number of discretisation steps, from the metadata, for a given optimal control problem.
+
+# Arguments
+
+- `problem::Symbol`: The name of the problem, used as a key in the global `metadata` dictionary.
+
+# Returns
+
+- `Int`: The number of discretisation steps (`N`) of the specified problem.
+
+# Example
+
+```julia-repl
+julia> steps_number_data(:beam)
+500
+```
+"""
+function steps_number_data(problem::Symbol)
+    return metadata[problem][:N]
+end
+
 export JuMPBackend, OptimalControlBackend, problems
 export time_grid, state, costate, control, variable
+export metadata, final_time_data, steps_number_data
 
 end
