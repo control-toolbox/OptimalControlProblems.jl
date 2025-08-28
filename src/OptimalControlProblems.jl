@@ -3,16 +3,36 @@ module OptimalControlProblems
 using CTBase
 using CTDirect
 import CTModels: CTModels, time_grid, state, control, costate
-import ExaModels: ExaModels, variable
+import ExaModels: ExaModels, ExaModel, variable
 using DocStringExtensions
 using OrderedCollections: OrderedDict
+using SolverCore
+import ADNLPModels: ADNLPModels, ADNLPModel
 
 # -----------------
 # SHOULD NO BE HERE
 nlp_model(docp::CTDirect.DOCP) = docp.nlp
 ocp_model(docp::CTDirect.DOCP) = docp.ocp
+function build_ocp_solution(docp::CTDirect.DOCP, nlp_solution::SolverCore.AbstractExecutionStats)
+    nlp_model_backend = if nlp_model(docp) isa ADNLPModel 
+        CTDirect.ADNLPBackend()
+    elseif nlp_model(docp) isa ExaModel 
+        CTDirect.ExaBackend()
+    else
+        throw(CTBase.IncorrectArgument("The NLP model is of unknown type."))
+    end
+    return CTDirect.build_OCP_solution(
+        docp; 
+        primal=nlp_solution.solution, 
+        dual=nlp_solution.multipliers, 
+        mult_LB=nlp_solution.multipliers_L,
+        mult_UB=nlp_solution.multipliers_U,
+        nlp_model=nlp_model_backend,
+        docp_solution=nlp_solution
+    )
+end
 
-export nlp_model, ocp_model
+export nlp_model, ocp_model, build_ocp_solution
 
 # -----------------
 

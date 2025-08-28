@@ -76,7 +76,7 @@ function generate_documentation(
     )
 
     # build an optimal control solution
-    ocp_sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers, docp_solution=nlp_sol)
+    ocp_sol = build_ocp_solution(docp, nlp_sol)
     nothing # hide
     ```
 
@@ -246,7 +246,7 @@ function generate_documentation(
         )
 
         # build an optimal control solution
-        ocp_sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers, docp_solution=nlp_sol)
+        ocp_sol = build_ocp_solution(docp, nlp_sol)
 
         # plot the OptimalControl solution
         plt = plot(

@@ -29,12 +29,7 @@ function test_quick()
             docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
             nlp = nlp_model(docp)
             nlp_sol = NLPModelsIpopt.ipopt(nlp; kwargs...)
-            sol = build_OCP_solution(
-                docp;
-                primal=nlp_sol.solution,
-                dual=nlp_sol.multipliers,
-                docp_solution=nlp_sol,
-            )
+            sol = build_ocp_solution(docp, nlp_sol)
             o_oc = objective(sol)
 
             ############### JuMP ###############
