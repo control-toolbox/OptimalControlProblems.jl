@@ -42,36 +42,36 @@ nlp_sol = NLPModelsIpopt.ipopt(
 )
 
 # build an optimal control solution
-ocp_sol = build_ocp_solution(docp, nlp_sol)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:      664
+ocp_sol = build_ocp_solution(docp, nlp_sol)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:      613
                      variables with only lower bounds:        1
                 variables with lower and upper bounds:      255
                      variables with only upper bounds:        0
-Total number of equality constraints.................:      465
+Total number of equality constraints.................:      414
 Total number of inequality constraints...............:       51
         inequality constraints with only lower bounds:       51
    inequality constraints with lower and upper bounds:        0
         inequality constraints with only upper bounds:        0
 
 
-Number of Iterations....: 48
+Number of Iterations....: 43
 
                                    (scaled)                 (unscaled)
-Objective...............:   1.4926817085418516e+00    1.4926817085418516e+00
-Dual infeasibility......:   5.1988700825654132e-09    5.1988700825654132e-09
-Constraint violation....:   5.3290705182007514e-15    5.3290705182007514e-15
-Variable bound violation:   4.2838491509655796e-07    4.2838491509655796e-07
-Complementarity.........:   1.0008439743515292e-11    1.0008439743515292e-11
-Overall NLP error.......:   5.1988700825654132e-09    5.1988700825654132e-09
+Objective...............:   1.4926817088445166e+00    1.4926817088445166e+00
+Dual infeasibility......:   7.5321799254862924e-10    7.5321799254862924e-10
+Constraint violation....:   1.4743761767022079e-13    1.4743761767022079e-13
+Variable bound violation:   4.2838490799113060e-07    4.2838490799113060e-07
+Complementarity.........:   1.0279831018845334e-11    1.0279831018845334e-11
+Overall NLP error.......:   7.5321799254862924e-10    7.5321799254862924e-10
 
 
-Number of objective function evaluations             = 62
-Number of objective gradient evaluations             = 49
-Number of equality constraint evaluations            = 62
-Number of inequality constraint evaluations          = 62
-Number of equality constraint Jacobian evaluations   = 49
-Number of inequality constraint Jacobian evaluations = 49
-Number of Lagrangian Hessian evaluations             = 48
-Total seconds in IPOPT                               = 3.103
+Number of objective function evaluations             = 52
+Number of objective gradient evaluations             = 44
+Number of equality constraint evaluations            = 52
+Number of inequality constraint evaluations          = 52
+Number of equality constraint Jacobian evaluations   = 44
+Number of inequality constraint Jacobian evaluations = 44
+Number of Lagrangian Hessian evaluations             = 43
+Total seconds in IPOPT                               = 2.822
 
 EXIT: Optimal Solution Found.</code></pre><p>Compute state, control, objective, and iteration data for comparison:</p><pre><code class="language-julia hljs">t_oc = time_grid(ocp_sol)
 x_oc = state(ocp_sol).(t_oc)
@@ -85,14 +85,14 @@ i_oc = nlp_sol.iter</code></pre><h3 id="Store-and-print-the-data"><a class="docs
         Variables=get_nvar(nlp_oc),
         Constraints=get_ncon(nlp_oc),
     )
-)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Problem</th><th style = "text-align: left;">Grid_Size</th><th style = "text-align: left;">Variables</th><th style = "text-align: left;">Constraints</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">quadrotor</td><td style = "text-align: right;">50</td><td style = "text-align: right;">664</td><td style = "text-align: right;">516</td></tr></tbody></table></div><p>And store the following data about the resolution:</p><pre><code class="language-julia hljs">push!(data_re,
+)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Problem</th><th style = "text-align: left;">Grid_Size</th><th style = "text-align: left;">Variables</th><th style = "text-align: left;">Constraints</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">quadrotor</td><td style = "text-align: right;">50</td><td style = "text-align: right;">613</td><td style = "text-align: right;">465</td></tr></tbody></table></div><p>And store the following data about the resolution:</p><pre><code class="language-julia hljs">push!(data_re,
     (
         Model=:OptimalControl,
         Flag=nlp_sol.status,
         Iterations=nlp_sol.iter,
         Objective=objective(ocp_sol),
     )
-)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">48</td><td style = "text-align: right;">1.49268</td></tr></tbody></table></div><h3 id="Plot-the-solution"><a class="docs-heading-anchor" href="#Plot-the-solution">Plot the solution</a><a id="Plot-the-solution-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution" title="Permalink"></a></h3><p>Visualise states, costates, and controls for the OptimalControl solution:</p><pre><code class="language-julia hljs">x_vars = metadata[:quadrotor][:state_name]
+)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">43</td><td style = "text-align: right;">1.49268</td></tr></tbody></table></div><h3 id="Plot-the-solution"><a class="docs-heading-anchor" href="#Plot-the-solution">Plot the solution</a><a id="Plot-the-solution-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution" title="Permalink"></a></h3><p>Visualise states, costates, and controls for the OptimalControl solution:</p><pre><code class="language-julia hljs">x_vars = metadata[:quadrotor][:state_name]
 u_vars = metadata[:quadrotor][:control_name]
 
 n = length(x_vars) # number of states
@@ -111,7 +111,7 @@ plt = plot(
 )
 for i in 2:n
     plot!(plt[i]; legend=:none)
-end</code></pre><img src="quadrotor-134eb513.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
+end</code></pre><img src="quadrotor-c87075b3.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
 nlp_jp = quadrotor(JuMPBackend())
 
 # solve
@@ -150,7 +150,7 @@ Number of inequality constraint evaluations          = 51
 Number of equality constraint Jacobian evaluations   = 43
 Number of inequality constraint Jacobian evaluations = 43
 Number of Lagrangian Hessian evaluations             = 42
-Total seconds in IPOPT                               = 0.462
+Total seconds in IPOPT                               = 0.449
 
 EXIT: Optimal Solution Found.</code></pre><p>For the numerical comparison, define:</p><pre><code class="language-julia hljs">t_jp = time_grid(:quadrotor, nlp_jp)
 x_jp = state(:quadrotor, nlp_jp).(t_jp)
@@ -164,7 +164,7 @@ i_jp = barrier_iterations(nlp_jp)</code></pre><h3 id="Store-and-print-the-data-2
         Iterations=barrier_iterations(nlp_jp),
         Objective=objective_value(nlp_jp),
     )
-)</code></pre><div><div style = "float: left;"><span>2×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">48</td><td style = "text-align: right;">1.49268</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">JuMP</td><td style = "text-align: left;">LOCALLY_SOLVED</td><td style = "text-align: right;">42</td><td style = "text-align: right;">1.49268</td></tr></tbody></table></div><h3 id="Plot-the-solution-2"><a class="docs-heading-anchor" href="#Plot-the-solution-2">Plot the solution</a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution-2" title="Permalink"></a></h3><p>Overlay the JuMP solution on the previous plots:</p><pre><code class="language-julia hljs">t = time_grid(:quadrotor, nlp_jp)     # t0, ..., tN = tf
+)</code></pre><div><div style = "float: left;"><span>2×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">43</td><td style = "text-align: right;">1.49268</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">JuMP</td><td style = "text-align: left;">LOCALLY_SOLVED</td><td style = "text-align: right;">42</td><td style = "text-align: right;">1.49268</td></tr></tbody></table></div><h3 id="Plot-the-solution-2"><a class="docs-heading-anchor" href="#Plot-the-solution-2">Plot the solution</a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution-2" title="Permalink"></a></h3><p>Overlay the JuMP solution on the previous plots:</p><pre><code class="language-julia hljs">t = time_grid(:quadrotor, nlp_jp)     # t0, ..., tN = tf
 x = state(:quadrotor, nlp_jp)         # function of time
 u = control(:quadrotor, nlp_jp)       # function of time
 p = costate(:quadrotor, nlp_jp)       # function of time
@@ -180,7 +180,7 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
-end</code></pre><img src="quadrotor-503c236f.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess can also be visualised by running the solver with <code>max_iter=0</code>.</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
+end</code></pre><img src="quadrotor-19e679a2.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess can also be visualised by running the solver with <code>max_iter=0</code>.</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
 
     # import OptimalControl model
     docp = quadrotor(OptimalControlBackend())
@@ -249,7 +249,7 @@ end</code></pre><img src="quadrotor-503c236f.svg" alt="Example block output"/><h
 
     return plt
 end</code></pre></details>
-</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="quadrotor-5d0ea320.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Compare OptimalControl and JuMP solutions in terms of iterations, <span>$L^2$</span> norms, and objective values.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = metadata[:quadrotor][:variable_name]
+</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="quadrotor-3db252f8.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Compare OptimalControl and JuMP solutions in terms of iterations, <span>$L^2$</span> norms, and objective values.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = metadata[:quadrotor][:variable_name]
 
 function L2_norm(T, X)
     # T and X are supposed to be one dimensional
@@ -345,105 +345,105 @@ end</code></pre></details>
 │
 ├─  Number of iterations
 │
-│     OptimalControl : 48
+│     OptimalControl : 43
 │     JuMP           : 42
 │
 ├─  State p₁ (L2 norm)
 │
-│     OptimalControl : 0.012575745246359642
-│     JuMP           : 0.012575745246360995
-│     Absolute error : 1.550691896103737e-15
-│     Relative error : 1.2330815118511876e-13
+│     OptimalControl : 0.012575746339088435
+│     JuMP           : 0.01257574524642359
+│     Absolute error : 5.089295639663063e-9
+│     Relative error : 4.04691357755867e-7
 │
 ├─  State p₂ (L2 norm)
 │
-│     OptimalControl : 3.4944125235375827
-│     JuMP           : 3.4944125235375845
-│     Absolute error : 2.421699199913912e-15
-│     Relative error : 6.930204100408541e-16
+│     OptimalControl : 3.494412523634016
+│     JuMP           : 3.4944125235549772
+│     Absolute error : 2.9167107744449973e-10
+│     Relative error : 8.346784344295872e-11
 │
 ├─  State p₃ (L2 norm)
 │
-│     OptimalControl : 4.254666439338966
-│     JuMP           : 4.25466643933896
-│     Absolute error : 7.279674201235353e-15
-│     Relative error : 1.7109858798628587e-15
+│     OptimalControl : 4.254666439377575
+│     JuMP           : 4.254666439360137
+│     Absolute error : 2.999773040108628e-10
+│     Relative error : 7.050548104902952e-11
 │
 ├─  State v₁ (L2 norm)
 │
-│     OptimalControl : 0.03463463175041673
-│     JuMP           : 0.03463463175042081
-│     Absolute error : 6.13712484366535e-15
-│     Relative error : 1.7719619160065548e-13
+│     OptimalControl : 0.03463468941951167
+│     JuMP           : 0.034634631750593184
+│     Absolute error : 1.0883239346312137e-7
+│     Relative error : 3.14229709847629e-6
 │
 ├─  State v₂ (L2 norm)
 │
-│     OptimalControl : 4.430439629284422
-│     JuMP           : 4.430439629284423
-│     Absolute error : 1.2298227963004357e-14
-│     Relative error : 2.7758482209565044e-15
+│     OptimalControl : 4.430439628749986
+│     JuMP           : 4.430439629306473
+│     Absolute error : 2.9303232243952715e-9
+│     Relative error : 6.614068737548754e-10
 │
 ├─  State v₃ (L2 norm)
 │
-│     OptimalControl : 3.4419686260189
-│     JuMP           : 3.441968626018888
-│     Absolute error : 1.9409612436863432e-14
-│     Relative error : 5.6391020795890564e-15
+│     OptimalControl : 3.4419686248105577
+│     JuMP           : 3.441968626036019
+│     Absolute error : 4.224323908813053e-9
+│     Relative error : 1.2272987840769617e-9
 │
 ├─  State ϕ (L2 norm)
 │
-│     OptimalControl : 0.40147310282169135
-│     JuMP           : 0.4014730001238307
-│     Absolute error : 1.4692767744214077e-6
-│     Relative error : 3.6597145662243646e-6
+│     OptimalControl : 0.4325502113147213
+│     JuMP           : 0.401473000125829
+│     Absolute error : 0.1005312362635705
+│     Relative error : 0.2410753918705209
 │
 ├─  State θ (L2 norm)
 │
-│     OptimalControl : 0.04082654605343001
-│     JuMP           : 0.04082654543163854
-│     Absolute error : 5.671959875952155e-9
-│     Relative error : 1.389282334028799e-7
+│     OptimalControl : 0.0409303844298506
+│     JuMP           : 0.04082654543184175
+│     Absolute error : 0.0016050415251867534
+│     Relative error : 0.03926374260633298
 │
 ├─  Control at (L2 norm)
 │
-│     OptimalControl : 27.286185666366748
-│     JuMP           : 27.28618566636671
-│     Absolute error : 3.4482948108146206e-13
-│     Relative error : 1.2637511350899548e-14
+│     OptimalControl : 27.286185689534637
+│     JuMP           : 27.286185666502515
+│     Absolute error : 1.6708288495961505e-7
+│     Relative error : 6.1233507288713874e-9
 │
 ├─  Control dϕ (L2 norm)
 │
-│     OptimalControl : 2.2275964619802235
-│     JuMP           : 2.227597592367315
-│     Absolute error : 3.2401941485720565e-5
-│     Relative error : 1.4545692551417187e-5
+│     OptimalControl : 1.971576160388895
+│     JuMP           : 2.2275975923784026
+│     Absolute error : 0.7235438791545628
+│     Relative error : 0.34461249843626507
 │
 ├─  Control dθ (L2 norm)
 │
-│     OptimalControl : 1.4235342540947566
-│     JuMP           : 1.4235342654003433
-│     Absolute error : 1.9290947212803333e-7
-│     Relative error : 1.3551445692795897e-7
+│     OptimalControl : 1.4244388917837971
+│     JuMP           : 1.4235342654074286
+│     Absolute error : 0.03543975757073398
+│     Relative error : 0.02488770477435676
 │
 ├─  Control ψ (L2 norm)
 │
-│     OptimalControl : 0.00028466762989621787
-│     JuMP           : 0.00028466762989622237
-│     Absolute error : 4.021576820794202e-17
-│     Relative error : 1.4127271240008317e-13
+│     OptimalControl : 0.0002846681306406144
+│     JuMP           : 0.0002846676298976392
+│     Absolute error : 3.319838508472283e-9
+│     Relative error : 1.166214644705854e-5
 │
 ├─  Variable tf
 │
-│     OptimalControl : 1.4926661579881524
+│     OptimalControl : 1.492666158003011
 │     JuMP           : 1.492666157988152
-│     Absolute error : 4.440892098500626e-16
-│     Relative error : 2.9751408744244306e-16
+│     Absolute error : 1.485900291697817e-11
+│     Relative error : 9.954672608730878e-12
 │
 ├─  objective
 │
-│     OptimalControl : 1.4926817085418516
+│     OptimalControl : 1.4926817088445166
 │     JuMP           : 1.4926817085418598
-│     Absolute error : 8.215650382226158e-15
-│     Relative error : 5.503953277656036e-15
+│     Absolute error : 3.026567885200393e-10
+│     Relative error : 2.0276043228600222e-10
 │
-└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="moonlander.html">« Moonlander</a><a class="docs-footer-nextpage" href="robbins.html">Robbins »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 28 August 2025 14:54">Thursday 28 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="moonlander.html">« Moonlander</a><a class="docs-footer-nextpage" href="robbins.html">Robbins »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 28 August 2025 14:55">Thursday 28 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
