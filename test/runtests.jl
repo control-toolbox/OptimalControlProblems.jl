@@ -34,9 +34,9 @@ end
 # ]
 # list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
-# list_of_problems = [
-#     :beam
-# ]
+list_of_problems = [
+#    :beam
+]
 
 # The list of all the problems to test
 const LIST_OF_PROBLEMS = deepcopy(list_of_problems)

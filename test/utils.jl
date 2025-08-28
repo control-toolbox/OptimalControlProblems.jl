@@ -128,12 +128,7 @@ function comparison(; max_iter, test_name)
             nlp_sol = NLPModelsIpopt.ipopt(nlp; Options...)
 
             # build the solution
-            sol = build_OCP_solution(
-                docp;
-                primal=nlp_sol.solution,
-                dual=nlp_sol.multipliers,
-                docp_solution=nlp_sol,
-            )
+            sol = build_ocp_solution(docp, nlp_sol)
 
             sol_oc = deepcopy(sol) # for plotting
 

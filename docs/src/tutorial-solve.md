@@ -44,12 +44,7 @@ sol.iter
 To recover the state, control, and costate, we recommend building an optimal control solution and using the associated getters:
 
 ```@example main
-ocp_sol = build_OCP_solution(
-    docp;
-    primal=sol.solution,
-    dual=sol.multipliers,
-    docp_solution=sol,
-)
+ocp_sol = build_ocp_solution(docp, sol)
 
 t = time_grid(ocp_sol)  # t0, ..., tN = tf
 x = state(ocp_sol)      # function of time
