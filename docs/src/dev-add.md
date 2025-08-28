@@ -21,11 +21,11 @@ new_problem_meta = OrderedDict(
 
     For more details about the metadata, see the [MetaData](@ref problems-introduction-metadata) section.
 
-**2.** Define the DOCP **OptimalControl** model of the problem in a separate file in the `ext/OptimalControlModels` directory.
+**2.** Define the DOCP **OptimalControl** model of the problem in a file named `new_problem.jl` in the `ext/OptimalControlModels` directory.
 
 ```julia
 """
-    Description of the new problem
+    Documentation of the method
 """
 function OptimalControlProblems.new_problem(::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:new_problem), kwargs...)
 
@@ -49,11 +49,11 @@ function OptimalControlProblems.new_problem(::OptimalControlBackend, description
 end
 ```
 
-**3.** Define the NLP **JuMP** model of the problem in a new file in the `ext/JuMPModels` directory.
+**3.** Define the NLP **JuMP** model of the problem in a file named `new_problem.jl` in the `ext/JuMPModels` directory.
 
 ```julia
 """
-    Description of the new problem
+    Documentation of the method
 """
 function OptimalControlProblems.new_problem(::JuMPBackend, args...; N::Int=steps_number_data(:new_problem), kwargs...)
 
@@ -69,3 +69,5 @@ function OptimalControlProblems.new_problem(::JuMPBackend, args...; N::Int=steps
     return model
 end
 ```
+
+**3.** Describe the problem in a file named `new_problem.jl` in the `ext/Descriptions` directory.
