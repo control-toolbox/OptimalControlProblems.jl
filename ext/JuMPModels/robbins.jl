@@ -27,7 +27,7 @@ julia> model = OptimalControlProblems.robbins(JuMPBackend(); N=100)
 
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
-function OptimalControlProblems.robbins(::JuMPBackend; N::Int=steps_number_data(:robbins))
+function OptimalControlProblems.robbins(::JuMPBackend, args...; N::Int=steps_number_data(:robbins), kwargs...)
 
     # parameters
     tf = final_time_data(:robbins)
@@ -39,7 +39,7 @@ function OptimalControlProblems.robbins(::JuMPBackend; N::Int=steps_number_data(
     step = tf / N
 
     # model
-    model = JuMP.Model()
+    model = JuMP.Model(args...; kwargs...)
 
     # state, control and initial guess
     @variables(

@@ -11,7 +11,7 @@ function test_OptimalControl()
 
     for f in LIST_OF_PROBLEMS
         @testset "$(f)" verbose=VERBOSE begin
-            N = OptimalControlProblems.metadata[f][:N]
+            N = metadata[f][:N]
 
             # do we keep or remove the problem from the list
             keep_problem = true

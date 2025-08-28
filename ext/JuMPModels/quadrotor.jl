@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.quadrotor(JuMPBackend(); N=20)
 - Problem formulation available at: https://arxiv.org/pdf/2303.16746
 """
 function OptimalControlProblems.quadrotor(
-    ::JuMPBackend; N::Int=steps_number_data(:quadrotor)
+    ::JuMPBackend, args...; N::Int=steps_number_data(:quadrotor), kwargs...
 )
 
     # parameters
@@ -44,7 +44,7 @@ function OptimalControlProblems.quadrotor(
     vf = [0, 0, 0]
 
     # model
-    model = JuMP.Model()
+    model = JuMP.Model(args...; kwargs...)
 
     # 
     @variables(

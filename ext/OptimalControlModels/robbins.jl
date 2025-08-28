@@ -25,7 +25,7 @@ julia> docp = OptimalControlProblems.robbins(OptimalControlBackend(); N=500);
 ```
 """
 function OptimalControlProblems.robbins(
-    ::OptimalControlBackend; N::Int=steps_number_data(:robbins)
+    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:robbins), kwargs...
 )
 
     # parameters
@@ -56,7 +56,7 @@ function OptimalControlProblems.robbins(
     init = (state=xinit, control=uinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
+    docp = direct_transcription(ocp, description...; init=init, grid_size=N, disc_method=:trapeze, kwargs...)
 
     return docp
 end

@@ -24,7 +24,7 @@ julia> docp = OptimalControlProblems.vanderpol(OptimalControlBackend(); N=500);
 ```
 """
 function OptimalControlProblems.vanderpol(
-    ::OptimalControlBackend; N::Int=steps_number_data(:vanderpol)
+    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:vanderpol), kwargs...
 )
 
     # parameters
@@ -51,7 +51,7 @@ function OptimalControlProblems.vanderpol(
     init = (state=xinit, control=uinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
+    docp = direct_transcription(ocp, description...; init=init, grid_size=N, disc_method=:trapeze, kwargs...)
 
     return docp
 end

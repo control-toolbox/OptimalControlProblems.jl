@@ -24,7 +24,7 @@ julia> docp = OptimalControlProblems.steering(OptimalControlBackend(); N=500);
 ```
 """
 function OptimalControlProblems.steering(
-    ::OptimalControlBackend; N::Int=steps_number_data(:steering)
+    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:steering), kwargs...
 )
 
     # parameters
@@ -70,7 +70,7 @@ function OptimalControlProblems.steering(
     init = (state=xinit, control=0, variable=1)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
+    docp = direct_transcription(ocp, description...; init=init, grid_size=N, disc_method=:trapeze, kwargs...)
 
     return docp
 end

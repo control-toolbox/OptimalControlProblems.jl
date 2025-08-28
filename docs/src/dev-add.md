@@ -21,13 +21,13 @@ new_problem_meta = OrderedDict(
 
     For more details about the metadata, see the [MetaData](@ref problems-introduction-metadata) section.
 
-**2.** Define the **OptimalControl** model of the problem in a separate file in the `ext/OptimalControlModels` directory.
+**2.** Define the DOCP **OptimalControl** model of the problem in a file named `new_problem.jl` in the `ext/OptimalControlModels` directory.
 
 ```julia
 """
-    Description of the new problem
+    Documentation of the method
 """
-function OptimalControlProblems.new_problem(::OptimalControlBackend; N::Int=steps_number_data(:new_problem))
+function OptimalControlProblems.new_problem(::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:new_problem), kwargs...)
 
     # if tf is fixed
     tf = final_time_data(:new_problem)
@@ -42,30 +42,32 @@ function OptimalControlProblems.new_problem(::OptimalControlBackend; N::Int=step
     init = () 
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
+    docp = direct_transcription(ocp, description...; init=init, grid_size=N, disc_method=:trapeze, kwargs...)
 
     return docp
 
 end
 ```
 
-**3.** Define the **JuMP** model of the problem in a new file in the `ext/JuMPModels` directory.
+**3.** Define the NLP **JuMP** model of the problem in a file named `new_problem.jl` in the `ext/JuMPModels` directory.
 
 ```julia
 """
-    Description of the new problem
+    Documentation of the method
 """
-function OptimalControlProblems.new_problem(::JuMPBackend; N::Int=steps_number_data(:new_problem))
+function OptimalControlProblems.new_problem(::JuMPBackend, args...; N::Int=steps_number_data(:new_problem), kwargs...)
 
     # if tf is fixed
     tf = final_time_data(:new_problem)
 
     # model
-    nlp = JuMP.Model()
+    model = JuMP.Model(args...; kwargs...)
 
     # Define the problem here
     # ...
 
-    return nlp
+    return model
 end
 ```
+
+**3.** Describe the problem in a file named `new_problem.jl` in the `ext/Descriptions` directory.

@@ -29,7 +29,7 @@ julia> model = OptimalControlProblems.moonlander(JuMPBackend(); N=100)
 - Problem formulation available at: https://arxiv.org/pdf/2303.16746
 """
 function OptimalControlProblems.moonlander(
-    ::JuMPBackend; N::Int=steps_number_data(:moonlander)
+    ::JuMPBackend, args...; N::Int=steps_number_data(:moonlander), kwargs...
 )
 
     # parameters
@@ -41,7 +41,7 @@ function OptimalControlProblems.moonlander(
     max_thrust = 2g
 
     # define the problem
-    model = JuMP.Model()
+    model = JuMP.Model(args...; kwargs...)
 
     # state, control and final time variables
     @variables(

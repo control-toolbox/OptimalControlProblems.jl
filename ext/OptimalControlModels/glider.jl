@@ -29,7 +29,7 @@ julia> docp = OptimalControlProblems.glider(OptimalControlBackend(); N=500);
 - Problem inspired by glider dynamics with thermal updraft and lift modelling.
 """
 function OptimalControlProblems.glider(
-    ::OptimalControlBackend; N::Int=steps_number_data(:glider)
+    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:glider), kwargs...
 )
 
     # parameters
@@ -107,7 +107,7 @@ function OptimalControlProblems.glider(
     init = (state=xinit, control=uinit, variable=tfinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
+    docp = direct_transcription(ocp, description...; init=init, grid_size=N, disc_method=:trapeze, kwargs...)
 
     return docp
 end

@@ -72,7 +72,7 @@ for file in files
     """
 
     code = quote
-        @doc $doc function $problem(model_backend::T; N::Int=0) where {T<:AbstractModelBackend}
+        @doc $doc function $problem(model_backend::T, args...; kwargs...) where {T<:AbstractModelBackend}
             throw(CTBase.ExtensionError(weakdeps[T]))
         end
         export $problem
@@ -110,7 +110,7 @@ const types = [
 ]
 
 """
-OptimalControlProblems.metadata::Dict()
+metadata::Dict()
 
 Dictionary containing metadata for all available optimal control problems.
 
@@ -130,7 +130,7 @@ The following keys are valid:
 # Example
 
 ```julia-repl
-julia> OptimalControlProblems.metadata[:my_problem][:name]
+julia> metadata[:my_problem][:name]
 "My Problem"
 ```
 """

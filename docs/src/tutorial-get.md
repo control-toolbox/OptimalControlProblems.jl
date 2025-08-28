@@ -24,16 +24,19 @@ The `nlp` model represents the nonlinear programming problem (NLP) obtained afte
 
 !!! note
 
-    You also have access to the DOCP model, which corresponds to the discretised optimal control problem. Roughly speaking, the DOCP model is the union of the NLP and OCP models. For more details, see this [tutorial](@extref Tutorials Discretization-and-NLP-problem) or the documentation of [`CTDirect.DOCP`](@extref).
+    You also have access to the DOCP model, which corresponds to the discretised optimal control problem. Roughly speaking, the DOCP model is the union of the NLP and OCP models. For more details, see this [tutorial](@extref Tutorials Discretization-and-NLP-problem) or the documentation of [`CTDirect.DOCP`](@extref). To get the OCP model:
 
-### OCP
+    ```julia
+    ocp = ocp_model(docp)
+    ```
 
-You also have access to the OCP model, which corresponds to the optimal control problem.
+!!! note
 
-```@example main_oc
-ocp = ocp_model(docp)
-nothing # hide
-```
+    You can pass any `description` and `kwargs` of [`CTDirect.direct_transcription`](@extref) to the `beam` problem or any other.
+
+    ```julia
+    docp = beam(OptimalControlBackend(), :madnlp; grid_size=100, disc_method=:euler)
+    ```
 
 ### Number of variables, constraints, and nonzeros
 
@@ -72,7 +75,7 @@ println("nnzh = ", nnzh)
 The number of steps $N$ is stored in the metadata:
 
 ```@example main_oc
-OptimalControlProblems.metadata[:beam][:N]
+metadata[:beam][:N]
 ```
 
 !!! note
@@ -108,4 +111,9 @@ nlp = beam(JuMPBackend())
 ```
 
 !!! note
-    For details on how to interact with the JuMP model, see the [JuMP documentation](https://jump.dev/JuMP.jl).
+    For details on how to interact with the JuMP model, see the [JuMP documentation](https://jump.dev/JuMP.jl). In particular, you can pass any arguments and keyword arguments of [`JuMP.Model`](@extref) to the `beam` problem or any other.
+
+    ```julia
+    using Ipopt
+    nlp = beam(JuMPBackend(), Ipopt.Optimizer; add_bridges=true)
+    ``` 
