@@ -38,36 +38,36 @@ nlp_sol = NLPModelsIpopt.ipopt(
 )
 
 # build an optimal control solution
-ocp_sol = build_ocp_solution(docp, nlp_sol)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:     2004
+ocp_sol = build_ocp_solution(docp, nlp_sol)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:     1503
                      variables with only lower bounds:        0
                 variables with lower and upper bounds:     1002
                      variables with only upper bounds:        0
-Total number of equality constraints.................:     1505
+Total number of equality constraints.................:     1004
 Total number of inequality constraints...............:        0
         inequality constraints with only lower bounds:        0
    inequality constraints with lower and upper bounds:        0
         inequality constraints with only upper bounds:        0
 
 
-Number of Iterations....: 25
+Number of Iterations....: 29
 
                                    (scaled)                 (unscaled)
-Objective...............:   8.8892815551821140e+00    8.8892815551821140e+00
+Objective...............:   8.8892816510267849e+00    8.8892816510267849e+00
 Dual infeasibility......:   7.1054273576010019e-15    7.1054273576010019e-15
-Constraint violation....:   3.3833567059105008e-09    3.3833567059105008e-09
-Variable bound violation:   9.9998719305105510e-09    9.9998719305105510e-09
-Complementarity.........:   1.1430715933007049e-09    1.1430715933007049e-09
-Overall NLP error.......:   3.3833567059105008e-09    3.3833567059105008e-09
+Constraint violation....:   1.1102230246251565e-16    1.1102230246251565e-16
+Variable bound violation:   9.9998963970504562e-09    9.9998963970504562e-09
+Complementarity.........:   1.1068094190397985e-09    1.1068094190397985e-09
+Overall NLP error.......:   1.1068094190397985e-09    1.1068094190397985e-09
 
 
-Number of objective function evaluations             = 26
-Number of objective gradient evaluations             = 26
-Number of equality constraint evaluations            = 26
+Number of objective function evaluations             = 30
+Number of objective gradient evaluations             = 30
+Number of equality constraint evaluations            = 30
 Number of inequality constraint evaluations          = 0
-Number of equality constraint Jacobian evaluations   = 26
+Number of equality constraint Jacobian evaluations   = 30
 Number of inequality constraint Jacobian evaluations = 0
-Number of Lagrangian Hessian evaluations             = 25
-Total seconds in IPOPT                               = 3.616
+Number of Lagrangian Hessian evaluations             = 29
+Total seconds in IPOPT                               = 3.282
 
 EXIT: Optimal Solution Found.</code></pre><p>Compute state, control, objective, and iteration data for comparison:</p><pre><code class="language-julia hljs">t_oc = time_grid(ocp_sol)
 x_oc = state(ocp_sol).(t_oc)
@@ -81,14 +81,14 @@ i_oc = nlp_sol.iter</code></pre><h3 id="Store-and-print-the-data"><a class="docs
         Variables=get_nvar(nlp_oc),
         Constraints=get_ncon(nlp_oc),
     )
-)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Problem</th><th style = "text-align: left;">Grid_Size</th><th style = "text-align: left;">Variables</th><th style = "text-align: left;">Constraints</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">beam</td><td style = "text-align: right;">500</td><td style = "text-align: right;">2004</td><td style = "text-align: right;">1505</td></tr></tbody></table></div><p>And store the following data about the resolution:</p><pre><code class="language-julia hljs">push!(data_re,
+)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Problem</th><th style = "text-align: left;">Grid_Size</th><th style = "text-align: left;">Variables</th><th style = "text-align: left;">Constraints</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">beam</td><td style = "text-align: right;">500</td><td style = "text-align: right;">1503</td><td style = "text-align: right;">1004</td></tr></tbody></table></div><p>And store the following data about the resolution:</p><pre><code class="language-julia hljs">push!(data_re,
     (
         Model=:OptimalControl,
         Flag=nlp_sol.status,
         Iterations=nlp_sol.iter,
         Objective=objective(ocp_sol),
     )
-)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">25</td><td style = "text-align: right;">8.88928</td></tr></tbody></table></div><h3 id="Plot-the-solution"><a class="docs-heading-anchor" href="#Plot-the-solution">Plot the solution</a><a id="Plot-the-solution-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution" title="Permalink"></a></h3><p>Visualise states, costates, and controls for the OptimalControl solution:</p><pre><code class="language-julia hljs">x_vars = metadata[:beam][:state_name]
+)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">29</td><td style = "text-align: right;">8.88928</td></tr></tbody></table></div><h3 id="Plot-the-solution"><a class="docs-heading-anchor" href="#Plot-the-solution">Plot the solution</a><a id="Plot-the-solution-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution" title="Permalink"></a></h3><p>Visualise states, costates, and controls for the OptimalControl solution:</p><pre><code class="language-julia hljs">x_vars = metadata[:beam][:state_name]
 u_vars = metadata[:beam][:control_name]
 
 n = length(x_vars) # number of states
@@ -107,7 +107,7 @@ plt = plot(
 )
 for i in 2:n
     plot!(plt[i]; legend=:none)
-end</code></pre><img src="beam-fd09dda7.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
+end</code></pre><img src="beam-9144cb3c.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
 nlp_jp = beam(JuMPBackend())
 
 # solve
@@ -146,7 +146,7 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 1
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 1
-Total seconds in IPOPT                               = 0.059
+Total seconds in IPOPT                               = 0.060
 
 EXIT: Optimal Solution Found.</code></pre><p>For the numerical comparison, define:</p><pre><code class="language-julia hljs">t_jp = time_grid(:beam, nlp_jp)
 x_jp = state(:beam, nlp_jp).(t_jp)
@@ -160,7 +160,7 @@ i_jp = barrier_iterations(nlp_jp)</code></pre><h3 id="Store-and-print-the-data-2
         Iterations=barrier_iterations(nlp_jp),
         Objective=objective_value(nlp_jp),
     )
-)</code></pre><div><div style = "float: left;"><span>2×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">25</td><td style = "text-align: right;">8.88928</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">JuMP</td><td style = "text-align: left;">LOCALLY_SOLVED</td><td style = "text-align: right;">28</td><td style = "text-align: right;">8.88928</td></tr></tbody></table></div><h3 id="Plot-the-solution-2"><a class="docs-heading-anchor" href="#Plot-the-solution-2">Plot the solution</a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution-2" title="Permalink"></a></h3><p>Overlay the JuMP solution on the previous plots:</p><pre><code class="language-julia hljs">t = time_grid(:beam, nlp_jp)     # t0, ..., tN = tf
+)</code></pre><div><div style = "float: left;"><span>2×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">29</td><td style = "text-align: right;">8.88928</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">JuMP</td><td style = "text-align: left;">LOCALLY_SOLVED</td><td style = "text-align: right;">28</td><td style = "text-align: right;">8.88928</td></tr></tbody></table></div><h3 id="Plot-the-solution-2"><a class="docs-heading-anchor" href="#Plot-the-solution-2">Plot the solution</a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution-2" title="Permalink"></a></h3><p>Overlay the JuMP solution on the previous plots:</p><pre><code class="language-julia hljs">t = time_grid(:beam, nlp_jp)     # t0, ..., tN = tf
 x = state(:beam, nlp_jp)         # function of time
 u = control(:beam, nlp_jp)       # function of time
 p = costate(:beam, nlp_jp)       # function of time
@@ -176,7 +176,7 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
-end</code></pre><img src="beam-f22c871f.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess can also be visualised by running the solver with <code>max_iter=0</code>.</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
+end</code></pre><img src="beam-37a2b2db.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess can also be visualised by running the solver with <code>max_iter=0</code>.</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
 
     # import OptimalControl model
     docp = beam(OptimalControlBackend())
@@ -245,7 +245,7 @@ end</code></pre><img src="beam-f22c871f.svg" alt="Example block output"/><h2 id=
 
     return plt
 end</code></pre></details>
-</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="beam-8f67863e.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Compare OptimalControl and JuMP solutions in terms of iterations, <span>$L^2$</span> norms, and objective values.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = metadata[:beam][:variable_name]
+</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="beam-86ee1cc4.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Compare OptimalControl and JuMP solutions in terms of iterations, <span>$L^2$</span> norms, and objective values.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = metadata[:beam][:variable_name]
 
 function L2_norm(T, X)
     # T and X are supposed to be one dimensional
@@ -341,35 +341,35 @@ end</code></pre></details>
 │
 ├─  Number of iterations
 │
-│     OptimalControl : 25
+│     OptimalControl : 29
 │     JuMP           : 28
 │
 ├─  State x1 (L2 norm)
 │
-│     OptimalControl : 0.08863905185542999
+│     OptimalControl : 0.08863903844774527
 │     JuMP           : 0.08863782451961523
-│     Absolute error : 1.999133739393821e-6
-│     Relative error : 2.25538014914531e-5
+│     Absolute error : 1.9730664118902118e-6
+│     Relative error : 2.225971713244367e-5
 │
 ├─  State x2 (L2 norm)
 │
-│     OptimalControl : 0.34642475365356296
+│     OptimalControl : 0.34642478589328696
 │     JuMP           : 0.3464246342993491
-│     Absolute error : 1.6856733497921258e-5
-│     Relative error : 4.865915678362954e-5
+│     Absolute error : 1.6680058551898938e-5
+│     Relative error : 4.8149159300043306e-5
 │
 ├─  Control u (L2 norm)
 │
-│     OptimalControl : 2.9814898373091507
+│     OptimalControl : 2.9814898374850762
 │     JuMP           : 2.981489870258926
-│     Absolute error : 0.00028905991362992935
-│     Relative error : 9.695150002374187e-5
+│     Absolute error : 0.0002863607558051993
+│     Relative error : 9.604619496970895e-5
 │
 ├─  objective
 │
-│     OptimalControl : 8.889281555182114
+│     OptimalControl : 8.889281651026785
 │     JuMP           : 8.889281846456582
-│     Absolute error : 2.912744676564216e-7
-│     Relative error : 3.2766929596749546e-8
+│     Absolute error : 1.9542979678988104e-7
+│     Relative error : 2.198488047895939e-8
 │
-└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../problems-introduction.html">« Introduction</a><a class="docs-footer-nextpage" href="bioreactor.html">Bioreactor »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 28 August 2025 14:49">Thursday 28 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../problems-introduction.html">« Introduction</a><a class="docs-footer-nextpage" href="bioreactor.html">Bioreactor »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 28 August 2025 16:24">Thursday 28 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
