@@ -51,7 +51,15 @@ function OptimalControlProblems.beam(
     init = (state=[0.05, 0.1], control=0.1)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp, description...; init=init, grid_size=N, disc_method=:trapeze, kwargs...)
+    docp = direct_transcription(
+        ocp, 
+        description...; 
+        lagrange_to_mayer=false,
+        init=init, 
+        grid_size=N, 
+        disc_method=:trapeze, 
+        kwargs...
+    )
 
     return docp
 end

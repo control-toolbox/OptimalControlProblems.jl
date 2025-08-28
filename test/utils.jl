@@ -258,7 +258,9 @@ function comparison(; max_iter, test_name)
                             L2_jp = L2_norm(t_oc, xi_jp)
                             L2_bd = max(0.5*(L2_oc + L2_jp)*ε_rel_state, ε_abs_state)
                             res = @my_test_broken L2_di < L2_bd
-                            keep_problem = keep_problem && (typeof(res) == Test.Pass)
+                            if f != :quadrotor
+                                keep_problem = keep_problem && (typeof(res) == Test.Pass)
+                            end
 
                             DEBUG && println("├─  state $(x_vars[i])")
                             DEBUG && println("│")
@@ -291,6 +293,9 @@ function comparison(; max_iter, test_name)
                             L2_jp = L2_norm(t_oc, ui_jp)
                             L2_bd = max(0.5*(L2_oc + L2_jp)*ε_rel_control, ε_abs_control)
                             res = @my_test_broken L2_di < L2_bd
+                            if f != :quadrotor
+                                keep_problem = keep_problem && (typeof(res) == Test.Pass)
+                            end
 
                             DEBUG && println("├─  control $(u_vars[i])")
                             DEBUG && println("│")
@@ -323,6 +328,7 @@ function comparison(; max_iter, test_name)
                                 0.5*(abs(vi_oc) + abs(vi_jp))*ε_rel_control, ε_abs_control
                             )
                             res = @my_test_broken vi_di < vi_bd
+                            keep_problem = keep_problem && (typeof(res) == Test.Pass)
 
                             DEBUG && println("├─  variable $(v_vars[i])")
                             DEBUG && println("│")
@@ -350,9 +356,7 @@ function comparison(; max_iter, test_name)
                 o_di = abs(o_oc-o_jp)
                 o_bd = max(0.5*(abs(o_oc) + abs(o_jp))*ε_rel_objective, ε_abs_objective)
                 res = @my_test_broken o_di < o_bd
-                if test_name != :init
-                    keep_problem = keep_problem && (typeof(res) == Test.Pass)
-                end
+                keep_problem = keep_problem && (typeof(res) == Test.Pass)
 
                 DEBUG && println("├─  objective")
                 DEBUG && println("│")

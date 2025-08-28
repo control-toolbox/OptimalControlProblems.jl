@@ -107,7 +107,15 @@ function OptimalControlProblems.glider(
     init = (state=xinit, control=uinit, variable=tfinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp, description...; init=init, grid_size=N, disc_method=:trapeze, kwargs...)
+        docp = direct_transcription(
+        ocp, 
+        description...; 
+        lagrange_to_mayer=false,
+        init=init, 
+        grid_size=N, 
+        disc_method=:trapeze, 
+        kwargs...
+    )
 
     return docp
 end
