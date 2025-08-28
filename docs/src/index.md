@@ -15,6 +15,15 @@ using Pkg
 Pkg.add("OptimalControlProblems")
 ```
 
+## Credits (not exhaustive!)
+
+- [Nico77310](https://github.com/Nico77310)
+- [0Yassine0](https://github.com/0Yassine0)
+- [frapac](https://github.com/frapac)
+- [BaptisteCbl](https://github.com/BaptisteCbl)
+- [COPS: Large-Scale Optimization Problems](https://www.mcs.anl.gov/~more/cops) and [COPSBenchmark.jl](github.com/MadNLP/COPSBenchmark.jl)
+- [BOCOP - A collection of examples](https://project.inria.fr/bocop/files/2017/05/Examples-BOCOP.pdf)
+
 ## Reproducibility
 
 ```@raw html
