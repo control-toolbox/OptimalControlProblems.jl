@@ -28,7 +28,9 @@ julia> docp = OptimalControlProblems.chain(OptimalControlBackend(); N=100);
 - Formulation inspired by OptimalControl approach to variational problems and chain equilibrium.
 - Original problem source: [BOCOP repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.chain(::OptimalControlBackend; N::Int=steps_number_data(:chain))
+function OptimalControlProblems.chain(
+    ::OptimalControlBackend; N::Int=steps_number_data(:chain)
+)
 
     # parameters
     L = 4

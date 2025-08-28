@@ -27,7 +27,9 @@ julia> docp = OptimalControlProblems.bioreactor(OptimalControlBackend(); N=100);
 
 - BOCOP repository: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
-function OptimalControlProblems.bioreactor(::OptimalControlBackend; N::Int=steps_number_data(:bioreactor))
+function OptimalControlProblems.bioreactor(
+    ::OptimalControlBackend; N::Int=steps_number_data(:bioreactor)
+)
 
     # METHANE PROBLEM
     # μ2 according to growth model

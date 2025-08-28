@@ -27,7 +27,9 @@ julia> docp = OptimalControlProblems.insurance(OptimalControlBackend(); N=500);
 
 - Problem formulation available at [Bocop repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.insurance(::OptimalControlBackend; N::Int=steps_number_data(:insurance))
+function OptimalControlProblems.insurance(
+    ::OptimalControlBackend; N::Int=steps_number_data(:insurance)
+)
 
     # parameters
     tf = final_time_data(:insurance)

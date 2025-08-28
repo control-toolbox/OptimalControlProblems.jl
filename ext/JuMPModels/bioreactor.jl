@@ -30,7 +30,9 @@ julia> model = OptimalControlProblems.bioreactor(JuMPBackend(); N=100)
 
 - [control-toolbox/bocop](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.bioreactor(::JuMPBackend; N::Int=steps_number_data(:bioreactor))
+function OptimalControlProblems.bioreactor(
+    ::JuMPBackend; N::Int=steps_number_data(:bioreactor)
+)
 
     # parameters
     β = 1

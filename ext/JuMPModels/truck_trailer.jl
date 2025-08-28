@@ -27,7 +27,9 @@ julia> model = OptimalControlProblems.truck_trailer(JuMPBackend(); N=100)
 
 - Problem formulation available at: https://arxiv.org/pdf/2303.16746
 """
-function OptimalControlProblems.truck_trailer(::JuMPBackend; N::Int=steps_number_data(:truck_trailer))
+function OptimalControlProblems.truck_trailer(
+    ::JuMPBackend; N::Int=steps_number_data(:truck_trailer)
+)
 
     # parameters
     data=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2]

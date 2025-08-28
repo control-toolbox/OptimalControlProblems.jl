@@ -23,7 +23,9 @@ julia> using OptimalControlProblems
 julia> docp = OptimalControlProblems.quadrotor(OptimalControlBackend(); N=50);
 ```
 """
-function OptimalControlProblems.quadrotor(::OptimalControlBackend; N::Int=steps_number_data(:quadrotor))
+function OptimalControlProblems.quadrotor(
+    ::OptimalControlBackend; N::Int=steps_number_data(:quadrotor)
+)
 
     # parameters
     g = 9.81

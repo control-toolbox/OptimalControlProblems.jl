@@ -24,7 +24,9 @@ julia> using OptimalControlProblems
 julia> docp = OptimalControlProblems.space_shuttle(OptimalControlBackend(); N=500);
 ```
 """
-function OptimalControlProblems.space_shuttle(::OptimalControlBackend; N::Int=steps_number_data(:space_shuttle))
+function OptimalControlProblems.space_shuttle(
+    ::OptimalControlBackend; N::Int=steps_number_data(:space_shuttle)
+)
 
     ## Global variables
     w = 203000.0  # weight (lb)

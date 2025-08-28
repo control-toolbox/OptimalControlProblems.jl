@@ -23,7 +23,9 @@ julia> using OptimalControlProblems
 julia> docp = OptimalControlProblems.rocket(OptimalControlBackend(); N=500);
 ```
 """
-function OptimalControlProblems.rocket(::OptimalControlBackend; N::Int=steps_number_data(:rocket))
+function OptimalControlProblems.rocket(
+    ::OptimalControlBackend; N::Int=steps_number_data(:rocket)
+)
 
     # parameters
     h0 = 1

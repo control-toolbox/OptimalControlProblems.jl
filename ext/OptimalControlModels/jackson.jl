@@ -27,7 +27,9 @@ julia> docp = OptimalControlProblems.jackson(OptimalControlBackend(); N=500);
 
 - Problem formulation available at [Bocop repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.jackson(::OptimalControlBackend; N::Int=steps_number_data(:jackson))
+function OptimalControlProblems.jackson(
+    ::OptimalControlBackend; N::Int=steps_number_data(:jackson)
+)
 
     # parameters
     tf = final_time_data(:jackson)
