@@ -89,7 +89,15 @@ function OptimalControlProblems.bioreactor(
     init = (state=[50, 50, 50], control=0.5)
 
     # NLPModel + DOCP
-    docp = direct_transcription(ocp, description...; init=init, grid_size=N, disc_method=:trapeze, kwargs...)
+    docp = direct_transcription(
+        ocp, 
+        description...; 
+        lagrange_to_mayer=false,
+        init=init, 
+        grid_size=N, 
+        disc_method=:trapeze, 
+        kwargs...
+    )
 
     return docp
 end
