@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Rocket · OptimalControlProblems.jl</title><meta name="title" content="Rocket · OptimalControlProblems.jl"/><meta property="og:title" content="Rocket · OptimalControlProblems.jl"/><meta property="twitter:title" content="Rocket · OptimalControlProblems.jl"/><meta name="description" content="Documentation for OptimalControlProblems.jl."/><meta property="og:description" content="Documentation for OptimalControlProblems.jl."/><meta property="twitter:description" content="Documentation for OptimalControlProblems.jl."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script><link href="https://control-toolbox.org/assets/css/documentation.css" rel="stylesheet" type="text/css"/><script src="https://control-toolbox.org/assets/js/documentation.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../index.html">OptimalControlProblems.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../index.html">Getting Started</a></li><li><span class="tocitem">Problems</span><ul><li><a class="tocitem" href="../problems-introduction.html">Introduction</a></li><li><input class="collapse-toggle" id="menuitem-2-2" type="checkbox" checked/><label class="tocitem" for="menuitem-2-2"><span class="docs-label">List of the problems</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="beam.html">Beam</a></li><li><a class="tocitem" href="bioreactor.html">Bioreactor</a></li><li><a class="tocitem" href="cart_pendulum.html">Cart pendulum</a></li><li><a class="tocitem" href="chain.html">Chain</a></li><li><a class="tocitem" href="dielectrophoretic_particle.html">Dielectrophoretic particle</a></li><li><a class="tocitem" href="double_oscillator.html">Double oscillator</a></li><li><a class="tocitem" href="ducted_fan.html">Ducted fan</a></li><li><a class="tocitem" href="electric_vehicle.html">Electric vehicle</a></li><li><a class="tocitem" href="glider.html">Glider</a></li><li><a class="tocitem" href="insurance.html">Insurance</a></li><li><a class="tocitem" href="jackson.html">Jackson</a></li><li><a class="tocitem" href="moonlander.html">Moonlander</a></li><li><a class="tocitem" href="quadrotor.html">Quadrotor</a></li><li><a class="tocitem" href="robbins.html">Robbins</a></li><li><a class="tocitem" href="robot.html">Robot</a></li><li class="is-active"><a class="tocitem" href="rocket.html">Rocket</a><ul class="internal"><li><a class="tocitem" href="#Packages"><span>Packages</span></a></li><li><a class="tocitem" href="#OptimalControl-model"><span>OptimalControl model</span></a></li><li><a class="tocitem" href="#JuMP-model"><span>JuMP model</span></a></li><li><a class="tocitem" href="#Initial-guess"><span>Initial guess</span></a></li><li><a class="tocitem" href="#Numerical-comparison"><span>Numerical comparison</span></a></li></ul></li><li><a class="tocitem" href="space_shuttle.html">Space shuttle</a></li><li><a class="tocitem" href="steering.html">Steering</a></li><li><a class="tocitem" href="truck_trailer.html">Truck trailer</a></li><li><a class="tocitem" href="vanderpol.html">Vanderpol</a></li></ul></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../tutorial-get.html">How to get a problem</a></li><li><a class="tocitem" href="../tutorial-solve.html">How to solve a problem</a></li></ul></li><li><span class="tocitem">Developers</span><ul><li><a class="tocitem" href="../dev-add.html">How to add a problem</a></li><li><a class="tocitem" href="../dev-api.html">API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Problems</a></li><li><a class="is-disabled">List of the problems</a></li><li class="is-active"><a href="rocket.html">Rocket</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="rocket.html">Rocket</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/control-toolbox/OptimalControlProblems.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/control-toolbox/OptimalControlProblems.jl/blob/main/docs/src/problems/rocket.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Rocket"><a class="docs-heading-anchor" href="#Rocket">Rocket</a><a id="Rocket-1"></a><a class="docs-heading-anchor-permalink" href="#Rocket" title="Permalink"></a></h1><p>This problem models the <strong>maximisation of the final altitude of a vertically launched rocket</strong>, a classical example in optimal control theory with <strong>singular arcs</strong> (see Bryson [7, pp. 392–394]).   The rocket dynamics involve thrust, drag, gravity, and fuel consumption.</p><h3 id="System-Description"><a class="docs-heading-anchor" href="#System-Description">System Description</a><a id="System-Description-1"></a><a class="docs-heading-anchor-permalink" href="#System-Description" title="Permalink"></a></h3><p>The state variables are:</p><p class="math-container">\[x = (h, v, m)\]</p><ul><li><p class="math-container">\[h\]</p>: altitude  </li><li><p class="math-container">\[v\]</p>: vertical velocity  </li><li><p class="math-container">\[m\]</p>: mass  </li></ul><p>The control variable is:</p><p class="math-container">\[u = T\]</p><ul><li><p class="math-container">\[T\]</p>: rocket thrust  </li></ul><h3 id="Dynamics"><a class="docs-heading-anchor" href="#Dynamics">Dynamics</a><a id="Dynamics-1"></a><a class="docs-heading-anchor-permalink" href="#Dynamics" title="Permalink"></a></h3><p>The equations of motion are:</p><p class="math-container">\[\dot{h} = v\]</p><p class="math-container">\[\dot{v} = \frac{T - D(h, v) - m g(h)}{m}\]</p><p class="math-container">\[\dot{m} = -\frac{T}{c}\]</p><p>where  </p><ul><li><strong>Drag</strong>:</li></ul><p class="math-container">\[D(h, v) = D_c \, v^2 \exp\!\left(-h_c \, \frac{h - h_0}{h_0}\right)\]</p><ul><li><strong>Gravity</strong>:</li></ul><p class="math-container">\[g(h) = g_0 \left(\frac{h_0}{h}\right)^2\]</p><ul><li><strong>Fuel constant</strong>:</li></ul><p class="math-container">\[c = \tfrac{1}{2}\sqrt{g_0 h_0}\]</p><h3 id="Constraints"><a class="docs-heading-anchor" href="#Constraints">Constraints</a><a id="Constraints-1"></a><a class="docs-heading-anchor-permalink" href="#Constraints" title="Permalink"></a></h3><ul><li><strong>Control constraints</strong>:</li></ul><p class="math-container">\[0 \leq T(t) \leq T_{\max}\]</p><p>with  </p><p class="math-container">\[T_{\max} = T_c \, m_0 g_0\]</p><ul><li><strong>State constraints</strong>:</li></ul><p class="math-container">\[h(t) \geq h_0\]</p><p class="math-container">\[v(t) \geq v_0\]</p><p class="math-container">\[m_f \leq m(t) \leq m_0\]</p><ul><li><strong>Initial conditions</strong>:</li></ul><p class="math-container">\[h(0) = h_0, \quad v(0) = v_0, \quad m(0) = m_0\]</p><ul><li><strong>Final condition</strong>:</li></ul><p class="math-container">\[m(T) = m_f = m_c m_0\]</p><h3 id="Objective"><a class="docs-heading-anchor" href="#Objective">Objective</a><a id="Objective-1"></a><a class="docs-heading-anchor-permalink" href="#Objective" title="Permalink"></a></h3><p>The objective is to <strong>maximise the final altitude</strong> <span>$h(T)$</span>:</p><p class="math-container">\[J = -h(T) \to \min\]</p><h3 id="Parameters"><a class="docs-heading-anchor" href="#Parameters">Parameters</a><a id="Parameters-1"></a><a class="docs-heading-anchor-permalink" href="#Parameters" title="Permalink"></a></h3><p>For the standard nondimensionalised version of the problem:</p><p class="math-container">\[h_0 = 1, \quad v_0 = 0, \quad m_0 = 1, \quad g_0 = 1\]</p><p class="math-container">\[T_{\max} = 3.5 g_0 m_0, \quad D_c = \tfrac{1}{2} v_c \tfrac{m_0}{g_0}, \quad c = \tfrac{1}{2}\sqrt{g_0 h_0}\]</p><p>with  </p><p class="math-container">\[h_c = 500, \quad v_c = 620, \quad m_c = 0.6\]</p><h3 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h3><ul><li>Bryson, A. E. (1999). <em>Dynamic Optimization</em>. Addison Wesley Longman. (pp. 392–394)  </li><li>More, J., Garbow, B., Hillstrom, K., &amp; Watson, L. (2001). <em>COPS: Constrained Optimization Problem Set</em> (COPS3). Argonne National Laboratory. Retrieved from https://www.mcs.anl.gov/~more/cops/cops3.pdf  </li></ul><h2 id="Packages"><a class="docs-heading-anchor" href="#Packages">Packages</a><a id="Packages-1"></a><a class="docs-heading-anchor-permalink" href="#Packages" title="Permalink"></a></h2><p>Import all necessary packages and define DataFrames to store information about the problem and resolution results.</p><pre><code class="language-julia hljs">using OptimalControlProblems    # to access the Beam model
+using OptimalControl            # to import the OptimalControl model
+using NLPModelsIpopt            # to solve the model with Ipopt
+import DataFrames: DataFrame    # to store data
+using NLPModels                 # to retrieve data from the NLP solution
+using Plots                     # to plot the trajectories
+using Plots.PlotMeasures        # for leftmargin, bottommargin
+using JuMP                      # to import the JuMP model
+using Ipopt                     # to solve the JuMP model with Ipopt
+
+data_pb = DataFrame(            # to store data about the problem
+    Problem=Symbol[],
+    Grid_Size=Int[],
+    Variables=Int[],
+    Constraints=Int[],
+)
+
+data_re = DataFrame(            # to store data about the resolutions
+    Model=Symbol[],
+    Flag=Any[],
+    Iterations=Int[],
+    Objective=Float64[],
+)</code></pre><h2 id="OptimalControl-model"><a class="docs-heading-anchor" href="#OptimalControl-model">OptimalControl model</a><a id="OptimalControl-model-1"></a><a class="docs-heading-anchor-permalink" href="#OptimalControl-model" title="Permalink"></a></h2><h3 id="Solve-the-problem"><a class="docs-heading-anchor" href="#Solve-the-problem">Solve the problem</a><a id="Solve-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem" title="Permalink"></a></h3><p>Import the OptimalControl problem and solve it to obtain the solution.</p><pre><code class="language-julia hljs"># import model
+docp = rocket(OptimalControlBackend())
+nlp_oc = nlp_model(docp)
+
+# solve
+nlp_sol = NLPModelsIpopt.ipopt(
+    nlp_oc;
+    print_level=4,
+    tol=1e-8,
+    mu_strategy=&quot;adaptive&quot;,
+    sb=&quot;yes&quot;,
+)
+
+# build an optimal control solution
+ocp_sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers, docp_solution=nlp_sol)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:     2005
+                     variables with only lower bounds:     1003
+                variables with lower and upper bounds:     1002
+                     variables with only upper bounds:        0
+Total number of equality constraints.................:     1504
+Total number of inequality constraints...............:        0
+        inequality constraints with only lower bounds:        0
+   inequality constraints with lower and upper bounds:        0
+        inequality constraints with only upper bounds:        0
+
+
+Number of Iterations....: 21
+
+                                   (scaled)                 (unscaled)
+Objective...............:  -1.0128367166830150e+00   -1.0128367166830150e+00
+Dual infeasibility......:   1.3598083351625065e-09    1.3598083351625065e-09
+Constraint violation....:   1.5371387496188049e-09    1.5371387496188049e-09
+Variable bound violation:   2.5990741747988341e-36    2.5990741747988341e-36
+Complementarity.........:   1.9466553628786356e-11    1.9466553628786356e-11
+Overall NLP error.......:   1.5371387496188049e-09    1.5371387496188049e-09
+
+
+Number of objective function evaluations             = 22
+Number of objective gradient evaluations             = 22
+Number of equality constraint evaluations            = 22
+Number of inequality constraint evaluations          = 0
+Number of equality constraint Jacobian evaluations   = 22
+Number of inequality constraint Jacobian evaluations = 0
+Number of Lagrangian Hessian evaluations             = 21
+Total seconds in IPOPT                               = 1.988
+
+EXIT: Optimal Solution Found.</code></pre><p>Compute state, control, objective, and iteration data for comparison:</p><pre><code class="language-julia hljs">t_oc = time_grid(ocp_sol)
+x_oc = state(ocp_sol).(t_oc)
+u_oc = control(ocp_sol).(t_oc)
+o_oc = objective(ocp_sol)
+v_oc = variable(ocp_sol)
+i_oc = nlp_sol.iter</code></pre><h3 id="Store-and-print-the-data"><a class="docs-heading-anchor" href="#Store-and-print-the-data">Store and print the data</a><a id="Store-and-print-the-data-1"></a><a class="docs-heading-anchor-permalink" href="#Store-and-print-the-data" title="Permalink"></a></h3><p>Store the following data about the problem:</p><pre><code class="language-julia hljs">push!(data_pb,
+    (
+        Problem=:rocket,
+        Grid_Size=metadata[:rocket][:N],
+        Variables=get_nvar(nlp_oc),
+        Constraints=get_ncon(nlp_oc),
+    )
+)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Problem</th><th style = "text-align: left;">Grid_Size</th><th style = "text-align: left;">Variables</th><th style = "text-align: left;">Constraints</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">rocket</td><td style = "text-align: right;">500</td><td style = "text-align: right;">2005</td><td style = "text-align: right;">1504</td></tr></tbody></table></div><p>And store the following data about the resolution:</p><pre><code class="language-julia hljs">push!(data_re,
+    (
+        Model=:OptimalControl,
+        Flag=nlp_sol.status,
+        Iterations=nlp_sol.iter,
+        Objective=objective(ocp_sol),
+    )
+)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">21</td><td style = "text-align: right;">-1.01284</td></tr></tbody></table></div><h3 id="Plot-the-solution"><a class="docs-heading-anchor" href="#Plot-the-solution">Plot the solution</a><a id="Plot-the-solution-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution" title="Permalink"></a></h3><p>Visualise states, costates, and controls for the OptimalControl solution:</p><pre><code class="language-julia hljs">x_vars = metadata[:rocket][:state_name]
+u_vars = metadata[:rocket][:control_name]
+
+n = length(x_vars) # number of states
+m = length(u_vars) # number of controls
+
+plt = plot(
+    ocp_sol;
+    state_style=(color=1,),
+    costate_style=(color=1, legend=:none),
+    control_style=(color=1, legend=:none),
+    path_style=(color=1, legend=:none),
+    dual_style=(color=1, legend=:none),
+    size=(816, 240*(n+m)),
+    label=&quot;OptimalControl&quot;,
+    leftmargin=20mm,
+)
+for i in 2:n
+    plot!(plt[i]; legend=:none)
+end</code></pre><img src="rocket-51907531.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
+nlp_jp = rocket(JuMPBackend())
+
+# solve
+set_optimizer(nlp_jp, Ipopt.Optimizer)
+set_optimizer_attribute(nlp_jp, &quot;print_level&quot;, 4)
+set_optimizer_attribute(nlp_jp, &quot;tol&quot;, 1e-8)
+set_optimizer_attribute(nlp_jp, &quot;mu_strategy&quot;, &quot;adaptive&quot;)
+set_optimizer_attribute(nlp_jp, &quot;linear_solver&quot;, &quot;mumps&quot;)
+set_optimizer_attribute(nlp_jp, &quot;sb&quot;, &quot;yes&quot;)
+optimize!(nlp_jp)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:     2005
+                     variables with only lower bounds:     1003
+                variables with lower and upper bounds:     1002
+                     variables with only upper bounds:        0
+Total number of equality constraints.................:     1504
+Total number of inequality constraints...............:        0
+        inequality constraints with only lower bounds:        0
+   inequality constraints with lower and upper bounds:        0
+        inequality constraints with only upper bounds:        0
+
+
+Number of Iterations....: 21
+
+                                   (scaled)                 (unscaled)
+Objective...............:  -1.0128367166830152e+00   -1.0128367166830152e+00
+Dual infeasibility......:   1.3598086942497593e-09    1.3598086942497593e-09
+Constraint violation....:   1.5371387773743805e-09    1.5371387773743805e-09
+Variable bound violation:   3.1328491429696232e-37    3.1328491429696232e-37
+Complementarity.........:   1.9466553752252478e-11    1.9466553752252478e-11
+Overall NLP error.......:   1.5371387773743805e-09    1.5371387773743805e-09
+
+
+Number of objective function evaluations             = 22
+Number of objective gradient evaluations             = 22
+Number of equality constraint evaluations            = 22
+Number of inequality constraint evaluations          = 0
+Number of equality constraint Jacobian evaluations   = 22
+Number of inequality constraint Jacobian evaluations = 0
+Number of Lagrangian Hessian evaluations             = 21
+Total seconds in IPOPT                               = 0.144
+
+EXIT: Optimal Solution Found.</code></pre><p>For the numerical comparison, define:</p><pre><code class="language-julia hljs">t_jp = time_grid(:rocket, nlp_jp)
+x_jp = state(:rocket, nlp_jp).(t_jp)
+u_jp = control(:rocket, nlp_jp).(t_jp)
+o_jp = objective_value(nlp_jp)
+v_jp = variable(:rocket, nlp_jp)
+i_jp = barrier_iterations(nlp_jp)</code></pre><h3 id="Store-and-print-the-data-2"><a class="docs-heading-anchor" href="#Store-and-print-the-data-2">Store and print the data</a><a class="docs-heading-anchor-permalink" href="#Store-and-print-the-data-2" title="Permalink"></a></h3><p>Store the results of the resolution:</p><pre><code class="language-julia hljs">push!(data_re,
+    (
+        Model=:JuMP,
+        Flag=termination_status(nlp_jp),
+        Iterations=barrier_iterations(nlp_jp),
+        Objective=objective_value(nlp_jp),
+    )
+)</code></pre><div><div style = "float: left;"><span>2×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">21</td><td style = "text-align: right;">-1.01284</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">JuMP</td><td style = "text-align: left;">LOCALLY_SOLVED</td><td style = "text-align: right;">21</td><td style = "text-align: right;">-1.01284</td></tr></tbody></table></div><h3 id="Plot-the-solution-2"><a class="docs-heading-anchor" href="#Plot-the-solution-2">Plot the solution</a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution-2" title="Permalink"></a></h3><p>Overlay the JuMP solution on the previous plots:</p><pre><code class="language-julia hljs">t = time_grid(:rocket, nlp_jp)     # t0, ..., tN = tf
+x = state(:rocket, nlp_jp)         # function of time
+u = control(:rocket, nlp_jp)       # function of time
+p = costate(:rocket, nlp_jp)       # function of time
+
+for i in 1:n # state
+    label = i == 1 ? &quot;JuMP&quot; : :none
+    plot!(plt[i], t, t -&gt; x(t)[i]; color=2, linestyle=:dash, label=label)
+end
+
+for i in 1:n # costate
+    plot!(plt[n+i], t, t -&gt; -p(t)[i]; color=2, linestyle=:dash, label=:none)
+end
+
+for i in 1:m # control
+    plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
+end</code></pre><img src="rocket-f0c557cf.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess can also be visualised by running the solver with <code>max_iter=0</code>.</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
+
+    # import OptimalControl model
+    docp = rocket(OptimalControlBackend())
+    nlp_oc = nlp_model(docp)
+
+    # solve
+    nlp_sol = NLPModelsIpopt.ipopt(
+        nlp_oc;
+        max_iter=0,
+        print_level=5,
+        tol=1e-8,
+        mu_strategy=&quot;adaptive&quot;,
+        sb=&quot;yes&quot;,
+    )
+
+    # build an optimal control solution
+    ocp_sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers, docp_solution=nlp_sol)
+
+    # plot the OptimalControl solution
+    plt = plot(
+        ocp_sol;
+        state_style=(color=1,),
+        costate_style=(color=1, legend=:none),
+        control_style=(color=1, legend=:none),
+        path_style=(color=1, legend=:none),
+        dual_style=(color=1, legend=:none),
+        size=(816, 220*(n+m)),
+        label=&quot;OptimalControl&quot;,
+        leftmargin=20mm,
+    )
+    for i in 2:n
+        plot!(plt[i]; legend=:none)
+    end
+
+    # import JuMP model
+    nlp_jp = rocket(JuMPBackend())
+
+    # solve
+    set_optimizer(nlp_jp, Ipopt.Optimizer)
+    set_optimizer_attribute(nlp_jp, &quot;max_iter&quot;, 0)
+    set_optimizer_attribute(nlp_jp, &quot;print_level&quot;, 5)
+    set_optimizer_attribute(nlp_jp, &quot;tol&quot;, 1e-8)
+    set_optimizer_attribute(nlp_jp, &quot;mu_strategy&quot;, &quot;adaptive&quot;)
+    set_optimizer_attribute(nlp_jp, &quot;linear_solver&quot;, &quot;mumps&quot;)
+    set_optimizer_attribute(nlp_jp, &quot;sb&quot;, &quot;yes&quot;)
+    optimize!(nlp_jp)
+
+    # plot
+    t = time_grid(:rocket, nlp_jp)     # t0, ..., tN = tf
+    x = state(:rocket, nlp_jp)         # function of time
+    u = control(:rocket, nlp_jp)       # function of time
+    p = costate(:rocket, nlp_jp)       # function of time
+
+    for i in 1:n # state
+        label = i == 1 ? &quot;JuMP&quot; : :none
+        plot!(plt[i], t, t -&gt; x(t)[i]; color=2, linestyle=:dash, label=label)
+    end
+
+    for i in 1:n # costate
+        plot!(plt[n+i], t, t -&gt; -p(t)[i]; color=2, linestyle=:dash, label=:none)
+    end
+
+    for i in 1:m # control
+        plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
+    end
+
+    return plt
+end</code></pre></details>
+</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="rocket-dc542d96.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Compare OptimalControl and JuMP solutions in terms of iterations, <span>$L^2$</span> norms, and objective values.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = metadata[:rocket][:variable_name]
+
+function L2_norm(T, X)
+    # T and X are supposed to be one dimensional
+    s = 0.0
+    for i in 1:(length(T) - 1)
+        s += 0.5 * (X[i]^2 + X[i + 1]^2) * (T[i + 1]-T[i])
+    end
+    return √(s)
+end
+
+function numerical_comparison()
+
+    println(&quot;┌─ &quot;, &quot;rocket&quot;)
+    println(&quot;│&quot;)
+
+    # number of iterations
+    println(&quot;├─  Number of iterations&quot;)
+    println(&quot;│&quot;)
+    println(&quot;│     OptimalControl : &quot;, i_oc)
+    println(&quot;│     JuMP           : &quot;, i_jp)
+    println(&quot;│&quot;)
+
+    # state
+    for i in eachindex(x_vars)
+        xi_oc = [x_oc[k][i] for k in eachindex(t_oc)]
+        xi_jp = [x_jp[k][i] for k in eachindex(t_jp)]
+        L2_oc = L2_norm(t_oc, xi_oc)
+        L2_jp = L2_norm(t_oc, xi_jp)
+        L2_ae = L2_norm(t_oc, xi_oc-xi_jp)
+        L2_re = L2_ae/(0.5*(L2_oc + L2_jp))
+
+        println(&quot;├─  State $(x_vars[i]) (L2 norm)&quot;)
+        println(&quot;│&quot;)
+        println(&quot;│     OptimalControl : &quot;, L2_oc)
+        println(&quot;│     JuMP           : &quot;, L2_jp)
+        println(&quot;│     Absolute error : &quot;, L2_ae)
+        println(&quot;│     Relative error : &quot;, L2_re)
+        println(&quot;│&quot;)
+    end
+
+    # control
+    for i in eachindex(u_vars)
+        ui_oc = [u_oc[k][i] for k in eachindex(t_oc)]
+        ui_jp = [u_jp[k][i] for k in eachindex(t_jp)]
+        L2_oc = L2_norm(t_oc, ui_oc)
+        L2_jp = L2_norm(t_oc, ui_jp)
+        L2_ae = L2_norm(t_oc, ui_oc-ui_jp)
+        L2_re = L2_ae/(0.5*(L2_oc + L2_jp))
+
+        println(&quot;├─  Control $(u_vars[i]) (L2 norm)&quot;)
+        println(&quot;│&quot;)
+        println(&quot;│     OptimalControl : &quot;, L2_oc)
+        println(&quot;│     JuMP           : &quot;, L2_jp)
+        println(&quot;│     Absolute error : &quot;, L2_ae)
+        println(&quot;│     Relative error : &quot;, L2_re)
+        println(&quot;│&quot;)
+    end
+
+    # control
+    if !isnothing(v_vars)
+        for i in eachindex(v_vars)
+            vi_oc = v_oc[i]
+            vi_jp = v_jp[i]
+            vi_ae = abs(vi_oc-vi_jp)
+            vi_re = vi_ae/(0.5*(abs(vi_oc) + abs(vi_jp)))
+
+            println(&quot;├─  Variable $(v_vars[i])&quot;)
+            println(&quot;│&quot;)
+            println(&quot;│     OptimalControl : &quot;, vi_oc)
+            println(&quot;│     JuMP           : &quot;, vi_jp)
+            println(&quot;│     Absolute error : &quot;, vi_ae)
+            println(&quot;│     Relative error : &quot;, vi_re)
+            println(&quot;│&quot;)
+        end
+    end
+
+    # objective
+    o_ae = abs(o_oc-o_jp)
+    o_re = o_ae/(0.5*(abs(o_oc) + abs(o_jp)))
+
+    println(&quot;├─  objective&quot;)
+    println(&quot;│&quot;)
+    println(&quot;│     OptimalControl : &quot;, o_oc)
+    println(&quot;│     JuMP           : &quot;, o_jp)
+    println(&quot;│     Absolute error : &quot;, o_ae)
+    println(&quot;│     Relative error : &quot;, o_re)
+    println(&quot;│&quot;)
+    println(&quot;└─&quot;)
+
+    return nothing
+end</code></pre></details>
+</br><pre><code class="language-julia hljs">numerical_comparison()</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">┌─ rocket
+│
+├─  Number of iterations
+│
+│     OptimalControl : 21
+│     JuMP           : 21
+│
+├─  State h (L2 norm)
+│
+│     OptimalControl : 0.4491155170440341
+│     JuMP           : 0.44911551704403424
+│     Absolute error : 2.260716660539069e-16
+│     Relative error : 5.03370864453435e-16
+│
+├─  State v (L2 norm)
+│
+│     OptimalControl : 0.032887459968316206
+│     JuMP           : 0.032887459968317254
+│     Absolute error : 6.027476707459623e-15
+│     Relative error : 1.8327583563055346e-13
+│
+├─  State m (L2 norm)
+│
+│     OptimalControl : 0.3021737337505838
+│     JuMP           : 0.3021737337505792
+│     Absolute error : 9.236903295566055e-15
+│     Relative error : 3.056818731700329e-14
+│
+├─  Control T (L2 norm)
+│
+│     OptimalControl : 0.7578843500093935
+│     JuMP           : 0.7578843500093733
+│     Absolute error : 9.187957384981266e-12
+│     Relative error : 1.2123165473554785e-11
+│
+├─  Variable tf
+│
+│     OptimalControl : 0.19884931255027233
+│     JuMP           : 0.1988493125502756
+│     Absolute error : 3.2751579226442118e-15
+│     Relative error : 1.6470551900028178e-14
+│
+├─  objective
+│
+│     OptimalControl : -1.012836716683015
+│     JuMP           : -1.0128367166830152
+│     Absolute error : 2.220446049250313e-16
+│     Relative error : 2.1923040631091578e-16
+│
+└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="robot.html">« Robot</a><a class="docs-footer-nextpage" href="space_shuttle.html">Space shuttle »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 28 August 2025 13:37">Thursday 28 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
