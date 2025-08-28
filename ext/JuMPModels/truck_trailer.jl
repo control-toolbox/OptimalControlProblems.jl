@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.truck_trailer(JuMPBackend(); N=100)
 - Problem formulation available at: https://arxiv.org/pdf/2303.16746
 """
 function OptimalControlProblems.truck_trailer(
-    ::JuMPBackend; N::Int=steps_number_data(:truck_trailer)
+    ::JuMPBackend, args...; N::Int=steps_number_data(:truck_trailer), kwargs...
 )
 
     # parameters
@@ -55,7 +55,7 @@ function OptimalControlProblems.truck_trailer(
     θ0_tf = π / 2
 
     # model
-    model = JuMP.Model()
+    model = JuMP.Model(args...; kwargs...)
 
     # state, control, variable (final time) and initial guess
     @variables(

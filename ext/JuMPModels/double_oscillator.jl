@@ -29,7 +29,7 @@ julia> model = OptimalControlProblems.double_oscillator(JuMPBackend(); N=200)
   IFAC-PapersOnLine, 51(2), 49–54.
 """
 function OptimalControlProblems.double_oscillator(
-    ::JuMPBackend; N::Int=steps_number_data(:double_oscillator)
+    ::JuMPBackend, args...; N::Int=steps_number_data(:double_oscillator), kwargs...
 )
 
     # parameters
@@ -41,7 +41,7 @@ function OptimalControlProblems.double_oscillator(
     tf = final_time_data(:double_oscillator)
 
     # model
-    model = Model()
+    model = JuMP.Model(args...; kwargs...)
 
     # state, control and initial guess
     @variables(

@@ -29,7 +29,7 @@ julia> model = OptimalControlProblems.ducted_fan(JuMPBackend(); N=100)
   Optimal Control Applications and Methods, 30(6), 537–561. [GP2009]
 """
 function OptimalControlProblems.ducted_fan(
-    ::JuMPBackend; N::Int=steps_number_data(:ducted_fan)
+    ::JuMPBackend, args...; N::Int=steps_number_data(:ducted_fan), kwargs...
 )
 
     # parameters
@@ -40,7 +40,7 @@ function OptimalControlProblems.ducted_fan(
     μ = 1000
 
     # model
-    model = Model()
+    model = JuMP.Model(args...; kwargs...)
 
     # state, control, variable (final time) and initial guess
     @variable(model, x₁[0:N], start = 0.1)

@@ -29,7 +29,7 @@ julia> docp = OptimalControlProblems.ducted_fan(OptimalControlBackend(); N=250);
 - Problem instance follows OptimalControl formulation for ducted fan trajectory optimisation.
 """
 function OptimalControlProblems.ducted_fan(
-    ::OptimalControlBackend; N::Int=steps_number_data(:ducted_fan)
+    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:ducted_fan), kwargs...
 )
 
     # parameters
@@ -96,7 +96,7 @@ function OptimalControlProblems.ducted_fan(
     init = (state=xinit, control=uinit, variable=varinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
+    docp = direct_transcription(ocp, description...; init=init, grid_size=N, disc_method=:trapeze, kwargs...)
 
     return docp
 end

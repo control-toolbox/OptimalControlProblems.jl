@@ -81,15 +81,14 @@ Depth = 1
 For each problem, additional data is provided in the [MetaData](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/MetaData) directory:
 
 ```@docs; canonical=false
-OptimalControlProblems.metadata
+metadata
 ```
 
-To list all metadata, use `OptimalControlProblems.metadata`.  
-To access the metadata of a specific problem, for example `chain`, run:
+To list all metadata, use `metadata`. To access the metadata of a specific problem, for example `chain`, run:
 
 ```@example main
 using OptimalControlProblems
-OptimalControlProblems.metadata[:chain]
+metadata[:chain]
 ```
 
 ## Problems characteristics
@@ -113,7 +112,7 @@ We detail below the characteristics of the optimal control problems (OCPs) and t
 
 ```@example main
 using NLPModels                 # to get the number of variables and constraints
-using DataFrames
+import DataFrames: DataFrame    # to store data
 using OptimalControl
 
 data_ocp = DataFrame(           # to store data of the OCPs
@@ -183,7 +182,7 @@ for problem in problems()
     )
 
     #
-    N = OptimalControlProblems.metadata[problem][:N] # get default number of steps
+    N = metadata[problem][:N] # get default number of steps
 
     push!(data_nlp,
         (

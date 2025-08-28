@@ -28,7 +28,7 @@ julia> docp = OptimalControlProblems.jackson(OptimalControlBackend(); N=500);
 - Problem formulation available at [Bocop repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
 function OptimalControlProblems.jackson(
-    ::OptimalControlBackend; N::Int=steps_number_data(:jackson)
+    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:jackson), kwargs...
 )
 
     # parameters
@@ -66,7 +66,7 @@ function OptimalControlProblems.jackson(
     init = (state=xinit, control=uinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
+    docp = direct_transcription(ocp, description...; init=init, grid_size=N, disc_method=:trapeze, kwargs...)
 
     return docp
 end

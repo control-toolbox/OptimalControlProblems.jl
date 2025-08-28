@@ -28,7 +28,7 @@ julia> docp = OptimalControlProblems.bioreactor(OptimalControlBackend(); N=100);
 - BOCOP repository: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.bioreactor(
-    ::OptimalControlBackend; N::Int=steps_number_data(:bioreactor)
+    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:bioreactor), kwargs...
 )
 
     # METHANE PROBLEM
@@ -89,7 +89,7 @@ function OptimalControlProblems.bioreactor(
     init = (state=[50, 50, 50], control=0.5)
 
     # NLPModel + DOCP
-    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
+    docp = direct_transcription(ocp, description...; init=init, grid_size=N, disc_method=:trapeze, kwargs...)
 
     return docp
 end

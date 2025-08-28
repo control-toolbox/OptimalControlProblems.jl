@@ -29,7 +29,7 @@ julia> model = OptimalControlProblems.space_shuttle(JuMPBackend(); N=200)
 - Problem formulation and tutorial available at: https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/
 """
 function OptimalControlProblems.space_shuttle(
-    ::JuMPBackend; N::Int=steps_number_data(:space_shuttle)
+    ::JuMPBackend, args...; N::Int=steps_number_data(:space_shuttle), kwargs...
 )
 
     ## Global variables
@@ -76,7 +76,7 @@ function OptimalControlProblems.space_shuttle(
     γ_t = deg2rad(-5)  # flight path angle (rad)
 
     # model
-    model = JuMP.Model()
+    model = JuMP.Model(args...; kwargs...)
 
     # state, control and variable (final time)
     @variables(

@@ -32,7 +32,7 @@ function generate_documentation(
     using OptimalControlProblems    # to access the Beam model
     using OptimalControl            # to import the OptimalControl model
     using NLPModelsIpopt            # to solve the model with Ipopt
-    using DataFrames                # to store data
+    import DataFrames: DataFrame    # to store data
     using NLPModels                 # to retrieve data from the NLP solution
     using Plots                     # to plot the trajectories
     using Plots.PlotMeasures        # for leftmargin, bottommargin
@@ -100,7 +100,7 @@ function generate_documentation(
     push!(data_pb,
         (
             Problem=:$PROBLEM,
-            Grid_Size=OptimalControlProblems.metadata[:$PROBLEM][:N],
+            Grid_Size=metadata[:$PROBLEM][:N],
             Variables=get_nvar(nlp_oc),
             Constraints=get_ncon(nlp_oc),
         )
@@ -125,8 +125,8 @@ function generate_documentation(
     Visualise states, costates, and controls for the OptimalControl solution:
 
     ```@example main
-    x_vars = OptimalControlProblems.metadata[:$PROBLEM][:state_name]
-    u_vars = OptimalControlProblems.metadata[:$PROBLEM][:control_name]
+    x_vars = metadata[:$PROBLEM][:state_name]
+    u_vars = metadata[:$PROBLEM][:control_name]
 
     n = length(x_vars) # number of states
     m = length(u_vars) # number of controls
@@ -319,7 +319,7 @@ function generate_documentation(
     ```
 
     ```@example main
-    v_vars = OptimalControlProblems.metadata[:$PROBLEM][:variable_name]
+    v_vars = metadata[:$PROBLEM][:variable_name]
 
     function L2_norm(T, X)
         # T and X are supposed to be one dimensional

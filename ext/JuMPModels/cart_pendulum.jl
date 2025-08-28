@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.cart_pendulum(JuMPBackend(); N=200)
 - [Cart–Pendulum Optimal Control Problem](https://arxiv.org/pdf/2303.16746)
 """
 function OptimalControlProblems.cart_pendulum(
-    ::JuMPBackend; N::Int=steps_number_data(:cart_pendulum)
+    ::JuMPBackend, args...; N::Int=steps_number_data(:cart_pendulum), kwargs...
 )
 
     # parameters
@@ -42,7 +42,7 @@ function OptimalControlProblems.cart_pendulum(
     max_v = 2
 
     # model
-    model = JuMP.Model()
+    model = JuMP.Model(args...; kwargs...)
 
     # variables and initial guess
     @variables(

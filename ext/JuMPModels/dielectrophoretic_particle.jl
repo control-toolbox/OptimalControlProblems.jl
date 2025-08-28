@@ -29,7 +29,7 @@ julia> model = OptimalControlProblems.dielectrophoretic_particle(JuMPBackend(); 
   IEEE Transactions on Automatic Control, 51(7), 1100–1114.
 """
 function OptimalControlProblems.dielectrophoretic_particle(
-    ::JuMPBackend; N::Int=steps_number_data(:dielectrophoretic_particle)
+    ::JuMPBackend, args...; N::Int=steps_number_data(:dielectrophoretic_particle), kwargs...
 )
 
     # parameters
@@ -39,7 +39,7 @@ function OptimalControlProblems.dielectrophoretic_particle(
     c = 1
 
     # model
-    model = JuMP.Model()
+    model = JuMP.Model(args...; kwargs...)
 
     # state, control and variable (final time)
     @variable(model, x[0:N], start = 1)

@@ -108,11 +108,11 @@ function comparison(; max_iter, test_name)
 
     # we loop over the problems
     for f in LIST_OF_PROBLEMS
-        N = OptimalControlProblems.metadata[f][:N] # get default N
-        x_vars = OptimalControlProblems.metadata[f][:state_name]
-        p_vars = OptimalControlProblems.metadata[f][:costate_name]
-        u_vars = OptimalControlProblems.metadata[f][:control_name]
-        v_vars = OptimalControlProblems.metadata[f][:variable_name]
+        N = metadata[f][:N] # get default N
+        x_vars = metadata[f][:state_name]
+        p_vars = metadata[f][:costate_name]
+        u_vars = metadata[f][:control_name]
+        v_vars = metadata[f][:variable_name]
 
         @testset "$(string(f)) ($(string(test_name)))" verbose=VERBOSE begin
             DEBUG && println("\n", "┌─ ", string(f), " (", string(test_name), ")")

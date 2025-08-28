@@ -24,7 +24,7 @@ julia> docp = OptimalControlProblems.robot(OptimalControlBackend(); N=250);
 ```
 """
 function OptimalControlProblems.robot(
-    ::OptimalControlBackend; N::Int=steps_number_data(:robot)
+    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:robot), kwargs...
 )
 
     # parameters
@@ -94,7 +94,7 @@ function OptimalControlProblems.robot(
     init = (state=xinit, control=uinit, variable=tf)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
+    docp = direct_transcription(ocp, description...; init=init, grid_size=N, disc_method=:trapeze, kwargs...)
 
     return docp
 end

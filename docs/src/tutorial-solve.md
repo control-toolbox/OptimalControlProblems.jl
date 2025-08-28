@@ -145,8 +145,8 @@ println("p(tf) = ", p(tf))
 We can add the state, costate, and control to the plot:
 
 ```@example main
-n = length(OptimalControlProblems.metadata[problem][:state_name])   # dimension of the state
-m = length(OptimalControlProblems.metadata[problem][:control_name]) # dimension of the control
+n = length(metadata[problem][:state_name])   # dimension of the state
+m = length(metadata[problem][:control_name]) # dimension of the control
 
 for i in 1:n # state
     plot!(plt[i], t, t -> x(t)[i]; color=2, linestyle=:dash, label=:none)
