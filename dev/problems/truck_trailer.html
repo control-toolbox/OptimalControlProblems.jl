@@ -46,7 +46,7 @@ nlp_sol = NLPModelsIpopt.ipopt(
 )
 
 # build an optimal control solution
-ocp_sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers, docp_solution=nlp_sol)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:     2011
+ocp_sol = build_ocp_solution(docp, nlp_sol)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:     2011
                      variables with only lower bounds:        0
                 variables with lower and upper bounds:     1207
                      variables with only upper bounds:        0
@@ -77,7 +77,7 @@ Number of inequality constraint evaluations          = 378
 Number of equality constraint Jacobian evaluations   = 295
 Number of inequality constraint Jacobian evaluations = 295
 Number of Lagrangian Hessian evaluations             = 293
-Total seconds in IPOPT                               = 6.489
+Total seconds in IPOPT                               = 6.658
 
 EXIT: Optimal Solution Found.</code></pre><p>Compute state, control, objective, and iteration data for comparison:</p><pre><code class="language-julia hljs">t_oc = time_grid(ocp_sol)
 x_oc = state(ocp_sol).(t_oc)
@@ -117,7 +117,7 @@ plt = plot(
 )
 for i in 2:n
     plot!(plt[i]; legend=:none)
-end</code></pre><img src="truck_trailer-749aa67b.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
+end</code></pre><img src="truck_trailer-5af8e30c.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
 nlp_jp = truck_trailer(JuMPBackend())
 
 # solve
@@ -167,7 +167,7 @@ Number of inequality constraint evaluations          = 451
 Number of equality constraint Jacobian evaluations   = 423
 Number of inequality constraint Jacobian evaluations = 423
 Number of Lagrangian Hessian evaluations             = 421
-Total seconds in IPOPT                               = 52.074
+Total seconds in IPOPT                               = 54.773
 
 EXIT: Optimal Solution Found.</code></pre><p>For the numerical comparison, define:</p><pre><code class="language-julia hljs">t_jp = time_grid(:truck_trailer, nlp_jp)
 x_jp = state(:truck_trailer, nlp_jp).(t_jp)
@@ -197,7 +197,7 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
-end</code></pre><img src="truck_trailer-a37651aa.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess can also be visualised by running the solver with <code>max_iter=0</code>.</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
+end</code></pre><img src="truck_trailer-4eb08209.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess can also be visualised by running the solver with <code>max_iter=0</code>.</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
 
     # import OptimalControl model
     docp = truck_trailer(OptimalControlBackend())
@@ -214,7 +214,7 @@ end</code></pre><img src="truck_trailer-a37651aa.svg" alt="Example block output"
     )
 
     # build an optimal control solution
-    ocp_sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers, docp_solution=nlp_sol)
+    ocp_sol = build_ocp_solution(docp, nlp_sol)
 
     # plot the OptimalControl solution
     plt = plot(
@@ -266,7 +266,7 @@ end</code></pre><img src="truck_trailer-a37651aa.svg" alt="Example block output"
 
     return plt
 end</code></pre></details>
-</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="truck_trailer-b8505a44.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Compare OptimalControl and JuMP solutions in terms of iterations, <span>$L^2$</span> norms, and objective values.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = metadata[:truck_trailer][:variable_name]
+</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="truck_trailer-5b71b2b8.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Compare OptimalControl and JuMP solutions in terms of iterations, <span>$L^2$</span> norms, and objective values.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = metadata[:truck_trailer][:variable_name]
 
 function L2_norm(T, X)
     # T and X are supposed to be one dimensional
@@ -442,4 +442,4 @@ end</code></pre></details>
 │     Absolute error : 1.6412671755006158e-7
 │     Relative error : 2.7709931220113807e-9
 │
-└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="steering.html">« Steering</a><a class="docs-footer-nextpage" href="vanderpol.html">Vanderpol »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 28 August 2025 14:07">Thursday 28 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="steering.html">« Steering</a><a class="docs-footer-nextpage" href="vanderpol.html">Vanderpol »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 28 August 2025 14:48">Thursday 28 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
