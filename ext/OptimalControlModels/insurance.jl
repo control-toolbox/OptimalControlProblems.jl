@@ -42,21 +42,19 @@ function OptimalControlProblems.insurance(
     σ = 0
     α = 4
 
+    # I: Insurance
+    # m: Expense
+    # R: Revenue
+    # H: Health
+    # U: Utility
+
     # Model
     ocp = @def begin
-        t ∈ [0, tf], time
-        x ∈ R³, state
-        u ∈ R⁵, control
-        P ∈ R, variable
 
-        #
-        I = x[1] # Insurance
-        m = x[2] # Expense
-        h = u[1]
-        R = u[2] # Revenue
-        H = u[3] # Health
-        U = u[4] # Utility
-        dUdR = u[5]
+        P ∈ R, variable
+        t ∈ [0, tf], time
+        x = (I, m, x₃) ∈ R³, state
+        u = (h, R, H, U, dUdR) ∈ R⁵, control
 
         # constraints
         0 ≤ I(t) ≤ 1.5
@@ -69,7 +67,7 @@ function OptimalControlProblems.insurance(
         0 ≤ P ≤ Inf
 
         x(0) == [0, 0.001, 0]
-        P - x[3](tf) == 0
+        P - x₃(tf) == 0
 
         ε = k * t / (tf - t + 1)
 
@@ -94,7 +92,7 @@ function OptimalControlProblems.insurance(
     end
 
     # Initial guess
-    xinit = [0.1, 0.1, 0.1]  # [I, m, x3]
+    xinit = [0.1, 0.1, 0.1]  # [I, m, x₃]
     uinit = [0.1, 0.1, 0.1, 0.1, 0.1]  # [h, R, H, U, dUdR]
     varinit = [0.1]  # [P]
     init = (state=xinit, control=uinit, variable=varinit)

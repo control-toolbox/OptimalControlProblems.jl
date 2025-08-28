@@ -3,7 +3,7 @@ $(TYPEDSIGNATURES)
 
 Constructs and returns a JuMP model for the **Insurance Optimal Control Problem**.  
 The model represents a simplified insurance management scenario where the objective is to optimise the utility function `U` over time, subject to capital accumulation dynamics and other constraints.  
-The system is discretised using `N` steps, and collocation constraints enforce the dynamics of the states `I`, `m`, and `x3`.
+The system is discretised using `N` steps, and collocation constraints enforce the dynamics of the states `I`, `m`, and `x₃`.
 
 # Arguments
 
@@ -51,7 +51,7 @@ function OptimalControlProblems.insurance(
         begin
             0 <= I[0:N] <= 1.5, (start = 0.1)
             0 <= m[0:N] <= 1.5, (start = 0.1)
-            0 <= x3[0:N] <= 1.5, (start = 0.1)
+            x₃[0:N], (start = 0.1)
             0 <= h[0:N] <= 25, (start = 0.1)
             0 <= R[0:N], (start = 0.1)
             0 <= H[0:N], (start = 0.1)
@@ -67,8 +67,8 @@ function OptimalControlProblems.insurance(
         begin
             I[0] == 0
             m[0] == 0.001
-            x3[0] == 0
-            P - x3[N] == 0
+            x₃[0] == 0
+            P - x₃[N] == 0
         end
     )
 
@@ -102,7 +102,7 @@ function OptimalControlProblems.insurance(
             # dynamics
             dI[i = 0:N], (1 - γ * t[i] * vprime[i] / dUdR[i]) * h[i]
             dm[i = 0:N], h[i]
-            dx3[i = 0:N], (1 + σ) * I[i] * fx[i]
+            dx₃[i = 0:N], (1 + σ) * I[i] * fx[i]
 
             # objective
             dc[i = 0:N], -U[i] * fx[i]
@@ -114,7 +114,7 @@ function OptimalControlProblems.insurance(
         begin
             ∂I[i = 1:N], I[i] == I[i - 1] + 0.5 * step * (dI[i] + dI[i - 1])
             ∂m[i = 1:N], m[i] == m[i - 1] + 0.5 * step * (dm[i] + dm[i - 1])
-            ∂x3[i = 1:N], x3[i] == x3[i - 1] + 0.5 * step * (dx3[i] + dx3[i - 1])
+            ∂x₃[i = 1:N], x₃[i] == x₃[i - 1] + 0.5 * step * (dx₃[i] + dx₃[i - 1])
         end
     )
 
