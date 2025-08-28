@@ -27,7 +27,9 @@ julia> model = OptimalControlProblems.cart_pendulum(JuMPBackend(); N=200)
 
 - [Cart–Pendulum Optimal Control Problem](https://arxiv.org/pdf/2303.16746)
 """
-function OptimalControlProblems.cart_pendulum(::JuMPBackend; N::Int=steps_number_data(:cart_pendulum))
+function OptimalControlProblems.cart_pendulum(
+    ::JuMPBackend; N::Int=steps_number_data(:cart_pendulum)
+)
 
     # parameters
     g = 9.81            # gravitation [m/s^2]

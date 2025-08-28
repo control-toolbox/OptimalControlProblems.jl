@@ -23,7 +23,9 @@ julia> using OptimalControlProblems
 julia> docp = OptimalControlProblems.steering(OptimalControlBackend(); N=500);
 ```
 """
-function OptimalControlProblems.steering(::OptimalControlBackend; N::Int=steps_number_data(:steering))
+function OptimalControlProblems.steering(
+    ::OptimalControlBackend; N::Int=steps_number_data(:steering)
+)
 
     # parameters
     a = 100

@@ -27,7 +27,9 @@ julia> docp = OptimalControlProblems.beam(OptimalControlBackend(); N=100);
 
 - BOCOP repository: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
-function OptimalControlProblems.beam(::OptimalControlBackend; N::Int=steps_number_data(:beam))
+function OptimalControlProblems.beam(
+    ::OptimalControlBackend; N::Int=steps_number_data(:beam)
+)
 
     #
     tf = final_time_data(:beam)

@@ -24,7 +24,9 @@ julia> using OptimalControlProblems
 julia> docp = OptimalControlProblems.robbins(OptimalControlBackend(); N=500);
 ```
 """
-function OptimalControlProblems.robbins(::OptimalControlBackend; N::Int=steps_number_data(:robbins))
+function OptimalControlProblems.robbins(
+    ::OptimalControlBackend; N::Int=steps_number_data(:robbins)
+)
 
     # parameters
     tf = final_time_data(:robbins)

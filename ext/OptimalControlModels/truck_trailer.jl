@@ -23,7 +23,9 @@ julia> using OptimalControlProblems
 julia> docp = OptimalControlProblems.truck_trailer(OptimalControlBackend(); N=200);
 ```
 """
-function OptimalControlProblems.truck_trailer(::OptimalControlBackend; N::Int=steps_number_data(:truck_trailer))
+function OptimalControlProblems.truck_trailer(
+    ::OptimalControlBackend; N::Int=steps_number_data(:truck_trailer)
+)
 
     # parameters
     data=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2]

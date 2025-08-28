@@ -28,7 +28,9 @@ julia> docp = OptimalControlProblems.glider(OptimalControlBackend(); N=500);
 - Original formulation from MadNLP/COPSBenchmark.
 - Problem inspired by glider dynamics with thermal updraft and lift modelling.
 """
-function OptimalControlProblems.glider(::OptimalControlBackend; N::Int=steps_number_data(:glider))
+function OptimalControlProblems.glider(
+    ::OptimalControlBackend; N::Int=steps_number_data(:glider)
+)
 
     # parameters
     x_0 = 0

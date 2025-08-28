@@ -23,7 +23,9 @@ julia> using OptimalControlProblems
 julia> docp = OptimalControlProblems.vanderpol(OptimalControlBackend(); N=500);
 ```
 """
-function OptimalControlProblems.vanderpol(::OptimalControlBackend; N::Int=steps_number_data(:vanderpol))
+function OptimalControlProblems.vanderpol(
+    ::OptimalControlBackend; N::Int=steps_number_data(:vanderpol)
+)
 
     # parameters
     tf = final_time_data(:vanderpol)

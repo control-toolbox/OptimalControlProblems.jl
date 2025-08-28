@@ -28,7 +28,9 @@ julia> model = OptimalControlProblems.dielectrophoretic_particle(JuMPBackend(); 
 - [CPR2006] Chang, D. E., Petit, N., & Rouchon, P. (2006). *Time-optimal control of a particle in a dielectrophoretic system*.  
   IEEE Transactions on Automatic Control, 51(7), 1100–1114.
 """
-function OptimalControlProblems.dielectrophoretic_particle(::JuMPBackend; N::Int=steps_number_data(:dielectrophoretic_particle))
+function OptimalControlProblems.dielectrophoretic_particle(
+    ::JuMPBackend; N::Int=steps_number_data(:dielectrophoretic_particle)
+)
 
     # parameters
     x0 = 1

@@ -16,7 +16,6 @@ export nlp_model, ocp_model
 
 # -----------------
 
-
 """
 $(TYPEDEF)
 
