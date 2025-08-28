@@ -8,7 +8,7 @@
 0 \leq u_2(t) \leq 17,\]</p><p>with <span>$m = 2.2$</span> kg, <span>$J = 0.05$</span> kg·m², <span>$r = 0.2$</span> m, <span>$mg=4$</span> N.   The weight <span>$\mu &gt; 0$</span> balances control effort and transition time.</p><h3 id="Qualitative-behaviour"><a class="docs-heading-anchor" href="#Qualitative-behaviour">Qualitative behaviour</a><a id="Qualitative-behaviour-1"></a><a class="docs-heading-anchor-permalink" href="#Qualitative-behaviour" title="Permalink"></a></h3><ul><li>The free end-time formulation yields a <strong>time–energy trade-off</strong>, governed by <span>$\mu$</span>: large <span>$\mu$</span> emphasizes short transfer time, small <span>$\mu$</span> emphasizes reduced input effort.  </li><li>The thrust constraints induce saturation, often forcing <strong>bang–bang control</strong> profiles in <span>$u_1$</span> and <span>$u_2$</span>.  </li><li>The angular bound <span>$|\alpha| \le 30^\circ$</span> limits maneuverability, shaping feasible trajectories.  </li><li>Flatness-based analysis (see Graichen &amp; Petit, 2009) shows that the system is <strong>differentially flat</strong>, with outputs that allow explicit trajectory design.  </li></ul><h3 id="Characteristics"><a class="docs-heading-anchor" href="#Characteristics">Characteristics</a><a id="Characteristics-1"></a><a class="docs-heading-anchor-permalink" href="#Characteristics" title="Permalink"></a></h3><ul><li>Nonlinear six-dimensional dynamics.  </li><li>Free final time.  </li><li>Multiple input and state inequality constraints.  </li><li>Benchmark for testing constrained nonlinear OCP solvers.  </li></ul><h3 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h3><ul><li>Graichen, K., &amp; Petit, N. (2009). <em>Incorporating a class of constraints into the dynamics of optimal control problems</em>.   Optimal Control Applications and Methods. DOI: <a href="https://doi.org/10.1002/oca.880">10.1002/oca.880</a>  </li><li>B. Açıkmeşe, J. M. Carson III, &amp; L. Blackmore (2005). <em>Lossless convexification of nonconvex control bound and pointing constraints of the soft landing optimal control problem</em>. AIAA.  </li></ul><h2 id="Packages"><a class="docs-heading-anchor" href="#Packages">Packages</a><a id="Packages-1"></a><a class="docs-heading-anchor-permalink" href="#Packages" title="Permalink"></a></h2><p>Import all necessary packages and define DataFrames to store information about the problem and resolution results.</p><pre><code class="language-julia hljs">using OptimalControlProblems    # to access the Beam model
 using OptimalControl            # to import the OptimalControl model
 using NLPModelsIpopt            # to solve the model with Ipopt
-using DataFrames                # to store data
+import DataFrames: DataFrame    # to store data
 using NLPModels                 # to retrieve data from the NLP solution
 using Plots                     # to plot the trajectories
 using Plots.PlotMeasures        # for leftmargin, bottommargin
@@ -70,7 +70,7 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 67
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 66
-Total seconds in IPOPT                               = 3.045
+Total seconds in IPOPT                               = 2.873
 
 EXIT: Optimal Solution Found.</code></pre><p>Compute state, control, objective, and iteration data for comparison:</p><pre><code class="language-julia hljs">t_oc = time_grid(ocp_sol)
 x_oc = state(ocp_sol).(t_oc)
@@ -80,7 +80,7 @@ v_oc = variable(ocp_sol)
 i_oc = nlp_sol.iter</code></pre><h3 id="Store-and-print-the-data"><a class="docs-heading-anchor" href="#Store-and-print-the-data">Store and print the data</a><a id="Store-and-print-the-data-1"></a><a class="docs-heading-anchor-permalink" href="#Store-and-print-the-data" title="Permalink"></a></h3><p>Store the following data about the problem:</p><pre><code class="language-julia hljs">push!(data_pb,
     (
         Problem=:ducted_fan,
-        Grid_Size=OptimalControlProblems.metadata[:ducted_fan][:N],
+        Grid_Size=metadata[:ducted_fan][:N],
         Variables=get_nvar(nlp_oc),
         Constraints=get_ncon(nlp_oc),
     )
@@ -91,8 +91,8 @@ i_oc = nlp_sol.iter</code></pre><h3 id="Store-and-print-the-data"><a class="docs
         Iterations=nlp_sol.iter,
         Objective=objective(ocp_sol),
     )
-)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">66</td><td style = "text-align: right;">1831.83</td></tr></tbody></table></div><h3 id="Plot-the-solution"><a class="docs-heading-anchor" href="#Plot-the-solution">Plot the solution</a><a id="Plot-the-solution-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution" title="Permalink"></a></h3><p>Visualise states, costates, and controls for the OptimalControl solution:</p><pre><code class="language-julia hljs">x_vars = OptimalControlProblems.metadata[:ducted_fan][:state_name]
-u_vars = OptimalControlProblems.metadata[:ducted_fan][:control_name]
+)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">66</td><td style = "text-align: right;">1831.83</td></tr></tbody></table></div><h3 id="Plot-the-solution"><a class="docs-heading-anchor" href="#Plot-the-solution">Plot the solution</a><a id="Plot-the-solution-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution" title="Permalink"></a></h3><p>Visualise states, costates, and controls for the OptimalControl solution:</p><pre><code class="language-julia hljs">x_vars = metadata[:ducted_fan][:state_name]
+u_vars = metadata[:ducted_fan][:control_name]
 
 n = length(x_vars) # number of states
 m = length(u_vars) # number of controls
@@ -110,7 +110,7 @@ plt = plot(
 )
 for i in 2:n
     plot!(plt[i]; legend=:none)
-end</code></pre><img src="ducted_fan-2925077b.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
+end</code></pre><img src="ducted_fan-138ef736.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
 nlp_jp = ducted_fan(JuMPBackend())
 
 # solve
@@ -150,7 +150,7 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 133
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 132
-Total seconds in IPOPT                               = 8.425
+Total seconds in IPOPT                               = 7.540
 
 EXIT: Optimal Solution Found.</code></pre><p>For the numerical comparison, define:</p><pre><code class="language-julia hljs">t_jp = time_grid(:ducted_fan, nlp_jp)
 x_jp = state(:ducted_fan, nlp_jp).(t_jp)
@@ -180,7 +180,7 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
-end</code></pre><img src="ducted_fan-729c9679.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess can also be visualised by running the solver with <code>max_iter=0</code>.</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
+end</code></pre><img src="ducted_fan-3375ed9a.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess can also be visualised by running the solver with <code>max_iter=0</code>.</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
 
     # import OptimalControl model
     docp = ducted_fan(OptimalControlBackend())
@@ -249,7 +249,7 @@ end</code></pre><img src="ducted_fan-729c9679.svg" alt="Example block output"/><
 
     return plt
 end</code></pre></details>
-</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="ducted_fan-203671ce.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Compare OptimalControl and JuMP solutions in terms of iterations, <span>$L^2$</span> norms, and objective values.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = OptimalControlProblems.metadata[:ducted_fan][:variable_name]
+</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="ducted_fan-cf6cd9b1.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Compare OptimalControl and JuMP solutions in terms of iterations, <span>$L^2$</span> norms, and objective values.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = metadata[:ducted_fan][:variable_name]
 
 function L2_norm(T, X)
     # T and X are supposed to be one dimensional
@@ -418,4 +418,4 @@ end</code></pre></details>
 │     Absolute error : 0.00013115460251356126
 │     Relative error : 7.159767075402822e-8
 │
-└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="double_oscillator.html">« Double oscillator</a><a class="docs-footer-nextpage" href="electric_vehicle.html">Electric vehicle »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 28 August 2025 07:29">Thursday 28 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="double_oscillator.html">« Double oscillator</a><a class="docs-footer-nextpage" href="electric_vehicle.html">Electric vehicle »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 28 August 2025 14:07">Thursday 28 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

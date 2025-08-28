@@ -6,7 +6,7 @@ x_3(t_f) = P,\]</p><p>and the constraints</p><p class="math-container">\[0 \le I
 \quad 0 \le R(t), H(t), U(t), \quad 0.001 \le dU/dR(t),\]</p><p>where <span>$f_x(t)$</span> is the illness distribution and <span>$v(m) = m^{\alpha/2} / (1 + m^{\alpha/2})$</span>.</p><h3 id="Qualitative-behaviour"><a class="docs-heading-anchor" href="#Qualitative-behaviour">Qualitative behaviour</a><a id="Qualitative-behaviour-1"></a><a class="docs-heading-anchor-permalink" href="#Qualitative-behaviour" title="Permalink"></a></h3><ul><li>Insurance <span>$I(t)$</span> is dynamically adjusted to balance risk coverage and costs.  </li><li>Medical expenses <span>$m(t)$</span> interact with health <span>$h(t)$</span> and influence utility.  </li><li>Utility <span>$U(t)$</span> and revenue <span>$R(t)$</span> are coupled through marginal utility <span>$dU/dR(t)$</span>.  </li><li>The system illustrates the trade-offs between health, wealth, and insurance over time.</li></ul><h3 id="Characteristics"><a class="docs-heading-anchor" href="#Characteristics">Characteristics</a><a id="Characteristics-1"></a><a class="docs-heading-anchor-permalink" href="#Characteristics" title="Permalink"></a></h3><ul><li>Nonlinear dynamics linking health, expenses, and utility.  </li><li>Multiple control variables with inequality constraints.  </li><li>Stochastic component in the illness distribution <span>$f_x(t)$</span>.  </li><li>Useful as a benchmark for actuarial optimal control problems.</li></ul><h3 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h3><ul><li>Schmidli, H. (2014). <em>Stochastic Control for Insurance Companies</em>. Wiley.  </li><li>Li, W. (2023). <em>Individual Insurance Choice: A Stochastic Control Approach</em>. University of Waterloo.  </li><li>Guerdouh, D. (2022). <em>Optimal Control Strategies for the Premium Policy of an Insurance Firm</em>. MDPI.  </li></ul><h2 id="Packages"><a class="docs-heading-anchor" href="#Packages">Packages</a><a id="Packages-1"></a><a class="docs-heading-anchor-permalink" href="#Packages" title="Permalink"></a></h2><p>Import all necessary packages and define DataFrames to store information about the problem and resolution results.</p><pre><code class="language-julia hljs">using OptimalControlProblems    # to access the Beam model
 using OptimalControl            # to import the OptimalControl model
 using NLPModelsIpopt            # to solve the model with Ipopt
-using DataFrames                # to store data
+import DataFrames: DataFrame    # to store data
 using NLPModels                 # to retrieve data from the NLP solution
 using Plots                     # to plot the trajectories
 using Plots.PlotMeasures        # for leftmargin, bottommargin
@@ -68,7 +68,7 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 96
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 95
-Total seconds in IPOPT                               = 4.025
+Total seconds in IPOPT                               = 3.709
 
 EXIT: Optimal Solution Found.</code></pre><p>Compute state, control, objective, and iteration data for comparison:</p><pre><code class="language-julia hljs">t_oc = time_grid(ocp_sol)
 x_oc = state(ocp_sol).(t_oc)
@@ -78,7 +78,7 @@ v_oc = variable(ocp_sol)
 i_oc = nlp_sol.iter</code></pre><h3 id="Store-and-print-the-data"><a class="docs-heading-anchor" href="#Store-and-print-the-data">Store and print the data</a><a id="Store-and-print-the-data-1"></a><a class="docs-heading-anchor-permalink" href="#Store-and-print-the-data" title="Permalink"></a></h3><p>Store the following data about the problem:</p><pre><code class="language-julia hljs">push!(data_pb,
     (
         Problem=:insurance,
-        Grid_Size=OptimalControlProblems.metadata[:insurance][:N],
+        Grid_Size=metadata[:insurance][:N],
         Variables=get_nvar(nlp_oc),
         Constraints=get_ncon(nlp_oc),
     )
@@ -89,8 +89,8 @@ i_oc = nlp_sol.iter</code></pre><h3 id="Store-and-print-the-data"><a class="docs
         Iterations=nlp_sol.iter,
         Objective=objective(ocp_sol),
     )
-)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">95</td><td style = "text-align: right;">-2.05921</td></tr></tbody></table></div><h3 id="Plot-the-solution"><a class="docs-heading-anchor" href="#Plot-the-solution">Plot the solution</a><a id="Plot-the-solution-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution" title="Permalink"></a></h3><p>Visualise states, costates, and controls for the OptimalControl solution:</p><pre><code class="language-julia hljs">x_vars = OptimalControlProblems.metadata[:insurance][:state_name]
-u_vars = OptimalControlProblems.metadata[:insurance][:control_name]
+)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">95</td><td style = "text-align: right;">-2.05921</td></tr></tbody></table></div><h3 id="Plot-the-solution"><a class="docs-heading-anchor" href="#Plot-the-solution">Plot the solution</a><a id="Plot-the-solution-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution" title="Permalink"></a></h3><p>Visualise states, costates, and controls for the OptimalControl solution:</p><pre><code class="language-julia hljs">x_vars = metadata[:insurance][:state_name]
+u_vars = metadata[:insurance][:control_name]
 
 n = length(x_vars) # number of states
 m = length(u_vars) # number of controls
@@ -108,7 +108,7 @@ plt = plot(
 )
 for i in 2:n
     plot!(plt[i]; legend=:none)
-end</code></pre><img src="insurance-c8d25cc5.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
+end</code></pre><img src="insurance-c3c86123.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
 nlp_jp = insurance(JuMPBackend())
 
 # solve
@@ -147,7 +147,7 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 82
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 81
-Total seconds in IPOPT                               = 0.911
+Total seconds in IPOPT                               = 0.849
 
 EXIT: Optimal Solution Found.</code></pre><p>For the numerical comparison, define:</p><pre><code class="language-julia hljs">t_jp = time_grid(:insurance, nlp_jp)
 x_jp = state(:insurance, nlp_jp).(t_jp)
@@ -177,7 +177,7 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
-end</code></pre><img src="insurance-33868a17.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess can also be visualised by running the solver with <code>max_iter=0</code>.</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
+end</code></pre><img src="insurance-75a4314a.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess can also be visualised by running the solver with <code>max_iter=0</code>.</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
 
     # import OptimalControl model
     docp = insurance(OptimalControlBackend())
@@ -246,7 +246,7 @@ end</code></pre><img src="insurance-33868a17.svg" alt="Example block output"/><h
 
     return plt
 end</code></pre></details>
-</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="insurance-77ecf367.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Compare OptimalControl and JuMP solutions in terms of iterations, <span>$L^2$</span> norms, and objective values.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = OptimalControlProblems.metadata[:insurance][:variable_name]
+</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="insurance-f6ba87cf.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Compare OptimalControl and JuMP solutions in terms of iterations, <span>$L^2$</span> norms, and objective values.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = metadata[:insurance][:variable_name]
 
 function L2_norm(T, X)
     # T and X are supposed to be one dimensional
@@ -408,4 +408,4 @@ end</code></pre></details>
 │     Absolute error : 1.6369572364283158e-11
 │     Relative error : 7.949452209646179e-12
 │
-└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="glider.html">« Glider</a><a class="docs-footer-nextpage" href="jackson.html">Jackson »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 28 August 2025 07:29">Thursday 28 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="glider.html">« Glider</a><a class="docs-footer-nextpage" href="jackson.html">Jackson »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 28 August 2025 14:07">Thursday 28 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

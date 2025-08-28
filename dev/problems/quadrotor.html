@@ -9,7 +9,7 @@ s_\psi c_\theta &amp; s_\psi s_\theta s_\phi + c_\psi c_\phi &amp; s_\psi s_\the
 a = R \begin{bmatrix} 0 \\ 0 \\ a_t \end{bmatrix} + \begin{bmatrix} 0 \\ 0 \\ -g \end{bmatrix}\]</p><p>with <span>$c_\phi = \cos\phi$</span>, <span>$s_\phi = \sin\phi$</span>, etc.</p><h3 id="Objective"><a class="docs-heading-anchor" href="#Objective">Objective</a><a id="Objective-1"></a><a class="docs-heading-anchor-permalink" href="#Objective" title="Permalink"></a></h3><p>The goal is to <strong>minimize the final time</strong> <span>$t_f$</span>, with a small regularization on control inputs and yaw angle:</p><p class="math-container">\[J = t_f + \int_0^{t_f} \Big( 1e-8 (a_t^2 + \phi^2 + \theta^2 + \psi^2) + 1e2 (\psi - \psi_0)^2 \Big) dt \to \min\]</p><h3 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h3><ul><li>Vanroye, L., Sathya, A., De Schutter, J., &amp; Decré, W. (2023). FATROP: A Fast Constrained Optimal Control Problem Solver for Robot Trajectory Optimization and Control. <em>arXiv preprint arXiv:2303.16746</em>. Retrieved from https://arxiv.org/pdf/2303.16746</li><li>Mellinger, D., &amp; Kumar, V. (2011). Minimum snap trajectory generation and control for quadrotors. <em>2011 IEEE International Conference on Robotics and Automation</em>, 2520–2525.  </li><li>Faessler, M., Franchi, A., &amp; Scaramuzza, D. (2018). Differential flatness of quadrotor dynamics subject to rotor drag for accurate tracking of high-speed trajectories. <em>IEEE Robotics and Automation Letters</em>, 3(2), 620–626.  </li></ul><h2 id="Packages"><a class="docs-heading-anchor" href="#Packages">Packages</a><a id="Packages-1"></a><a class="docs-heading-anchor-permalink" href="#Packages" title="Permalink"></a></h2><p>Import all necessary packages and define DataFrames to store information about the problem and resolution results.</p><pre><code class="language-julia hljs">using OptimalControlProblems    # to access the Beam model
 using OptimalControl            # to import the OptimalControl model
 using NLPModelsIpopt            # to solve the model with Ipopt
-using DataFrames                # to store data
+import DataFrames: DataFrame    # to store data
 using NLPModels                 # to retrieve data from the NLP solution
 using Plots                     # to plot the trajectories
 using Plots.PlotMeasures        # for leftmargin, bottommargin
@@ -71,7 +71,7 @@ Number of inequality constraint evaluations          = 62
 Number of equality constraint Jacobian evaluations   = 49
 Number of inequality constraint Jacobian evaluations = 49
 Number of Lagrangian Hessian evaluations             = 48
-Total seconds in IPOPT                               = 3.045
+Total seconds in IPOPT                               = 3.100
 
 EXIT: Optimal Solution Found.</code></pre><p>Compute state, control, objective, and iteration data for comparison:</p><pre><code class="language-julia hljs">t_oc = time_grid(ocp_sol)
 x_oc = state(ocp_sol).(t_oc)
@@ -81,7 +81,7 @@ v_oc = variable(ocp_sol)
 i_oc = nlp_sol.iter</code></pre><h3 id="Store-and-print-the-data"><a class="docs-heading-anchor" href="#Store-and-print-the-data">Store and print the data</a><a id="Store-and-print-the-data-1"></a><a class="docs-heading-anchor-permalink" href="#Store-and-print-the-data" title="Permalink"></a></h3><p>Store the following data about the problem:</p><pre><code class="language-julia hljs">push!(data_pb,
     (
         Problem=:quadrotor,
-        Grid_Size=OptimalControlProblems.metadata[:quadrotor][:N],
+        Grid_Size=metadata[:quadrotor][:N],
         Variables=get_nvar(nlp_oc),
         Constraints=get_ncon(nlp_oc),
     )
@@ -92,8 +92,8 @@ i_oc = nlp_sol.iter</code></pre><h3 id="Store-and-print-the-data"><a class="docs
         Iterations=nlp_sol.iter,
         Objective=objective(ocp_sol),
     )
-)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">48</td><td style = "text-align: right;">1.49268</td></tr></tbody></table></div><h3 id="Plot-the-solution"><a class="docs-heading-anchor" href="#Plot-the-solution">Plot the solution</a><a id="Plot-the-solution-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution" title="Permalink"></a></h3><p>Visualise states, costates, and controls for the OptimalControl solution:</p><pre><code class="language-julia hljs">x_vars = OptimalControlProblems.metadata[:quadrotor][:state_name]
-u_vars = OptimalControlProblems.metadata[:quadrotor][:control_name]
+)</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">48</td><td style = "text-align: right;">1.49268</td></tr></tbody></table></div><h3 id="Plot-the-solution"><a class="docs-heading-anchor" href="#Plot-the-solution">Plot the solution</a><a id="Plot-the-solution-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-solution" title="Permalink"></a></h3><p>Visualise states, costates, and controls for the OptimalControl solution:</p><pre><code class="language-julia hljs">x_vars = metadata[:quadrotor][:state_name]
+u_vars = metadata[:quadrotor][:control_name]
 
 n = length(x_vars) # number of states
 m = length(u_vars) # number of controls
@@ -111,7 +111,7 @@ plt = plot(
 )
 for i in 2:n
     plot!(plt[i]; legend=:none)
-end</code></pre><img src="quadrotor-80fd2ea4.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
+end</code></pre><img src="quadrotor-6dfd8dde.svg" alt="Example block output"/><h2 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h2><h3 id="Solve-the-problem-2"><a class="docs-heading-anchor" href="#Solve-the-problem-2">Solve the problem</a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem-2" title="Permalink"></a></h3><p>Import the JuMP model and solve it.</p><pre><code class="language-julia hljs"># import model
 nlp_jp = quadrotor(JuMPBackend())
 
 # solve
@@ -150,7 +150,7 @@ Number of inequality constraint evaluations          = 51
 Number of equality constraint Jacobian evaluations   = 43
 Number of inequality constraint Jacobian evaluations = 43
 Number of Lagrangian Hessian evaluations             = 42
-Total seconds in IPOPT                               = 0.526
+Total seconds in IPOPT                               = 0.410
 
 EXIT: Optimal Solution Found.</code></pre><p>For the numerical comparison, define:</p><pre><code class="language-julia hljs">t_jp = time_grid(:quadrotor, nlp_jp)
 x_jp = state(:quadrotor, nlp_jp).(t_jp)
@@ -180,7 +180,7 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
-end</code></pre><img src="quadrotor-0f5547bc.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess can also be visualised by running the solver with <code>max_iter=0</code>.</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
+end</code></pre><img src="quadrotor-3d89000b.svg" alt="Example block output"/><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>The initial guess can also be visualised by running the solver with <code>max_iter=0</code>.</p><details><summary>Unfold to see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess()
 
     # import OptimalControl model
     docp = quadrotor(OptimalControlBackend())
@@ -249,7 +249,7 @@ end</code></pre><img src="quadrotor-0f5547bc.svg" alt="Example block output"/><h
 
     return plt
 end</code></pre></details>
-</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="quadrotor-f390a5fc.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Compare OptimalControl and JuMP solutions in terms of iterations, <span>$L^2$</span> norms, and objective values.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = OptimalControlProblems.metadata[:quadrotor][:variable_name]
+</br><pre><code class="language-julia hljs">plot_initial_guess()</code></pre><img src="quadrotor-8854fa91.svg" alt="Example block output"/><h2 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h2><p>Compare OptimalControl and JuMP solutions in terms of iterations, <span>$L^2$</span> norms, and objective values.</p><details><summary>Unfold to get the code of the numerical comparison.</summary><pre><code class="language-julia hljs">v_vars = metadata[:quadrotor][:variable_name]
 
 function L2_norm(T, X)
     # T and X are supposed to be one dimensional
@@ -446,4 +446,4 @@ end</code></pre></details>
 │     Absolute error : 8.215650382226158e-15
 │     Relative error : 5.503953277656036e-15
 │
-└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="moonlander.html">« Moonlander</a><a class="docs-footer-nextpage" href="robbins.html">Robbins »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 28 August 2025 07:29">Thursday 28 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+└─</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="moonlander.html">« Moonlander</a><a class="docs-footer-nextpage" href="robbins.html">Robbins »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 28 August 2025 14:07">Thursday 28 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

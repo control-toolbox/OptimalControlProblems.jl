@@ -8,10 +8,10 @@
     :control_name =&gt; [&quot;u&quot;],             # Names of the control components
     :variable_name =&gt; [&quot;v&quot;],            # Names of the optimisation variables
     :final_time =&gt; (:fixed, 1),         # Final time information
-)</code></pre><div class="admonition is-info" id="Note-8bd9326da1494c03"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-8bd9326da1494c03" title="Permalink"></a></header><div class="admonition-body"><p>For more details about the metadata, see the <a href="problems-introduction.html#problems-introduction-metadata">MetaData</a> section.</p></div></div><p><strong>2.</strong> Define the <strong>OptimalControl</strong> model of the problem in a separate file in the <code>ext/OptimalControlModels</code> directory.</p><pre><code class="language-julia hljs">&quot;&quot;&quot;
-    Description of the new problem
+)</code></pre><div class="admonition is-info" id="Note-8bd9326da1494c03"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-8bd9326da1494c03" title="Permalink"></a></header><div class="admonition-body"><p>For more details about the metadata, see the <a href="problems-introduction.html#problems-introduction-metadata">MetaData</a> section.</p></div></div><p><strong>2.</strong> Define the DOCP <strong>OptimalControl</strong> model of the problem in a file named <code>new_problem.jl</code> in the <code>ext/OptimalControlModels</code> directory.</p><pre><code class="language-julia hljs">&quot;&quot;&quot;
+    Documentation of the method
 &quot;&quot;&quot;
-function OptimalControlProblems.new_problem(::OptimalControlBackend; N::Int=steps_number_data(:new_problem))
+function OptimalControlProblems.new_problem(::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:new_problem), kwargs...)
 
     # if tf is fixed
     tf = final_time_data(:new_problem)
@@ -26,23 +26,23 @@ function OptimalControlProblems.new_problem(::OptimalControlBackend; N::Int=step
     init = () 
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=N, disc_method=:trapeze)
+    docp = direct_transcription(ocp, description...; init=init, grid_size=N, disc_method=:trapeze, kwargs...)
 
     return docp
 
-end</code></pre><p><strong>3.</strong> Define the <strong>JuMP</strong> model of the problem in a new file in the <code>ext/JuMPModels</code> directory.</p><pre><code class="language-julia hljs">&quot;&quot;&quot;
-    Description of the new problem
+end</code></pre><p><strong>3.</strong> Define the NLP <strong>JuMP</strong> model of the problem in a file named <code>new_problem.jl</code> in the <code>ext/JuMPModels</code> directory.</p><pre><code class="language-julia hljs">&quot;&quot;&quot;
+    Documentation of the method
 &quot;&quot;&quot;
-function OptimalControlProblems.new_problem(::JuMPBackend; N::Int=steps_number_data(:new_problem))
+function OptimalControlProblems.new_problem(::JuMPBackend, args...; N::Int=steps_number_data(:new_problem), kwargs...)
 
     # if tf is fixed
     tf = final_time_data(:new_problem)
 
     # model
-    nlp = JuMP.Model()
+    model = JuMP.Model(args...; kwargs...)
 
     # Define the problem here
     # ...
 
-    return nlp
-end</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="tutorial-solve.html">« How to solve a problem</a><a class="docs-footer-nextpage" href="dev-api.html">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 28 August 2025 07:29">Thursday 28 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+    return model
+end</code></pre><p><strong>3.</strong> Describe the problem in a file named <code>new_problem.jl</code> in the <code>ext/Descriptions</code> directory.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="tutorial-solve.html">« How to solve a problem</a><a class="docs-footer-nextpage" href="dev-api.html">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 28 August 2025 14:07">Thursday 28 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
