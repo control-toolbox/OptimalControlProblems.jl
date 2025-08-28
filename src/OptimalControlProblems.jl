@@ -21,15 +21,7 @@ function build_ocp_solution(docp::CTDirect.DOCP, nlp_solution::SolverCore.Abstra
     else
         throw(CTBase.IncorrectArgument("The NLP model is of unknown type."))
     end
-    return CTDirect.build_OCP_solution(
-        docp; 
-        primal=nlp_solution.solution, 
-        dual=nlp_solution.multipliers, 
-        mult_LB=nlp_solution.multipliers_L,
-        mult_UB=nlp_solution.multipliers_U,
-        nlp_model=nlp_model_backend,
-        docp_solution=nlp_solution
-    )
+    return CTDirect.build_OCP_solution(docp, nlp_solution; nlp_model=nlp_model_backend)
 end
 
 export nlp_model, ocp_model, build_ocp_solution
