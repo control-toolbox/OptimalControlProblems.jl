@@ -78,4 +78,4 @@ function OptimalControlProblems.new_problem(::JuMPBackend, args...; N::Int=steps
 end
 ```
 
-**3.** Describe the problem in a file named `new_problem.jl` in the `ext/Descriptions` directory.
+**4.** Describe the problem in a file named `new_problem.jl` in the `ext/Descriptions` directory.
