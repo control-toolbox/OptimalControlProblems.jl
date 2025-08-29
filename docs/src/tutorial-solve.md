@@ -148,7 +148,7 @@ for i in 1:n # state
 end
 
 for i in 1:n # costate
-    plot!(plt[n+i], t, t -> p(t)[i]; color=2, linestyle=:dash, label=:none)
+    plot!(plt[n+i], t, t -> -p(t)[i]; color=2, linestyle=:dash, label=:none)
 end
 
 for i in 1:m # control
