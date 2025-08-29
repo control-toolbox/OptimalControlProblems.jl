@@ -28,7 +28,10 @@ julia> docp = OptimalControlProblems.beam(OptimalControlBackend(); N=100);
 - BOCOP repository: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.beam(
-    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:beam), kwargs...
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:beam),
+    kwargs...,
 )
 
     #
@@ -52,13 +55,13 @@ function OptimalControlProblems.beam(
 
     # DOCP and NLP
     docp = direct_transcription(
-        ocp, 
-        description...; 
+        ocp,
+        description...;
         lagrange_to_mayer=false,
-        init=init, 
-        grid_size=N, 
-        disc_method=:trapeze, 
-        kwargs...
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
     )
 
     return docp

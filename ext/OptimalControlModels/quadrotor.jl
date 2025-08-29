@@ -24,7 +24,10 @@ julia> docp = OptimalControlProblems.quadrotor(OptimalControlBackend(); N=50);
 ```
 """
 function OptimalControlProblems.quadrotor(
-    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:quadrotor), kwargs...
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:quadrotor),
+    kwargs...,
 )
 
     # parameters
@@ -112,14 +115,14 @@ function OptimalControlProblems.quadrotor(
     init = (state=xinit, control=uinit, variable=varinit)
 
     # DOCP and NLP
-        docp = direct_transcription(
-        ocp, 
-        description...; 
+    docp = direct_transcription(
+        ocp,
+        description...;
         lagrange_to_mayer=false,
-        init=init, 
-        grid_size=N, 
-        disc_method=:trapeze, 
-        kwargs...
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
     )
 
     return docp

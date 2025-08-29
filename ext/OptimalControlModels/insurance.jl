@@ -28,7 +28,10 @@ julia> docp = OptimalControlProblems.insurance(OptimalControlBackend(); N=500);
 - Problem formulation available at [Bocop repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
 function OptimalControlProblems.insurance(
-    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:insurance), kwargs...
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:insurance),
+    kwargs...,
 )
 
     # parameters
@@ -50,7 +53,6 @@ function OptimalControlProblems.insurance(
 
     # Model
     ocp = @def begin
-
         P ∈ R, variable
         t ∈ [0, tf], time
         x = (I, m, x₃) ∈ R³, state
@@ -98,14 +100,14 @@ function OptimalControlProblems.insurance(
     init = (state=xinit, control=uinit, variable=varinit)
 
     # DOCP and NLP
-        docp = direct_transcription(
-        ocp, 
-        description...; 
+    docp = direct_transcription(
+        ocp,
+        description...;
         lagrange_to_mayer=false,
-        init=init, 
-        grid_size=N, 
-        disc_method=:trapeze, 
-        kwargs...
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
     )
 
     return docp

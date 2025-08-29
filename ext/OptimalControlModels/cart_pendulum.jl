@@ -28,7 +28,10 @@ julia> docp = OptimalControlProblems.cart_pendulum(OptimalControlBackend(); N=10
 - Formulation inspired by OptimalControl approach for swing-up control problems.
 """
 function OptimalControlProblems.cart_pendulum(
-    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:cart_pendulum), kwargs...
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:cart_pendulum),
+    kwargs...,
 )
 
     # parameters
@@ -102,14 +105,14 @@ function OptimalControlProblems.cart_pendulum(
     init = (state=xinit, control=uinit, variable=varinit)
 
     # NLPModel + DOCP
-        docp = direct_transcription(
-        ocp, 
-        description...; 
+    docp = direct_transcription(
+        ocp,
+        description...;
         lagrange_to_mayer=false,
-        init=init, 
-        grid_size=N, 
-        disc_method=:trapeze, 
-        kwargs...
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
     )
 
     return docp

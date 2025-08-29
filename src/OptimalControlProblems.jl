@@ -13,10 +13,12 @@ import ADNLPModels: ADNLPModels, ADNLPModel
 # SHOULD NO BE HERE
 nlp_model(docp::CTDirect.DOCP) = docp.nlp
 ocp_model(docp::CTDirect.DOCP) = docp.ocp
-function build_ocp_solution(docp::CTDirect.DOCP, nlp_solution::SolverCore.AbstractExecutionStats)
-    nlp_model_backend = if nlp_model(docp) isa ADNLPModel 
+function build_ocp_solution(
+    docp::CTDirect.DOCP, nlp_solution::SolverCore.AbstractExecutionStats
+)
+    nlp_model_backend = if nlp_model(docp) isa ADNLPModel
         CTDirect.ADNLPBackend()
-    elseif nlp_model(docp) isa ExaModel 
+    elseif nlp_model(docp) isa ExaModel
         CTDirect.ExaBackend()
     else
         throw(CTBase.IncorrectArgument("The NLP model is of unknown type."))
@@ -84,7 +86,9 @@ for file in files
     """
 
     code = quote
-        @doc $doc function $problem(model_backend::T, args...; kwargs...) where {T<:AbstractModelBackend}
+        @doc $doc function $problem(
+            model_backend::T, args...; kwargs...
+        ) where {T<:AbstractModelBackend}
             throw(CTBase.ExtensionError(weakdeps[T]))
         end
         export $problem
