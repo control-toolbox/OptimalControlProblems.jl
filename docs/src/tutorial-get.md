@@ -117,3 +117,6 @@ nlp = beam(JuMPBackend())
     using Ipopt
     nlp = beam(JuMPBackend(), Ipopt.Optimizer; add_bridges=true)
     ``` 
+
+!!! note
+    You can transform a JuMP model into a `MathOptNLPModel` and then use all the API of [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl). See this [tutorial](https://jso.dev/NLPModelsJuMP.jl/dev/tutorial) for more details.
