@@ -30,7 +30,7 @@ end
 
 # Remove from the tests the following problems
 # problems_to_exclude = [
-
+#     :quadrotor
 # ]
 # list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 

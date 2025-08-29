@@ -258,9 +258,7 @@ function comparison(; max_iter, test_name)
                             L2_jp = L2_norm(t_oc, xi_jp)
                             L2_bd = max(0.5*(L2_oc + L2_jp)*ε_rel_state, ε_abs_state)
                             res = @my_test_broken L2_di < L2_bd
-                            if f != :quadrotor
-                                keep_problem = keep_problem && (typeof(res) == Test.Pass)
-                            end
+                            keep_problem = keep_problem && (typeof(res) == Test.Pass)
 
                             DEBUG && println("├─  state $(x_vars[i])")
                             DEBUG && println("│")
@@ -293,9 +291,7 @@ function comparison(; max_iter, test_name)
                             L2_jp = L2_norm(t_oc, ui_jp)
                             L2_bd = max(0.5*(L2_oc + L2_jp)*ε_rel_control, ε_abs_control)
                             res = @my_test_broken L2_di < L2_bd
-                            if f != :quadrotor
-                                keep_problem = keep_problem && (typeof(res) == Test.Pass)
-                            end
+                            keep_problem = keep_problem && (typeof(res) == Test.Pass)
 
                             DEBUG && println("├─  control $(u_vars[i])")
                             DEBUG && println("│")
@@ -414,7 +410,7 @@ function comparison(; max_iter, test_name)
             end
 
             # JuMP
-            labelJP = (test_name == :solution) ? "JuMP: " * string(i_oc) * " it" : "JuMP"
+            labelJP = (test_name == :solution) ? "JuMP: " * string(i_jp) * " it" : "JuMP"
             for i in eachindex(x_vars) # state
                 xi_jp = [x_jp[k][i] for k in eachindex(t_jp)]
                 label = i == 1 ? labelJP : :none
