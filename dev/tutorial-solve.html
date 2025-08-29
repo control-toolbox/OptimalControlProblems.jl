@@ -80,25 +80,28 @@ Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 29
 Total seconds in IPOPT                               = 0.080
 
-EXIT: Optimal Solution Found.</code></pre><p>To get the number of iterations:</p><pre><code class="language-julia hljs">sol.iter</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">29</code></pre><p>To recover the state, control, and costate, we recommend building an optimal control solution and using the associated getters:</p><pre><code class="language-julia hljs">ocp_sol = build_ocp_solution(docp, sol)
+EXIT: Optimal Solution Found.</code></pre><p>To get the number of iterations from the NLP solution:</p><pre><code class="language-julia hljs">sol.iter</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">29</code></pre><p>and the objective value:</p><pre><code class="language-julia hljs">sol.objective</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">8.889281651026785</code></pre><p>To recover the state, control, and costate, we recommend building an optimal control solution and using the associated getters (you can also retrieve the number of iterations and the objective value from the OCP solution):</p><pre><code class="language-julia hljs">ocp_sol = build_ocp_solution(docp, sol)
 
 t = time_grid(ocp_sol)  # t0, ..., tN = tf
 x = state(ocp_sol)      # function of time
 u = control(ocp_sol)    # function of time
 p = costate(ocp_sol)    # function of time
 o = objective(ocp_sol)  # scalar objective value
+i = iterations(ocp_sol) # number of iteration
 
 tf = t[end]
 println(&quot;tf = &quot;, tf)
 println(&quot;x(tf) = &quot;, x(tf))
 println(&quot;u(tf) = &quot;, u(tf))
 println(&quot;p(tf) = &quot;, p(tf))
-println(&quot;objective value: &quot;, o)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">tf = 1.0
+println(&quot;objective:  &quot;, o)
+println(&quot;iterations: &quot;, i)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">tf = 1.0
 x(tf) = [6.983483423835114e-36, -1.0]
 u(tf) = -6.644778101442487
 p(tf) = [44.44721421847331, -13.37845063459404]
-objective value: 8.889281651026785</code></pre><div class="admonition is-info" id="Note-4152055e792f31f7"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-4152055e792f31f7" title="Permalink"></a></header><div class="admonition-body"><p>If the problem includes additional optimisation variables, such as the final time, you can retrieve them with:</p><pre><code class="language-julia hljs">v = variable(ocp_sol)</code></pre></div></div><p>From <code>ocp_sol</code> you can also plot the state, control, and costate trajectories. For more details about plotting optimal control problems, see the <a href="https://control-toolbox.org/OptimalControl.jl/stable/manual-plot.html">Plot Manual</a>.</p><pre><code class="language-julia hljs">using Plots
-plt = plot(ocp_sol; color=1, size=(800, 700), control_style=(label=&quot;OptimalControl&quot;, ))</code></pre><img src="tutorial-solve-f24619a5.svg" alt="Example block output"/><h2 id="Solving-from-a-JuMP-model"><a class="docs-heading-anchor" href="#Solving-from-a-JuMP-model">Solving from a JuMP model</a><a id="Solving-from-a-JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#Solving-from-a-JuMP-model" title="Permalink"></a></h2><p>First, import the JuMP model:</p><pre><code class="language-julia hljs">using JuMP
+objective:  8.889281651026785
+iterations: 29</code></pre><div class="admonition is-info" id="Note-4152055e792f31f7"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-4152055e792f31f7" title="Permalink"></a></header><div class="admonition-body"><p>If the problem includes additional optimisation variables, such as the final time, you can retrieve them with:</p><pre><code class="language-julia hljs">v = variable(ocp_sol)</code></pre></div></div><p>From <code>ocp_sol</code> you can also plot the state, control, and costate trajectories. For more details about plotting optimal control problems, see the <a href="https://control-toolbox.org/OptimalControl.jl/stable/manual-plot.html">Plot Manual</a>.</p><pre><code class="language-julia hljs">using Plots
+plt = plot(ocp_sol; color=1, size=(800, 700), control_style=(label=&quot;OptimalControl&quot;, ))</code></pre><img src="tutorial-solve-ff33df42.svg" alt="Example block output"/><h2 id="Solving-from-a-JuMP-model"><a class="docs-heading-anchor" href="#Solving-from-a-JuMP-model">Solving from a JuMP model</a><a id="Solving-from-a-JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#Solving-from-a-JuMP-model" title="Permalink"></a></h2><p>First, import the JuMP model:</p><pre><code class="language-julia hljs">using JuMP
 nlp = beam(JuMPBackend())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">A JuMP Model
 ├ solver: none
 ├ objective_sense: MIN_SENSE
@@ -188,23 +191,29 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 1
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 1
-Total seconds in IPOPT                               = 0.058
+Total seconds in IPOPT                               = 0.055
 
-EXIT: Optimal Solution Found.</code></pre><p>To get the number of iterations:</p><pre><code class="language-julia hljs">barrier_iterations(nlp)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">28</code></pre><p>To get the objective value:</p><pre><code class="language-julia hljs">objective_value(nlp)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">8.889281846456582</code></pre><p>To get the time grid, state, control, and costate, OptimalControlProblems provides the following getters:</p><pre><code class="language-julia hljs">problem = :beam
+EXIT: Optimal Solution Found.</code></pre><p>To get the number of iterations:</p><pre><code class="language-julia hljs">barrier_iterations(nlp)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">28</code></pre><p>To get the objective value:</p><pre><code class="language-julia hljs">objective_value(nlp)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">8.889281846456582</code></pre><p>To get the time grid, state, control, and costate, OptimalControlProblems provides the following getters (you have also similar getters to retrieve the number of iterations and the objective value):</p><pre><code class="language-julia hljs">problem = :beam
 
 t = time_grid(problem, nlp)    # t0, ..., tN = tf
 x = state(problem, nlp)        # function of time
 u = control(problem, nlp)      # function of time
 p = costate(problem, nlp)      # function of time
+o = objective(problem, nlp)    # scalar objective value
+i = iterations(problem, nlp)   # number of iteration
 
 tf = t[end]
 println(&quot;tf = &quot;, tf)
 println(&quot;x(tf) = &quot;, x(tf))
 println(&quot;u(tf) = &quot;, u(tf))
-println(&quot;p(tf) = &quot;, p(tf))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">tf = 1.0
+println(&quot;p(tf) = &quot;, p(tf))
+println(&quot;objective:  &quot;, o)
+println(&quot;iterations: &quot;, i)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">tf = 1.0
 x(tf) = [-4.454407807932683e-34, -1.0]
 u(tf) = -6.644786948253476
-p(tf) = [-44.447394877959965, 13.378468969723418]</code></pre><div class="admonition is-info" id="Note-55133bdfc60744ff"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-55133bdfc60744ff" title="Permalink"></a></header><div class="admonition-body"><p>If the problem includes additional optimisation variables, such as the final time, you can retrieve them with:</p><pre><code class="language-julia hljs">v = variable(problem, nlp)</code></pre></div></div><p>We can add the state, costate, and control to the plot:</p><pre><code class="language-julia hljs">n = length(metadata[problem][:state_name])   # dimension of the state
+p(tf) = [-44.447394877959965, 13.378468969723418]
+objective:  8.889281846456582
+iterations: 28</code></pre><div class="admonition is-info" id="Note-55133bdfc60744ff"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-55133bdfc60744ff" title="Permalink"></a></header><div class="admonition-body"><p>If the problem includes additional optimisation variables, such as the final time, you can retrieve them with:</p><pre><code class="language-julia hljs">v = variable(problem, nlp)</code></pre></div></div><p>We can add the state, costate, and control to the plot:</p><pre><code class="language-julia hljs">n = length(metadata[problem][:state_name])   # dimension of the state
 m = length(metadata[problem][:control_name]) # dimension of the control
 
 for i in 1:n # state
@@ -217,4 +226,4 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=&quot;JuMP&quot;)
-end</code></pre><img src="tutorial-solve-c3b1733b.svg" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="tutorial-get.html">« How to get a problem</a><a class="docs-footer-nextpage" href="dev-add.html">How to add a problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Friday 29 August 2025 11:38">Friday 29 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre><img src="tutorial-solve-4d620c27.svg" alt="Example block output"/><div class="admonition is-info" id="Note-d9f164446a4c7bd3"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-d9f164446a4c7bd3" title="Permalink"></a></header><div class="admonition-body"><p>The costate from JuMP is the opposite of the costate from OptimalControl, that is why we plot <span>$-p(t)$</span>.</p></div></div></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="tutorial-get.html">« How to get a problem</a><a class="docs-footer-nextpage" href="dev-add.html">How to add a problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Friday 29 August 2025 12:16">Friday 29 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
