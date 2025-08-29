@@ -35,13 +35,19 @@ sol = NLPModelsIpopt.ipopt(
 nothing # hide
 ```
 
-To get the number of iterations:
+To get the number of iterations from the NLP solution:
 
 ```@example main
 sol.iter
 ```
 
-To recover the state, control, and costate, we recommend building an optimal control solution and using the associated getters:
+and the objective value:
+
+```@example main
+sol.objective
+```
+
+To recover the state, control, and costate, we recommend building an optimal control solution and using the associated getters (you can also retrieve the number of iterations and the objective value from the OCP solution):
 
 ```@example main
 ocp_sol = build_ocp_solution(docp, sol)
@@ -51,13 +57,15 @@ x = state(ocp_sol)      # function of time
 u = control(ocp_sol)    # function of time
 p = costate(ocp_sol)    # function of time
 o = objective(ocp_sol)  # scalar objective value
+i = iterations(ocp_sol) # number of iteration
 
 tf = t[end]
 println("tf = ", tf)
 println("x(tf) = ", x(tf))
 println("u(tf) = ", u(tf))
 println("p(tf) = ", p(tf))
-println("objective value: ", o)
+println("objective:  ", o)
+println("iterations: ", i)
 ```
 
 !!! note
@@ -113,7 +121,7 @@ To get the objective value:
 objective_value(nlp)
 ```
 
-To get the time grid, state, control, and costate, OptimalControlProblems provides the following getters:
+To get the time grid, state, control, and costate, OptimalControlProblems provides the following getters (you have also similar getters to retrieve the number of iterations and the objective value):
 
 ```@example main
 problem = :beam
@@ -122,12 +130,16 @@ t = time_grid(problem, nlp)    # t0, ..., tN = tf
 x = state(problem, nlp)        # function of time
 u = control(problem, nlp)      # function of time
 p = costate(problem, nlp)      # function of time
+o = objective(problem, nlp)    # scalar objective value
+i = iterations(problem, nlp)   # number of iteration
 
 tf = t[end]
 println("tf = ", tf)
 println("x(tf) = ", x(tf))
 println("u(tf) = ", u(tf))
 println("p(tf) = ", p(tf))
+println("objective:  ", o)
+println("iterations: ", i)
 ```
 
 !!! note
@@ -156,3 +168,7 @@ for i in 1:m # control
 end
 plt # hide
 ```
+
+!!! note
+
+    The costate from JuMP is the opposite of the costate from OptimalControl, that is why we plot $-p(t)$.

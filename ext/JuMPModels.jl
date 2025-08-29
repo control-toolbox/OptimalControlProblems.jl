@@ -2,8 +2,8 @@ module JuMPModels
 
 using OptimalControlProblems
 using JuMP
-import CTModels: CTModels, time_grid, state, control, costate
-import ExaModels: ExaModels, variable
+import CTModels: CTModels, time_grid, state, control, costate, iterations
+import ExaModels: ExaModels, variable, objective
 using DocStringExtensions
 using OrderedCollections: OrderedDict
 
@@ -263,6 +263,48 @@ function OptimalControlProblems.variable(problem::Symbol, model::JuMP.GenericMod
     var = (dim_v == 1) ? v[1] : v
 
     return var
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+Get the objective value from a JuMP model.
+
+# Arguments
+
+- `problem::Symbol`: The name of the problem as defined in `metadata`.
+- `model::JuMP.GenericModel`: The JuMP model containing the problem solution.
+
+# Example
+
+```julia-repl
+julia> OptimalControlProblems.objective(:my_problem, model)
+1.5
+```
+"""
+function OptimalControlProblems.objective(::Symbol, model::JuMP.GenericModel)
+    return objective_value(model)
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+Get the number of iterations from a JuMP model.
+
+# Arguments
+
+- `problem::Symbol`: The name of the problem as defined in `metadata`.
+- `model::JuMP.GenericModel`: The JuMP model containing the problem solution.
+
+# Example
+
+```julia-repl
+julia> OptimalControlProblems.iterations(:my_problem, model)
+20
+```
+"""
+function OptimalControlProblems.iterations(::Symbol, model::JuMP.GenericModel)
+    return barrier_iterations(model)
 end
 
 end
