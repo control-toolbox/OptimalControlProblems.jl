@@ -2,8 +2,8 @@ module OptimalControlProblems
 
 using CTBase
 using CTDirect
-import CTModels: CTModels, time_grid, state, control, costate
-import ExaModels: ExaModels, ExaModel, variable
+import CTModels: CTModels, time_grid, state, control, costate, iterations
+import ExaModels: ExaModels, ExaModel, variable, objective
 using DocStringExtensions
 using OrderedCollections: OrderedDict
 using SolverCore
@@ -326,6 +326,56 @@ end
 """
 $(TYPEDSIGNATURES)
 
+Retrieve objective value from a JuMP model.
+
+# Arguments
+
+- `::Symbol`: Problem name.
+- `model`: JuMP model object.
+
+# Returns
+
+- Throws `ExtensionError(:JuMP)` since JuMP support must be extended.
+
+# Example
+
+```julia-repl
+julia> objective(:problem1, model)
+ERROR: ExtensionError(:JuMP)
+```
+"""
+function objective(::Symbol, model)
+    throw(CTBase.ExtensionError(:JuMP))
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+Retrieve the number of iterations from a JuMP model.
+
+# Arguments
+
+- `::Symbol`: Problem name.
+- `model`: JuMP model object.
+
+# Returns
+
+- Throws `ExtensionError(:JuMP)` since JuMP support must be extended.
+
+# Example
+
+```julia-repl
+julia> iterations(:problem1, model)
+ERROR: ExtensionError(:JuMP)
+```
+"""
+function iterations(::Symbol, model)
+    throw(CTBase.ExtensionError(:JuMP))
+end
+
+"""
+$(TYPEDSIGNATURES)
+
 Return the fixed final time, from the metadata, associated with a given optimal control problem.
 
 # Arguments
@@ -373,7 +423,7 @@ function steps_number_data(problem::Symbol)
 end
 
 export JuMPBackend, OptimalControlBackend, problems
-export time_grid, state, costate, control, variable
+export time_grid, state, costate, control, variable, iterations, objective
 export metadata, final_time_data, steps_number_data
 
 end

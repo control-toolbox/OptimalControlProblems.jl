@@ -55,198 +55,32 @@ function generate_documentation(
     nothing # hide
     ```
 
-    ## OptimalControl model
-
-    ### Solve the problem
-
-    Import the OptimalControl problem and solve it to obtain the solution.
-
-    ```@example main
-    # import model
-    docp = $PROBLEM(OptimalControlBackend())
-    nlp_oc = nlp_model(docp)
-
-    # solve
-    nlp_sol = NLPModelsIpopt.ipopt(
-        nlp_oc;
-        print_level=4,
-        tol=1e-8,
-        mu_strategy="adaptive",
-        sb="yes",
-    )
-
-    # build an optimal control solution
-    ocp_sol = build_ocp_solution(docp, nlp_sol)
-    nothing # hide
-    ```
-
-    Compute state, control, objective, and iteration data for comparison:
-
-    ```@example main
-    t_oc = time_grid(ocp_sol)
-    x_oc = state(ocp_sol).(t_oc)
-    u_oc = control(ocp_sol).(t_oc)
-    o_oc = objective(ocp_sol)
-    v_oc = variable(ocp_sol)
-    i_oc = nlp_sol.iter
-    nothing # hide
-    ```
-
-    ### Store and print the data
-
-    Store the following data about the problem:
-
-    ```@example main
-    push!(data_pb,
-        (
-            Problem=:$PROBLEM,
-            Grid_Size=metadata[:$PROBLEM][:N],
-            Variables=get_nvar(nlp_oc),
-            Constraints=get_ncon(nlp_oc),
-        )
-    )
-    ```
-
-    And store the following data about the resolution:
-
-    ```@example main
-    push!(data_re,
-        (
-            Model=:OptimalControl,
-            Flag=nlp_sol.status,
-            Iterations=nlp_sol.iter,
-            Objective=objective(ocp_sol),
-        )
-    )
-    ```
-
-    ### Plot the solution
-
-    Visualise states, costates, and controls for the OptimalControl solution:
-
-    ```@example main
-    x_vars = metadata[:$PROBLEM][:state_name]
-    u_vars = metadata[:$PROBLEM][:control_name]
-
-    n = length(x_vars) # number of states
-    m = length(u_vars) # number of controls
-
-    plt = plot(
-        ocp_sol;
-        state_style=(color=1,),
-        costate_style=(color=1, legend=:none),
-        control_style=(color=1, legend=:none),
-        path_style=(color=1, legend=:none),
-        dual_style=(color=1, legend=:none),
-        size=(816, 240*(n+m)),
-        label="OptimalControl",
-        leftmargin=20mm,
-    )
-    for i in 2:n
-        plot!(plt[i]; legend=:none)
-    end
-    plt # hide
-    ```
-
-    ## JuMP model
-
-    ### Solve the problem
-
-    Import the JuMP model and solve it.
-
-    ```@example main
-    # import model
-    nlp_jp = $PROBLEM(JuMPBackend())
-
-    # solve
-    set_optimizer(nlp_jp, Ipopt.Optimizer)
-    set_optimizer_attribute(nlp_jp, "print_level", 4)
-    set_optimizer_attribute(nlp_jp, "tol", 1e-8)
-    set_optimizer_attribute(nlp_jp, "mu_strategy", "adaptive")
-    set_optimizer_attribute(nlp_jp, "linear_solver", "mumps")
-    set_optimizer_attribute(nlp_jp, "sb", "yes")
-    optimize!(nlp_jp)
-    ```
-
-    For the numerical comparison, define:
-
-    ```@example main
-    t_jp = time_grid(:$PROBLEM, nlp_jp)
-    x_jp = state(:$PROBLEM, nlp_jp).(t_jp)
-    u_jp = control(:$PROBLEM, nlp_jp).(t_jp)
-    o_jp = objective_value(nlp_jp)
-    v_jp = variable(:$PROBLEM, nlp_jp)
-    i_jp = barrier_iterations(nlp_jp)
-    nothing # hide
-    ```
-
-    ### Store and print the data
-
-    Store the results of the resolution:
-
-    ```@example main
-    push!(data_re,
-        (
-            Model=:JuMP,
-            Flag=termination_status(nlp_jp),
-            Iterations=barrier_iterations(nlp_jp),
-            Objective=objective_value(nlp_jp),
-        )
-    )
-    ```
-
-    ### Plot the solution
-
-    Overlay the JuMP solution on the previous plots:
-
-    ```@example main
-    t = time_grid(:$PROBLEM, nlp_jp)     # t0, ..., tN = tf
-    x = state(:$PROBLEM, nlp_jp)         # function of time
-    u = control(:$PROBLEM, nlp_jp)       # function of time
-    p = costate(:$PROBLEM, nlp_jp)       # function of time
-
-    for i in 1:n # state
-        label = i == 1 ? "JuMP" : :none
-        plot!(plt[i], t, t -> x(t)[i]; color=2, linestyle=:dash, label=label)
-    end
-
-    for i in 1:n # costate
-        plot!(plt[n+i], t, t -> -p(t)[i]; color=2, linestyle=:dash, label=:none)
-    end
-
-    for i in 1:m # control
-        plot!(plt[2n+i], t, t -> u(t)[i]; color=2, linestyle=:dash, label=:none)
-    end
-    plt # hide
-    ```
-
     ## Initial guess
 
-    The initial guess can also be visualised by running the solver with `max_iter=0`.
+    The initial guess (or first iterate) can be visualised by running the solver with `max_iter=0`. Here is the initial guess.
 
     ```@raw html
-    <details><summary>Unfold to see the code for plotting the initial guess.</summary>
+    <details><summary>Click to unfold and see the code for plotting the initial guess.</summary>
     ```
 
     ```@example main
-    function plot_initial_guess()
+    function plot_initial_guess(problem)
+
+        # dimensions
+        x_vars = metadata[problem][:state_name]
+        u_vars = metadata[problem][:control_name]
+        n = length(x_vars) # number of states
+        m = length(u_vars) # number of controls
 
         # import OptimalControl model
-        docp = $PROBLEM(OptimalControlBackend())
+        docp = eval(problem)(OptimalControlBackend())
         nlp_oc = nlp_model(docp)
 
         # solve
-        nlp_sol = NLPModelsIpopt.ipopt(
-            nlp_oc;
-            max_iter=0,
-            print_level=5,
-            tol=1e-8,
-            mu_strategy="adaptive",
-            sb="yes",
-        )
+        nlp_oc_sol = NLPModelsIpopt.ipopt(nlp_oc; max_iter=0)
 
         # build an optimal control solution
-        ocp_sol = build_ocp_solution(docp, nlp_sol)
+        ocp_sol = build_ocp_solution(docp, nlp_oc_sol)
 
         # plot the OptimalControl solution
         plt = plot(
@@ -265,23 +99,18 @@ function generate_documentation(
         end
 
         # import JuMP model
-        nlp_jp = $PROBLEM(JuMPBackend())
+        nlp_jp = eval(problem)(JuMPBackend())
 
         # solve
         set_optimizer(nlp_jp, Ipopt.Optimizer)
         set_optimizer_attribute(nlp_jp, "max_iter", 0)
-        set_optimizer_attribute(nlp_jp, "print_level", 5)
-        set_optimizer_attribute(nlp_jp, "tol", 1e-8)
-        set_optimizer_attribute(nlp_jp, "mu_strategy", "adaptive")
-        set_optimizer_attribute(nlp_jp, "linear_solver", "mumps")
-        set_optimizer_attribute(nlp_jp, "sb", "yes")
         optimize!(nlp_jp)
 
         # plot
-        t = time_grid(:$PROBLEM, nlp_jp)     # t0, ..., tN = tf
-        x = state(:$PROBLEM, nlp_jp)         # function of time
-        u = control(:$PROBLEM, nlp_jp)       # function of time
-        p = costate(:$PROBLEM, nlp_jp)       # function of time
+        t = time_grid(problem, nlp_jp)     # t0, ..., tN = tf
+        x = state(problem, nlp_jp)         # function of time
+        u = control(problem, nlp_jp)       # function of time
+        p = costate(problem, nlp_jp)       # function of time
 
         for i in 1:n # state
             label = i == 1 ? "JuMP" : :none
@@ -307,20 +136,99 @@ function generate_documentation(
     ```
 
     ```@example main
-    plot_initial_guess()
+    plot_initial_guess(:$PROBLEM)
     ```
 
-    ## Numerical comparison
+    ## Solve the problem
 
-    Compare OptimalControl and JuMP solutions in terms of iterations, \$L^2\$ norms, and objective values.
+    ### OptimalControl model
+
+    Import the OptimalControl model and solve it.
+
+    ```@example main
+    # import DOCP model
+    docp = $PROBLEM(OptimalControlBackend())
+
+    # get NLP model
+    nlp_oc = nlp_model(docp)
+
+    # solve
+    nlp_oc_sol = NLPModelsIpopt.ipopt(
+        nlp_oc;
+        print_level=4,
+        tol=1e-8,
+        mu_strategy="adaptive",
+        sb="yes",
+    )
+    nothing # hide
+    ```
+
+    The problem has the following numbers of steps, variables and constraints.
+
+    ```@example main
+    push!(data_pb,
+        (
+            Problem=:$PROBLEM,
+            Grid_Size=metadata[:$PROBLEM][:N],
+            Variables=get_nvar(nlp_oc),
+            Constraints=get_ncon(nlp_oc),
+        )
+    )
+    data_pb # hide
+    ```
+
+    ### JuMP model
+
+    Import the JuMP model and solve it.
+
+    ```@example main
+    # import model
+    nlp_jp = $PROBLEM(JuMPBackend())
+
+    # solve
+    set_optimizer(nlp_jp, Ipopt.Optimizer)
+    set_optimizer_attribute(nlp_jp, "print_level", 4)
+    set_optimizer_attribute(nlp_jp, "tol", 1e-8)
+    set_optimizer_attribute(nlp_jp, "mu_strategy", "adaptive")
+    set_optimizer_attribute(nlp_jp, "linear_solver", "mumps")
+    set_optimizer_attribute(nlp_jp, "sb", "yes")
+    optimize!(nlp_jp)
+    ```
+
+    ## Numerical comparisons
+
+    Let's get the flag, the number of iterations and the objective value from the resolutions.
+
+    ```@example main
+    # from OptimalControl model
+    push!(data_re,
+        (
+            Model=:OptimalControl,
+            Flag=nlp_oc_sol.status,
+            Iterations=nlp_oc_sol.iter,
+            Objective=nlp_oc_sol.objective,
+        )
+    )
+
+    # from JuMP model
+    push!(data_re,
+        (
+            Model=:JuMP,
+            Flag=termination_status(nlp_jp),
+            Iterations=barrier_iterations(nlp_jp),
+            Objective=objective_value(nlp_jp),
+        )
+    )
+    data_re # hide
+    ```    
+
+    We compare the OptimalControl and JuMP solutions in terms of the number of iterations, the \$L^2\$-norm of the differences in the state, control, and variable, as well as the objective values. Both absolute and relative errors are reported.
 
     ```@raw html
-    <details><summary>Unfold to get the code of the numerical comparison.</summary>
+    <details><summary>Click to unfold and get the code of the numerical comparison.</summary>
     ```
 
     ```@example main
-    v_vars = metadata[:$PROBLEM][:variable_name]
-
     function L2_norm(T, X)
         # T and X are supposed to be one dimensional
         s = 0.0
@@ -330,9 +238,30 @@ function generate_documentation(
         return √(s)
     end
 
-    function numerical_comparison()
+    function numerical_comparison(problem, docp, nlp_oc_sol, nlp_jp)
 
-        println("┌─ ", "$PROBLEM")
+        # get relevant data from OptimalControl model
+        ocp_sol = build_ocp_solution(docp, nlp_oc_sol) # build an ocp solution
+        t_oc = time_grid(ocp_sol)
+        x_oc = state(ocp_sol).(t_oc)
+        u_oc = control(ocp_sol).(t_oc)
+        v_oc = variable(ocp_sol)
+        o_oc = objective(ocp_sol)
+        i_oc = iterations(ocp_sol)
+
+        # get relevant data from JuMP model
+        t_jp = time_grid(problem, nlp_jp)
+        x_jp = state(problem, nlp_jp).(t_jp)
+        u_jp = control(problem, nlp_jp).(t_jp)
+        o_jp = objective(problem, nlp_jp)
+        v_jp = variable(problem, nlp_jp)
+        i_jp = iterations(problem, nlp_jp)
+
+        x_vars = metadata[problem][:state_name]
+        u_vars = metadata[problem][:control_name]
+        v_vars = metadata[problem][:variable_name]
+
+        println("┌─ ", string(problem))
         println("│")
 
         # number of iterations
@@ -353,8 +282,8 @@ function generate_documentation(
 
             println("├─  State \$(x_vars[i]) (L2 norm)")
             println("│")
-            println("│     OptimalControl : ", L2_oc)
-            println("│     JuMP           : ", L2_jp)
+            #println("│     OptimalControl : ", L2_oc)
+            #println("│     JuMP           : ", L2_jp)
             println("│     Absolute error : ", L2_ae)
             println("│     Relative error : ", L2_re)
             println("│")
@@ -371,14 +300,14 @@ function generate_documentation(
 
             println("├─  Control \$(u_vars[i]) (L2 norm)")
             println("│")
-            println("│     OptimalControl : ", L2_oc)
-            println("│     JuMP           : ", L2_jp)
+            #println("│     OptimalControl : ", L2_oc)
+            #println("│     JuMP           : ", L2_jp)
             println("│     Absolute error : ", L2_ae)
             println("│     Relative error : ", L2_re)
             println("│")
         end
 
-        # control
+        # variable
         if !isnothing(v_vars)
             for i in eachindex(v_vars)
                 vi_oc = v_oc[i]
@@ -388,8 +317,8 @@ function generate_documentation(
 
                 println("├─  Variable \$(v_vars[i])")
                 println("│")
-                println("│     OptimalControl : ", vi_oc)
-                println("│     JuMP           : ", vi_jp)
+                #println("│     OptimalControl : ", vi_oc)
+                #println("│     JuMP           : ", vi_jp)
                 println("│     Absolute error : ", vi_ae)
                 println("│     Relative error : ", vi_re)
                 println("│")
@@ -402,8 +331,8 @@ function generate_documentation(
 
         println("├─  objective")
         println("│")
-        println("│     OptimalControl : ", o_oc)
-        println("│     JuMP           : ", o_jp)
+        #println("│     OptimalControl : ", o_oc)
+        #println("│     JuMP           : ", o_jp)
         println("│     Absolute error : ", o_ae)
         println("│     Relative error : ", o_re)
         println("│")
@@ -420,7 +349,56 @@ function generate_documentation(
     ```
 
     ```@example main
-    numerical_comparison()
+    numerical_comparison(:$PROBLEM, docp, nlp_oc_sol, nlp_jp)
+    ```
+
+    ## Plot the solutions
+
+    Visualise states, costates, and controls from the OptimalControl and JuMP solutions:
+
+    ```@example main
+    # build an ocp solution to use the plot from OptimalControl package
+    ocp_sol = build_ocp_solution(docp, nlp_oc_sol)
+
+    # dimensions
+    n = state_dimension(ocp_sol)   # or length(metadata[:$PROBLEM][:state_name])
+    m = control_dimension(ocp_sol) # or length(metadata[:$PROBLEM][:control_name])
+
+    # from OptimalControl solution
+    plt = plot(
+        ocp_sol;
+        state_style=(color=1,),
+        costate_style=(color=1, legend=:none),
+        control_style=(color=1, legend=:none),
+        path_style=(color=1, legend=:none),
+        dual_style=(color=1, legend=:none),
+        size=(816, 240*(n+m)),
+        label="OptimalControl",
+        leftmargin=20mm,
+    )
+    for i in 2:n
+        plot!(plt[i]; legend=:none)
+    end
+    
+    # from JuMP solution
+    t = time_grid(:$PROBLEM, nlp_jp)     # t0, ..., tN = tf
+    x = state(:$PROBLEM, nlp_jp)         # function of time
+    u = control(:$PROBLEM, nlp_jp)       # function of time
+    p = costate(:$PROBLEM, nlp_jp)       # function of time
+
+    for i in 1:n # state
+        label = i == 1 ? "JuMP" : :none
+        plot!(plt[i], t, t -> x(t)[i]; color=2, linestyle=:dash, label=label)
+    end
+
+    for i in 1:n # costate
+        plot!(plt[n+i], t, t -> -p(t)[i]; color=2, linestyle=:dash, label=:none)
+    end
+
+    for i in 1:m # control
+        plot!(plt[2n+i], t, t -> u(t)[i]; color=2, linestyle=:dash, label=:none)
+    end
+    plt # hide
     ```
     """
 
