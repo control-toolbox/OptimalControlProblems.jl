@@ -29,7 +29,10 @@ julia> docp = OptimalControlProblems.chain(OptimalControlBackend(); N=100);
 - Original problem source: [BOCOP repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
 function OptimalControlProblems.chain(
-    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:chain), kwargs...
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:chain),
+    kwargs...,
 )
 
     # parameters
@@ -80,14 +83,14 @@ function OptimalControlProblems.chain(
     init = (state=xinit, control=uinit)
 
     # NLPModel + DOCP
-        docp = direct_transcription(
-        ocp, 
-        description...; 
+    docp = direct_transcription(
+        ocp,
+        description...;
         lagrange_to_mayer=false,
-        init=init, 
-        grid_size=N, 
-        disc_method=:trapeze, 
-        kwargs...
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
     )
 
     return docp

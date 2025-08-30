@@ -24,7 +24,10 @@ julia> docp = OptimalControlProblems.truck_trailer(OptimalControlBackend(); N=20
 ```
 """
 function OptimalControlProblems.truck_trailer(
-    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:truck_trailer), kwargs...
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:truck_trailer),
+    kwargs...,
 )
 
     # parameters
@@ -130,14 +133,14 @@ function OptimalControlProblems.truck_trailer(
     init = (state=xinit, control=uinit, variable=varinit)
 
     # DOCP and NLP
-        docp = direct_transcription(
-        ocp, 
-        description...; 
+    docp = direct_transcription(
+        ocp,
+        description...;
         lagrange_to_mayer=false,
-        init=init, 
-        grid_size=N, 
-        disc_method=:trapeze, 
-        kwargs...
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
     )
 
     return docp

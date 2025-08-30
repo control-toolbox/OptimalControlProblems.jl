@@ -379,7 +379,7 @@ function generate_documentation(
     for i in 2:n
         plot!(plt[i]; legend=:none)
     end
-    
+
     # from JuMP solution
     t = time_grid(:$PROBLEM, nlp_jp)     # t0, ..., tN = tf
     x = state(:$PROBLEM, nlp_jp)         # function of time

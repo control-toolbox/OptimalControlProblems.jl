@@ -25,7 +25,10 @@ julia> docp = OptimalControlProblems.space_shuttle(OptimalControlBackend(); N=50
 ```
 """
 function OptimalControlProblems.space_shuttle(
-    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:space_shuttle), kwargs...
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:space_shuttle),
+    kwargs...,
 )
 
     ## Global variables
@@ -158,14 +161,14 @@ function OptimalControlProblems.space_shuttle(
     init = (state=x_init, control=[α_s, β_s], variable=[tf_init])
 
     # DOCP and NLP
-        docp = direct_transcription(
-        ocp, 
-        description...; 
+    docp = direct_transcription(
+        ocp,
+        description...;
         lagrange_to_mayer=false,
-        init=init, 
-        grid_size=N, 
-        disc_method=:trapeze, 
-        kwargs...
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
     )
 
     return docp

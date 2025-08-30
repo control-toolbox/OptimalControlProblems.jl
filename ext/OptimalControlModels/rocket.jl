@@ -24,7 +24,10 @@ julia> docp = OptimalControlProblems.rocket(OptimalControlBackend(); N=500);
 ```
 """
 function OptimalControlProblems.rocket(
-    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:rocket), kwargs...
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:rocket),
+    kwargs...,
 )
 
     # parameters
@@ -87,14 +90,14 @@ function OptimalControlProblems.rocket(
     init = (time=time_vec, state=xinit, control=Tmax/2, variable=1)
 
     # DOCP and NLP
-        docp = direct_transcription(
-        ocp, 
-        description...; 
+    docp = direct_transcription(
+        ocp,
+        description...;
         lagrange_to_mayer=false,
-        init=init, 
-        grid_size=N, 
-        disc_method=:trapeze, 
-        kwargs...
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
     )
 
     return docp
