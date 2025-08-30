@@ -29,7 +29,10 @@ julia> docp = OptimalControlProblems.double_oscillator(OptimalControlBackend(); 
 - Formulation follows OptimalControl approach to mechanical oscillator trajectory optimisation.
 """
 function OptimalControlProblems.double_oscillator(
-    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:double_oscillator), kwargs...
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:double_oscillator),
+    kwargs...,
 )
 
     # parameters
@@ -75,14 +78,14 @@ function OptimalControlProblems.double_oscillator(
     init = (state=xinit, control=uinit)
 
     # DOCP and NLP
-        docp = direct_transcription(
-        ocp, 
-        description...; 
+    docp = direct_transcription(
+        ocp,
+        description...;
         lagrange_to_mayer=false,
-        init=init, 
-        grid_size=N, 
-        disc_method=:trapeze, 
-        kwargs...
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
     )
 
     return docp

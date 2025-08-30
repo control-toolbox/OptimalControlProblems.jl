@@ -29,7 +29,10 @@ julia> docp = OptimalControlProblems.electric_vehicle(OptimalControlBackend(); N
 - Problem instance follows OptimalControl formulation for electric vehicle trajectory optimisation.
 """
 function OptimalControlProblems.electric_vehicle(
-    ::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:electric_vehicle), kwargs...
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:electric_vehicle),
+    kwargs...,
 )
 
     # parameters
@@ -67,14 +70,14 @@ function OptimalControlProblems.electric_vehicle(
     init = (state=yinit, control=uinit)
 
     # DOCP and NLP
-        docp = direct_transcription(
-        ocp, 
-        description...; 
+    docp = direct_transcription(
+        ocp,
+        description...;
         lagrange_to_mayer=false,
-        init=init, 
-        grid_size=N, 
-        disc_method=:trapeze, 
-        kwargs...
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
     )
 
     return docp
