@@ -18,6 +18,9 @@
 [pkg-eval-img]: https://img.shields.io/badge/Julia-package-purple
 [pkg-eval-url]: https://juliahub.com/ui/Packages/General/OptimalControlProblems
 
+[citation-img]: https://zenodo.org/badge/541187171.svg
+[citation-url]: https://zenodo.org/doi/10.5281/zenodo.17013021
+
 [licence-img]: https://img.shields.io/badge/License-MIT-yellow.svg
 [licence-url]: https://github.com/control-toolbox/OptimalControlProblems.jl/blob/master/LICENSE
 
@@ -35,6 +38,7 @@ The control-toolbox ecosystem gathers Julia packages for mathematical control an
 | Code Status       | [![Build Status][ci-img]][ci-url] [![Covering Status][co-img]][co-url] [![pkgeval][pkg-eval-img]][pkg-eval-url] [![Code Style: Blue][blue-img]][blue-url]  |
 | Licence           | [![License: MIT][licence-img]][licence-url]   |
 | Release           | [![Release][release-img]][release-url]        |
+| Citation          | [![DOI][citation-img]][citation-url]          |
 
 ## Installation
 
