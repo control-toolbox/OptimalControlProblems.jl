@@ -2,7 +2,7 @@
   "description": "<p>The&nbsp;<a href=\"https://juliahub.com/ui/Packages/General/OptimalControlProblems\" rel=\"nofollow\">OptimalControlProblems.jl</a>&nbsp;package is part of the&nbsp;<a href=\"https://github.com/control-toolbox\">control-toolbox ecosystem</a>. The control-toolbox ecosystem gathers Julia packages for mathematical control and applications. The root package is&nbsp;<a href=\"https://juliahub.com/ui/Packages/General/OptimalControl\" rel=\"nofollow\">OptimalControl.jl</a>&nbsp;which aims to provide tools to model and solve optimal control problems with ordinary differential equations by direct and indirect methods, both on CPU and GPU.</p>",
   "title": "OptimalControlProblems.jl: a collection of optimal control problems with ODE's in Julia",
   "upload_type": "software",
-  "doi": "10.5281/zenodo.17013021",
+  "doi": "10.5281/zenodo.17013180",
   "keywords": [
     "optimal control",
     "control of ODE's",

@@ -19,7 +19,7 @@
 [pkg-eval-url]: https://juliahub.com/ui/Packages/General/OptimalControlProblems
 
 [citation-img]: https://zenodo.org/badge/541187171.svg
-[citation-url]: https://zenodo.org/doi/10.5281/zenodo.17013021
+[citation-url]: https://zenodo.org/doi/10.5281/zenodo.17013180
 
 [licence-img]: https://img.shields.io/badge/License-MIT-yellow.svg
 [licence-url]: https://github.com/control-toolbox/OptimalControlProblems.jl/blob/master/LICENSE

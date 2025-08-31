@@ -19,14 +19,14 @@ Pkg.add("OptimalControlProblems")
 
 If you use OptimalControlProblems.jl in your work, please cite us:
 
-> Caillau, J.-B., Cots, O., Gergaud, J., & Martinon, P. *OptimalControlProblems.jl: a collection of optimal control problems with ODE's in Julia*. [doi.org/10.5281/zenodo.17013021](https://doi.org/10.5281/zenodo.17013021)
+> Caillau, J.-B., Cots, O., Gergaud, J., & Martinon, P. *OptimalControlProblems.jl: a collection of optimal control problems with ODE's in Julia*. [doi.org/10.5281/zenodo.17013180](https://doi.org/10.5281/zenodo.17013180)
 
 or in bibtex format:
 
 ```bibtex
 @software{Caillau_OptimalControlProblems_jl,
 author = {Caillau, Jean-Baptiste and Cots, Olivier and Gergaud, Joseph and Martinon, Pierre},
-doi = {10.5281/zenodo.17013021},
+doi = {10.5281/zenodo.17013180},
 license = {["MIT"]},
 title = {{OptimalControlProblems.jl: a collection of optimal control problems with ODE's in Julia}},
 url = {https://control-toolbox.org/OptimalControlProblems.jl}
