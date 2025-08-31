@@ -95,7 +95,7 @@ data_re = DataFrame(            # to store data about the resolutions
 
     return plt
 end</code></pre></details>
-</br><pre><code class="language-julia hljs">plot_initial_guess(:truck_trailer)</code></pre><img src="truck_trailer-895d04af.svg" alt="Example block output"/><h2 id="Solve-the-problem"><a class="docs-heading-anchor" href="#Solve-the-problem">Solve the problem</a><a id="Solve-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem" title="Permalink"></a></h2><h3 id="OptimalControl-model"><a class="docs-heading-anchor" href="#OptimalControl-model">OptimalControl model</a><a id="OptimalControl-model-1"></a><a class="docs-heading-anchor-permalink" href="#OptimalControl-model" title="Permalink"></a></h3><p>Import the OptimalControl model and solve it.</p><pre><code class="language-julia hljs"># import DOCP model
+</br><pre><code class="language-julia hljs">plot_initial_guess(:truck_trailer)</code></pre><img src="truck_trailer-fedbfc55.svg" alt="Example block output"/><h2 id="Solve-the-problem"><a class="docs-heading-anchor" href="#Solve-the-problem">Solve the problem</a><a id="Solve-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Solve-the-problem" title="Permalink"></a></h2><h3 id="OptimalControl-model"><a class="docs-heading-anchor" href="#OptimalControl-model">OptimalControl model</a><a id="OptimalControl-model-1"></a><a class="docs-heading-anchor-permalink" href="#OptimalControl-model" title="Permalink"></a></h3><p>Import the OptimalControl model and solve it.</p><pre><code class="language-julia hljs"># import DOCP model
 docp = truck_trailer(OptimalControlBackend())
 
 # get NLP model
@@ -139,7 +139,7 @@ Number of inequality constraint evaluations          = 383
 Number of equality constraint Jacobian evaluations   = 333
 Number of inequality constraint Jacobian evaluations = 333
 Number of Lagrangian Hessian evaluations             = 331
-Total seconds in IPOPT                               = 6.377
+Total seconds in IPOPT                               = 4.917
 
 EXIT: Optimal Solution Found.</code></pre><p>The problem has the following numbers of steps, variables and constraints.</p><pre><code class="language-julia hljs">push!(data_pb,
     (
@@ -198,7 +198,7 @@ Number of inequality constraint evaluations          = 451
 Number of equality constraint Jacobian evaluations   = 423
 Number of inequality constraint Jacobian evaluations = 423
 Number of Lagrangian Hessian evaluations             = 421
-Total seconds in IPOPT                               = 55.232
+Total seconds in IPOPT                               = 52.829
 
 EXIT: Optimal Solution Found.</code></pre><h2 id="Numerical-comparisons"><a class="docs-heading-anchor" href="#Numerical-comparisons">Numerical comparisons</a><a id="Numerical-comparisons-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparisons" title="Permalink"></a></h2><p>Let&#39;s get the flag, the number of iterations and the objective value from the resolutions.</p><pre><code class="language-julia hljs"># from OptimalControl model
 push!(data_re,
@@ -431,4 +431,4 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
-end</code></pre><img src="truck_trailer-98463960.svg" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="steering.html">« Steering</a><a class="docs-footer-nextpage" href="vanderpol.html">Vanderpol »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Saturday 30 August 2025 09:48">Saturday 30 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre><img src="truck_trailer-7c75968e.svg" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="steering.html">« Steering</a><a class="docs-footer-nextpage" href="vanderpol.html">Vanderpol »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Sunday 31 August 2025 16:46">Sunday 31 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
