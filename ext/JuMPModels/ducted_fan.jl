@@ -51,7 +51,7 @@ function OptimalControlProblems.ducted_fan(
     @variable(model, vα[0:N], start = 0.1)
     @variable(model, -5 <= u₁[0:N] <= 5, start = 0.1) # [N]
     @variable(model, 0 <= u₂[0:N] <= 17, start = 1) # [N]
-    @variable(model, 0.1 <= tf, start = 1)
+    @variable(model, 0.1 <= tf, start = 1.5)
 
     # Boundary constraints
     @constraints(

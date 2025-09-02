@@ -4,7 +4,7 @@ The control variable $u(t)$ represents the input flow rate between the two units
 The dynamics include algal growth driven by light, substrate consumption, and biomass evolution.  
 The aim is to maximise methane production over a fixed time horizon under biological and operational constraints.
 
-### Problem formulation
+### Mathematical formulation
 
 We minimise
 
