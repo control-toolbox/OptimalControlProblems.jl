@@ -98,7 +98,7 @@ function OptimalControlProblems.ducted_fan(
     varinit = [1]  # [tf] 
     init = (state=xinit, control=uinit, variable=varinit)
 
-    # DOCP and NLP
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;

@@ -55,7 +55,7 @@ function generate_documentation(
     nothing # hide
     ```
 
-    ## Initial guess
+    ## initial guess
 
     The initial guess (or first iterate) can be visualised by running the solver with `max_iter=0`. Here is the initial guess.
 

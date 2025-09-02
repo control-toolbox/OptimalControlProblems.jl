@@ -160,7 +160,7 @@ function OptimalControlProblems.space_shuttle(
         ]
     init = (state=x_init, control=[α_s, β_s], variable=[tf_init])
 
-    # DOCP and NLP
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;

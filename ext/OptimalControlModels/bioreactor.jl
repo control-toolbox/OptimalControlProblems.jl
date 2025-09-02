@@ -88,10 +88,10 @@ function OptimalControlProblems.bioreactor(
         -∫(μ2 * b(t) / (β + c)) → min
     end
 
-    # Initial guess
+    # initial guess
     init = (state=[50, 50, 50], control=0.5)
 
-    # NLPModel + DOCP
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;

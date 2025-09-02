@@ -93,13 +93,13 @@ function OptimalControlProblems.insurance(
         -∫(U(t) * fx) → min
     end
 
-    # Initial guess
+    # initial guess
     xinit = [0.1, 0.1, 0.1]  # [I, m, x₃]
     uinit = [0.1, 0.1, 0.1, 0.1, 0.1]  # [h, R, H, U, dUdR]
     varinit = [0.1]  # [P]
     init = (state=xinit, control=uinit, variable=varinit)
 
-    # DOCP and NLP
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;

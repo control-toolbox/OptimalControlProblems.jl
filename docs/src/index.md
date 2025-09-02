@@ -4,7 +4,7 @@ The **OptimalControlProblems.jl** package is part of the [control-toolbox ecosys
 
 If you would like to define and solve your own optimal control problem, please refer to the [OptimalControl.jl documentation](https://control-toolbox.org/OptimalControl.jl).
 
-In **OptimalControlProblems.jl**, you will find a collection of optimal control problems modelled with JuMP and OptimalControl. These problems can be used for benchmarking.
+In **OptimalControlProblems.jl**, you will find a collection of optimal control problems modelled with JuMP and OptimalControl that can be used for benchmarking.
 
 ## Installation
 
@@ -24,7 +24,7 @@ If you use OptimalControlProblems.jl in your work, please cite us:
 or in bibtex format:
 
 ```bibtex
-@software{Caillau_OptimalControlProblems_jl,
+@software{OptimalControlProblems_jl,
 author = {Caillau, Jean-Baptiste and Cots, Olivier and Gergaud, Joseph and Martinon, Pierre},
 doi = {10.5281/zenodo.17013180},
 license = {["MIT"]},

@@ -77,7 +77,7 @@ function OptimalControlProblems.double_oscillator(
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 
-    # DOCP and NLP
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;

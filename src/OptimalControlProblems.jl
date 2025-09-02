@@ -160,6 +160,11 @@ for i in 1:number_of_problems
         if !(value isa T)
             error("Type mismatch: Expected $(T) for $(data), but got $(typeof(value))")
         end
+        if data == :final_time
+            if (value[1] != :fixed) && (value[1] != :free)
+                error("Incorrect value: Expected free or :fixed for $(value[1])")
+            end
+        end
         metadata[file_key][data] = value
     end
 end

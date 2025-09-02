@@ -117,7 +117,7 @@ function OptimalControlProblems.space_shuttle(
         end
     )
 
-    ## Initial guess: linear interpolation between boundary conditions
+    ## initial guess: linear interpolation between boundary conditions
 
     # Helper function for linear interpolation
     function linear_interpolate(x_s, x_t, n)

@@ -104,7 +104,7 @@ function OptimalControlProblems.cart_pendulum(
     varinit = [1.0, 0.1]            # [tf, ddx]
     init = (state=xinit, control=uinit, variable=varinit)
 
-    # NLPModel + DOCP
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;

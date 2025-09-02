@@ -59,7 +59,7 @@ function OptimalControlProblems.steering(
         return [x[3], x[4], a * cos(u), a * sin(u)]
     end
 
-    # Initial guess
+    # initial guess
     function gen_x0(t, i)
         if i == 1 || i == 4
             return 0.0
@@ -72,7 +72,7 @@ function OptimalControlProblems.steering(
     xinit = t -> [gen_x0(t, i) for i in 1:4]
     init = (state=xinit, control=0, variable=1)
 
-    # DOCP and NLP
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;
