@@ -686,9 +686,9 @@ version = "3.1.2+0"
 
 [[deps.JuMP]]
 deps = ["LinearAlgebra", "MacroTools", "MathOptInterface", "MutableArithmetics", "OrderedCollections", "PrecompileTools", "Printf", "SparseArrays"]
-git-tree-sha1 = "d05a696a5abaf9d1f8bce948ee53ed1533fadfdb"
+git-tree-sha1 = "d9c29fadef257492791c83b34ceede0d92a51470"
 uuid = "4076af6c-e467-56ae-b986-b466b2749572"
-version = "1.28.0"
+version = "1.29.0"
 
     [deps.JuMP.extensions]
     JuMPDimensionalDataExt = "DimensionalData"
