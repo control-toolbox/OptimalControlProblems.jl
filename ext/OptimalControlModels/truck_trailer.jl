@@ -69,7 +69,7 @@ function OptimalControlProblems.truck_trailer(
         # y0 = y1 + L1 * sin(θ1) + M0 * sin(θ0)
 
         # final time constraints
-        1 ≤ tf ≤ 1000
+        1 ≤ tf ≤ 100
 
         # state constraints
         -π / 2 ≤ θ0(t) ≤ π / 2, (θ0_con)
@@ -129,7 +129,7 @@ function OptimalControlProblems.truck_trailer(
     # initial guess
     xinit = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [x2, y2, θ0, θ1, θ2, v0, δ0]
     uinit = [0.1, 0.1]  # [dv0, dδ0]
-    varinit = [10]  # [tf]
+    varinit = [30]  # [tf]
     init = (state=xinit, control=uinit, variable=varinit)
 
     # discretise the optimal control problem
