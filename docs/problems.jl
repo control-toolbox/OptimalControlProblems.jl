@@ -107,7 +107,7 @@ function generate_documentation(
                 dual_style=(color=1, legend=:none),
                 size=(816, 220*(n_states+n_controls)),
                 label="OptimalControl",
-                leftmargin=20mm,
+                leftmargin=$LEFT_MARGIN,
             )
 
             # Hide legend for additional state plots

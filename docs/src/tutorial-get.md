@@ -12,7 +12,7 @@ using OptimalControlProblems
 
 ## Get an OptimalControl model
 
-### discretise the optimal control problem models
+### Discretise the optimal control problem models
 
 To get an OptimalControl model, first [install](https://control-toolbox.org/OptimalControl.jl/stable/#Installation) OptimalControl and import the package:
 
