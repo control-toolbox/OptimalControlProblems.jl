@@ -63,7 +63,7 @@ function OptimalControlProblems.truck_trailer(
         begin
 
             # Final time
-            1 <= tf <= 100, (start = 30)
+            1 <= tf <= 200, (start = 50)
 
             # State variables
             x2[0:N], (start = 0.1)
