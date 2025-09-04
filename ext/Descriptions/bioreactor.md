@@ -1,51 +1,65 @@
-This problem models a coupled photobioreactor–digester system for methane production.  
-The system consists of three state variables: the algae concentration $y(t)$, the substrate concentration $s(t)$, and the biomass concentration $b(t)$.  
+The **photobioreactor–digester system problem** is a benchmark in constrained optimal control.  
+It models the coupled dynamics of a microalgae photobioreactor and an anaerobic digester for methane production.  
+The system includes three state variables: the algae concentration $y(t)$, the substrate concentration $s(t)$, and the biomass concentration $b(t)$.  
 The control variable $u(t)$ represents the input flow rate between the two units.  
-The dynamics include algal growth driven by light, substrate consumption, and biomass evolution.  
-The aim is to maximise methane production over a fixed time horizon under biological and operational constraints.
+The goal is to maximise methane production over a fixed horizon while satisfying biological and operational constraints [Bayen et al. 2014](https://doi.org/10.1002/oca.2127).
 
 ### Mathematical formulation
 
-We minimise
+The problem can be stated as
 
 ```math
-\min_{y,\,s,\,b,\,u} J(y,s,b,u) = - \frac{1}{\beta+c} \int_0^T \mu_2(s(t))\, b(t)\, dt,
+\begin{aligned}
+\min_{y,s,b,u} \quad & J(y,s,b,u) = - \frac{1}{\beta+c} \int_0^T \mu_2(s(t))\, b(t) \,\mathrm{d}t \\[1em]
+\text{s.t.} \quad &
+\dot{y}(t) = \frac{\mu(t)\, y(t)}{1+y(t)} - (r+u(t))\, y(t), \\[0.5em]
+& \dot{s}(t) = -\mu_2(s(t))\, b(t) + u(t)\, \beta\big(\gamma y(t) - s(t)\big), \\[0.5em]
+& \dot{b}(t) = \big(\mu_2(s(t)) - u(t)\, \beta\big)\, b(t), \\[0.5em]
+& 0 \le u(t) \le 1, \\[0.5em]
+& y(t) \ge 0,\; s(t) \ge 0,\; b(t) \ge 10^{-3}, \\[0.5em]
+& 0.05 \le y(0) \le 0.25,\;\; 0.5 \le s(0) \le 5,\;\; 0.5 \le b(0) \le 3.
+\end{aligned}
 ```
 
-subject to the dynamics
-```math
-\dot{y}(t) = \frac{\mu(t)\, y(t)}{1+y(t)} - (r+u(t))\, y(t),
-```
-```math
-\dot{s}(t) = -\mu_2(s(t))\, b(t) + u(t)\, \beta\big(\gamma y(t) - s(t)\big),
-```
-```math
-\dot{b}(t) = \big(\mu_2(s(t)) - u(t)\, \beta\big)\, b(t),
-```
+The horizon is fixed to $T = 200$ (rescaled units), corresponding to several day–night cycles.
 
-with  
-- **Light model:** $\mu(t) = \mu_{\text{bar}} \,\max(0,\sin(\tau(t)))^2$, where $\tau(t)$ encodes a periodic day–night cycle,  
+The model components are:  
+
+- **Light model:** $\mu(t) = \mu_{\text{bar}} \,\max\!\big(0,\sin(\tau(t))\big)^2$, where $\tau(t)$ encodes the periodic day–night cycle,  
 - **Growth function (Monod law):** $\mu_2(s) = \mu_2^m \,\dfrac{s}{K_s + s}$.
 
-### Constraints
+### Parameter values
 
-- Control bounds: $0 \leq u(t) \leq 1$,  
-- State bounds: $y(t) \geq 0,\; s(t) \geq 0,\; b(t) \geq 10^{-3}$,  
-- Initial conditions: $0.05 \leq y(0) \leq 0.25$, $0.5 \leq s(0) \leq 5$, $0.5 \leq b(0) \leq 3$.
-
-The horizon is fixed to $T = 200$ (rescaled units), corresponding to several day–night periods.
+| Parameter | Symbol | Value |
+|-----------|--------|-------|
+| Flow coupling between reactors | $\beta$ | 1 |
+| Cost scaling | $c$ | 2 |
+| Substrate–algae interaction | $\gamma$ | 1 |
+| Half-period of light cycle | $\text{halfperiod}$ | 5 |
+| Monod half-saturation constant | $K_s$ | 0.05 |
+| Maximum biomass growth rate | $\mu_2^m$ | 0.1 |
+| Maximum light intensity | $\mu_{\text{bar}}$ | 1 |
+| Algal decay rate | $r$ | 0.005 |
+| Time horizon | $T$ | 200 |
 
 ### Qualitative behaviour
 
-The optimal solution exploits the periodic structure of the problem:  
-during illuminated phases, algal growth is favoured, while in dark phases methane production becomes predominant.  
-The control exhibits a near bang–bang structure, alternating between minimal and maximal input flows, with possible singular arcs when substrate and biomass reach balanced levels.  
-The constraints on positivity of the states are typically active for $b(t)$ at the beginning of the process.
+The optimal solution exploits the **periodic light–dark structure**:  
+algal growth is favoured during illuminated phases, while methane production dominates during dark phases.  
+The control $u(t)$ typically exhibits a **bang–bang structure**, alternating between minimum and maximum values, with possible **singular arcs** when substrate and biomass reach balanced levels.  
+The positivity constraint on biomass $b(t)$ is usually active at the beginning of the process, shaping the initial control action.
+
+### Characteristics
+
+- Nonlinear coupled dynamics with periodic forcing,  
+- Control and state constraints ensuring feasibility,  
+- Bang–bang and singular arc structures in the optimal control,  
+- Serves as a benchmark for optimal control methods with periodic and constrained systems.
 
 ### References
 
-- Bayen, T., Mairet, F., Martinon, P., & Sebbah, M. (2014). *Analysis of a periodic optimal control problem connected to microalgae anaerobic digestion*. Optimal Control Applications and Methods. [DOI:10.1002/oca.2127](https://hal.archives-ouvertes.fr/hal-00860570)  
-- Bayen, T., Mairet, F., Martinon, P., & Sebbah, M. (2013). *Optimising the anaerobic digestion of microalgae in a coupled process*. 13th European Control Conference.  
-- Barbosa, M.J., & Wijffels, R.H. (2010). *An Outlook on Microalgal Biofuels*. Science, 329, 796–799.  
-- Betts, J.T. (2001). *Practical methods for optimal control using nonlinear programming*. SIAM.  
-- BOCOP repository: https://github.com/control-toolbox/bocop/tree/main/bocop
+- Bayen, T., Mairet, F., Martinon, P., & Sebbah, M. (2014). *Analysis of a periodic optimal control problem connected to microalgae anaerobic digestion*. Optimal Control Applications and Methods. [https://doi.org/10.1002/oca.2127](https://doi.org/10.1002/oca.2127)  
+  This paper analyzes a periodic optimal control problem modeling a coupled microalgae photobioreactor and anaerobic digester. It provides theoretical insights and numerical solutions for maximizing methane production under biological and operational constraints.
+
+- BOCOP examples: Photobioreactor–digester system problem. [https://project.inria.fr/bocop/files/2017/05/Examples-BOCOP.pdf](https://project.inria.fr/bocop/files/2017/05/Examples-BOCOP.pdf)  
+  This example demonstrates the practical implementation of the photobioreactor–digester system in BOCOP, serving as a benchmark for constrained, nonlinear, periodic optimal control problems.
