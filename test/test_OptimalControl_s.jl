@@ -28,9 +28,9 @@ function test_OptimalControl_s()
             DEBUG && println("├─  Solve")
             DEBUG && println("│")
             print("  First solve:  ");
-            @time sol = MadNLPMumps.madnlp(nlp; linear_solver=MumpsSolver, kwargs...)
+            @time sol = madnlp(nlp; linear_solver=MumpsSolver) # debug , kwargs...)
             print("  Second solve: ");
-            @time sol = MadNLPMumps.madnlp(nlp; linear_solver=MumpsSolver, kwargs...)
+            @time sol = madnlp(nlp; linear_solver=MumpsSolver) # debug , kwargs...)
             DEBUG && println("│")
 
             # Infos
