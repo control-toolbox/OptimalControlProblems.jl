@@ -96,7 +96,7 @@ function OptimalControlProblems.robot(
     uinit = [0, 0, 0]
     init = (state=xinit, control=uinit, variable=tf)
 
-    # DOCP and NLP
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;

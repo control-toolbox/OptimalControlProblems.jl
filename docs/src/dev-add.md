@@ -1,19 +1,19 @@
 # [Add a problem](@id add-problem)
 
-To add a new problem to **OptimalControlProblems**, you should follow these steps:
+To add a new problem to **OptimalControlProblems**, you must follow these steps:
 
 **1.** Create a new file in the `ext/MetaData` directory with the name of your problem, containing the required information about the problem in a dictionary. For example, if your problem is called `new_problem`, create a file named `new_problem.jl`. The dictionary should follow the template:
 
 ```julia
 new_problem_meta = OrderedDict(
-    :name => "new_problem",             # Problem name
-    :N => 100,                          # Number of steps
-    :minimise => true,                  # Whether the objective is minimised (true) or maximised (false)
-    :state_name => ["x1", "x2"],        # Names of the state components
-    :costate_name => ["∂x1", "∂x2"],    # Names of the costate components (dual variables of the dynamics constraints)
-    :control_name => ["u"],             # Names of the control components
-    :variable_name => ["v"],            # Names of the optimisation variables
-    :final_time => (:fixed, 1),         # Final time information
+    :name => "new_problem",            # Problem name
+    :N => 100,                         # Number of steps
+    :minimise => true,                 # Whether we minimise (true) or maximise (false)
+    :state_name => ["x1", "x2"],       # Names of the state components
+    :costate_name => ["∂x1", "∂x2"],   # Names of the dynamics constraints (for the costate)
+    :control_name => ["u"],            # Names of the control components
+    :variable_name => ["v"],           # Names of the optimisation variables
+    :final_time => (:fixed, 1),        # Final time information
 )
 ```
 
@@ -21,13 +21,18 @@ new_problem_meta = OrderedDict(
 
     For more details about the metadata, see the [MetaData](@ref problems-introduction-metadata) section.
 
-**2.** Define the DOCP **OptimalControl** model of the problem in a file named `new_problem.jl` in the `ext/OptimalControlModels` directory.
+**2.** Define the **OptimalControl** model of the problem in a file named `new_problem.jl` in the `ext/OptimalControlModels` directory, following the template:
 
 ```julia
 """
     Documentation of the method
 """
-function OptimalControlProblems.new_problem(::OptimalControlBackend, description::Symbol...; N::Int=steps_number_data(:new_problem), kwargs...)
+function OptimalControlProblems.new_problem(
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:new_problem),
+    kwargs...,
+)
 
     # if tf is fixed
     tf = final_time_data(:new_problem)
@@ -41,7 +46,7 @@ function OptimalControlProblems.new_problem(::OptimalControlBackend, description
     # initial guess for the problem
     init = () 
 
-    # DOCP and NLP
+    # discretise the optimal control problem
         docp = direct_transcription(
         ocp, 
         description...; 
@@ -57,13 +62,15 @@ function OptimalControlProblems.new_problem(::OptimalControlBackend, description
 end
 ```
 
-**3.** Define the NLP **JuMP** model of the problem in a file named `new_problem.jl` in the `ext/JuMPModels` directory.
+**3.** Define the **JuMP** model of the problem in a file named `new_problem.jl` in the `ext/JuMPModels` directory, following the template:
 
 ```julia
 """
     Documentation of the method
 """
-function OptimalControlProblems.new_problem(::JuMPBackend, args...; N::Int=steps_number_data(:new_problem), kwargs...)
+function OptimalControlProblems.new_problem(
+    ::JuMPBackend, args...; N::Int=steps_number_data(:new_problem), kwargs...
+)
 
     # if tf is fixed
     tf = final_time_data(:new_problem)
@@ -71,11 +78,12 @@ function OptimalControlProblems.new_problem(::JuMPBackend, args...; N::Int=steps
     # model
     model = JuMP.Model(args...; kwargs...)
 
-    # Define the problem here
-    # ...
+    # define the problem
+    # @variables, @constraints, @objective...
 
     return model
+
 end
 ```
 
-**4.** Describe the problem in a file named `new_problem.jl` in the `ext/Descriptions` directory.
+**4.** Describe the problem in a file named `new_problem.jl` in the `ext/Descriptions` directory. Please get inspiration from the already existing descriptions in [OptimalControlProblems.jl/ext/Descriptions](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/Descriptions).

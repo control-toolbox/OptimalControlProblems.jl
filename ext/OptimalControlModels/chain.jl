@@ -70,7 +70,7 @@ function OptimalControlProblems.chain(
         return [u, x[1] * √(1 + u^2), √(1 + u^2)]
     end
 
-    # Initial guess
+    # initial guess
     tmin = b > a ? 1 / 4 : 3 / 4
     xinit =
         t -> [
@@ -82,7 +82,7 @@ function OptimalControlProblems.chain(
     uinit = t -> 4 * abs(b - a) * (t / tf - tmin)
     init = (state=xinit, control=uinit)
 
-    # NLPModel + DOCP
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;

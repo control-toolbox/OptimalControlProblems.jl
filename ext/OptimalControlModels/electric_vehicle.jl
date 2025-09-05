@@ -69,7 +69,7 @@ function OptimalControlProblems.electric_vehicle(
     uinit = [0.1]       # [u]
     init = (state=yinit, control=uinit)
 
-    # DOCP and NLP
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;

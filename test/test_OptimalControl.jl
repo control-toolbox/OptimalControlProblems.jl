@@ -43,13 +43,9 @@ function test_OptimalControl()
 
             # Test
             res = @my_test_broken (sol.status == :first_order || sol.status == :acceptable)
-            keep_problem = keep_problem && (typeof(res) == Test.Pass)
-            DEBUG &&
-                (typeof(res) == Test.Pass) &&
-                println("│     \033[1;32mTest Passed\033[0m")
-            DEBUG &&
-                (typeof(res) != Test.Pass) &&
-                println("│     \033[1;31mTest Failed\033[0m")
+            keep_problem = keep_problem && res
+            DEBUG &&  res && println("│     \033[1;32mTest Passed\033[0m")
+            DEBUG && !res && println("│     \033[1;31mTest Failed\033[0m")
             DEBUG && println("│")
             DEBUG && println("└─")
 

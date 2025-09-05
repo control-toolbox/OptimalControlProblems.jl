@@ -103,13 +103,13 @@ function OptimalControlProblems.glider(
         return [∂x, ∂y, ∂vx, ∂vy]
     end
 
-    # Initial guess
+    # initial guess
     tfinit = 1
     xinit = t -> [x_0 + vx_0 * t / tfinit, y_0 + t / tfinit * (y_f - y_0), vx_0, vy_0]
     uinit = cL_max / 2
     init = (state=xinit, control=uinit, variable=tfinit)
 
-    # DOCP and NLP
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;

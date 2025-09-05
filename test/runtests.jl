@@ -3,12 +3,14 @@ using CTBase
 using CTDirect
 using Ipopt
 using JuMP
+using NLPModels
 using NLPModelsIpopt
 using OptimalControl
 using OptimalControlProblems
 using Test
 using Plots
 using Plots.PlotMeasures # for leftmargin, bottommargin
+using Printf
 using Interpolations
 include("utils.jl")
 
@@ -35,7 +37,7 @@ end
 # list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
 # list_of_problems = [
-#     :quadrotor
+#     :truck_trailer
 # ]
 
 # The list of all the problems to test

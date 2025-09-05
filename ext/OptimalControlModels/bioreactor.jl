@@ -55,7 +55,7 @@ function OptimalControlProblems.bioreactor(
     # parameters
     β = 1
     c = 2
-    gamma = 1
+    γ = 1
     halfperiod = 5
     Ks = 0.05
     μ2m = 0.1
@@ -81,17 +81,17 @@ function OptimalControlProblems.bioreactor(
 
         ẋ(t) == [
             μ * y(t) / (1 + y(t)) - (r + u(t)) * y(t),
-            -μ2 * b(t) + u(t) * β * (gamma * y(t) - s(t)),
+            -μ2 * b(t) + u(t) * β * (γ * y(t) - s(t)),
             (μ2 - u(t) * β) * b(t),
         ]
 
         -∫(μ2 * b(t) / (β + c)) → min
     end
 
-    # Initial guess
+    # initial guess
     init = (state=[50, 50, 50], control=0.5)
 
-    # NLPModel + DOCP
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;

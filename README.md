@@ -63,7 +63,7 @@ If you use OptimalControlProblems.jl in your work, please cite us:
 or in bibtex format:
 
 ```bibtex
-@software{Caillau_OptimalControlProblems_jl,
+@software{OptimalControlProblems_jl,
 author = {Caillau, Jean-Baptiste and Cots, Olivier and Gergaud, Joseph and Martinon, Pierre},
 doi = {10.5281/zenodo.17013180},
 license = {["MIT"]},

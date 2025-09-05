@@ -95,10 +95,10 @@ function OptimalControlProblems.ducted_fan(
     # initial guess
     xinit = [0.1, 0.1, -0.1, 0.1, 0.1, 0.1]  # [x₁, v₁, x₂, v₂, α, vα]
     uinit = [0.1, 1]  # [u₁, u₂]
-    varinit = [1]  # [tf] 
+    varinit = [1.5]  # [tf] 
     init = (state=xinit, control=uinit, variable=varinit)
 
-    # DOCP and NLP
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;

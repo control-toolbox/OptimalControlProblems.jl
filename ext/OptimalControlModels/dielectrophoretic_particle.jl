@@ -66,7 +66,7 @@ function OptimalControlProblems.dielectrophoretic_particle(
     # initial guess
     init = (state=[1, 1], control=0.1, variable=5)
 
-    # DOCP and NLP
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;

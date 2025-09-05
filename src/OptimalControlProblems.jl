@@ -30,6 +30,16 @@ export nlp_model, ocp_model, build_ocp_solution
 
 # -----------------
 
+function generate_prompt(::AbstractString)
+    throw(CTBase.ExtensionError(:JSON, :HTTP))
+end
+abstract type AbstractDocAppTag end
+struct DocAppTag <: AbstractDocAppTag end
+doc_app(::AbstractDocAppTag) = throw(CTBase.ExtensionError(:JSON, :HTTP))
+doc_app() = doc_app(DocAppTag())
+
+#
+
 """
 $(TYPEDEF)
 
@@ -159,6 +169,11 @@ for i in 1:number_of_problems
         value = eval(Meta.parse("$(file_key)_meta"))[data]
         if !(value isa T)
             error("Type mismatch: Expected $(T) for $(data), but got $(typeof(value))")
+        end
+        if data == :final_time
+            if (value[1] != :fixed) && (value[1] != :free)
+                error("Incorrect value: Expected free or :fixed for $(value[1])")
+            end
         end
         metadata[file_key][data] = value
     end

@@ -1,5 +1,6 @@
 using Documenter
 using DocumenterInterLinks
+using DocumenterMermaid
 using OptimalControlProblems
 using OptimalControl
 using JuMP
@@ -41,6 +42,11 @@ links = InterLinks(
         "https://jso.dev/NLPModelsIpopt.jl/stable/objects.inv",
         joinpath(@__DIR__, "inventories", "NLPModelsIpopt.toml"),
     ),
+    "NLPModelsJuMP" => (
+        "https://jso.dev/NLPModelsJuMP.jl/stable/",
+        "https://jso.dev/NLPModelsJuMP.jl/stable/objects.inv",
+        joinpath(@__DIR__, "inventories", "NLPModelsJuMP.toml"),
+    ),
     "OptimalControl" => (
         "https://control-toolbox.org/OptimalControl.jl/stable/",
         "https://control-toolbox.org/OptimalControl.jl/stable/objects.inv",
@@ -69,7 +75,7 @@ cp(
 repo_url = "github.com/control-toolbox/OptimalControlProblems.jl"
 
 #
-draft = false
+draft = true
 exclude_from_draft=Symbol[
 #    :beam
 ]
@@ -77,14 +83,15 @@ PROBLEMS_PAGES = generate_documentation_problems(;
     draft=draft, exclude_from_draft=exclude_from_draft
 )
 
+# If draft is true below, then the julia code from .md is not executed.
+# To disable the draft mode in a specific markdown file, use the following:
+#=
+```@meta
+Draft = false
+```
+=#
 makedocs(;
-    draft=draft, # if draft is true, then the julia code from .md is not executed # debug
-    # to disable the draft mode in a specific markdown file, use the following:
-    #=
-    ```@meta
-    Draft = false
-    ```
-    =#
+    draft=draft,
     #remotes=nothing,
     warnonly=:cross_references,
     sitename="OptimalControlProblems.jl",
@@ -102,10 +109,10 @@ makedocs(;
         "Problems" =>
             ["problems-introduction.md", "List of the problems" => PROBLEMS_PAGES],
         "Tutorials" => [
-            "How to get a problem" => "tutorial-get.md",
-            "How to solve a problem" => "tutorial-solve.md",
+            "Get a problem" => "tutorial-get.md",
+            "Solve a problem" => "tutorial-solve.md",
         ],
-        "Developers" => ["How to add a problem" => "dev-add.md", "API" => "dev-api.md"],
+        "Developers" => ["Add a problem" => "dev-add.md", "API" => "dev-api.md"],
     ],
     plugins=[links],
 )

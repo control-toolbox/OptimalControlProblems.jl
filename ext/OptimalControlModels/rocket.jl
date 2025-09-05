@@ -89,7 +89,7 @@ function OptimalControlProblems.rocket(
     time_vec = LinRange(0, 1, N+1)
     init = (time=time_vec, state=xinit, control=Tmax/2, variable=1)
 
-    # DOCP and NLP
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;

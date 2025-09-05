@@ -1,16 +1,21 @@
 # [Get a problem](@id get-problem)
 
-Each problem in the **OptimalControlProblems** package is modelled both in JuMP and in OptimalControl. To obtain a model, you need to specify either the JuMP or the OptimalControl backend.
+Each problem in the **OptimalControlProblems** package is modelled both in JuMP and in OptimalControl. To obtain a model, you need to specify either the JuMP or the OptimalControl backend, but first import the package:
+
+```@example main_oc
+using OptimalControlProblems
+```
+
+```@setup main_jp
+using OptimalControlProblems
+```
 
 ## Get an OptimalControl model
 
-### DOCP and NLP Model
-
-To get an OptimalControl model, first install [OptimalControl](https://control-toolbox.org/OptimalControl.jl/stable/#Installation) and import the packages:
+To get an OptimalControl model, first [install](https://control-toolbox.org/OptimalControl.jl/stable/#Installation) OptimalControl and import the package:
 
 ```@example main_oc
 using OptimalControl
-using OptimalControlProblems
 ```
 
 Then, to obtain the OptimalControl model of the beam problem, run:
@@ -40,12 +45,17 @@ The `nlp` model represents the nonlinear programming problem (NLP) obtained afte
 
 ### Number of variables, constraints, and nonzeros
 
-The `nlp` model follows the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API. See the existing [Attributes](https://jso.dev/NLPModels.jl/stable/#Attributes) and the available getter functions (`get_X`) [here](https://jso.dev/NLPModels.jl/stable/reference).  
+The `nlp` model follows the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API. See the existing [Attributes](https://jso.dev/NLPModels.jl/stable/#Attributes) and the available [getter functions](https://jso.dev/NLPModels.jl/stable/reference) (`get_X`).  
 
-To get the number of variables:
+To get the number of variables, import the package:
 
 ```@example main_oc
 using NLPModels
+```
+
+and then, use the associated getter:
+
+```@example main_oc
 get_nvar(nlp)
 ```
 
@@ -72,7 +82,7 @@ println("nnzh = ", nnzh)
 
 ### Number of steps
 
-The number of steps $N$ is stored in the metadata:
+The (default) number of steps $N$ is stored in the metadata:
 
 ```@example main_oc
 metadata[:beam][:N]
@@ -85,23 +95,20 @@ Each problem can be parameterised by the number of steps:
 
 ```@example main_oc
 docp = beam(OptimalControlBackend(); N=100)
-nlp = nlp_model(docp)
-get_nvar(nlp)
+get_nvar(nlp_model(docp))
 ```
 
 ```@example main_oc
 docp = beam(OptimalControlBackend(); N=200)
-nlp = nlp_model(docp)
-get_nvar(nlp)
+get_nvar(nlp_model(docp))
 ```
 
 ## Get a JuMP model
 
-To get a JuMP model, first [install JuMP](https://jump.dev/JuMP.jl/stable/installation/#Installation-Guide) and import the packages:
+To get a JuMP model, [install](https://jump.dev/JuMP.jl/stable/installation/#Installation-Guide) JuMP and import the package:
 
 ```@example main_jp
 using JuMP
-using OptimalControlProblems
 ```
 
 Then, to obtain the JuMP model of the beam problem, run:
@@ -119,4 +126,4 @@ nlp = beam(JuMPBackend())
     ``` 
 
 !!! note
-    You can transform a JuMP model into a `MathOptNLPModel` and then use all the API of [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl). See this [tutorial](https://jso.dev/NLPModelsJuMP.jl/dev/tutorial) for more details.
+    You can also transform the JuMP model into a [`NLPModelsJuMP.MathOptNLPModel`](@extref) and then use all the API of [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl). See this [tutorial](https://jso.dev/NLPModelsJuMP.jl/dev/tutorial) for more details.

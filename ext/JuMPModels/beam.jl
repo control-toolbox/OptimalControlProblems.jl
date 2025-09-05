@@ -44,7 +44,7 @@ function OptimalControlProblems.beam(
         begin
             0.0 <= x1[0:N] <= 0.1, (start = 0.05)
             x2[0:N], (start = 0.1)
-            -10 <= u[0:N] <= 5, (start = 0.1)
+            u[0:N], (start = 0.1)
         end
     )
 
