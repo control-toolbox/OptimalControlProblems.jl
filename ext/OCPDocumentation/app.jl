@@ -1,30 +1,8 @@
-"""
-$(TYPEDSIGNATURES)
-
-Returns the HTML string for the Julia Docstrings/Prompt Generator web app.
-
-This HTML includes the structure, layout, and style definitions required for a client-side interface
-with dark/light mode support, tabs for input areas, and interactive elements.
-
-# Returns
-
-- `html::String`: A complete HTML string to be served as the main page of the application.
-
-# Example
-
-```julia-repl
-julia> html = html_code_doc_app();
-julia> occursin("DOCTYPE html", html)
-true
-```
-"""
-function html_code_doc_app()
-    html = """
-    <!DOCTYPE html>
-    <html lang='en'>
-    <head>
+function html_header()
+html = """
+<head>
         <meta charset='UTF-8'>
-        <title>Julia Doc Helper</title>
+        <title>OCP Doc Helper</title>
         <!-- Prism CSS: light and dark themes -->
         <link id="prism-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" />
         <style>
@@ -318,55 +296,39 @@ function html_code_doc_app()
             }
         </style>
     </head>
+"""
+return html
+end
+
+function html_code_doc_app()
+    # build the <option> list from available problems
+    options = join(["<option value=\"$(p)\">$(string(p))</option>" for p in OptimalControlProblems.problems()], "\n")
+
+    html = """
+    <!DOCTYPE html>
+    <html lang='en'>
+    """ * html_header() * """
     <body>
         <div class="container">
-            <h2>Julia Docstrings Generator</h2>
-
-            <div class="tabs" role="tablist" aria-label="Input Tabs">
-                <div class="tab active" role="tab" tabindex=" 0" aria-selected="true"  aria-controls="code-tab"        id="code-tab-btn">Code</div>
-                <div class="tab"        role="tab" tabindex="-1" aria-selected="false" aria-controls="complement-tab"  id="complement-tab-btn">Complements (optional)</div>
-                <div class="tab"        role="tab" tabindex="-1" aria-selected="false" aria-controls="test-tab"        id="test-tab-btn">Tests (optional)</div>
-                <div class="tab"        role="tab" tabindex="-1" aria-selected="false" aria-controls="context-tab"     id="context-tab-btn">Context (optional)</div>
-            </div>
+            <h2>OCP Prompt Generator</h2>
 
             <form id="form" novalidate>
-                <textarea id="code"       placeholder="Paste your Julia code here" spellcheck="false" role="tabpanel" aria-labelledby="code-tab-btn" rows="7"></textarea>
-                <textarea id="complement" placeholder="Add optional complements to the prompt. For instance: Write in UK english, not US." spellcheck="false" role="tabpanel" aria-labelledby="complement-tab-btn" rows="7"></textarea>
-                <textarea id="test"       placeholder="Paste your Julia tests here" spellcheck="false" role="tabpanel" aria-labelledby="test-tab-btn" rows="7"></textarea>
-                <textarea id="context"    placeholder="Add optional context to improve doc quality..." spellcheck="false" role="tabpanel" aria-labelledby="context-tab-btn" rows="7"></textarea>
+                <label for="problem">Choose a problem:</label>
+                <select id="problem" name="problem">
+                    $options
+                </select>
 
-                <hr>
-
-                <div class="api">
-                    <label for="apikey">Mistral API Key:</label>
-                    <input type="password" id="apikey" placeholder="Enter your API key here" aria-describedby="apikey-help">
-                    <small id="apikey-help" style="color: #888; font-size: 0.85em;">
-                        Required for docstring generation mode. Get your API key from Mistral AI.
-                    </small>
-                </div>
                 <div class="flex-row justify-between">
                     <div class="left-buttons">
                         <button type="submit">Generate</button>
-
-                        <div style="display: flex; align-items: center; gap: 1em; margin-top: 0.5em;">
-                            <label>
-                                <input type="radio" name="mode" value="prompt" checked> Prompt
-                            </label>
-                            <label>
-                                <input type="radio" name="mode" value="docstrings"> Docstrings
-                            </label>
-                        </div>
                     </div>
-
                     <div class="right-buttons">
-                        <button type="button" id="example">Load Example</button>
                         <button type="button" id="quit">Quit</button>
                     </div>
                 </div>
-
             </form>
-            <hr>
 
+            <hr>
 
             <div class="output-container" style="position: relative;">
                 <pre class="output language-julia" id="output" tabindex="0" aria-live="polite"></pre>
@@ -377,188 +339,26 @@ function html_code_doc_app()
             <button type="button" id="toggle-theme" aria-label="Toggle dark/light mode">Toggle Dark/Light Mode</button>
         </div>
 
-        <!-- Prism.js core + Julia language -->
+        <!-- Prism.js core -->
         <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-julia.min.js"></script>
 
         <script>
-            function updateHeadingFromMode() {
-                const selectedMode = document.querySelector('input[name="mode"]:checked')?.value;
-                const h2 = document.querySelector("h2");
-                if (h2 && selectedMode) {
-                    h2.textContent = selectedMode === "prompt"
-                        ? "Julia Prompt Generator"
-                        : "Julia Docstrings Generator";
-                }
-            }
-
-            function toggleTabsByMode() {
-                const mode = document.querySelector('input[name="mode"]:checked')?.value;
-                const contextTab = document.getElementById('context-tab-btn');
-                const contextTextarea = document.getElementById('context');
-
-                if (mode === "prompt") {
-                    // Hide context tab
-                    if (contextTab) contextTab.style.display = "none";
-                    if (contextTextarea?.classList.contains("active")) {
-                        activateTab('code');
-                    }
-                } else {
-                    if (contextTab) contextTab.style.display = "";
-                }
-            }
-
-            function toggleApiKeyInput() {
-                const mode = document.querySelector('input[name="mode"]:checked')?.value;
-                const apiDiv = document.querySelector('.api');
-                const apiInput = document.getElementById('apikey');
-
-                if (mode === 'docstrings') {
-                    apiDiv.style.display = '';       // show
-                    apiInput.disabled = false;
-                } else {
-                    apiDiv.style.display = 'none';   // hide
-                    apiInput.disabled = true;
-                    //apiInput.value = '';              // clear for safety
-                }
-            }
-
-            const apiInput = document.getElementById('apikey');
-            apiInput.addEventListener('input', () => {
-                localStorage.setItem('mistral-api-key', apiInput.value);
-            });
-            
-            document.querySelectorAll('input[name="mode"]').forEach(radio => {
-                radio.addEventListener("change", () => {
-                    updateHeadingFromMode();
-                    toggleTabsByMode();
-                    toggleApiKeyInput();
-                    localStorage.setItem("docgen-mode", radio.value);
-                });
-            });
-
-            function autoResizeTextarea(el) {
-                // Ensure no inline display style to not conflict with CSS classes
-                el.style.removeProperty('display');
-                el.style.height = 'auto';
-                el.style.height = el.scrollHeight + 'px';
-            }
-
-            // Apply resizing to all textareas on input
-            document.querySelectorAll('textarea').forEach(function(textarea) {
-                textarea.addEventListener('input', function() {
-                    autoResizeTextarea(this);
-                });
-                // Adjust on load if text is already present
-                autoResizeTextarea(textarea);
-            });
-
-            const tabs = document.querySelectorAll('.tab');
-            const textareas = {
-                code: document.getElementById('code'),
-                complement: document.getElementById('complement'),
-                test: document.getElementById('test'),
-                context: document.getElementById('context')
-            };
-
-            function activateTab(name) {
-                tabs.forEach(tab => {
-                    const isActive = tab.id === name + '-tab-btn';
-                    tab.classList.toggle('active', isActive);
-                    tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
-                    tab.tabIndex = isActive ? 0 : -1;
-                });
-                Object.entries(textareas).forEach(([key, ta]) => {
-                    if (key === name) {
-                        ta.classList.add('active');
-                        setTimeout(() => ta.focus(), 0);
-                    } else {
-                        ta.classList.remove('active');
-                    }
-                });
-            }
-
-            document.addEventListener('DOMContentLoaded', () => {
-                activateTab('code');
-                Object.values(textareas).forEach(el => autoResizeTextarea(el));
-
-                requestAnimationFrame(() => {
-                    const savedTheme = localStorage.getItem("docgen-theme") || "dark";
-                    applyTheme(savedTheme);
-
-                    const saved = localStorage.getItem("docgen-mode");
-                    if (saved === "prompt" || saved === "docstrings") {
-                        const radio = document.querySelector('input[name="mode"][value="' + saved + '"]');
-                        if (radio) radio.checked = true;
-                    }
-
-                    updateHeadingFromMode();
-                    toggleTabsByMode();
-                    toggleApiKeyInput();
-
-                    const savedKey = localStorage.getItem('mistral-api-key');
-                    if (savedKey) {
-                        const apiInput = document.getElementById('apikey');
-                        apiInput.value = savedKey;
-                    }
-                });
-            });
-
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    activateTab(tab.id.replace('-tab-btn','')); // fix: match '-tab-btn'
-                });
-                tab.addEventListener('keydown', e => {
-                    let index = Array.from(tabs).indexOf(e.target);
-                    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-                        e.preventDefault();
-                        let nextIndex = (index + 1) % tabs.length;
-                        tabs[nextIndex].focus();
-                        activateTab(tabs[nextIndex].id.replace('-tab-btn',''));
-                    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-                        e.preventDefault();
-                        let prevIndex = (index - 1 + tabs.length) % tabs.length;
-                        tabs[prevIndex].focus();
-                        activateTab(tabs[prevIndex].id.replace('-tab-btn',''));
-                    }
-                });
-            });
-
             async function generateOutput() {
-                const code = textareas.code.value;
-                const complement = textareas.complement.value;
-                const tests = textareas.test.value;
-                const doc = textareas.context.value;
-                const apikey = document.getElementById('apikey').value;
-                const mode = document.querySelector('input[name="mode"]:checked').value;
+                const problem = document.getElementById('problem').value;
                 const outputEl = document.getElementById('output');
-
-                // Require API key only for docstrings mode
-                if (mode === "docstrings" && !apikey) {
-                    outputEl.textContent = "Please provide your API key for docstrings generation.";
-                    return;
-                }
 
                 outputEl.textContent = "Generating...";
                 outputEl.classList.add("generating");
-                Prism.highlightElement(outputEl);
 
                 try {
                     const resp = await fetch('/run', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            code: code,
-                            complement: complement,
-                            tests: tests,
-                            doc: doc,
-                            apikey: apikey,
-                            mode: mode
-                        })
+                        body: JSON.stringify({ problem })
                     });
                     const text = await resp.text();
                     outputEl.textContent = text;
-                    outputEl.focus();
                     Prism.highlightElement(outputEl);
                 } catch (err) {
                     outputEl.textContent = "Error during request: " + err;
@@ -573,10 +373,8 @@ function html_code_doc_app()
             };
 
             document.getElementById('quit').onclick = function () {
-                Object.values(textareas).forEach(ta => ta.value = "");
                 const outputEl = document.getElementById('output');
                 outputEl.textContent = "Session cleared. Closing...";
-                outputEl.classList.remove("generating");
                 fetch('/quit').then(() => {
                     setTimeout(() => window.close(), 700);
                 });
@@ -586,16 +384,12 @@ function html_code_doc_app()
             const copyCheck = document.getElementById('copy-check');
             const outputEl = document.getElementById('output');
 
-            // Handle copy logic
             copyButton.onclick = function () {
                 const text = outputEl.textContent;
-                if (text.trim().length === 0) {
-                    return; // Do nothing if there's nothing to copy
-                }
+                if (text.trim().length === 0) return;
                 navigator.clipboard.writeText(text).then(() => {
                     copyCheck.style.display = "inline";
                     copyButton.disabled = true;
-                    // Reset after 1.5 seconds if no content change
                     setTimeout(() => {
                         copyCheck.style.display = "none";
                         copyButton.disabled = false;
@@ -603,25 +397,6 @@ function html_code_doc_app()
                 });
             };
 
-            // Reset checkmark on prompt change
-            const observer = new MutationObserver(() => {
-                copyCheck.style.display = "none";
-                copyButton.disabled = false;
-            });
-            observer.observe(outputEl, { childList: true, subtree: true });
-
-            document.getElementById('example').onclick = function () {
-                textareas.code.value = `function square(x)
-        x^2
-    end`;
-                textareas.test.value = `using Test
-    @test square(3) == 9`;
-                textareas.context.value = "";
-                Object.values(textareas).forEach(el => autoResizeTextarea(el));
-                activateTab('code');
-            };
-
-            // Dark/light mode toggle
             function applyTheme(theme) {
                 const isLight = theme === "light";
                 document.body.classList.toggle("light", isLight);
@@ -634,14 +409,16 @@ function html_code_doc_app()
             const toggleThemeBtn = document.getElementById('toggle-theme');
             toggleThemeBtn.onclick = () => {
                 const newTheme = document.body.classList.contains("light") ? "dark" : "light";
-                localStorage.setItem("docgen-theme", newTheme);
+                localStorage.setItem("ocp-theme", newTheme);
                 applyTheme(newTheme);
             };
 
-
+            document.addEventListener('DOMContentLoaded', () => {
+                const savedTheme = localStorage.getItem("ocp-theme") || "dark";
+                applyTheme(savedTheme);
+            });
         </script>
     </body>
-
     </html>
     """
     return html
@@ -675,34 +452,11 @@ function handled_doc_app(req)
 
     elseif req.target == "/run" && req.method == "POST"
         data = JSON.parse(String(req.body))
-
-        mode = get(data, "mode", "prompt")  # default to "prompt"
-        user_code = data["code"]
-        user_complement = get(data, "complement", "")
-        user_test = get(data, "tests", "")
-        user_context = get(data, "doc", "")  # also used for prompt context
-        user_apikey = get(data, "apikey", "")
-
-        if isempty(user_apikey) && mode == "docstrings"
-            return HTTP.Response(
-                401,
-                ["Content-Type" => "text/plain"],
-                "Please provide your API key for docstrings generation.",
-            )
-        end
-
+        problem = get(data, "problem", "")
         result = ""
 
         try
-            if mode == "prompt"
-                result = OptimalControlProblems.generate_prompt(
-                    user_code, user_complement, user_test, user_context
-                )
-            elseif mode == "docstrings"
-                nothing
-            else
-                result = "Unknown mode: $mode"
-            end
+            result = OptimalControlProblems.generate_prompt(problem)
         catch err
             result = "Error during generation: $(err)"
         end

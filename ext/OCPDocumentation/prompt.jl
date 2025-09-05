@@ -1,154 +1,83 @@
-"""
-$(TYPEDSIGNATURES)
+function OptimalControlProblems.generate_prompt(problem::String)
+    code_url = "https://raw.githubusercontent.com/control-toolbox/OptimalControlProblems.jl/main/ext/OptimalControlModels/$(problem).jl"
+    metadata_url = "https://raw.githubusercontent.com/control-toolbox/OptimalControlProblems.jl/main/ext/MetaData/$(problem).jl"
 
-Generates a well-structured and precise prompt to produce Julia docstrings in the Documenter.jl style, using provided code, tests, and context.
-
-# Arguments
-
-- `code_text::String`: The Julia code (structs and functions) to document.
-- `complement_text::String`: Optional complement to the prompt.
-- `tests_text::String`: Optional related tests for improving examples.
-- `context_text::String`: Additional domain knowledge or technical explanation to improve doc quality.
-
-# Returns
-
-- `prompt::String`: A clear prompt ready for use with a language model like ChatGPT or Mistral.
-
-# Example
-
-```julia-repl
-julia> code = "function square(x); x^2; end"
-julia> OptimalControlProblems.generate_prompt(code, "Write in UK english.", "", "")
-"Your task is to write docstrings for the following Julia code..."
-```
-"""
-function OptimalControlProblems.generate_prompt(
-    code_text::String, complement_text::String, tests_text::String, context_text::String
-)
     prompt = """
-You are a Julia expert. Your task is to generate complete and idiomatic Julia docstrings for each `struct` or `function` in the code below.
+You are an expert in optimal control and scientific writing.  
+Your task is to generate a **problem description** for the OptimalControlProblems.jl library.
 
-Follow **Documenter.jl** standards precisely.
-
-$complement_text
+The description must follow exactly the style and structure used in the existing problem descriptions, for example:
+- https://raw.githubusercontent.com/control-toolbox/OptimalControlProblems.jl/110-general-review-the-documentation-of-the-problems/ext/Descriptions/chain.md
+- https://raw.githubusercontent.com/control-toolbox/OptimalControlProblems.jl/110-general-review-the-documentation-of-the-problems/ext/Descriptions/dielectrophoretic_particle.md
 
 ---
 
 ## ✅ What to do
 
-- Place the docstring **immediately above** the corresponding declaration.
-- For **structs**, start the docstring with `\"\"\"` and `\$(TYPEDEF)`.
-- For **functions**, start the docstring with `\"\"\"` and `\$(TYPEDSIGNATURES)`.
-- Write a **clear, concise** description of what the item does.
-- For a **struct**, include a `# Fields` section (name, type, short description).
-- For a **function**, include:
-  - `# Arguments`: List and explain each argument.
-  - `# Returns`: Describe what is returned (if applicable).
-- Add a `# Example` with a `julia-repl` block showing basic usage.
+1. Carefully analyze the provided Julia problem definition code.  
+   - Source: $code_url
+2. Use the metadata file to determine important characteristics such as the **final time** (fixed or free).  
+   - Metadata: $metadata_url
+3. Write a clear, structured description in **Markdown** with the following sections:
+
+### Problem description  
+Explain the physical or mathematical system and the control objective.  
+
+### Mathematical formulation  
+Write the optimal control problem using math notation:
+- Dynamics
+- Objective (Mayer/Lagrange/Bolza)
+- Initial and terminal conditions
+- Constraints  
+
+### System parameters  
+List all parameters defined in the code, with symbol, type/unit, and meaning.  
+
+### Qualitative behaviour  
+Explain qualitatively how the solution behaves depending on parameter values.  
+
+### Characteristics  
+Summarize the structural properties of the problem:
+- Linear or nonlinear
+- Free or fixed final time
+- State constraints present?
+- Control constraints present?  
+
+### References  
+Provide 2–3 scientific references (articles, textbooks, benchmark studies).  
+For each reference, explain its relevance to the problem.  
 
 ---
 
 ## 🚫 What *not* to do
 
-- ❌ Do not invent new code, functions, structs, or examples.
-- ❌ Do not move or reorder the code.
-- ❌ Do not rename arguments or fields.
-- ❌ Do not include unrelated commentary or headers.
-
----
-
-## 📦 Templates
-
-### Template A — Structs
-
-```julia
-\"\"\"
-\$(TYPEDEF)
-
-[One-sentence description of what this struct represents.]
-
-# Fields
-
-- `[field_name]::[Type]`: [Short description.]
-
-# Example
-
-```julia-repl
-julia> [usage example]
-[expected output]
-```
-\"\"\"
-[struct declaration]
-```
-
----
-
-### Template B — Functions
-
-```julia
-\"\"\"
-\$(TYPEDSIGNATURES)
-
-[One-sentence description of what this function does.]
-
-# Arguments
-
-- `[arg_name]::[Type]`: [Description.]
-
-# Returns
-
-- `[return_value]::[Type]`: [Description.]
-
-# Example
-
-```julia-repl
-julia> [usage example]
-[expected output]
-```
-\"\"\"
-[function declaration]
-```
+- ❌ Do not invent new dynamics, parameters, or objectives not in the code.  
+- ❌ Do not change variable names from the code.  
+- ❌ Do not add unrelated references.  
 
 ---
 
 ## 🔧 Input
 
-### BEGIN CODE
-$code_text
-### END CODE
-"""
+Use the following problem definition and metadata:
 
-    if !isempty(tests_text)
-        prompt *= """
-
-### BEGIN TESTS
-$tests_text
-### END TESTS
-"""
-    end
-
-    if !isempty(context_text)
-        prompt *= """
-
-### BEGIN CONTEXT
-$context_text
-### END CONTEXT
-"""
-    end
-
-    prompt *= """
+- Problem code: $code_url  
+- Problem metadata: $metadata_url  
 
 ---
 
-🧾 Return your answer in a single Julia code cell using **four backticks and the `julia` language tag**, like this:
+## 📦 Output format
 
-\`\`\`\`julia
-# your documented code here
-\`\`\`\`
+🧾 Return your answer in a single Markdown code cell using **four backticks**, with sections:
 
-Strictly follow the structure above and complete a docstring for **each element** (struct or function).
-Place each docstring **immediately above** its corresponding declaration.
-Do **not** alter the provided code.
+- [description]  
+- Mathematical formulation (remark: h3 title)
+- System parameters (remark: h3 title)
+- Qualitative behaviour (remark: h3 title)
+- Characteristics (remark: h3 title)
+- References (remark: h3 title)
+
+Strictly follow the formatting conventions of the existing descriptions.
 """
 
     return prompt
