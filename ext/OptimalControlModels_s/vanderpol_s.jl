@@ -43,7 +43,7 @@ function OptimalControlProblems.vanderpol_s(
 
         x(0) == [1, 0]
 
-        ∂(x₁)(t) == x₂(t),
+        ∂(x₁)(t) == x₂(t)
         ∂(x₂)(t) == ε * ω * (1 - x₁(t)^2) * x₂(t) - ω^2 * x₁(t) + u(t)
 
         0.5∫(x₁(t)^2 + x₂(t)^2 + u(t)^2) → min

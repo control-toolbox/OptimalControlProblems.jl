@@ -86,7 +86,7 @@ function OptimalControlProblems.glider_s(
         w = vy(t) - UpD
         v = √(vx(t)^2 + w^2)
         D = 0.5 * (c0 + c1 * (cL(t)^2)) * ρ * S * (v^2)
-        L = 0.5 * cL * ρ * S * (v^2)
+        L = 0.5 * cL(t) * ρ * S * (v^2)
 
         ∂(x)(t) == vx(t)
         ∂(y)(t) == vy(t)
