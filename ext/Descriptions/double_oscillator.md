@@ -46,12 +46,12 @@ where $F(t) = \sin\left(\frac{2 \pi}{T} t\right)$ is a prescribed periodic forci
 - Control input enters through a damping term, introducing nonlinearity in the system response.  
 - Bounded control with symmetric limits.  
 - Widely used to benchmark numerical methods for constrained optimal control in mechanical systems.  
-- Serves as a testbed for averaging methods and bang-bang control design.
+- Serves as a testbed for averaging methods and bang–bang control design.
 
 ### References
 
 - **Coudurier, C., Lepreux, O., & Petit, N. (2018).** *Optimal bang-bang control of a mechanical double oscillator using averaging methods.* IFAC-PapersOnLine, 51(2), 49–54.  
-  Investigates bang-bang control strategies for the double oscillator system using averaging methods to analyze optimal trajectories.
+  Investigates bang-bang control strategies for the double oscillator system using averaging methods to analyse optimal trajectories.
 
 - **Graichen, K., & Petit, N. (2009).** *Incorporating a class of constraints into the dynamics of optimal control problems.* Optim. Control Appl. Methods, 30(5), 397–415.  
   Explores methods for integrating constraints directly into the dynamics of optimal control problems, relevant to double oscillator systems with constrained damping.

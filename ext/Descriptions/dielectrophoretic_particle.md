@@ -47,7 +47,7 @@ where $x_0$ and $x_f$ are the initial and final particle positions, $\alpha$ is 
 
 - The optimal control typically saturates at the bounds $u = \pm 1$, characteristic of **time-optimal problems**.  
 - The auxiliary state $y(t)$ evolves according to both the control and its own decay, influencing the particle's acceleration nonlinearly.  
-- The final time $t_f$ is **free** and is adjusted by the optimization to achieve minimal transfer time.
+- The final time $t_f$ is **free** and is adjusted by the optimisation to achieve minimal transfer time.
 
 ### Characteristics
 

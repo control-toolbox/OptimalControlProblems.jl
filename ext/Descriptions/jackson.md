@@ -1,55 +1,69 @@
-This problem models a simple system of chemical reactions introduced in Jackson (1968) and later discussed by Biegler (2010):
+The **Jackson problem** is a classical benchmark in optimal control.  
+It consists of controlling a three-dimensional system in which the first two states interact linearly under the effect of a single control input, while the third state accumulates based on the complementary control.  
+The objective is to **minimise the third state at the final time**, while satisfying bounds on states and control, as well as initial and terminal conditions.  
+The problem exhibits **singular arcs**, making it a useful benchmark for testing direct transcription and nonlinear programming methods.
 
-```math
-A \;\overset{1}{\rightleftharpoons}\; B \;\overset{2}{\longrightarrow}\; C.
-```
+---
 
-The first reaction is reversible ($A \leftrightarrow B$), while the second one is one-sided ($B \to C$).  
-The control variable $u(t)\in [0,1]$ represents the fraction of catalyst allocated between the two reactions:
+### Mathematical formulation
 
-- for $u=1$, the catalyst favours the reversible $A \leftrightarrow B$ pathway,  
-- for $u=0$, the catalyst favours the irreversible $B \to C$ pathway.  
-
-The aim is to **maximise the production of $C$** at a fixed terminal time $T$.
-
-### Problem formulation
-
-Let $a(t), b(t), c(t)$ denote the mole fractions of $A, B, C$ respectively, and $k_1, k_2, k_3$ the kinetic constants.  
-The optimal control problem is
+The problem can be stated as
 
 ```math
 \begin{aligned}
-\max_{u(\cdot)} \quad & c(T) \\
-\dot a(t) &= - u(t)\,(k_1 a(t) - k_2 b(t)), \\
-\dot b(t) &= \; u(t)\,(k_1 a(t) - k_2 b(t)) - (1-u(t))\,k_3 b(t), \\
-\dot c(t) &= (1-u(t))\,k_3 b(t), \\
-u(t) &\in [0,1], \\
-a(0) &= 1, \quad b(0)=c(0)=0.
+\min_{x_1, x_2, x_3, u} \quad & x_3(t_f) \\[0.5em]
+\text{s.t.} \quad
+& \dot{x}_1(t) = -u(t) (k_1 x_1(t) - k_2 x_2(t)), \\[0.25em]
+& \dot{x}_2(t) = u(t) (k_1 x_1(t) - k_2 x_2(t)) - (1-u(t)) k_3 x_2(t), \\[0.25em]
+& \dot{x}_3(t) = (1-u(t)) k_3 x_2(t), \\[0.5em]
+& x(0) = [1, 0, 0], \quad
+[0, 0, 0] \le x(t) \le [1.1, 1.1, 1.1], \\[0.25em]
+& 0 \le u(t) \le 1, \quad t \in [0, t_f].
 \end{aligned}
 ```
 
-The state constraints are $a,b,c \geq 0$, and by invariance one has $a(t)+b(t)+c(t)=1$.
+where $x_1, x_2, x_3$ are the state variables, $u$ is the control input, and $k_1, k_2, k_3$ are system parameters.
+
+---
+
+### System parameters
+
+| Parameter | Symbol | Value | Description |
+|-----------|--------|-------|-------------|
+| Coupling coefficient | $k_1$ | 1 | Interaction between $x_1$ and $x_2$ |
+| Coupling coefficient | $k_2$ | 10 | Interaction between $x_1$ and $x_2$ |
+| Accumulation rate | $k_3$ | 1 | Growth of $x_3$ under complementary control |
+| Final time | $t_f$ | fixed | Horizon of the control problem |
+| Control bounds | $u$ | [0,1] | Single control input |
+| State bounds | $x$ | $[0,1.1]^3$ | Box constraints for $x_1, x_2, x_3$ |
+
+---
 
 ### Qualitative behaviour
 
-The Hamiltonian is linear in the control, so the optimal solution typically consists of **bang–bang arcs** and possibly **singular arcs**.  
+- The first two states interact linearly under the effect of the control, while the third state accumulates according to $1-u(t)$.  
+- The problem exhibits **singular arcs**, where the optimal control is neither at its lower nor upper bound but satisfies Hamiltonian conditions.  
+- Optimal trajectories typically include **bang–bang segments** interleaved with singular arcs.  
+- State and control constraints are respected at all times, and the final cost depends only on $x_3(t_f)$.
 
-For the parameters $k_1=k_3=1$, $k_2=10$, and $T=4$, the optimal control exhibits a **bang–singular–bang** structure (1 → singular → 0).  
-The singular arc corresponds to an intermediate phase where the catalyst is shared between the two reactions.
+---
 
-### Parameter identification (optional extension)
+### Characteristics
 
-The same model can be extended to parameter estimation: given experimental observations of $a(t), b(t), c(t)$ under a known control input $u(t)$, the unknown kinetic constants $k_1, k_2, k_3$ can be identified using a least-squares fit.  
-Simulated data with added noise reproduce the original parameters with high accuracy (see Table below).
+- Linear–nonlinear three-dimensional dynamics with **one control input**.  
+- State and control bounds.  
+- Terminal cost depends on a single state.  
+- Serves as a benchmark for testing solvers handling singular arcs and constrained optimal control.
 
-| Parameter        | True value | Identified value |
-|------------------|------------|------------------|
-| $k_1$            | 1          | 0.998            |
-| $k_2$            | 10         | 9.97             |
-| $k_3$            | 1          | 1.001            |
+---
 
 ### References
 
-- Jackson, E. A. (1968). *The existence of singular extremals*. Journal of Optimization Theory and Applications.  
-- Biegler, L. T. (2010). *Nonlinear Programming: Concepts, Algorithms, and Applications to Chemical Processes*. SIAM.  
-- BOCOP repository: https://github.com/control-toolbox/bocop
+- **Jackson, E. A. (1968).** *The existence of singular extremals*. Journal of Optimization Theory and Applications.  
+  Discusses the theoretical existence of singular extremals, forming the basis of the Jackson benchmark problem.
+
+- **Biegler, L. T. (2010).** *Nonlinear Programming: Concepts, Algorithms, and Applications to Chemical Processes*. SIAM.  
+  Provides background on nonlinear programming methods applicable to problems like Jackson.
+
+- **BOCOP Repository: Jackson Example.** [https://github.com/control-toolbox/bocop/tree/main/bocop](https://github.com/control-toolbox/bocop/tree/main/bocop)  
+  Contains the Jackson problem implementation for testing direct transcription and NLP solvers.

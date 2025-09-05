@@ -1,5 +1,6 @@
 using Documenter
 using DocumenterInterLinks
+using DocumenterMermaid
 using OptimalControlProblems
 using OptimalControl
 using JuMP

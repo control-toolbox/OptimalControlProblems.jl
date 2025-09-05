@@ -1,7 +1,7 @@
 The **cart-pole swing-up problem** is a classical benchmark in underactuated optimal control.  
 It consists of swinging a pendulum mounted on a cart from its downward equilibrium to the upright position while controlling the horizontal motion of the cart.  
 The objective is to reach the upright position in **minimum time**, subject to cart and pendulum constraints.  
-This problem is widely used to test trajectory optimization and control algorithms for underactuated systems.
+This problem is widely used to test trajectory optimisation and control algorithms for underactuated systems.
 
 ### Mathematical formulation
 
@@ -32,7 +32,7 @@ c &= -\text{FXFY}_x + F_{\rm ex} - m_{\rm cart} \ddot{x} - J \ddot{x}.
 These represent the intermediate computations:
 
 - The function $\alpha(\ddot{x})$ computes the pendulum’s angular acceleration due to cart acceleration and gravity.  
-- The variable $\text{ddCOG}$ represents the acceleration of the pendulum’s center of gravity.  
+- The variable $\text{ddCOG}$ represents the acceleration of the pendulum’s centre of gravity.  
 - The variable $\text{FXFY}$ is the net force vector acting on the pendulum.  
 - The variable $c$ combines pendulum and cart dynamics to determine the net horizontal force for the system.  
 
@@ -56,7 +56,7 @@ The optimal control trajectory typically follows a **bang–singular–bang** pa
 
 - Maximum force is initially applied to accelerate the pendulum and cart (bang arc).  
 - A singular arc follows, balancing the pendulum energy to reach the upright position.  
-- Maximum force is applied again to stabilize and position the cart.
+- Maximum force is applied again to stabilise and position the cart.
 
 The pendulum angle evolves from downward ($\theta = 0$) to upright ($\theta = \pi$), while the cart remains within its bounds.  
 Underactuation makes the problem challenging because the pendulum cannot be actuated directly and the control must exploit coupled dynamics.
@@ -65,15 +65,15 @@ Underactuation makes the problem challenging because the pendulum cannot be actu
 
 - Nonlinear, underactuated dynamics.  
 - Minimum-time objective with state and control constraints.  
-- Serves as a benchmark for trajectory optimization and control of underactuated systems.
+- Serves as a benchmark for trajectory optimisation and control of underactuated systems.
 
 ### References
 
 - **Åström, K. J., & Furuta, K. (2000).** *Swinging up a pendulum by energy control*. Automatica, 36(2), 287–295.  
   [doi.org/10.1016/S0005-1098(99)00140-5](https://doi.org/10.1016/S0005-1098(99)00140-5)  
-  This seminal paper introduces energy-based control strategies for swinging up an inverted pendulum, emphasizing the critical role of the pivot's acceleration relative to gravity. It provides foundational insights into the challenges of controlling underactuated systems.
+  This seminal paper introduces energy-based control strategies for swinging up an inverted pendulum, emphasising the critical role of the pivot's acceleration relative to gravity. It provides foundational insights into the challenges of controlling underactuated systems.
 
-- **Vanroye, L., Sathya, A., De Schutter, J., & Decré, W. (2023).** *FATROP: A Fast Constrained Optimal Control Problem Solver for Robot Trajectory Optimization and Control*. arXiv preprint arXiv:2303.16746.  
+- **Vanroye, L., Sathya, A., De Schutter, J., & Decré, W. (2023).** *FATROP: A Fast Constrained Optimal Control Problem Solver for Robot Trajectory Optimisation and Control*. arXiv preprint arXiv:2303.16746.  
   [arxiv.org/abs/2303.16746](https://arxiv.org/abs/2303.16746)  
   This paper presents FATROP, a solver designed to efficiently handle constrained optimal control problems, including the cart-pole swing-up. It demonstrates how modern numerical methods can compute minimum-time trajectories while respecting state and control constraints, making it highly relevant for implementing the problem in practice.
 
