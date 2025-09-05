@@ -58,8 +58,8 @@ The positivity constraint on biomass $b(t)$ is usually active at the beginning o
 
 ### References
 
-- Bayen, T., Mairet, F., Martinon, P., & Sebbah, M. (2014). *Analysis of a periodic optimal control problem connected to microalgae anaerobic digestion*. Optimal Control Applications and Methods. [https://doi.org/10.1002/oca.2127](https://doi.org/10.1002/oca.2127)  
+- Bayen, T., Mairet, F., Martinon, P., & Sebbah, M. (2014). *Analysis of a periodic optimal control problem connected to microalgae anaerobic digestion*. Optimal Control Applications and Methods. [doi.org/10.1002/oca.2127](https://doi.org/10.1002/oca.2127)  
   This paper analyzes a periodic optimal control problem modeling a coupled microalgae photobioreactor and anaerobic digester. It provides theoretical insights and numerical solutions for maximizing methane production under biological and operational constraints.
 
-- BOCOP examples: Photobioreactor–digester system problem. [https://project.inria.fr/bocop/files/2017/05/Examples-BOCOP.pdf](https://project.inria.fr/bocop/files/2017/05/Examples-BOCOP.pdf)  
+- BOCOP examples: Photobioreactor–digester system problem. [Examples-BOCOP.pdf](https://project.inria.fr/bocop/files/2017/05/Examples-BOCOP.pdf)  
   This example demonstrates the practical implementation of the photobioreactor–digester system in BOCOP, serving as a benchmark for constrained, nonlinear, periodic optimal control problems.

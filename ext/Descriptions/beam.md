@@ -61,8 +61,8 @@ These cases illustrate how second-order state inequality constraints can yield u
 ### References
 
 - Bryson, A.E., Denham, W.F., & Dreyfus, S.E. (1963). *Optimal programming problems with inequality constraints I: necessary conditions for extremal solutions*.  
-  AIAA Journal. [https://doi.org/10.2514/3.2107](https://doi.org/10.2514/3.2107)  
+  AIAA Journal. [doi.org/10.2514/3.2107](https://doi.org/10.2514/3.2107)  
   This seminal work develops the theoretical foundation for optimal control problems with inequality constraints, including the derivation of necessary conditions for extremal solutions. It provides the basis for analyzing state-constrained control problems like the clamped beam.
 
-- BOCOP examples: Clamped Beam problem. [https://project.inria.fr/bocop/files/2017/05/Examples-BOCOP.pdf](https://project.inria.fr/bocop/files/2017/05/Examples-BOCOP.pdf)  
+- BOCOP examples: Clamped Beam problem. [Examples-BOCOP.pdf](https://project.inria.fr/bocop/files/2017/05/Examples-BOCOP.pdf)  
   This example illustrates the practical implementation of the clamped beam problem in BOCOP, providing a benchmark for testing optimal control methods under state inequality constraints.

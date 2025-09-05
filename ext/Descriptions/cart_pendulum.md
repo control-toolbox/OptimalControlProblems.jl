@@ -70,16 +70,16 @@ Underactuation makes the problem challenging because the pendulum cannot be actu
 ### References
 
 - **Åström, K. J., & Furuta, K. (2000).** *Swinging up a pendulum by energy control*. Automatica, 36(2), 287–295.  
-  [https://doi.org/10.1016/S0005-1098(99)00140-5](https://doi.org/10.1016/S0005-1098(99)00140-5)  
+  [doi.org/10.1016/S0005-1098(99)00140-5](https://doi.org/10.1016/S0005-1098(99)00140-5)  
   This seminal paper introduces energy-based control strategies for swinging up an inverted pendulum, emphasizing the critical role of the pivot's acceleration relative to gravity. It provides foundational insights into the challenges of controlling underactuated systems.
 
 - **Vanroye, L., Sathya, A., De Schutter, J., & Decré, W. (2023).** *FATROP: A Fast Constrained Optimal Control Problem Solver for Robot Trajectory Optimization and Control*. arXiv preprint arXiv:2303.16746.  
-  [https://arxiv.org/abs/2303.16746](https://arxiv.org/abs/2303.16746)  
+  [arxiv.org/abs/2303.16746](https://arxiv.org/abs/2303.16746)  
   This paper presents FATROP, a solver designed to efficiently handle constrained optimal control problems, including the cart-pole swing-up. It demonstrates how modern numerical methods can compute minimum-time trajectories while respecting state and control constraints, making it highly relevant for implementing the problem in practice.
 
 - **[Source code files for the Cart-Pendulum problem](https://gitlab.kuleuven.be/robotgenskill/fatrop/fatrop_benchmarks/-/tree/main/cart_pendulum).**  
   This repository contains the implementation of the cart-pendulum problem used in the FATROP benchmarks, providing practical examples of state, control, and dynamics formulations.
 
 - **Tedrake, R. (2024).** *Underactuated Robotics: Algorithms for Walking, Running, Swimming, Flying, and Manipulation (Course Notes for MIT 6.832)*.  
-  [https://underactuated.mit.edu/](https://underactuated.mit.edu/)  
+  [underactuated.mit.edu/](https://underactuated.mit.edu/)  
   This comprehensive resource offers detailed discussions on the cart-pole system, including its dynamics, control strategies, and applications in robotics. It serves as an excellent reference for understanding the theoretical and practical aspects of underactuated systems.
