@@ -10,7 +10,7 @@ using SolverCore
 import ADNLPModels: ADNLPModels, ADNLPModel
 
 # -----------------
-# SHOULD NO BE HERE
+# SHOULD NO BE HERE ("triiiiiiiiiiiiiiit !!!" - bruit de sifflet)
 nlp_model(docp::CTDirect.DOCP) = docp.nlp
 ocp_model(docp::CTDirect.DOCP) = docp.ocp
 function build_ocp_solution(
@@ -71,6 +71,7 @@ path = joinpath(dirname(@__FILE__), "..", "ext", "MetaData")
 files = filter(x -> x[(end - 2):end] == ".jl", readdir(path))
 for file in files
     problem = Symbol(file[1:(end - 3)])
+    problem_s = Symbol(problem, :_s)
 
     # Build the docstring string explicitly here
     doc = """
@@ -105,6 +106,39 @@ for file in files
     end
 
     eval(code)
+
+    doc_s = """
+    $(TYPEDSIGNATURES)
+
+    Defines the optimal control problem `$(string(problem_s))` for a given back-end.
+
+    # Arguments
+
+    - `model_backend::T`: The modelling back-end, subtype of `AbstractModelBackend`.
+    - `N::Int=0`: Number of discretisation steps (optional).
+
+    # Returns
+
+    - Throws an `ExtensionError` if the required back-end is not available.
+
+    # Example
+
+    ```julia-repl
+    julia> $(string(problem_s))(JuMPBackend(); N=20)
+    ERROR: ExtensionError(:JuMP)
+    ```
+    """
+
+    code_s = quote
+        @doc $doc_s function $problem_s(
+            model_backend::T, args...; kwargs...
+        ) where {T<:AbstractModelBackend}
+            throw(CTBase.ExtensionError(weakdeps[T]))
+        end
+        export $problem_s
+    end
+
+    eval(code_s)
 end
 
 # ------- Problem Metadata -------
