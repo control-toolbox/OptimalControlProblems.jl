@@ -1058,10 +1058,11 @@ deps = ["ADNLPModels", "CTBase", "CTDirect", "CTModels", "DocStringExtensions", 
 path = "/home/runner/work/OptimalControlProblems.jl/OptimalControlProblems.jl"
 uuid = "59046045-fb9c-4c23-964f-ff0a25704f96"
 version = "0.2.2"
-weakdeps = ["JuMP", "OptimalControl"]
+weakdeps = ["HTTP", "JSON", "JuMP", "OptimalControl"]
 
     [deps.OptimalControlProblems.extensions]
     JuMPModels = "JuMP"
+    OCPDocumentation = ["HTTP", "JSON"]
     OptimalControlModels = "OptimalControl"
 
 [[deps.Opus_jll]]
