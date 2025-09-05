@@ -42,7 +42,7 @@ function test_OptimalControl_s()
             DEBUG && println("│")
 
             # Test
-            res = @my_test_broken (sol.status == MadNLPMumps.SOLVE_SUCCEEDED) #:first_order || sol.status == :acceptable)
+            res = @my_test_broken (sol.status == MadNLP.SOLVE_SUCCEEDED) #:first_order || sol.status == :acceptable)
             keep_problem = keep_problem && res
             DEBUG &&  res && println("│     \033[1;32mTest Passed\033[0m")
             DEBUG && !res && println("│     \033[1;31mTest Failed\033[0m")
