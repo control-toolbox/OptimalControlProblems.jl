@@ -1,11 +1,39 @@
 """
-    The Cart-Pendulum Problem:
-        we want to find the optimal trajectory of a cart-pendulum system.
-        The objective is to swing the pendulum from the downward position to the upright position in the shortest time possible.
-        The problem is formulated as an OptimalControl model.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** representing the Cart-Pendulum system.  
+The function defines state and control variables, boundary conditions, path constraints, and system dynamics, with the objective of swinging the pendulum from the downward position to the upright position in minimum time.  
+It performs direct transcription to produce a discretised optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the discretised Cart-Pendulum problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp = OptimalControlProblems.cart_pendulum(OptimalControlBackend(); N=100);
+```
+
+# References
+
+- Formulation inspired by OptimalControl approach for swing-up control problems.
 """
-function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=500)
-    
+function OptimalControlProblems.cart_pendulum(
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:cart_pendulum),
+    kwargs...,
+)
+
     # parameters
     g = 9.81            # gravitation [m/s^2]
     L = 1               # pendulum length [m]
@@ -17,7 +45,7 @@ function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=5
     max_v = 2
 
     ocp = @def begin
-        
+
         # time, variable, state and control
         w = (tf, ddx) ∈ R², variable
         t ∈ [0, tf], time
@@ -35,9 +63,9 @@ function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=5
         tf ≥ 0.1, (tf_con)
 
         # initial conditions
-        x(0) == 0,  (x_ic)
-        θ(0) == 0,  (θ_ic)
-        ω(0) == 0,  (ω_ic)
+        x(0) == 0, (x_ic)
+        θ(0) == 0, (θ_ic)
+        ω(0) == 0, (ω_ic)
 
         # final conditions
         θ(tf) == π, (θ_fc)
@@ -48,12 +76,11 @@ function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=5
 
         # objective
         tf → min
-
     end
 
     # dynamics
     function dynamics(v, θ, ω, Fex, ddx)
-        
+
         #
         α(ddx) = 1 / (I + 0.25 * m * L^2) * 0.5 * L * m * (-ddx * cos(θ) - g * sin(θ))
         ddCOG = L * ω * [-sin(θ), cos(θ)] + L / 2 * [cos(θ), sin(θ)] * α(ddx) + [ddx, 0]
@@ -78,7 +105,15 @@ function OptimalControlProblems.cart_pendulum(::OptimalControlBackend; nh::Int=5
     init = (state=xinit, control=uinit, variable=varinit)
 
     # NLPModel + DOCP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
-    nlp = model(docp)
-    return docp, nlp
+    docp = direct_transcription(
+        ocp,
+        description...;
+        lagrange_to_mayer=false,
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
+    )
+
+    return docp
 end

@@ -19,32 +19,31 @@ function test_quick()
     max_r_err = -Inf # relative error max
 
     for f in LIST_OF_PROBLEMS
+        N = metadata[f][:N]
 
-        nh = OptimalControlProblems.metadata[f][:nh]
-    
         @testset "$(string(f)) (objective)" verbose=VERBOSE begin
-
             DEBUG && println("\n", "┌─ ", string(f))
             DEBUG && println("│")
-            
+
             ########## OptimalControl ##########
-            docp, nlp = OptimalControlProblems.eval(f)(OptimalControlBackend(); nh=nh)
+            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
+            nlp = nlp_model(docp)
             nlp_sol = NLPModelsIpopt.ipopt(nlp; kwargs...)
-            sol = build_OCP_solution(docp; primal=nlp_sol.solution, dual=nlp_sol.multipliers, docp_solution=nlp_sol)
+            sol = build_ocp_solution(docp, nlp_sol)
             o_oc = objective(sol)
 
             ############### JuMP ###############
-            model = OptimalControlProblems.eval(f)(JuMPBackend(); nh=nh)
-            set_optimizer(model, Ipopt.Optimizer)
-            set_silent(model)
-            set_optimizer_attribute(model, "tol", TOL)
-            set_optimizer_attribute(model, "max_iter", MAX_ITER)
-            set_optimizer_attribute(model, "mu_strategy", MU_STRATEGY)
-            set_optimizer_attribute(model, "linear_solver", "mumps")
-            set_optimizer_attribute(model, "max_wall_time", MAX_WALL_TIME)
-            set_optimizer_attribute(model, "sb", SB)
-            optimize!(model)
-            o_jp = objective_value(model)
+            nlp = OptimalControlProblems.eval(f)(JuMPBackend(); N=N)
+            set_optimizer(nlp, Ipopt.Optimizer)
+            set_silent(nlp)
+            set_optimizer_attribute(nlp, "tol", TOL)
+            set_optimizer_attribute(nlp, "max_iter", MAX_ITER)
+            set_optimizer_attribute(nlp, "mu_strategy", MU_STRATEGY)
+            set_optimizer_attribute(nlp, "linear_solver", "mumps")
+            set_optimizer_attribute(nlp, "max_wall_time", MAX_WALL_TIME)
+            set_optimizer_attribute(nlp, "sb", SB)
+            optimize!(nlp)
+            o_jp = objective_value(nlp)
 
             ############### TEST ###############
             # objective
@@ -58,22 +57,23 @@ function test_quick()
             DEBUG && println("│     r_err = ", o_di/(0.5*(abs(o_oc) + abs(o_jp))))
             DEBUG && println("│     a_err = ", o_di)
             DEBUG && println("│     bound = ", o_bd)
-        
+
             res = @my_test_broken o_di < o_bd
 
-            DEBUG && (typeof(res) == Test.Pass) && println("│     \033[1;32mTest Passed\033[0m")
-            DEBUG && (typeof(res) != Test.Pass) && println("│     \033[1;31mTest Failed\033[0m")
+            DEBUG &&
+                (typeof(res) == Test.Pass) &&
+                println("│     \033[1;32mTest Passed\033[0m")
+            DEBUG &&
+                (typeof(res) != Test.Pass) &&
+                println("│     \033[1;31mTest Failed\033[0m")
             DEBUG && println("│")
 
             max_r_err = max(max_r_err, o_di/(0.5*(abs(o_oc) + abs(o_jp))))
 
             #
             DEBUG && println("└─")
-
         end
-
     end
 
     DEBUG && println("maximal relative error: ", max_r_err)
-
 end

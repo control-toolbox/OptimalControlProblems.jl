@@ -1,11 +1,10 @@
-beam_meta = Dict(
+beam_meta = OrderedDict(
     :name => "beam",
-    :nh => 500,
-    :nvar => nothing,
-    :ncon => nothing,
-    :minimize => true,
+    :N => 500,
+    :minimise => true,
     :state_name => ["x1", "x2"],
     :costate_name => ["∂x1", "∂x2"],
     :control_name => ["u"],
-    :time => ("final_time", "tf", 1)
+    :variable_name => nothing,
+    :final_time => (:fixed, 1),
 )

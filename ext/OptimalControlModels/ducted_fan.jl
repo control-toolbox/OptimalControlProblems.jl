@@ -1,11 +1,39 @@
 """
-The Ducted Fan Problem:
-    Implement the optimal control of a planar ducted fan.
-    Instance taken from [GP2009].
-    The problem is formulated as an OptimalControl model.
-Ref: Graichen, K., & Petit, N. (2009). Incorporating a class of constraints into the dynamics of optimal control problems. Optimal Control Applications and Methods, 30(6), 537-561.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for a planar ducted fan system.  
+The function defines state and control variables, system dynamics, boundary conditions, and a cost functional combining control effort and final time.  
+It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=250`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the planar ducted fan.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp = OptimalControlProblems.ducted_fan(OptimalControlBackend(); N=250);
+```
+
+# References
+
+- Graichen, K., & Petit, N. (2009). Incorporating a class of constraints into the dynamics of optimal control problems. *Optimal Control Applications and Methods*, 30(6), 537-561. [GP2009]
+- Problem instance follows OptimalControl formulation for ducted fan trajectory optimisation.
 """
-function OptimalControlProblems.ducted_fan(::OptimalControlBackend; nh::Int=250)
+function OptimalControlProblems.ducted_fan(
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:ducted_fan),
+    kwargs...,
+)
 
     # parameters
     r = 0.2         # [m]
@@ -15,7 +43,6 @@ function OptimalControlProblems.ducted_fan(::OptimalControlBackend; nh::Int=250)
     μ = 1000
 
     ocp = @def begin
-
         tf ∈ R, variable
         t ∈ [0, tf], time
         x = (x₁, v₁, x₂, v₂, α, vα) ∈ R⁶, state
@@ -52,11 +79,9 @@ function OptimalControlProblems.ducted_fan(::OptimalControlBackend; nh::Int=250)
 
         # objective
         (1 / tf) * ∫(2 * u₁(t)^2 + u₂(t)^2) + (μ * tf) → min
-
     end
 
     function dynamics(v₁, v₂, α, vα, u₁, u₂)
-
         dx₁ = v₁
         dv₁ = (u₁ * cos(α) - u₂ * sin(α)) / m
         dx₂ = v₂
@@ -74,8 +99,15 @@ function OptimalControlProblems.ducted_fan(::OptimalControlBackend; nh::Int=250)
     init = (state=xinit, control=uinit, variable=varinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
-    nlp = model(docp)
+    docp = direct_transcription(
+        ocp,
+        description...;
+        lagrange_to_mayer=false,
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
+    )
 
-    return docp, nlp
+    return docp
 end

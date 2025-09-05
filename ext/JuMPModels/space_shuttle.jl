@@ -1,12 +1,35 @@
 """
-Space Shuttle Reentry Trajectory Problem:
-    We want to find the optimal trajectory of a space shuttle reentry.
-    The objective is to maximize the latitude (cross range) at the terminal point.
-    The problem is formulated as a JuMP model, and can be found [here](https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/)
-    Note: no heating limit path constraint
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Space Shuttle Reentry Trajectory Problem**.  
+The model represents the dynamics of a space shuttle reentry with multiple states (altitude `h`, longitude `ϕ`, latitude `θ`, velocity `v`, flight path angle `γ`, azimuth `ψ`) and control inputs (angle of attack `α` and bank angle `β`).  
+The objective is to maximise the terminal latitude (cross-range) while satisfying boundary conditions and vehicle dynamics.  
+Note: no heating limit path constraint is included in this formulation.
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the space shuttle reentry optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.space_shuttle(JuMPBackend(); N=200)
+```
+
+# References
+
+- Problem formulation and tutorial available at: https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/
 """
 function OptimalControlProblems.space_shuttle(
-    ::JuMPBackend; integration_rule::String="trapezoidal", nh::Int=500
+    ::JuMPBackend, args...; N::Int=steps_number_data(:space_shuttle), kwargs...
 )
 
     ## Global variables
@@ -53,7 +76,7 @@ function OptimalControlProblems.space_shuttle(
     γ_t = deg2rad(-5)  # flight path angle (rad)
 
     # model
-    model = JuMP.Model()
+    model = JuMP.Model(args...; kwargs...)
 
     # state, control and variable (final time)
     @variables(
@@ -61,20 +84,19 @@ function OptimalControlProblems.space_shuttle(
         begin
 
             # state
-            0 ≤ scaled_h[0:nh]                          # altitude (ft) / 1e5
-            ϕ[0:nh]                                     # longitude (rad)
-            deg2rad(-89) ≤ θ[0:nh] ≤ deg2rad(89)        # latitude (rad)
-            1e-4 ≤ scaled_v[0:nh]                       # velocity (ft/sec) / 1e4
-            deg2rad(-89) ≤ γ[0:nh] ≤ deg2rad(89)        # flight path angle (rad)
-            ψ[0:nh]                                     # azimuth (rad)
+            0 ≤ scaled_h[0:N]                          # altitude (ft) / 1e5
+            -2π ≤ ϕ[0:N] ≤ 2π                          # longitude (rad)
+            deg2rad(-89) ≤ θ[0:N] ≤ deg2rad(89)        # latitude (rad)
+            1e-4 ≤ scaled_v[0:N]                       # velocity (ft/sec) / 1e4
+            deg2rad(-89) ≤ γ[0:N] ≤ deg2rad(89)        # flight path angle (rad)
+            -2π ≤ ψ[0:N] ≤ 2π                          # azimuth (rad)
 
             # control
-            deg2rad(-90) ≤ α[0:nh] ≤ deg2rad(90)        # angle of attack (rad)
-            deg2rad(-89) ≤ β[0:nh] ≤ deg2rad(1)         # bank angle (rad)
+            deg2rad(-90) ≤ α[0:N] ≤ deg2rad(90)        # angle of attack (rad)
+            deg2rad(-89) ≤ β[0:N] ≤ deg2rad(1)         # bank angle (rad)
 
             #
             tf_min ≤ tf ≤ tf_max                        # final time (sec)
-            # 3.5 ≤ Δt[1:(nh - 1)] ≤ 4.5                  # time step (sec)
         end
     )
 
@@ -89,9 +111,9 @@ function OptimalControlProblems.space_shuttle(
             con_v0, scaled_v[0] == v_s
             con_γ0, γ[0] == γ_s
             con_ψ0, ψ[0] == ψ_s
-            con_hf, scaled_h[nh] == h_t
-            con_vf, scaled_v[nh] == v_t
-            con_γf, γ[nh] == γ_t
+            con_hf, scaled_h[N] == h_t
+            con_vf, scaled_v[N] == v_t
+            con_γf, γ[N] == γ_t
         end
     )
 
@@ -103,15 +125,15 @@ function OptimalControlProblems.space_shuttle(
     end
 
     # Interpolate each parameter separately
-    h_interp = linear_interpolate(h_s, h_t, nh+1)
-    ϕ_interp = linear_interpolate(ϕ_s, ϕ_s, nh+1) # no change in longitude
-    θ_interp = linear_interpolate(θ_s, θ_s, nh+1) # no change in latitude
-    v_interp = linear_interpolate(v_s, v_t, nh+1)
-    γ_interp = linear_interpolate(γ_s, γ_t, nh+1)
-    ψ_interp = linear_interpolate(ψ_s, ψ_s, nh+1) # no change in azimuth
-    α_interp = linear_interpolate(α_s, α_s, nh+1) # no change in angle of attack
-    β_interp = linear_interpolate(β_s, β_s, nh+1) # no change in bank angle
-    t_interp = linear_interpolate(t_s, t_s, nh+1) # no change in time step
+    h_interp = linear_interpolate(h_s, h_t, N+1)
+    ϕ_interp = linear_interpolate(ϕ_s, ϕ_s, N+1) # no change in longitude
+    θ_interp = linear_interpolate(θ_s, θ_s, N+1) # no change in latitude
+    v_interp = linear_interpolate(v_s, v_t, N+1)
+    γ_interp = linear_interpolate(γ_s, γ_t, N+1)
+    ψ_interp = linear_interpolate(ψ_s, ψ_s, N+1) # no change in azimuth
+    α_interp = linear_interpolate(α_s, α_s, N+1) # no change in angle of attack
+    β_interp = linear_interpolate(β_s, β_s, N+1) # no change in bank angle
+    t_interp = linear_interpolate(t_s, t_s, N+1) # no change in time step
 
     # Combine all interpolated parameters into an array of arrays
     interpolated_values = [
@@ -142,71 +164,50 @@ function OptimalControlProblems.space_shuttle(
     #set_start_value.(model[:Δt], vec(initial_guess[1:(end - 1), 9]))
 
     ## Functions to restore `h` and `v` to their true scale
-    @expression(model, h[j=0:nh], scaled_h[j] * 1e5)
-    @expression(model, v[j=0:nh], scaled_v[j] * 1e4)
+    @expression(model, h[j = 0:N], scaled_h[j] * 1e5)
+    @expression(model, v[j = 0:N], scaled_v[j] * 1e4)
 
     # Helper functions
-    @expression(model, c_L[j=0:nh], a₀ + a₁ * rad2deg(α[j]))
-    @expression(model, c_D[j=0:nh], b₀ + b₁ * rad2deg(α[j]) + b₂ * rad2deg(α[j])^2)
-    @expression(model, ρ[j=0:nh], ρ₀ * exp(-h[j] / hᵣ))
-    @expression(model, D[j=0:nh], 0.5 * c_D[j] * S * ρ[j] * v[j]^2)
-    @expression(model, L[j=0:nh], 0.5 * c_L[j] * S * ρ[j] * v[j]^2)
-    @expression(model, r[j=0:nh], Rₑ + h[j])
-    @expression(model, g[j=0:nh], μ / r[j]^2)
+    @expression(model, c_L[j = 0:N], a₀ + a₁ * rad2deg(α[j]))
+    @expression(model, c_D[j = 0:N], b₀ + b₁ * rad2deg(α[j]) + b₂ * rad2deg(α[j])^2)
+    @expression(model, ρ[j = 0:N], ρ₀ * exp(-h[j] / hᵣ))
+    @expression(model, D[j = 0:N], 0.5 * c_D[j] * S * ρ[j] * v[j]^2)
+    @expression(model, L[j = 0:N], 0.5 * c_L[j] * S * ρ[j] * v[j]^2)
+    @expression(model, r[j = 0:N], Rₑ + h[j])
+    @expression(model, g[j = 0:N], μ / r[j]^2)
 
     ## Motion of the vehicle as a differential-algebraic system of equations (DAEs)
-    @expression(model, δh[j=0:nh], v[j] * sin(γ[j]))
-    @expression(model, δϕ[j=0:nh], (v[j] / r[j]) * cos(γ[j]) * sin(ψ[j]) / cos(θ[j]))
-    @expression(model, δθ[j=0:nh], (v[j] / r[j]) * cos(γ[j]) * cos(ψ[j]))
-    @expression(model, δv[j=0:nh], -(D[j] / m) - g[j] * sin(γ[j]))
+    @expression(model, δh[j = 0:N], v[j] * sin(γ[j]))
+    @expression(model, δϕ[j = 0:N], (v[j] / r[j]) * cos(γ[j]) * sin(ψ[j]) / cos(θ[j]))
+    @expression(model, δθ[j = 0:N], (v[j] / r[j]) * cos(γ[j]) * cos(ψ[j]))
+    @expression(model, δv[j = 0:N], -(D[j] / m) - g[j] * sin(γ[j]))
     @expression(
         model,
-        δγ[j=0:nh],
+        δγ[j = 0:N],
         (L[j] / (m * v[j])) * cos(β[j]) + cos(γ[j]) * ((v[j] / r[j]) - (g[j] / v[j]))
     )
     @expression(
         model,
-        δψ[j=0:nh],
+        δψ[j = 0:N],
         (1 / (m * v[j] * cos(γ[j]))) * L[j] * sin(β[j]) +
             (v[j] / (r[j] * cos(θ[j]))) * cos(γ[j]) * sin(ψ[j]) * sin(θ[j])
     )
 
-    @expression(
+    @expression(model, Δt[i = 1:N], tf / N)
+
+    @constraints(
         model,
-        Δt[i=1:nh], tf / nh
+        begin
+            ∂h[i = 1:N], h[i] == h[i - 1] + 0.5 * Δt[i] * (δh[i - 1] + δh[i])
+            ∂ϕ[i = 1:N], ϕ[i] == ϕ[i - 1] + 0.5 * Δt[i] * (δϕ[i - 1] + δϕ[i])
+            ∂θ[i = 1:N], θ[i] == θ[i - 1] + 0.5 * Δt[i] * (δθ[i - 1] + δθ[i])
+            ∂v[i = 1:N], v[i] == v[i - 1] + 0.5 * Δt[i] * (δv[i - 1] + δv[i])
+            ∂γ[i = 1:N], γ[i] == γ[i - 1] + 0.5 * Δt[i] * (δγ[i - 1] + δγ[i])
+            ∂ψ[i = 1:N], ψ[i] == ψ[i - 1] + 0.5 * Δt[i] * (δψ[i - 1] + δψ[i])
+        end
     )
 
-    if integration_rule == "rectangular"
-        ## Rectangular integration
-        @constraints(
-            model,
-            begin
-                ∂h[i=1:nh], h[i] == h[i - 1] + Δt[i] * δh[i - 1]
-                ∂ϕ[i=1:nh], ϕ[i] == ϕ[i - 1] + Δt[i] * δϕ[i - 1]
-                ∂θ[i=1:nh], θ[i] == θ[i - 1] + Δt[i] * δθ[i - 1]
-                ∂v[i=1:nh], v[i] == v[i - 1] + Δt[i] * δv[i - 1]
-                ∂γ[i=1:nh], γ[i] == γ[i - 1] + Δt[i] * δγ[i - 1]
-                ∂ψ[i=1:nh], ψ[i] == ψ[i - 1] + Δt[i] * δψ[i - 1]
-            end
-        )
-    elseif integration_rule == "trapezoidal"
-        ## Trapezoidal integration
-        @constraints(
-            model,
-            begin
-                ∂h[i=1:nh], h[i] == h[i - 1] + 0.5 * Δt[i] * (δh[i - 1] + δh[i])
-                ∂ϕ[i=1:nh], ϕ[i] == ϕ[i - 1] + 0.5 * Δt[i] * (δϕ[i - 1] + δϕ[i])
-                ∂θ[i=1:nh], θ[i] == θ[i - 1] + 0.5 * Δt[i] * (δθ[i - 1] + δθ[i])
-                ∂v[i=1:nh], v[i] == v[i - 1] + 0.5 * Δt[i] * (δv[i - 1] + δv[i])
-                ∂γ[i=1:nh], γ[i] == γ[i - 1] + 0.5 * Δt[i] * (δγ[i - 1] + δγ[i])
-                ∂ψ[i=1:nh], ψ[i] == ψ[i - 1] + 0.5 * Δt[i] * (δψ[i - 1] + δψ[i])
-            end
-        )
-    else
-        @error "Unexpected integration rule '$(integration_rule)'"
-    end
-
-    @objective(model, Min, -θ[nh])
+    @objective(model, Min, -θ[N])
 
     return model
 end

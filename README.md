@@ -18,6 +18,9 @@
 [pkg-eval-img]: https://img.shields.io/badge/Julia-package-purple
 [pkg-eval-url]: https://juliahub.com/ui/Packages/General/OptimalControlProblems
 
+[citation-img]: https://zenodo.org/badge/848989278.svg
+[citation-url]: https://zenodo.org/doi/10.5281/zenodo.17013180
+
 [licence-img]: https://img.shields.io/badge/License-MIT-yellow.svg
 [licence-url]: https://github.com/control-toolbox/OptimalControlProblems.jl/blob/master/LICENSE
 
@@ -35,6 +38,7 @@ The control-toolbox ecosystem gathers Julia packages for mathematical control an
 | Code Status       | [![Build Status][ci-img]][ci-url] [![Covering Status][co-img]][co-url] [![pkgeval][pkg-eval-img]][pkg-eval-url] [![Code Style: Blue][blue-img]][blue-url]  |
 | Licence           | [![License: MIT][licence-img]][licence-url]   |
 | Release           | [![Release][release-img]][release-url]        |
+| Citation          | [![DOI][citation-img]][citation-url]          |
 
 ## Installation
 
@@ -49,6 +53,24 @@ pkg> add OptimalControlProblems
 
 > [!TIP]
 > If you are new to Julia, please follow this [guidelines](https://github.com/orgs/control-toolbox/discussions/64).
+
+## Citing us
+
+If you use OptimalControlProblems.jl in your work, please cite us:
+
+> Caillau, J.-B., Cots, O., Gergaud, J., & Martinon, P. *OptimalControlProblems.jl: a collection of optimal control problems with ODE's in Julia*. [doi.org/10.5281/zenodo.17013180](https://doi.org/10.5281/zenodo.17013180)
+
+or in bibtex format:
+
+```bibtex
+@software{Caillau_OptimalControlProblems_jl,
+author = {Caillau, Jean-Baptiste and Cots, Olivier and Gergaud, Joseph and Martinon, Pierre},
+doi = {10.5281/zenodo.17013180},
+license = {["MIT"]},
+title = {{OptimalControlProblems.jl: a collection of optimal control problems with ODE's in Julia}},
+url = {https://control-toolbox.org/OptimalControlProblems.jl}
+}
+```
 
 ## Contributing
 

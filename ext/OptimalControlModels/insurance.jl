@@ -1,10 +1,41 @@
 """
-The Insurance Problem:
-    The problem is formulated as an OptimalControl model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for an insurance system optimisation.  
+The function defines state and control variables, system dynamics, constraints on insurance, expenses, revenue, health, utility, and auxiliary variables, and sets up a cost functional aimed at maximising expected utility over time.  
+It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the insurance optimisation problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp = OptimalControlProblems.insurance(OptimalControlBackend(); N=500);
+```
+
+# References
+
+- Problem formulation available at [Bocop repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.insurance(::OptimalControlBackend; nh::Int=500)
-    
+function OptimalControlProblems.insurance(
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:insurance),
+    kwargs...,
+)
+
     # parameters
+    tf = final_time_data(:insurance)
     γ = 0.2
     λ = 0.25
     h0 = 1.5
@@ -13,24 +44,19 @@ function OptimalControlProblems.insurance(::OptimalControlBackend; nh::Int=500)
     k = 0
     σ = 0
     α = 4
-    tf = 10
+
+    # I: Insurance
+    # m: Expense
+    # R: Revenue
+    # H: Health
+    # U: Utility
 
     # Model
     ocp = @def begin
-        
-        t ∈ [0, tf], time
-        x ∈ R³, state
-        u ∈ R⁵, control
         P ∈ R, variable
-
-        #
-        I = x[1] # Insurance
-        m = x[2] # Expense
-        h = u[1]
-        R = u[2] # Revenue
-        H = u[3] # Health
-        U = u[4] # Utility
-        dUdR = u[5]
+        t ∈ [0, tf], time
+        x = (I, m, x₃) ∈ R³, state
+        u = (h, R, H, U, dUdR) ∈ R⁵, control
 
         # constraints
         0 ≤ I(t) ≤ 1.5
@@ -43,7 +69,7 @@ function OptimalControlProblems.insurance(::OptimalControlBackend; nh::Int=500)
         0 ≤ P ≤ Inf
 
         x(0) == [0, 0.001, 0]
-        P - x[3](tf) == 0
+        P - x₃(tf) == 0
 
         ε = k * t / (tf - t + 1)
 
@@ -65,18 +91,24 @@ function OptimalControlProblems.insurance(::OptimalControlBackend; nh::Int=500)
 
         # objective
         -∫(U(t) * fx) → min
-        
     end
 
     # Initial guess
-    xinit = [0.1, 0.1, 0.1]  # [I, m, x3]
+    xinit = [0.1, 0.1, 0.1]  # [I, m, x₃]
     uinit = [0.1, 0.1, 0.1, 0.1, 0.1]  # [h, R, H, U, dUdR]
     varinit = [0.1]  # [P]
     init = (state=xinit, control=uinit, variable=varinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
-    nlp = model(docp)
+    docp = direct_transcription(
+        ocp,
+        description...;
+        lagrange_to_mayer=false,
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
+    )
 
-    return docp, nlp
+    return docp
 end

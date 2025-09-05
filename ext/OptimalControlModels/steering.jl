@@ -1,10 +1,34 @@
 """
-Particle Steering Problem:
-    We want to find the optimal trajectory of a particle.
-    The objective is to minimize the time taken to achieve a given altitude and terminal velocity.
-    The problem is formulated as an OptimalControl model.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for steering a particle along a trajectory.  
+The objective is to minimise the total time taken to reach a specified terminal state, subject to control limits and particle dynamics.  
+The state vector has four components, and the control is a single scalar input.  
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the particle steering problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp = OptimalControlProblems.steering(OptimalControlBackend(); N=500);
+```
 """
-function OptimalControlProblems.steering(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.steering(
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:steering),
+    kwargs...,
+)
 
     # parameters
     a = 100
@@ -15,7 +39,6 @@ function OptimalControlProblems.steering(::OptimalControlBackend; nh::Int=500)
 
     # Model
     ocp = @def begin
-
         tf ∈ R, variable
         t ∈ [0.0, tf], time
         x ∈ R⁴, state
@@ -29,7 +52,6 @@ function OptimalControlProblems.steering(::OptimalControlBackend; nh::Int=500)
         ẋ(t) == dynamics(x(t), u(t))
 
         tf → min
-
     end
 
     # dynamics
@@ -51,8 +73,15 @@ function OptimalControlProblems.steering(::OptimalControlBackend; nh::Int=500)
     init = (state=xinit, control=0, variable=1)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
-    nlp = model(docp)
+    docp = direct_transcription(
+        ocp,
+        description...;
+        lagrange_to_mayer=false,
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
+    )
 
-    return docp, nlp
+    return docp
 end

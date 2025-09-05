@@ -1,11 +1,10 @@
-bioreactor_meta = Dict(
+bioreactor_meta = OrderedDict(
     :name => "bioreactor",
-    :nh => 500,
-    :nvar => nothing,
-    :ncon => nothing,
-    :minimize => false,
+    :N => 600,
+    :minimise => false,
     :state_name => ["y", "s", "b"],
     :costate_name => ["∂y", "∂s", "∂b"],
     :control_name => ["u"],
-    :time => ("final_time", "T", 200) # T = 10 * N where N = 20 by default
+    :variable_name => nothing,
+    :final_time => (:fixed, 200), # the final time is 10N where N = 20 by default
 )

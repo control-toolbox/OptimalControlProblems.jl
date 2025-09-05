@@ -1,24 +1,50 @@
 """
-The Van der Pol Problem:
-    The problem is formulated as a JuMP model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+$(TYPEDSIGNATURES)
+
+Constructs and returns a JuMP model for the **Van der Pol Problem**, a classic nonlinear oscillator system.  
+The model represents the dynamics of the Van der Pol oscillator with control input `u` and seeks to minimise the quadratic cost over the states and control.  
+
+# Arguments
+
+- `::JuMPBackend`: Specifies the backend for building the JuMP model.
+- `N::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
+
+# Returns
+
+- `model::JuMP.Model`: A JuMP model representing the Van der Pol optimal control problem.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> using JuMP
+
+julia> model = OptimalControlProblems.vanderpol(JuMPBackend(); N=100)
+```
+
+# References
+
+- Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
-function OptimalControlProblems.vanderpol(::JuMPBackend; nh::Int=500)
+function OptimalControlProblems.vanderpol(
+    ::JuMPBackend, args...; N::Int=steps_number_data(:vanderpol), kwargs...
+)
 
     # parameters
+    tf = final_time_data(:vanderpol)
     ω = 1
     ε = 1
-    tf = 2
 
     # model
-    model = JuMP.Model()
+    model = JuMP.Model(args...; kwargs...)
 
     # state, control and initial guess
     @variables(
         model,
         begin
-            x1[0:nh], (start = 0.1)
-            x2[0:nh], (start = 0.1)
-            u[0:nh], (start = 0.1)
+            x1[0:N], (start = 0.1)
+            x2[0:N], (start = 0.1)
+            u[0:N], (start = 0.1)
         end
     )
 
@@ -37,28 +63,27 @@ function OptimalControlProblems.vanderpol(::JuMPBackend; nh::Int=500)
         begin
 
             #
-            step, tf / nh
+            step, tf / N
 
             # dynamics
-            dx1[i=0:nh], x2[i]
-            dx2[i=0:nh], ε * ω * (1 - x1[i]^2) * x2[i] - ω^2 * x1[i] + u[i]
+            dx1[i = 0:N], x2[i]
+            dx2[i = 0:N], ε * ω * (1 - x1[i]^2) * x2[i] - ω^2 * x1[i] + u[i]
 
             # objective
-            dc[i=0:nh], 0.5 * (x1[i]^2 + x2[i]^2 + u[i]^2)
-
+            dc[i = 0:N], 0.5 * (x1[i]^2 + x2[i]^2 + u[i]^2)
         end
     )
 
     @constraints(
         model,
         begin
-            ∂x1[i=1:nh], x1[i] == x1[i - 1] + 0.5 * step * (dx1[i] + dx1[i - 1])
-            ∂x2[i=1:nh], x2[i] == x2[i - 1] + 0.5 * step * (dx2[i] + dx2[i - 1])
+            ∂x1[i = 1:N], x1[i] == x1[i - 1] + 0.5 * step * (dx1[i] + dx1[i - 1])
+            ∂x2[i = 1:N], x2[i] == x2[i - 1] + 0.5 * step * (dx2[i] + dx2[i - 1])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i-1] for i in 1:nh))
+    @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i - 1] for i in 1:N))
 
     return model
 end

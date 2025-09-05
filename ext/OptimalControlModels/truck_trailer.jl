@@ -1,19 +1,37 @@
 """
-The Truck Trailer Problem:
-    We want to find the optimal trajectory of a truck with two trailers that starts horizontally aligned.
-    The objective is to minimize the time taken to park the truck and the trailers aligned vertically at a given target location.
-    The problem is formulated as an OptimalControl model.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for a truck with two trailers, starting horizontally aligned.  
+The objective is to minimise the total time required to park the truck and trailers such that they are aligned vertically at a specified target location, while respecting vehicle dynamics and control constraints.  
+The problem includes path constraints for articulation angles between the trailers.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=200`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the truck-trailer parking problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp = OptimalControlProblems.truck_trailer(OptimalControlBackend(); N=200);
+```
 """
 function OptimalControlProblems.truck_trailer(
-    ::OptimalControlBackend;
-    data::Array{Float64,2}=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2],
-    nh::Int=200,
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:truck_trailer),
+    kwargs...,
 )
 
     # parameters
-    if size(data) != (3, 3)
-        error("The input data matrix must be 3x3.")
-    end
+    data=[0.4 0.1 0.2; 1.1 0.2 0.2; 0.8 0.1 0.2]
     L0 = data[1, 1]
     M0 = data[1, 2]
     W0 = data[1, 3]
@@ -37,7 +55,6 @@ function OptimalControlProblems.truck_trailer(
 
     # model
     ocp = @def begin
-
         tf ∈ R, variable
         t ∈ [0, tf], time
         x = (x2, y2, θ0, θ1, θ2, v0, δ0) ∈ R⁷, state
@@ -53,7 +70,7 @@ function OptimalControlProblems.truck_trailer(
 
         # final time constraints
         1 ≤ tf ≤ 1000
-        
+
         # state constraints
         -π / 2 ≤ θ0(t) ≤ π / 2, (θ0_con)
         -π / 2 ≤ θ1(t) ≤ π / 2, (θ1_con)
@@ -86,8 +103,7 @@ function OptimalControlProblems.truck_trailer(
         ẋ(t) == dynamics(x(t), u(t))
 
         # objective
-        tf + ∫( β01(t)^2 + β12(t)^2 ) → min
-
+        tf + ∫(β01(t)^2 + β12(t)^2) → min
     end
 
     function dynamics(x, u)
@@ -117,8 +133,15 @@ function OptimalControlProblems.truck_trailer(
     init = (state=xinit, control=uinit, variable=varinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
-    nlp = model(docp)
+    docp = direct_transcription(
+        ocp,
+        description...;
+        lagrange_to_mayer=false,
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
+    )
 
-    return docp, nlp
+    return docp
 end

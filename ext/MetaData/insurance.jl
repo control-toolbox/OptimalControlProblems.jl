@@ -1,11 +1,10 @@
-insurance_meta = Dict(
+insurance_meta = OrderedDict(
     :name => "insurance",
-    :nh => 500,
-    :nvar => nothing,
-    :ncon => nothing,
-    :minimize => false,
-    :state_name => ["I", "m", "x3"],
-    :costate_name => ["∂I", "∂m", "∂x3"],
+    :N => 500,
+    :minimise => false,
+    :state_name => ["I", "m", "x₃"],
+    :costate_name => ["∂I", "∂m", "∂x₃"],
     :control_name => ["h", "R", "H", "U", "dUdR"],
-    :time => ("final_time", "tf", 10)
+    :variable_name => nothing,
+    :final_time => (:fixed, 10),
 )

@@ -1,19 +1,52 @@
 """
-The Beam Problem:
-    The problem is formulated as an OptimalControl model and can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** representing the Beam problem using the OptimalControl backend.  
+The function sets up the state and control variables, boundary conditions, dynamics, path constraints, and the objective functional.  
+It then performs direct transcription to generate a discrete optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type to specify the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object, representing the discretised problem.
+- `nlp`: The corresponding nonlinear programming model generated from the DOCP, ready for solver input.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp = OptimalControlProblems.beam(OptimalControlBackend(); N=100);
+```
+
+# References
+
+- BOCOP repository: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
-function OptimalControlProblems.beam(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.beam(
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:beam),
+    kwargs...,
+)
+
+    #
+    tf = final_time_data(:beam)
 
     # model
     ocp = @def begin
-        t ∈ [0, 1], time
+        t ∈ [0, tf], time
         x ∈ R², state
         u ∈ R, control
         x(0) == [0, 1]
-        x(1) == [0, -1]
+        x(tf) == [0, -1]
         ẋ(t) == [x₂(t), u(t)]
         0 ≤ x₁(t) ≤ 0.1
-        -10 ≤ u(t) ≤ 10
+        -10 ≤ u(t) ≤ 5
         ∫(u(t)^2) → min
     end
 
@@ -21,8 +54,15 @@ function OptimalControlProblems.beam(::OptimalControlBackend; nh::Int=500)
     init = (state=[0.05, 0.1], control=0.1)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
-    nlp = model(docp)
-    return docp, nlp
+    docp = direct_transcription(
+        ocp,
+        description...;
+        lagrange_to_mayer=false,
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
+    )
 
+    return docp
 end

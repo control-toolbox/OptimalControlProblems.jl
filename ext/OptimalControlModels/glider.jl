@@ -1,11 +1,39 @@
 """
-Hang Glider Problem:
-    We want to find the optimal trajectory of a hang glider.
-    The objective is to maximize the final horizontal position of the glider while in the presence of a thermal updraft.
-    The problem is formulated as an OptimalControl model.
-    Original formulation from MadNLP/COPSBenchmark
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for a hang glider trajectory.  
+The function defines state and control variables, glider dynamics in a thermal updraft, boundary conditions, and a cost functional aiming to maximise the final horizontal position.  
+It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the hang glider trajectory optimisation.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp = OptimalControlProblems.glider(OptimalControlBackend(); N=500);
+```
+
+# References
+
+- Original formulation from MadNLP/COPSBenchmark.
+- Problem inspired by glider dynamics with thermal updraft and lift modelling.
 """
-function OptimalControlProblems.glider(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.glider(
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:glider),
+    kwargs...,
+)
 
     # parameters
     x_0 = 0
@@ -28,12 +56,11 @@ function OptimalControlProblems.glider(::OptimalControlBackend; nh::Int=500)
 
     # model
     ocp = @def begin
-
         tf ∈ R, variable
         t ∈ [0, tf], time
         z = (x, y, vx, vy) ∈ R⁴, state
         cL ∈ R, control
-        
+
         # state constraints
         x(t) ≥ 0, (x_con)
         vx(t) ≥ 0, (vx_con)
@@ -58,11 +85,9 @@ function OptimalControlProblems.glider(::OptimalControlBackend; nh::Int=500)
 
         # objective
         -x(tf) → min
-
     end
 
     function dynamics(x, vx, vy, cL)
-
         r = (x / r_0 - 2.5)^2
         UpD = u_c * (1 - r) * exp(-r)
         w = vy - UpD
@@ -70,13 +95,12 @@ function OptimalControlProblems.glider(::OptimalControlBackend; nh::Int=500)
         D = 0.5 * (c0 + c1 * (cL^2)) * ρ * S * (v^2)
         L = 0.5 * cL * ρ * S * (v^2)
 
-        ∂x  = vx
-        ∂y  = vy
-        ∂vx = -(L *  w + D * vx) / (m * v)
-        ∂vy =  (L * vx - D *  w) / (m * v) - g
+        ∂x = vx
+        ∂y = vy
+        ∂vx = -(L * w + D * vx) / (m * v)
+        ∂vy = (L * vx - D * w) / (m * v) - g
 
         return [∂x, ∂y, ∂vx, ∂vy]
-
     end
 
     # Initial guess
@@ -86,8 +110,15 @@ function OptimalControlProblems.glider(::OptimalControlBackend; nh::Int=500)
     init = (state=xinit, control=uinit, variable=tfinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
-    nlp = model(docp)
+    docp = direct_transcription(
+        ocp,
+        description...;
+        lagrange_to_mayer=false,
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
+    )
 
-    return docp, nlp
+    return docp
 end

@@ -1,11 +1,35 @@
 """
-Robot arm problem:
-    We want to find the shape of a robot arm moving between two points.
-    The objective is to minimize the time taken to move between the two points.
-    The problem is formulated as an OptimalControl model.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for a robotic arm moving between two points.  
+This function defines the state and control variables, system dynamics, initial and final conditions, and the cost functional, which minimises the total time taken to perform the motion.  
+Reference: Robot arm problem on BOCOP [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=250`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the robot arm problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp = OptimalControlProblems.robot(OptimalControlBackend(); N=250);
+```
 """
-function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=250)
-    
+function OptimalControlProblems.robot(
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:robot),
+    kwargs...,
+)
+
     # parameters
 
     # total length of arm
@@ -22,7 +46,6 @@ function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=250)
     θf = 2π/3
 
     ocp = @def begin
-        
         tf ∈ R, variable
         t ∈ [0, tf], time
         x = (ρ, dρ, θ, dθ, ϕ, dϕ) ∈ R⁶, state
@@ -31,9 +54,9 @@ function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=250)
         tf ≥ 0.1
 
         # state constraints
-         0 ≤ ρ(t) ≤ L, (ρ_con)
+        0 ≤ ρ(t) ≤ L, (ρ_con)
         -π ≤ θ(t) ≤ π, (θ_con)
-         0 ≤ ϕ(t) ≤ π, (ϕ_con)
+        0 ≤ ϕ(t) ≤ π, (ϕ_con)
 
         # control constraints
         -max_uρ ≤ uρ(t) ≤ max_uρ, (u_ρ_con)
@@ -61,18 +84,10 @@ function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=250)
         I_ϕ = (L - ρ(t))^3 + ρ(t)^3
 
         # dynamics  
-        ẋ(t) == [
-            dρ(t),
-            uρ(t) / L,
-            dθ(t),
-            3 * uθ(t) / I_θ,
-            dϕ(t),
-            3 * uϕ(t) / I_ϕ,
-        ]
+        ẋ(t) == [dρ(t), uρ(t) / L, dθ(t), 3 * uθ(t) / I_θ, dϕ(t), 3 * uϕ(t) / I_ϕ]
 
         # objective
         tf → min
-
     end
 
     # initial guess
@@ -82,8 +97,15 @@ function OptimalControlProblems.robot(::OptimalControlBackend; nh::Int=250)
     init = (state=xinit, control=uinit, variable=tf)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
-    nlp = model(docp)
+    docp = direct_transcription(
+        ocp,
+        description...;
+        lagrange_to_mayer=false,
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
+    )
 
-    return docp, nlp
+    return docp
 end

@@ -1,14 +1,43 @@
 """
-The electric Vehicle Problem
-    Implement optimal control of an electric vehicle.
-    The problem is formulated as an OptimalControl model.
-Ref: [PS2011] Nicolas Petit and Antonio Sciarretta. "Optimal drive of electric vehicles using an inversion-based trajectory generation approach." IFAC Proceedings Volumes 44, no. 1 (2011): 14519-14526.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for an electric vehicle trajectory.  
+The function defines state and control variables, vehicle dynamics, boundary conditions, and a cost functional representing energy and control effort.  
+It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the electric vehicle trajectory optimisation.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp = OptimalControlProblems.electric_vehicle(OptimalControlBackend(); N=500);
+```
+
+# References
+
+- Nicolas Petit and Antonio Sciarretta. "Optimal drive of electric vehicles using an inversion-based trajectory generation approach." IFAC Proceedings Volumes 44, no. 1 (2011): 14519-14526. [PS2011]
+- Problem instance follows OptimalControl formulation for electric vehicle trajectory optimisation.
 """
-function OptimalControlProblems.electric_vehicle(::OptimalControlBackend; nh=500)
+function OptimalControlProblems.electric_vehicle(
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:electric_vehicle),
+    kwargs...,
+)
 
     # parameters
+    tf = final_time_data(:electric_vehicle)
     D = 10
-    tf = 1
     b1 = 1e0
     b2 = 1e0
     h0 = 0.1
@@ -18,7 +47,6 @@ function OptimalControlProblems.electric_vehicle(::OptimalControlBackend; nh=500
 
     # model
     ocp = @def begin
-        
         t ∈ [0, tf], time
         y = (x, v) ∈ R², state
         u ∈ R, control
@@ -31,7 +59,6 @@ function OptimalControlProblems.electric_vehicle(::OptimalControlBackend; nh=500
         ẏ(t) == dynamics(x(t), v(t), u(t))
 
         ∫(b1 * u(t) * v(t) + b2 * u(t)^2) → min
-
     end
 
     road(x) = α0 + α1 * x + α2 * x^2 + α3 * x^3
@@ -43,8 +70,15 @@ function OptimalControlProblems.electric_vehicle(::OptimalControlBackend; nh=500
     init = (state=yinit, control=uinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
-    nlp = model(docp)
+    docp = direct_transcription(
+        ocp,
+        description...;
+        lagrange_to_mayer=false,
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
+    )
 
-    return docp, nlp
+    return docp
 end

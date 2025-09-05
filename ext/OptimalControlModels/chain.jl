@@ -1,16 +1,45 @@
 """
-The Hanging Chain Problem:
-    We want to find the shape of a chain hanging between two points a and b, with a length L.
-    The objective is to minimize the potential energy of the chain.
-    The problem is formulated as an OptimalControl model.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** representing the Hanging Chain problem.  
+The function defines state and control variables, boundary conditions, and system dynamics, with the objective of minimising the vertical displacement of the chain's midpoint.  
+It performs direct transcription to produce a discretised optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the discretised Hanging Chain problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp = OptimalControlProblems.chain(OptimalControlBackend(); N=100);
+```
+
+# References
+
+- Formulation inspired by OptimalControl approach to variational problems and chain equilibrium.
+- Original problem source: [BOCOP repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
-function OptimalControlProblems.chain(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.chain(
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:chain),
+    kwargs...,
+)
 
     # parameters
     L = 4
     a = 1
     b = 3
-    tf = 1
+    tf = final_time_data(:chain)
 
     # model
     ocp = @def begin
@@ -34,7 +63,6 @@ function OptimalControlProblems.chain(::OptimalControlBackend; nh::Int=500)
 
         # objective
         x₂(tf) → min
-
     end
 
     # dynamics
@@ -46,16 +74,24 @@ function OptimalControlProblems.chain(::OptimalControlBackend; nh::Int=500)
     tmin = b > a ? 1 / 4 : 3 / 4
     xinit =
         t -> [
-             4 * abs(b - a) * t / tf * (0.5 * t / tf - tmin) + a,
+            4 * abs(b - a) * t / tf * (0.5 * t / tf - tmin) + a,
             (4 * abs(b - a) * t / tf * (0.5 * t / tf - tmin) + a) *
             (4 * abs(b - a) * (t / tf - tmin)),
-             4 * abs(b - a) * (t / tf - tmin),
+            4 * abs(b - a) * (t / tf - tmin),
         ]
     uinit = t -> 4 * abs(b - a) * (t / tf - tmin)
     init = (state=xinit, control=uinit)
 
     # NLPModel + DOCP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
-    nlp = model(docp)
-    return docp, nlp
+    docp = direct_transcription(
+        ocp,
+        description...;
+        lagrange_to_mayer=false,
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
+    )
+
+    return docp
 end

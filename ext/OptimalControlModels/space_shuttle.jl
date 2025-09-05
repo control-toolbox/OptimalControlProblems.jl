@@ -1,11 +1,35 @@
 """
-Space Shuttle Reentry Trajectory Problem:
-    We want to find the optimal trajectory of a space shuttle reentry.
-    The objective is to maximize the latitude (cross range) at the terminal point.
-    The original problem formulated as a JuMP model can be found [here](https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/)
-    Note: no heating limit path constraint
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** for the Space Shuttle reentry trajectory.  
+This function defines the state variables (altitude, longitude, latitude, velocity, flight path angle, azimuth), the control variables (angle of attack, bank angle), system dynamics, constraints, initial and terminal conditions, and the cost functional, which maximises the latitude (cross range) at the terminal point.  
+Reference: Original JuMP model formulation [here](https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/).  
+Note: No heating limit path constraint is included.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the Space Shuttle reentry trajectory.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp = OptimalControlProblems.space_shuttle(OptimalControlBackend(); N=500);
+```
 """
-function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.space_shuttle(
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:space_shuttle),
+    kwargs...,
+)
 
     ## Global variables
     w = 203000.0  # weight (lb)
@@ -47,14 +71,18 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=5
 
     # model
     ocp = @def begin
-  
+
         ## define the problem
-        tf ∈ R¹, variable 
+        tf ∈ R, variable
         t ∈ [0, tf], time
         x = (scaled_h, ϕ, θ, scaled_v, γ, ψ) ∈ R⁶, state
         u = (α, β) ∈ R², control
 
         ## constraints
+        # to help convergence and avoid domain value error
+        -2π ≤ ϕ(t) ≤ 2π
+        -2π ≤ ψ(t) ≤ 2π
+
         # final time constraints
         tf_min ≤ tf ≤ tf_max
 
@@ -86,12 +114,10 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=5
 
         ## objective
         -θ(tf) → min
-
     end
 
     ## dynamics
     function dynamics(x, u)
-
         scaled_h, ϕ, θ, scaled_v, γ, ψ = x
         α, β = u
         h = scaled_h * 1e5
@@ -123,17 +149,27 @@ function OptimalControlProblems.space_shuttle(::OptimalControlBackend; nh::Int=5
     # variable time step seems to be initialized at 1 in jump
     # note that ipopt will project the initial guess inside the bounds anyway.
     tf_init = (tf_min+tf_max)/2
-    x_init = t -> [ h_s + t / tf_init * (h_t - h_s) ,
-    ϕ_s,
-    θ_s,
-    v_s + t / tf_init * (v_t - v_s),
-    γ_s + t / tf_init * (γ_t - γ_s),
-    ψ_s]
+    x_init =
+        t -> [
+            h_s + t / tf_init * (h_t - h_s),
+            ϕ_s,
+            θ_s,
+            v_s + t / tf_init * (v_t - v_s),
+            γ_s + t / tf_init * (γ_t - γ_s),
+            ψ_s,
+        ]
     init = (state=x_init, control=[α_s, β_s], variable=[tf_init])
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
-    nlp = model(docp)
+    docp = direct_transcription(
+        ocp,
+        description...;
+        lagrange_to_mayer=false,
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
+    )
 
-    return docp, nlp
+    return docp
 end

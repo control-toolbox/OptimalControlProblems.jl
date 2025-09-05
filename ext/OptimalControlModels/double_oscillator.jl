@@ -1,10 +1,39 @@
 """
-Double Oscillator Problem:
-    Implement the optimal control of a double oscillator toy model.
-    The problem is formulated as an OptimalControl model.
-Ref: [CLP2018] Coudurier, C., Lepreux, O., & Petit, N. (2018). Optimal bang-bang control of a mechanical double oscillator using averaging methods. IFAC-PapersOnLine, 51(2), 49-54.
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** representing a double oscillator system.  
+The function defines state and control variables, system dynamics, boundary conditions, and an objective functional to be minimised.  
+It uses direct transcription to produce a discretised optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
+- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The direct optimal control problem object representing the double oscillator system.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp = OptimalControlProblems.double_oscillator(OptimalControlBackend(); N=100);
+```
+
+# References
+
+- Coudurier, C., Lepreux, O., & Petit, N. (2018). Optimal bang-bang control of a mechanical double oscillator using averaging methods. *IFAC-PapersOnLine*, 51(2), 49-54. [CLP2018]
+- Formulation follows OptimalControl approach to mechanical oscillator trajectory optimisation.
 """
-function OptimalControlProblems.double_oscillator(::OptimalControlBackend; nh::Int=500)
+function OptimalControlProblems.double_oscillator(
+    ::OptimalControlBackend,
+    description::Symbol...;
+    N::Int=steps_number_data(:double_oscillator),
+    kwargs...,
+)
 
     # parameters
     m1 = 100    # [kg]
@@ -12,11 +41,10 @@ function OptimalControlProblems.double_oscillator(::OptimalControlBackend; nh::I
     c = 0.5     # [Ns/m]
     k1 = 100    # [N/m]
     k2 = 3      # [N/m]
-    tf = 2π
+    tf = final_time_data(:double_oscillator)
 
     # model
     ocp = @def begin
-        
         t ∈ [0, tf], time
         x ∈ R⁴, state
         u ∈ R, control
@@ -29,7 +57,6 @@ function OptimalControlProblems.double_oscillator(::OptimalControlBackend; nh::I
         ẋ(t) == dynamics(x(t), u(t), F(t))
 
         0.5 * ∫(x₁(t)^2 + x₂(t)^2 + u(t)^2) → min
-
     end
 
     function F(t)
@@ -51,8 +78,15 @@ function OptimalControlProblems.double_oscillator(::OptimalControlBackend; nh::I
     init = (state=xinit, control=uinit)
 
     # DOCP and NLP
-    docp = direct_transcription(ocp; init=init, grid_size=nh, disc_method=:trapeze)
-    nlp = model(docp)
+    docp = direct_transcription(
+        ocp,
+        description...;
+        lagrange_to_mayer=false,
+        init=init,
+        grid_size=N,
+        disc_method=:trapeze,
+        kwargs...,
+    )
 
-    return docp, nlp
+    return docp
 end

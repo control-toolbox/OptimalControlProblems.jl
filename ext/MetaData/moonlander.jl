@@ -1,11 +1,10 @@
-moonlander_meta = Dict(
+moonlander_meta = OrderedDict(
     :name => "moonlander",
-    :nh => 500,
-    :nvar => nothing,
-    :ncon => nothing,
-    :minimize => true,
+    :N => 500,
+    :minimise => true,
     :state_name => ["p1", "p2", "dp1", "dp2", "θ", "dθ"],
     :costate_name => ["∂p1", "∂p2", "∂dp1", "∂dp2", "∂θ", "∂dθ"],
     :control_name => ["F1", "F2"],
-    :time => ("final_time", "tf", nothing)
+    :variable_name => ["tf"],
+    :final_time => (:free, 1), # first component of the variable
 )
