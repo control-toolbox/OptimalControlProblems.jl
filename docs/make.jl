@@ -7,6 +7,9 @@ using JuMP
 using CTModels
 using ExaModels
 include("problems.jl")
+include("utils.jl")
+
+generate_problems_browser()  # creates problems-browser.md
 
 # to add docstrings from external packages
 const JuMPModels = Base.get_extension(OptimalControlProblems, :JuMPModels)
@@ -75,7 +78,7 @@ cp(
 repo_url = "github.com/control-toolbox/OptimalControlProblems.jl"
 
 #
-draft = false
+draft = true
 exclude_from_draft=Symbol[
 #    :beam
 ]
@@ -107,7 +110,7 @@ makedocs(;
     pages=[
         "Getting Started" => "index.md",
         "Problems" =>
-            ["problems-introduction.md", "List of the problems" => PROBLEMS_PAGES],
+            ["problems-introduction.md", "problems_browser.md", "List of the problems" => PROBLEMS_PAGES],
         "Tutorials" => [
             "Get a problem" => "tutorial-get.md",
             "Solve a problem" => "tutorial-solve.md",
