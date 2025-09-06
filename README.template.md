@@ -13,4 +13,22 @@ The OptimalControlProblems.jl package is part of the [control-toolbox ecosystem]
 
 <!-- INCLUDE_INSTALL -->
 
+## Citing us
+
+If you use OptimalControlProblems.jl in your work, please cite us:
+
+> Caillau, J.-B., Cots, O., Gergaud, J., & Martinon, P. *OptimalControlProblems.jl: a collection of optimal control problems with ODE's in Julia*. [doi.org/10.5281/zenodo.17013180](https://doi.org/10.5281/zenodo.17013180)
+
+or in bibtex format:
+
+```bibtex
+@software{OptimalControlProblems_jl,
+author = {Caillau, Jean-Baptiste and Cots, Olivier and Gergaud, Joseph and Martinon, Pierre},
+doi = {10.5281/zenodo.17013180},
+license = {["MIT"]},
+title = {{OptimalControlProblems.jl: a collection of optimal control problems with ODE's in Julia}},
+url = {https://control-toolbox.org/OptimalControlProblems.jl}
+}
+```
+
 <!-- INCLUDE_CONTRIBUTING -->
