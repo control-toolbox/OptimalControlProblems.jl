@@ -30,7 +30,7 @@ export nlp_model, ocp_model, build_ocp_solution
 
 # -----------------
 
-function generate_prompt(::AbstractString)
+function generate_prompt(::AbstractString, ::AbstractString, ::AbstractString)
     throw(CTBase.ExtensionError(:JSON, :HTTP))
 end
 abstract type AbstractDocAppTag end
