@@ -474,7 +474,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const buttonsWrapperHtml = data.ConstraintButtonsHtml[i];
 
         const rowNode = table.row.add({
-            Problem: data.Problem[i],
+            Problem: `<a href="problems/\${data.Problem[i]}.html" class="problem-link">\${data.Problem[i]}</a>`,
             State: data.State[i],
             Control: data.Control[i],
             Variable: data.Variable[i],
@@ -496,15 +496,20 @@ document.addEventListener("DOMContentLoaded", function() {
                 row.child.hide();
             } else {
             const detailHtml = `<div style="display:flex; gap:4px; align-items:center;">
-                <div style="width:60px;background:#003d4d;color:white;text-align:center;border-radius:4px;">x: \${data.DimStateConstraint[i]}</div>
-                <div style="width:60px;background:#005f73;color:white;text-align:center;border-radius:4px;">u: \${data.DimControlConstraint[i]}</div>
-                <div style="width:60px;background:#0096a0;color:white;text-align:center;border-radius:4px;">v: \${data.DimVariableConstraint[i]}</div>
-                <div style="width:60px;background:#f18f01;color:white;text-align:center;border-radius:4px;">c: \${data.DimPathConstraint[i]}</div>
-                <div style="width:60px;background:#d72638;color:white;text-align:center;border-radius:4px;">b: \${data.DimBoundaryConstraint[i]}</div>
-                <div style="font-weight:bold;margin-left:10px;">Total: \${totalConstraints}</div>
+                <div style="min-width:50px;background:#003d4d;color:white;text-align:center;border-radius:4px;font-size:0.85em;">x: \${data.DimStateConstraint[i]}</div>
+                <div style="min-width:50px;background:#005f73;color:white;text-align:center;border-radius:4px;font-size:0.85em;">u: \${data.DimControlConstraint[i]}</div>
+                <div style="min-width:50px;background:#0096a0;color:white;text-align:center;border-radius:4px;font-size:0.85em;">v: \${data.DimVariableConstraint[i]}</div>
+                <div style="min-width:50px;background:#f18f01;color:white;text-align:center;border-radius:4px;font-size:0.85em;">c: \${data.DimPathConstraint[i]}</div>
+                <div style="min-width:50px;background:#d72638;color:white;text-align:center;border-radius:4px;font-size:0.85em;">b: \${data.DimBoundaryConstraint[i]}</div>
+                <div style="font-weight:bold;margin-left:10px;font-size:0.85em;">Total: \${totalConstraints}</div>
             </div>`;
                 row.child(detailHtml).show();
             }
+        });
+
+        // --- Prevent row click when clicking on the link ---
+        \$(rowNode).find(".problem-link").on("click", function(e){
+            e.stopPropagation(); // stops the row click from firing
         });
     });
 
@@ -581,7 +586,7 @@ end
 
 function generate_html_text_debut(io)
 write(io, """
-# Problems Browser
+# [Problems browser](@id problems-browser)
 
 The table below provides an overview of all **optimal control problems** and allows interactive exploration, filtering, and export.  
 

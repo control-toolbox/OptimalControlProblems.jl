@@ -209,6 +209,10 @@ We detail below the characteristics of the optimal control problems and their as
     </details>
     ```
 
+!!! tip "Interactive problems browser"
+
+    The table from [Problems browser](@ref problems-browser) page provides an overview of all **optimal control problems** and allows interactive exploration, filtering, and export.
+
 For each optimal control problem, we provide the dimensions of the state, control, and variable. We also specify the type of objective function (Mayer, Lagrange, or Bolza), whether the final time is free or fixed, and whether there are constraints on the state (`x`), control (`u`), variable (`v`), path (`c`—from *chemin* in French, since `p` is reserved for the costate), or boundary (`b`).
 
 ```@example main
