@@ -94,7 +94,7 @@ Depth = 1
 For each problem, additional data is provided in the [MetaData](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/MetaData) directory:
 
 ```@docs; canonical=false
-metadata
+OptimalControlProblems.metadata
 ```
 
 To list all metadata, use `metadata`. To access the metadata of a specific problem, for example `chain`, run:

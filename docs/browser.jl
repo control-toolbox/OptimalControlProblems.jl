@@ -4,6 +4,8 @@ using Tables
 using OptimalControlProblems
 using NLPModels
 using CTModels
+using FilePathsBase  # optional, for robust path handling
+using Base.Filesystem: rm, mktemp
 
 function generate_constraint_buttons_html(constraint_dims::NamedTuple)
     total_constraints = sum(values(constraint_dims))
@@ -413,7 +415,7 @@ document.addEventListener("DOMContentLoaded", function() {
         responsive: true,
         pageLength: 25,
         lengthMenu: [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
-        dom: '<"dt-top-buttons"B><"dt-top-controls"lf>rt<"bottom"ip><"clear">', // <- important
+        dom: '<"dt-top-buttons"B><"dt-top-controls"lf>rt<"bottom"ip><"clear">', 
         buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
         autoWidth: false,
         columns: [
@@ -423,14 +425,11 @@ document.addEventListener("DOMContentLoaded", function() {
             { data: 'Variable', width: '12%' },
             { data: 'Cost', width: '10%' },
             { data: 'FinalTime', width: '14%' },
-            {
-                data: 'Constraints',
-                render: function(data, type, row) {
-                    if (type === 'sort' || type === 'type') {
-                        return Number(row.TotalConstraints);
-                    }
-                    return data;
-                }
+            { data: 'ConstraintButtonsHtml',
+              render: function(data, type, row) {
+                  if (type === 'sort' || type === 'type') return Number(row.TotalConstraints);
+                  return data;
+              }
             }
         ],
         buttons: [
@@ -442,25 +441,18 @@ document.addEventListener("DOMContentLoaded", function() {
         ]
     });
 
-    // ===== post-init: ensure pieces are in our custom containers =====
     (function() {
-        // move dt-buttons into .dt-top-buttons (if not already)
         const topButtons = \$('.dt-top-buttons').first();
         const dtButtons = \$('.dt-buttons').first();
         if(topButtons.length && dtButtons.length && dtButtons.parent().get(0) !== topButtons.get(0)) {
             topButtons.empty().append(dtButtons);
         }
-
-        // move length + filter into .dt-top-controls (if not already)
         const topControls = \$('.dt-top-controls').first();
         if(topControls.length) {
             const length = \$('.dataTables_length').first();
             const filter = \$('.dataTables_filter').first();
-            // append only if they exist and aren't already children
             if(length.length && length.parent().get(0) !== topControls.get(0)) topControls.append(length);
             if(filter.length && filter.parent().get(0) !== topControls.get(0)) topControls.append(filter);
-
-            // tweak search placeholder + width
             const inp = topControls.find('.dataTables_filter input').first();
             if(inp.length) {
                 inp.attr('placeholder', 'Search...');
@@ -470,20 +462,6 @@ document.addEventListener("DOMContentLoaded", function() {
     })();
 
     const constraintTypes = ["x","u","v","c","b"];
-
-    \$('#problems-table tbody').on('mouseenter', '.constraint-btn', function(){
-        const row = table.row(\$(this).closest('tr')).data();
-        const type = \$(this).data('type');
-        let count = 0;
-        switch(type){
-            case 'x': count = row.DimStateConstraint; break;
-            case 'u': count = row.DimControlConstraint; break;
-            case 'v': count = row.DimVariableConstraint; break;
-            case 'c': count = row.DimPathConstraint; break;
-            case 'b': count = row.DimBoundaryConstraint; break;
-        }
-        \$(this).attr('title', `\${type.toUpperCase()}: \${count} constraints`);
-    });
 
     \$('#problems-table tbody').on('mouseenter', '.constraint-btn', function(){
         const count = \$(this).data('dim');
@@ -502,7 +480,7 @@ document.addEventListener("DOMContentLoaded", function() {
             Variable: data.Variable[i],
             Cost: data.Cost[i],
             FinalTime: data.FinalTime[i],
-            Constraints: buttonsWrapperHtml,
+            ConstraintButtonsHtml: buttonsWrapperHtml,
             TotalConstraints: totalConstraints,
             DimStateConstraint: data.DimStateConstraint[i],
             DimControlConstraint: data.DimControlConstraint[i],
@@ -512,23 +490,22 @@ document.addEventListener("DOMContentLoaded", function() {
         }).draw(false).node();
 
         // --- Clickable row: show/hide constraint details ---
-        const detailHtml = `<ul>
-            <li>State Constraints: \${data.DimStateConstraint[i]}</li>
-            <li>Control Constraints: \${data.DimControlConstraint[i]}</li>
-            <li>Variable Constraints: \${data.DimVariableConstraint[i]}</li>
-            <li>Path Constraints: \${data.DimPathConstraint[i]}</li>
-            <li>Boundary Constraints: \${data.DimBoundaryConstraint[i]}</li>
-            <li><strong>Total Constraints: \${totalConstraints}</strong></li>
-        </ul>`;
-        table.row(rowNode).child(detailHtml).hide();
-
         \$(rowNode).on('click', function() {
             const row = table.row(this);
-            const child = row.child;
-            if(child.isShown()) child.node().slideUp(200, () => child.hide());
-            else child(child.node() || detailHtml).show().slideDown(200);
+            if (row.child.isShown()) {
+                row.child.hide();
+            } else {
+            const detailHtml = `<div style="display:flex; gap:4px; align-items:center;">
+                <div style="width:60px;background:#003d4d;color:white;text-align:center;border-radius:4px;">x: \${data.DimStateConstraint[i]}</div>
+                <div style="width:60px;background:#005f73;color:white;text-align:center;border-radius:4px;">u: \${data.DimControlConstraint[i]}</div>
+                <div style="width:60px;background:#0096a0;color:white;text-align:center;border-radius:4px;">v: \${data.DimVariableConstraint[i]}</div>
+                <div style="width:60px;background:#f18f01;color:white;text-align:center;border-radius:4px;">c: \${data.DimPathConstraint[i]}</div>
+                <div style="width:60px;background:#d72638;color:white;text-align:center;border-radius:4px;">b: \${data.DimBoundaryConstraint[i]}</div>
+                <div style="font-weight:bold;margin-left:10px;">Total: \${totalConstraints}</div>
+            </div>`;
+                row.child(detailHtml).show();
+            }
         });
-
     });
 
     // --- Filters and constraint header buttons ---
@@ -608,33 +585,43 @@ write(io, """
 
 The table below provides an overview of all **optimal control problems** and allows interactive exploration, filtering, and export.  
 
-## Table Overview
+!!! tip "Quick guide to the problems table"
 
-- **Problem:** The name of the optimal control problem.  
-- **State:** Number of state variables in the system.  
-- **Control:** Number of control inputs.  
-- **Variable:** Number of additional optimisation variables (if any).  
-- **Cost:** Type of cost functional:  
-  - **Mayer:** a **point cost** depending on the initial and final states and optional variables.
-  - **Lagrange:** integral over time  
-  - **Bolza:** combination of Mayer + Lagrange  
-- **FinalTime:** Whether the final time is **fixed** or **free**.  
-- **Constraints:** Buttons representing each constraint type:  
-  - **x:** state box constraints  
-  - **u:** control box constraints  
-  - **v:** variable box constraints  
-  - **c:** nonlinear path constraints  
-  - **b:** nonlinear boundary constraints  
+    ```@raw html
+    <details><summary>Click to unfold and see the quick guide for the table.</summary>
+    ```
 
-The number next to the buttons shows the **total number of constraints**. Hover over buttons to see the exact count. Click a row to see a detailed list of constraints.
+    ## Table Overview
 
-## Interactivity & Filters
+    - **Problem:** The name of the optimal control problem.  
+    - **State:** Number of state variables in the system.  
+    - **Control:** Number of control inputs.  
+    - **Variable:** Number of additional optimisation variables (if any).  
+    - **Cost:** Type of cost functional:  
+        - **Mayer:** a **point cost** depending on the initial and final states and optional variables.
+        - **Lagrange:** integral over time  
+        - **Bolza:** combination of Mayer + Lagrange  
+    - **FinalTime:** Whether the final time is **fixed** or **free**.  
+    - **Constraints:** Buttons representing each constraint type:  
+        - **x:** state box constraints  
+        - **u:** control box constraints  
+        - **v:** variable box constraints  
+        - **c:** nonlinear path constraints  
+        - **b:** nonlinear boundary constraints  
 
-- **Sorting & Search:** Click column headers to sort. Use the search box to filter by text.  
-- **Numeric Filters:** Enter `min-max` ranges in numeric columns to filter values.  
-- **Cost & FinalTime Filters:** Use dropdown menus to filter by cost type or whether the final time is fixed/free.  
-- **Constraint Filtering:** Use the buttons above the Constraints column to filter problems by constraint type. Choose **AND/OR logic** to combine multiple constraint types.  
-- **Export Buttons:** Use the top buttons to copy the table or export it to CSV, Excel, PDF, or print. Hover over each button to see its function.  
+    The number next to the buttons shows the **total number of constraints**. Hover over buttons to see the exact count. Click a row to see a detailed list of constraints.
+
+    ## Interactivity & Filters
+
+    - **Sorting & Search:** Click column headers to sort. Use the search box to filter by text.  
+    - **Numeric Filters:** Enter `min-max` ranges in numeric columns to filter values.  
+    - **Cost & FinalTime Filters:** Use dropdown menus to filter by cost type or whether the final time is fixed/free.  
+    - **Constraint Filtering:** Use the buttons above the Constraints column to filter problems by constraint type. Choose **AND/OR logic** to combine multiple constraint types.  
+    - **Export Buttons:** Use the top buttons to copy the table or export it to CSV, Excel, PDF, or print. Hover over each button to see its function.  
+
+    ```@raw html
+    </details>
+    ```
 
 ---
 
@@ -717,4 +704,18 @@ function generate_problems_browser(md_path::AbstractString=joinpath(@__DIR__, "s
     json_str = ocp_data_to_json(data_ocp)
     generate_html(md_path, json_str)
     println("Problems browser page written to: $md_path")
+    return md_path
+end
+
+# ---------------------------
+# Example: generate, use, and remove
+# ---------------------------
+function with_problems_browser(f::Function)
+    path = generate_problems_browser()  # generate file
+    try
+        return f(path)  # run your function using the generated file
+    finally
+        isfile(path) && rm(path)  # remove file if it exists
+        println("Temporary problems browser file removed: $path")
+    end
 end
