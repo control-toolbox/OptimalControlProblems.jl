@@ -673,16 +673,6 @@ function write_block(io, content)
     write(io, content)
 end
 
-# function generate_constraint_buttons_html(constraint_dims::NamedTuple)
-#     total_constraints = sum_namedtuple(constraint_dims)
-#     buttons_html = join([begin
-#         """<button class="constraint-btn" data-type="$key" data-dim="$dim">$key</button>"""
-#     end for (key, dim) in pairs(constraint_dims)], "\n")
-#     return """<span class='constraints-wrapper' data-order='$total_constraints'>
-#                 $buttons_html <strong style='margin-left:5px;'>($total_constraints)</strong>
-#               </span>"""
-# end
-
 function generate_constraint_buttons_html(constraint_dims::NamedTuple)
     return constraint_dims
 end
@@ -790,12 +780,14 @@ end
 # ---------------------------
 # Layer 2: HTML assembly
 # ---------------------------
-function assemble_browser_html(json_str)
+function assemble_problems_browser_html(json_str)
     html_parts = [
         TABLE_PRESENTATION,
+        "```@raw html",
         TABLE_STYLE,
         build_table_html(json_str),
         TABLE_LOGIC,
+        "```",
     ]
     return join(html_parts, "\n")
 end

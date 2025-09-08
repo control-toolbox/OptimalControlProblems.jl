@@ -91,7 +91,7 @@ repo_url = "github.com/control-toolbox/OptimalControlProblems.jl"
 # ==============================
 # --- Generate Problems Documentation ---
 # ==============================
-draft = true  # If true, code blocks in markdown are not executed
+draft = false  # If true, code blocks in markdown are not executed
 exclude_from_draft=Symbol[
 #    :beam   # example: exclude beam from draft docs
 ]
