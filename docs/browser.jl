@@ -412,7 +412,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const table = \$('#problems-table').DataTable({
         orderCellsTop: true,
         fixedHeader: true,
-        responsive: true,
+        responsive: false,
         pageLength: 25,
         lengthMenu: [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
         dom: '<"dt-top-buttons"B><"dt-top-controls"lf>rt<"bottom"ip><"clear">', 
