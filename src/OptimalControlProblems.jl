@@ -27,8 +27,7 @@ function build_ocp_solution(
 end
 
 export nlp_model, ocp_model, build_ocp_solution
-
-# -----------------
+#
 
 """
 $(TYPEDEF)

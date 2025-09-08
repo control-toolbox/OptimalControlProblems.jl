@@ -37,7 +37,7 @@ function OptimalControlProblems.bioreactor(
     # parameters
     β = 1
     c = 2
-    gamma = 1
+    γ = 1
     halfperiod = 5
     Ks = 0.05
     μ2m = 0.1
@@ -88,7 +88,7 @@ function OptimalControlProblems.bioreactor(
 
             # dynamics
             dy[k = 0:N], μ[k] * y[k] / (1 + y[k]) - (r + u[k]) * y[k]
-            ds[k = 0:N], -μ2[k] * b[k] + u[k] * β * (gamma * y[k] - s[k])
+            ds[k = 0:N], -μ2[k] * b[k] + u[k] * β * (γ * y[k] - s[k])
             db[k = 0:N], (μ2[k] - u[k] * β) * b[k]
 
             # objective

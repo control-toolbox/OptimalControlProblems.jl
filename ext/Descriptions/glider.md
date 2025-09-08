@@ -1,87 +1,85 @@
-This problem models the **optimal descent of a glider**, inspired by the COPS collection (More et al., 2001).  
-The goal is to steer a glider from a given initial altitude and velocity to a target altitude while minimizing the horizontal distance traveled, taking into account aerodynamic lift and drag forces.
+The **hang glider problem** is a classical benchmark in optimal control.  
+It consists of steering a hang glider from an initial horizontal position and altitude to a target altitude while maximising the **horizontal distance travelled**.  
+The glider dynamics incorporate lift, drag, gravity, and the effect of a thermal updraft.  
+The control variable is the lift coefficient $c_L$, which modulates the aerodynamic lift and influences the trajectory through the thermal region.
 
-### System Dynamics
-
-The system has four states and one control:
-
-- $x$ : horizontal position  
-- $y$ : vertical position (altitude)  
-- $v_x$ : horizontal velocity  
-- $v_y$ : vertical velocity  
-- $c_L$ : lift coefficient (control)  
-
-The dynamics are expressed as:
+### Mathematical formulation
 
 ```math
-\dot{x} = v_x
+\begin{aligned}
+\min_{x, y, v_x, v_y, c_L, t_f} \quad & -x(t_f) \\[1em]
+\text{s.t.} \quad &
+\dot{x} = v_x, \quad
+\dot{y} = v_y, \\[0.25em]
+& \dot{v}_x = -\frac{L \, w + D \, v_x}{m \, v}, \quad
+\dot{v}_y = \frac{L \, v_x - D \, w}{m \, v} - g, \\[1em]
+& c_L^{\min} \le c_L(t) \le c_L^{\max}, \quad x(t) \ge 0, \quad v_x(t) \ge 0, \\[1em]
+& (x, y, v_x, v_y)|_{t=0} = (x_0, y_0, v_{x0}, v_{y0}), \quad
+(y, v_x, v_y)|_{t=t_f} = (y_f, v_{xf}, v_{yf}),
+\end{aligned}
 ```
+
+with  
 
 ```math
-\dot{y} = v_y
+v = \sqrt{v_x^2 + w^2}, \quad
+w = v_y - U_\text{updraft}(x), \quad
+L = \frac{1}{2} \rho S c_L v^2, \quad
+D = \frac{1}{2} \rho S (c_0 + c_1 c_L^2) v^2,
 ```
+
+and  
 
 ```math
-\dot{v}_x = - \frac{L \, w + D \, v_x}{m \, v}
+U_\text{updraft}(x) = u_c\, (1 - r) e^{-r}, \quad r = \left( \frac{x}{r_0} - 2.5 \right)^2,
 ```
 
-```math
-\dot{v}_y = \frac{L \, v_x - D \, w}{m \, v} - g
-```
+where $m, g, S, \rho, c_0, c_1, u_c, r_0$ are constants describing the glider and the thermal properties.
 
-where
+---
 
-```math
-v = \sqrt{v_x^2 + w^2}, \quad w = v_y - U(r), \quad r = \left(\frac{x}{r_0} - 2.5\right)^2
-```
+### System parameters
 
-```math
-U(r) = u_c (1 - r) e^{-r}
-```
+| Parameter | Symbol | Value | Description |
+|-----------|--------|-------|-------------|
+| Initial horizontal position | $x_0$ | 0 | m |
+| Initial altitude | $y_0$ | 1000 | m |
+| Final altitude | $y_f$ | 900 | m |
+| Initial horizontal velocity | $v_{x0}$ | 13.23 | m/s |
+| Final horizontal velocity | $v_{xf}$ | 13.23 | m/s |
+| Initial vertical velocity | $v_{y0}$ | -1.288 | m/s |
+| Final vertical velocity | $v_{yf}$ | -1.288 | m/s |
+| Lift coefficient bounds | $c_L$ | [0, 1.4] | Control input |
+| Final time | $t_f$ | free | s |
 
-```math
-D = \frac{1}{2} \rho S (c_0 + c_1 c_L^2) v^2, \quad L = \frac{1}{2} \rho S c_L v^2
-```
+---
 
-Here, $D$ and $L$ represent drag and lift, $m$ is the mass, $g$ is gravity, $S$ is wing area, $\rho$ the air density, and $c_0$, $c_1$, $u_c$, $r_0$ are aerodynamic parameters.
+### Qualitative behaviour
 
-### Boundary Conditions
+- The optimal trajectory exploits the thermal updraft to maximise horizontal distance.  
+- The lift coefficient $c_L$ balances altitude loss and horizontal progression.  
+- The dynamics are nonlinear due to the coupling of lift, drag, and relative velocity in the thermal.  
+- Horizontal velocity is maintained positive, and the trajectory respects the control and state constraints.
 
-- **Initial conditions**:
+---
 
-```math
-x(0) = x_0, \quad y(0) = y_0, \quad v_x(0) = v_{x0}, \quad v_y(0) = v_{y0}
-```
+### Characteristics
 
-- **Final conditions**:
+- Nonlinear four-dimensional dynamics with one control input.  
+- Free final time.  
+- Mixed state and control constraints.  
+- Widely used as a benchmark for trajectory optimisation and direct transcription methods in nonlinear optimal control.
 
-```math
-y(T) = y_f, \quad v_x(T) = v_{xf}, \quad v_y(T) = v_{yf}, \quad T \ge 0
-```
-
-- **State constraints**:
-
-```math
-x(t) \ge 0, \quad v_x(t) \ge 0
-```
-
-- **Control constraints**:
-
-```math
-c_{L,\min} \le c_L(t) \le c_{L,\max}
-```
-
-### Objective
-
-The goal is to **minimize the horizontal displacement** $x(T)$:
-
-```math
-J = -x(T) \to \min
-```
-
-subject to the dynamics, boundary conditions, and state/control constraints.
+---
 
 ### References
 
-- More, J., Garbow, B., Hillstrom, K., & Watson, L. (2001). *COPS: Constrained Optimization Problem Set* (COPS3). Mathematics and Computer Science Division, Argonne National Laboratory. Retrieved from https://www.mcs.anl.gov/~more/cops/cops3.pdf
-- Cesari, L. (1983). *Optimization – Theory and Applications. Problems with Ordinary Differential Equations*. Springer-Verlag.
+- **Dolan, E. D., & More, J. J. (2004).** *Benchmarking Optimization Software with COPS 3.0*. Argonne National Laboratory.  
+  [PDF](https://www.mcs.anl.gov/~more/cops/cops3.pdf)  
+  Includes the hang glider problem in the COPS 3.0 benchmark collection with problem formulation and solver comparisons.
+
+- **PSOPT Example: Hang Glider Problem.** [psopt.net/list-of-examples](https://www.psopt.net/list-of-examples)  
+  Demonstrates a practical implementation of the hang glider optimal control problem in PSOPT.
+
+- **PSOPT GitHub Repository: Hang Glider Example.** [github.com/PSOPT/psopt/blob/master/examples/glider/glider.cxx](https://github.com/PSOPT/psopt/blob/master/examples/glider/glider.cxx)  
+  Source code example for testing direct transcription and NLP solvers with the hang glider problem.

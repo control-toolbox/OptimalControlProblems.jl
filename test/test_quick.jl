@@ -60,12 +60,8 @@ function test_quick()
 
             res = @my_test_broken o_di < o_bd
 
-            DEBUG &&
-                (typeof(res) == Test.Pass) &&
-                println("│     \033[1;32mTest Passed\033[0m")
-            DEBUG &&
-                (typeof(res) != Test.Pass) &&
-                println("│     \033[1;31mTest Failed\033[0m")
+            DEBUG &&  res && println("│     \033[1;32mTest Passed\033[0m")
+            DEBUG && !res && println("│     \033[1;31mTest Failed\033[0m")
             DEBUG && println("│")
 
             max_r_err = max(max_r_err, o_di/(0.5*(abs(o_oc) + abs(o_jp))))

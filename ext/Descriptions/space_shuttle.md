@@ -1,107 +1,80 @@
-The *space shuttle reentry problem* is a classical benchmark in aerospace optimal control, originating from reentry trajectory studies (see Betts 2010, Bulirsch 1971, Dickmanns 1972). It describes the atmospheric descent of the space shuttle from high altitude to the Terminal Area Energy Management (TAEM) interface. The aim is to maximise the crossrange, i.e. the final latitude at TAEM, subject to nonlinear dynamics, control bounds, and path constraints.
+The **Space Shuttle reentry problem** is a classical benchmark in aerospace optimal control.  
+It models the atmospheric descent of the space shuttle from high altitude to the Terminal Area Energy Management (TAEM) interface.  
+The system includes six state variables: altitude $h(t)$, longitude $\phi(t)$, latitude $\theta(t)$, velocity $v(t)$, flight path angle $\gamma(t)$, and azimuth $\psi(t)$.  
+The control variables are the angle of attack $\alpha(t)$ and bank angle $\beta(t)$.  
+The goal is to **maximise the final latitude (crossrange) at TAEM** while satisfying aerodynamic, gravitational, and operational constraints [Betts 2010; Bulirsch 1971; Dickmanns 1972].
 
-The problem can be written as
+### Mathematical formulation
 
-```math
-\max_{x,\,u} J(x,u) = \theta(t_f),
-```
+The problem can be stated as
 
-or equivalently
-
-```math
-\min_{x,\,u} J(x,u) = -\theta(t_f),
-```
-
-subject to the dynamics
 ```math
 \begin{aligned}
-\dot{h}(t) &= v(t)\,\sin \gamma(t), \\
-\dot{\phi}(t) &= \tfrac{v(t)}{r(t)} \cos \gamma(t) \sin \psi(t) / \cos \theta(t), \\
-\dot{\theta}(t) &= \tfrac{v(t)}{r(t)} \cos \gamma(t) \cos \psi(t), \\
-\dot{v}(t) &= -\tfrac{D}{m} - g(t)\,\sin \gamma(t), \\
-\dot{\gamma}(t) &= \tfrac{L}{m v(t)} \cos \beta(t) 
-                + \cos \gamma(t)\Big(\tfrac{v(t)}{r(t)} - \tfrac{g(t)}{v(t)}\Big), \\
-\dot{\psi}(t) &= \tfrac{L}{m v(t)\cos \gamma(t)} \sin \beta(t) 
-                + \tfrac{v(t)}{r(t)\cos \theta(t)} \cos \gamma(t)\sin \psi(t)\sin \theta(t),
+\min_{h, \phi, \theta, v, \gamma, \psi, \alpha, \beta} \quad & J(h, \theta) = - \theta(T) \\[1em]
+\text{s.t.} \quad &
+\dot{h}(t) = v \sin(\gamma), \\[0.5em]
+& \dot{\phi}(t) = \frac{v}{r} \cos(\gamma) \frac{\sin(\psi)}{\cos(\theta)}, \\[0.5em]
+& \dot{\theta}(t) = \frac{v}{r} \cos(\gamma) \cos(\psi), \\[0.5em]
+& \dot{v}(t) = -\frac{D(h,v,\alpha)}{m} - g(h) \sin(\gamma), \\[0.5em]
+& \dot{\gamma}(t) = \frac{L(h,v,\alpha)}{m v} \cos(\beta) + \cos(\gamma) \left( \frac{v}{r} - \frac{g(h)}{v} \right), \\[0.5em]
+& \dot{\psi}(t) = \frac{L(h,v,\alpha)}{m v \cos(\gamma)} \sin(\beta) + \frac{v}{r \cos(\theta)} \cos(\gamma) \sin(\psi) \sin(\theta), \\[0.5em]
+& \alpha_{\min} \le \alpha(t) \le \alpha_{\max}, \\[0.5em]
+& \beta_{\min} \le \beta(t) \le \beta_{\max}, \\[0.5em]
+& h_{\min} \le h(t) \le h_{\max}, \quad
+v_{\min} \le v(t) \le v_{\max}, \\[0.5em]
+& \gamma_{\min} \le \gamma(t) \le \gamma_{\max}, \quad
+\theta_{\min} \le \theta(t) \le \theta_{\max}, \\[0.5em]
+& h(0) = h_s, \; \phi(0) = \phi_s, \; \theta(0) = \theta_s, \\[0.5em]
+& v(0) = v_s, \; \gamma(0) = \gamma_s, \; \psi(0) = \psi_s, \\[0.5em]
+& h(T) = h_t, \; v(T) = v_t, \; \gamma(T) = \gamma_t.
 \end{aligned}
 ```
 
-with aerodynamic lift and drag
-```math
-D = \tfrac{1}{2} c_D S \rho v^2, \qquad 
-L = \tfrac{1}{2} c_L S \rho v^2,
-```
+The final time $T$ is free but bounded.  
 
-where the coefficients are given by
-```math
-c_D = b_0 + b_1 \alpha^\circ + b_2 (\alpha^\circ)^2, \qquad
-c_L = a_0 + a_1 \alpha^\circ, \qquad
-\alpha^\circ = \tfrac{180}{\pi} \alpha,
-```
+### Parameters
 
-and
-```math
-\rho = \rho_0 e^{-h/h_r}, \qquad
-r = R_e + h, \qquad
-g = \tfrac{\mu}{r^2}.
-```
-
-### Boundary conditions
-
-At reentry interface ($t=0$):
-```math
-h(0) = 260{,}000 \ \text{ft}, \quad 
-v(0) = 25{,}600 \ \text{ft/s}, \quad
-\phi(0)=0, \quad \theta(0)=0, \quad
-\gamma(0)=-1^\circ, \quad \psi(0)=90^\circ.
-```
-
-At TAEM interface ($t=t_f$):
-```math
-h(t_f) = 80{,}000 \ \text{ft}, \quad 
-v(t_f) = 2{,}500 \ \text{ft/s}, \quad 
-\gamma(t_f) = -5^\circ.
-```
-
-Final time is free within
-```math
-500\Delta t_{\min} \le t_f \le 500\Delta t_{\max}, \qquad 
-\Delta t_{\min}=3.5, \quad \Delta t_{\max}=4.5.
-```
-
-### Constraints
-
-- State bounds:
-```math
-h(t) \ge 0, \qquad 
--89^\circ \le \theta(t) \le 89^\circ, \qquad
-v(t) \ge 0, \qquad 
--89^\circ \le \gamma(t) \le 89^\circ.
-```
-
-- Control bounds:
-```math
--90^\circ \le \alpha(t) \le 90^\circ, \qquad 
--89^\circ \le \beta(t) \le 1^\circ.
-```
+| Parameter | Symbol | Value |
+|-----------|--------|-------|
+| Initial altitude | $h_s$ | $2.6 \times 10^5$ ft |
+| Initial velocity | $v_s$ | $2.56 \times 10^4$ ft/s |
+| Initial flight path angle | $\gamma_s$ | $-1^\circ$ |
+| Initial azimuth | $\psi_s$ | $90^\circ$ |
+| Final altitude | $h_t$ | $0.8 \times 10^5$ ft |
+| Final velocity | $v_t$ | $0.25 \times 10^4$ ft/s |
+| Final flight path angle | $\gamma_t$ | $-5^\circ$ |
+| Mass | $m$ | $w/g_0$ |
+| Reference area | $S$ | 2690 |
+| Earth's radius | $R_e$ | 20902900 ft |
+| Gravitational parameter | $\mu$ | $0.14076539 \cdot 10^{17}$ |
 
 ### Qualitative behaviour
 
 - The optimal trajectory balances **lift** and **drag** to control heating and deceleration while extending crossrange.  
 - The **bank angle** $\beta$ determines heading changes and crossrange capability.  
-- The solution typically includes a combination of steep reentry to dissipate energy and crossrange manoeuvres to reach the target latitude.  
+- The solution typically combines **steep reentry** to dissipate energy and **crossrange manoeuvres** to reach the target latitude.  
 
 ### Characteristics
 
 - Nonlinear, six–state dynamics with two controls.  
 - Strongly nonlinear aerodynamic coefficients.  
 - Free final time with bounded range.  
-- Path constraints on both states and controls.  
-- Widely used as a benchmark in optimal control and trajectory optimisation.  
+- Path constraints on states and controls.  
+- Widely used as a benchmark in optimal control and trajectory optimisation.
 
-### References
+### References and relevance
 
-- Betts, J.T. (2010). *Practical Methods for Optimal Control and Estimation Using Nonlinear Programming*. SIAM.  
-- Bulirsch, R. (1971). Numerical solution of optimal control problems with state constraints by direct methods. *Numerische Mathematik*.  
-- Dickmanns, E.D. (1972). Numerical solution methods for nonlinear optimal control problems with state constraints. *Automatica*.  
-- Ascher, U.M., Mattheij, R.M.M., & Russell, R.D. (1988). *Numerical Solution of Boundary Value Problems for Ordinary Differential Equations*.  
+- **Betts, J.T. (2010)**. *Practical Methods for Optimal Control and Estimation Using Nonlinear Programming*. SIAM.  
+  Provides a comprehensive discussion of trajectory optimisation for aerospace vehicles, including space shuttle reentry problems. It details numerical methods applicable to nonlinear, constrained, free-final-time problems.  
+
+- **Bulirsch, R. (1971)**. Numerical solution of optimal control problems with state constraints by direct methods. *Numerische Mathematik*.  
+  Introduces early direct methods for optimal control problems with constraints, which are foundational for solving shuttle reentry trajectory problems with bounded states and controls.  
+
+- **Dickmanns, E.D. (1972)**. Numerical solution methods for nonlinear optimal control problems with state constraints. *Automatica*.  
+  Focuses on numerical techniques for nonlinear optimal control with state constraints, directly relevant to handling the shuttle’s aerodynamic and flight path restrictions.  
+
+- **Ascher, U.M., Mattheij, R.M.M., & Russell, R.D. (1988)**. *Numerical Solution of Boundary Value Problems for Ordinary Differential Equations*.  
+  Provides practical algorithms for solving boundary value problems, which underpin the solution of two-point boundary value problems like the shuttle reentry trajectory with fixed initial and terminal states.  
+
+- **Betts, J.T. (2001)**. Survey of numerical methods for trajectory optimization. *Journal of Guidance, Control, and Dynamics*, 24(4), 643–653.  
+  Reviews trajectory optimisation methods including direct transcription and collocation, which are commonly applied to the space shuttle reentry benchmark.
