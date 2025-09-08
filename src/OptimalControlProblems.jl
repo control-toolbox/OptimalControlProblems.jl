@@ -27,17 +27,6 @@ function build_ocp_solution(
 end
 
 export nlp_model, ocp_model, build_ocp_solution
-
-# -----------------
-
-function generate_prompt(::AbstractString)
-    throw(CTBase.ExtensionError(:JSON, :HTTP))
-end
-abstract type AbstractDocAppTag end
-struct DocAppTag <: AbstractDocAppTag end
-doc_app(::AbstractDocAppTag) = throw(CTBase.ExtensionError(:JSON, :HTTP))
-doc_app() = doc_app(DocAppTag())
-
 #
 
 """

@@ -1,24 +1,31 @@
-function generate_documentation(
-    PROBLEM::String, DESCRIPTION::String; draft::Union{Bool,Nothing}
-)
-    TITLE = uppercasefirst(replace(PROBLEM, "_" => " "))
-
-    DRAFT = if isnothing(draft)
-        ""
+# -----------------------------------
+# Helper: draft metadata block
+# -----------------------------------
+function draft_meta(draft::Union{Bool,Nothing})
+    if isnothing(draft)
+        return ""
     elseif draft
-        """
-        ```@meta
-        Draft = true
-        ```
-        """
+        return """```@meta\nDraft = true\n```"""
     else
-        """
-        ```@meta
-        Draft = false
-        ```
-        """
+        return """```@meta\nDraft = false\n```"""
     end
+end
 
+# -----------------------------------
+# Helper: left margin for plots
+# -----------------------------------
+function get_left_margin(problem::Symbol)
+    margins = Dict(:beam => "5mm")
+    return get(margins, problem, "20mm")
+end
+
+# -----------------------------------
+# Generate documentation for a problem
+# -----------------------------------
+function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Union{Bool,Nothing})
+
+    TITLE = uppercasefirst(replace(PROBLEM, "_" => " "))
+    DRAFT = draft_meta(draft)
     LEFT_MARGIN = get_left_margin(Symbol(PROBLEM))
 
     documentation=DRAFT * """
@@ -398,53 +405,29 @@ function generate_documentation(
     return documentation
 end
 
-function generate_documentation_problems(;
-    draft::Union{Bool,Nothing}=nothing, exclude_from_draft::Vector{Symbol}=Symbol[]
-)
+# -----------------------------------
+# Generate documentation for all problems
+# -----------------------------------
+function generate_documentation_problems(; draft::Union{Bool,Nothing}=nothing,
+                                         exclude_from_draft::Vector{Symbol}=Symbol[])
 
-    # List of problems
     problems_list = problems()
+    problems_pages = map(p -> joinpath("problems", string(p) * ".md"), problems_list)
 
-    # 
-    problems_pages = []
+    # reset problems directory
+    problems_dir = joinpath(@__DIR__, "src", "problems")
+    rm(problems_dir; recursive=true, force=true)
+    mkpath(problems_dir)
+    mkpath(joinpath(problems_dir, "assets"))
+
     for problem in problems_list
-        push!(problems_pages, joinpath("problems", string(problem) * ".md"))
-    end
-
-    # remove and create problems directory
-    rm(joinpath(@__DIR__, "src", "problems"); recursive=true, force=true)
-    mkpath(joinpath(@__DIR__, "src", "problems"))
-    mkpath(joinpath(@__DIR__, "src", "problems", "assets"))
-
-    # create file for documentation
-    for problem in problems_list
-
-        # create the file
-        filename = joinpath(@__DIR__, "src", "problems", string(problem) * ".md")
-        touch(filename)
-
-        # get the description
-        description = read(
-            joinpath(@__DIR__, "..", "ext", "Descriptions", string(problem) * ".md"), String
-        )
-
-        # generate the content
+        description = read(joinpath(@__DIR__, "..", "ext", "Descriptions", string(problem) * ".md"), String)
         draft_problem = problem ∈ exclude_from_draft ? false : draft
         contents = generate_documentation(string(problem), description; draft=draft_problem)
 
-        # write the content in the file
-        open(filename, "a") do io
-            write(io, contents)
-        end
+        filename = joinpath(problems_dir, string(problem) * ".md")
+        write(filename, contents)
     end
 
     return problems_pages
-end
-
-function get_left_margin(problem)
-    return if problem == :beam
-        "5mm"
-    else
-        "20mm"
-    end
 end
