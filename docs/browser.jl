@@ -7,86 +7,61 @@ using CTModels
 using FilePathsBase  # optional, for robust path handling
 using Base.Filesystem: rm, mktemp
 
-function generate_constraint_buttons_html(constraint_dims::NamedTuple)
-    total_constraints = sum(values(constraint_dims))
-    buttons_html = join([begin
-        """<button class="constraint-btn" data-type="$key" data-dim="$dim">$key</button>"""
-    end for (key, dim) in pairs(constraint_dims)], "\n")
-    return """<span class='constraints-wrapper' data-order='$total_constraints'>
-                $buttons_html <strong style='margin-left:5px;'>($total_constraints)</strong>
-              </span>"""
-end
+const BROWSER_FILE = "problems_browser.md"
+const BROWSER_PATH = joinpath(@__DIR__, "src", BROWSER_FILE)
 
-# ---------------------------
-# --- Data Collection ---
-# ---------------------------
-function collect_ocp_data()
-    data_ocp_rows = [
-        let ocp = ocp_model(eval(problem_sym)(OptimalControlBackend()))
-            
-            # Logic to determine the cost type
-            cost = if has_mayer_cost(ocp) && has_lagrange_cost(ocp)
-                "Bolza"
-            elseif has_mayer_cost(ocp)
-                "Mayer"
-            else
-                "Lagrange"
-            end
+# -------------------------------
+# MD + CSS + JS constants
+# -------------------------------
+const TABLE_PRESENTATION = """
+# [Problems browser](@id problems-browser)
 
-            # Determine if the final time is fixed or free
-            final_time = has_fixed_final_time(ocp) ? "fixed" : "free"
+The table below provides an overview of all **optimal control problems** and allows interactive exploration, filtering, and export.  
 
-            # Get dimensions for each constraint type
-            dims = (
-                x=CTModels.dim_state_constraints_box(ocp),
-                u=CTModels.dim_control_constraints_box(ocp),
-                v=CTModels.dim_variable_constraints_box(ocp),
-                c=CTModels.dim_path_constraints_nl(ocp),
-                b=CTModels.dim_boundary_constraints_nl(ocp)
-            )
+!!! tip "Quick guide to the problems table"
 
-            # Calculate the total number of constraints
-            total_constraints = sum(values(dims))
+    ```@raw html
+    <details><summary>Click to unfold and see the quick guide for the table.</summary>
+    ```
 
-            # Generate HTML for the constraint buttons
-            constraint_buttons_html = generate_constraint_buttons_html(dims)
+    ## Table Overview
 
-            # Return a NamedTuple with all the data
-            (
-                Problem=string(problem_sym),
-                State=state_dimension(ocp),
-                Control=control_dimension(ocp),
-                Variable=variable_dimension(ocp),
-                Cost=cost,
-                FinalTime=final_time,
-                DimStateConstraint=dims.x,
-                DimControlConstraint=dims.u,
-                DimVariableConstraint=dims.v,
-                DimPathConstraint=dims.c,
-                DimBoundaryConstraint=dims.b,
-                TotalConstraints=total_constraints,
-                ConstraintButtonsHtml=constraint_buttons_html
-            )
-        end
-        for problem_sym in problems()
-    ]
-    
-    # Convert the vector of named tuples to a DataFrame and return it
-    return DataFrame(data_ocp_rows)
-end
+    - **Problem:** The name of the optimal control problem.  
+    - **State:** Number of state variables in the system.  
+    - **Control:** Number of control inputs.  
+    - **Variable:** Number of additional optimisation variables (if any).  
+    - **Cost:** Type of cost functional:  
+        - **Mayer:** a **point cost** depending on the initial and final states and optional variables.
+        - **Lagrange:** integral over time  
+        - **Bolza:** combination of Mayer + Lagrange  
+    - **FinalTime:** Whether the final time is **fixed** or **free**.  
+    - **Constraints:** Buttons representing each constraint type:  
+        - **x:** state box constraints  
+        - **u:** control box constraints  
+        - **v:** variable box constraints  
+        - **c:** nonlinear path constraints  
+        - **b:** nonlinear boundary constraints  
 
-# ---------------------------
-# --- Generate JSON ---
-# ---------------------------
-function ocp_data_to_json(data_ocp::DataFrame)
-    return JSON.json(Tables.columntable(data_ocp))
-end
+    The number next to the buttons shows the **total number of constraints**. Hover over buttons to see the exact count. Click a row to see a detailed list of constraints.
 
-# ---------------------------
-# --- Helper: Insert table CSS ---
-# ---------------------------
-function insert_table_style(io)
-    write(io, """
+    ## Interactivity & Filters
+
+    - **Sorting & Search:** Click column headers to sort. Use the search box to filter by text.  
+    - **Numeric Filters:** Enter `min-max` ranges in numeric columns to filter values.  
+    - **Cost & FinalTime Filters:** Use dropdown menus to filter by cost type or whether the final time is fixed/free.  
+    - **Constraint Filtering:** Use the buttons above the Constraints column to filter problems by constraint type. Choose **AND/OR logic** to combine multiple constraint types.  
+    - **Export Buttons:** Use the top buttons to copy the table or export it to CSV, Excel, PDF, or print. Hover over each button to see its function.  
+
+    ```@raw html
+    </details>
+    ```
+
+---
+
+Scroll through the table or use filters to quickly find problems of interest, inspect their constraints, and export data for further analysis.
+"""
+
+const TABLE_STYLE = """
 <style>
 :root {
     /* ==============================
@@ -400,12 +375,52 @@ table.dataTable thead .sorting_desc_disabled::after {
     right: 2px !important;   /* adjust distance from right edge */
 }
 </style>
-""")
-end
+"""
 
-function insert_logic_script(io)
-    write(io, """
+const TABLE_LOGIC = """
 <script>
+// ==============================
+// Constraint Helper Functions
+// ==============================
+const ConstraintHelpers = (() => {
+
+    // Map single-letter types to column keys
+    const constraintMap = {
+        x: 'DimStateConstraint',
+        u: 'DimControlConstraint',
+        v: 'DimVariableConstraint',
+        c: 'DimPathConstraint',
+        b: 'DimBoundaryConstraint'
+    };
+
+    // Get active constraint letters for a row
+    function getConstraintParts(rowData) {
+        return Object.entries(constraintMap)
+            .filter(([letter, col]) => rowData[col] && Number(rowData[col]) > 0)
+            .map(([letter]) => letter);
+    }
+
+    // Generate summary string like "x u c (total)"
+    function summary(rowData) {
+        return getConstraintParts(rowData).join(' ') + ` (\${rowData.TotalConstraints})`;
+    }
+
+    // Generate HTML for row detail panel
+    function detailHTML(rowData) {
+        const colors = {x:'#003d4d', u:'#005f73', v:'#0096a0', c:'#f18f01', b:'#d72638'};
+        return `<div style="display:flex; gap:4px; align-items:center;">\${
+            Object.keys(colors).map(k =>
+                `<div style="min-width:50px;background:\${colors[k]};color:white;text-align:center;
+                    border-radius:4px;font-size:0.85em;">\${k}: \${rowData[constraintMap[k]]}</div>`
+            ).join('') 
+        }<div style="font-weight:bold;margin-left:10px;font-size:0.85em;">
+            Total: \${rowData.TotalConstraints}
+        </div></div>`;
+    }
+
+    return {getConstraintParts, summary, detailHTML};
+})();
+
 document.addEventListener("DOMContentLoaded", function() {
     const data = JSON.parse(document.getElementById("problems-json").textContent);
 
@@ -425,20 +440,47 @@ document.addEventListener("DOMContentLoaded", function() {
             { data: 'Variable', width: '12%' },
             { data: 'Cost', width: '10%' },
             { data: 'FinalTime', width: '14%' },
-            { data: 'ConstraintButtonsHtml',
-              render: function(data, type, row) {
-                  if (type === 'sort' || type === 'type') return Number(row.TotalConstraints);
-                  return data;
-              }
+            {
+                data: 'ConstraintButtonsHtml',
+                render: function(data, type, row) {
+                    // Sorting uses total constraints
+                    if (type === 'sort' || type === 'type') return Number(row.TotalConstraints);
+
+                    // Display on page: keep the full buttons HTML
+                    return data;
+                }
             }
         ],
-        buttons: [
-            { extend: 'copy', text: '<i class="fas fa-copy"></i>', titleAttr: 'Copy to clipboard' },
-            { extend: 'csv',  text: '<i class="fas fa-file-csv"></i>', titleAttr: 'Download CSV' },
-            { extend: 'excel', text: '<i class="fas fa-file-excel"></i>', titleAttr: 'Download Excel' },
-            { extend: 'pdf', text: '<i class="fas fa-file-pdf"></i>', titleAttr: 'Download PDF' },
-            { extend: 'print', text: '<i class="fas fa-print"></i>', titleAttr: 'Print table' }
-        ]
+        buttons: ['copy','csv','excel','pdf','print'].map(ext => ({
+            extend: ext,
+            text: {
+                copy:  '<i class="fas fa-copy"></i>',
+                csv:   '<i class="fas fa-file-csv"></i>',
+                excel: '<i class="fas fa-file-excel"></i>',
+                pdf:   '<i class="fas fa-file-pdf"></i>',
+                print: '<i class="fas fa-print"></i>'
+            }[ext],
+            titleAttr: {
+                copy:  'Copy to clipboard',
+                csv:   'Download CSV',
+                excel: 'Download Excel',
+                pdf:   'Download PDF',
+                print: 'Print table'
+            }[ext],
+            exportOptions: {
+                columns: [0,1,2,3,4,5,6],
+                format: {
+                    body: function(data, rowIdx, colIdx, node) {
+                        // Only override the "Constraints" column (last column)
+                        if(colIdx === 6) {
+                            const rowData = table.row(rowIdx).data();
+                            return ConstraintHelpers.summary(rowData);
+                        }
+                        return data;
+                    }
+                }
+            }
+        }))
     });
 
     (function() {
@@ -495,15 +537,8 @@ document.addEventListener("DOMContentLoaded", function() {
             if (row.child.isShown()) {
                 row.child.hide();
             } else {
-            const detailHtml = `<div style="display:flex; gap:4px; align-items:center;">
-                <div style="min-width:50px;background:#003d4d;color:white;text-align:center;border-radius:4px;font-size:0.85em;">x: \${data.DimStateConstraint[i]}</div>
-                <div style="min-width:50px;background:#005f73;color:white;text-align:center;border-radius:4px;font-size:0.85em;">u: \${data.DimControlConstraint[i]}</div>
-                <div style="min-width:50px;background:#0096a0;color:white;text-align:center;border-radius:4px;font-size:0.85em;">v: \${data.DimVariableConstraint[i]}</div>
-                <div style="min-width:50px;background:#f18f01;color:white;text-align:center;border-radius:4px;font-size:0.85em;">c: \${data.DimPathConstraint[i]}</div>
-                <div style="min-width:50px;background:#d72638;color:white;text-align:center;border-radius:4px;font-size:0.85em;">b: \${data.DimBoundaryConstraint[i]}</div>
-                <div style="font-weight:bold;margin-left:10px;font-size:0.85em;">Total: \${totalConstraints}</div>
-            </div>`;
-                row.child(detailHtml).show();
+                // Use centralized helper to generate HTML
+                row.child(ConstraintHelpers.detailHTML(row.data())).show();
             }
         });
 
@@ -600,75 +635,41 @@ document.addEventListener("DOMContentLoaded", function() {
     \$(document).on('change', '#constraints-logic', applyConstraintFilter);
 });
 </script>
-""")
+"""
+
+const TABLE = (
+    presentation = TABLE_PRESENTATION,
+    style = TABLE_STYLE,
+    logic = TABLE_LOGIC,
+)
+
+# -------------------------------
+# Helpers
+# -------------------------------
+function sum_namedtuple(nt::NamedTuple)
+    sum(values(nt))
 end
 
-function generate_html_text_debut(io)
-write(io, """
-# [Problems browser](@id problems-browser)
-
-The table below provides an overview of all **optimal control problems** and allows interactive exploration, filtering, and export.  
-
-!!! tip "Quick guide to the problems table"
-
-    ```@raw html
-    <details><summary>Click to unfold and see the quick guide for the table.</summary>
-    ```
-
-    ## Table Overview
-
-    - **Problem:** The name of the optimal control problem.  
-    - **State:** Number of state variables in the system.  
-    - **Control:** Number of control inputs.  
-    - **Variable:** Number of additional optimisation variables (if any).  
-    - **Cost:** Type of cost functional:  
-        - **Mayer:** a **point cost** depending on the initial and final states and optional variables.
-        - **Lagrange:** integral over time  
-        - **Bolza:** combination of Mayer + Lagrange  
-    - **FinalTime:** Whether the final time is **fixed** or **free**.  
-    - **Constraints:** Buttons representing each constraint type:  
-        - **x:** state box constraints  
-        - **u:** control box constraints  
-        - **v:** variable box constraints  
-        - **c:** nonlinear path constraints  
-        - **b:** nonlinear boundary constraints  
-
-    The number next to the buttons shows the **total number of constraints**. Hover over buttons to see the exact count. Click a row to see a detailed list of constraints.
-
-    ## Interactivity & Filters
-
-    - **Sorting & Search:** Click column headers to sort. Use the search box to filter by text.  
-    - **Numeric Filters:** Enter `min-max` ranges in numeric columns to filter values.  
-    - **Cost & FinalTime Filters:** Use dropdown menus to filter by cost type or whether the final time is fixed/free.  
-    - **Constraint Filtering:** Use the buttons above the Constraints column to filter problems by constraint type. Choose **AND/OR logic** to combine multiple constraint types.  
-    - **Export Buttons:** Use the top buttons to copy the table or export it to CSV, Excel, PDF, or print. Hover over each button to see its function.  
-
-    ```@raw html
-    </details>
-    ```
-
----
-
-Scroll through the table or use filters to quickly find problems of interest, inspect their constraints, and export data for further analysis.
-""")
+function ocp_data_to_json(data_ocp::DataFrame)
+    return JSON.json(Tables.columntable(data_ocp))
 end
 
-# ---------------------------
-# --- Generate HTML + JS ---
-# ---------------------------
-function generate_html(md_path::AbstractString, json_str::String)
-    mkpath(dirname(md_path))
-    open(md_path, "w") do io
+function write_block(io, content)
+    write(io, content)
+end
 
-        generate_html_text_debut(io)
-        
-        write(io, """
-```@raw html
-""")
+function generate_constraint_buttons_html(constraint_dims::NamedTuple)
+    total_constraints = sum_namedtuple(constraint_dims)
+    buttons_html = join([begin
+        """<button class="constraint-btn" data-type="$key" data-dim="$dim">$key</button>"""
+    end for (key, dim) in pairs(constraint_dims)], "\n")
+    return """<span class='constraints-wrapper' data-order='$total_constraints'>
+                $buttons_html <strong style='margin-left:5px;'>($total_constraints)</strong>
+              </span>"""
+end
 
-insert_table_style(io)
-
-write(io, """
+function build_table_html(json_str::String)
+    return """
 <div>
     <table id="problems-table" class="display nowrap" style="width:100%">
         <thead>
@@ -710,36 +711,110 @@ write(io, """
 <script id="problems-json" type="application/json">
 $json_str
 </script>
-""")
-
-insert_logic_script(io)
-
-write(io, """
-```
-""")
-end
+"""
 end
 
+# -------------------------------
+# Data collection
+# -------------------------------
+function collect_problem_data(problem_sym::Symbol)
+    ocp = ocp_model(eval(problem_sym)(OptimalControlBackend()))
+
+    cost = has_mayer_cost(ocp) && has_lagrange_cost(ocp) ? "Bolza" :
+           has_mayer_cost(ocp) ? "Mayer" : "Lagrange"
+
+    final_time = has_fixed_final_time(ocp) ? "fixed" : "free"
+
+    dims = (
+        x = CTModels.dim_state_constraints_box(ocp),
+        u = CTModels.dim_control_constraints_box(ocp),
+        v = CTModels.dim_variable_constraints_box(ocp),
+        c = CTModels.dim_path_constraints_nl(ocp),
+        b = CTModels.dim_boundary_constraints_nl(ocp),
+    )
+
+    total = sum_namedtuple(dims)
+
+    return (
+        Problem = string(problem_sym),
+        State   = state_dimension(ocp),
+        Control = control_dimension(ocp),
+        Variable = variable_dimension(ocp),
+        Cost = cost,
+        FinalTime = final_time,
+        DimStateConstraint = dims.x,
+        DimControlConstraint = dims.u,
+        DimVariableConstraint = dims.v,
+        DimPathConstraint = dims.c,
+        DimBoundaryConstraint = dims.b,
+        TotalConstraints = total,
+        ConstraintButtonsHtml = generate_constraint_buttons_html(dims)
+    )
+end
+
+"Collects OCP data and returns a DataFrame"
+function collect_problems_data()
+    return DataFrame([collect_problem_data(sym) for sym in problems()])
+end
+
+### MAIN GENERATION PROCESS
+
 # ---------------------------
-# --- Main function ---
+# Layer 1: Data collection
 # ---------------------------
-function generate_problems_browser(md_path::AbstractString=joinpath(@__DIR__, "src", "problems_browser.md"))
-    data_ocp = collect_ocp_data()
-    json_str = ocp_data_to_json(data_ocp)
-    generate_html(md_path, json_str)
-    println("Problems browser page written to: $md_path")
-    return md_path
+"Convert OCP data into JSON string"
+function collect_problems_data_json()
+    df = collect_problems_data()
+    return ocp_data_to_json(df)
 end
 
 # ---------------------------
-# Example: generate, use, and remove
+# Layer 2: HTML assembly
 # ---------------------------
+function assemble_browser_html(json_str)
+    html_parts = [
+        TABLE_PRESENTATION,
+        TABLE_STYLE,
+        build_table_html(json_str),
+        TABLE_LOGIC,
+    ]
+    return join(html_parts, "\n")
+end
+
+# ---------------------------
+# Layer 3: File writing
+# ---------------------------
+function generate_problems_browser!(path::AbstractString)
+    mkpath(dirname(path))
+    json_str = collect_problems_data_json()
+    html = assemble_problems_browser_html(json_str)
+    open(path, "w") do io
+        write(io, html)
+    end
+    return path
+end
+
+# ---------------------------
+# Temporary browser context using fixed path
+# ---------------------------
+"""
+with_problems_browser(f::Function)
+
+Generates the problems browser at the fixed path, passes the filename
+to `f`, and removes the file after `f` finishes.
+"""
 function with_problems_browser(f::Function)
-    path = generate_problems_browser()  # generate file
+    # Generate the problems browser at the fixed path
+    generate_problems_browser!(BROWSER_PATH)
+
     try
-        return f(path)  # run your function using the generated file
+        # Pass the generated file path to the user function
+        return f(BROWSER_FILE)
     finally
-        isfile(path) && rm(path)  # remove file if it exists
-        println("Temporary problems browser file removed: $path")
+        # Remove the file after usage
+        if isfile(BROWSER_PATH)
+            rm(BROWSER_PATH)
+            println("Temporary problems browser file removed: $BROWSER_PATH")
+        end
     end
 end

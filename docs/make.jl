@@ -111,7 +111,7 @@ PROBLEMS_PAGES = generate_documentation_problems(;
 Draft = false
 ```
 =#
-with_problems_browser() do path # generates the problems browser and remove it at the end
+with_problems_browser() do browser_file # generates the problems browser and remove it at the end
 
     makedocs(;
         draft=draft,
@@ -130,7 +130,7 @@ with_problems_browser() do path # generates the problems browser and remove it a
         pages=[
             "Getting Started" => "index.md",
             "Problems" =>
-                ["problems-introduction.md", "problems_browser.md", "List of the problems" => PROBLEMS_PAGES],
+                ["problems-introduction.md", browser_file, "List of the problems" => PROBLEMS_PAGES],
             "Tutorials" => [
                 "Get a problem" => "tutorial-get.md",
                 "Solve a problem" => "tutorial-solve.md",
