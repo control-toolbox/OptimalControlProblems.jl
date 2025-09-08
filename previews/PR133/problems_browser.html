@@ -462,6 +462,9 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // --- Filters and constraint header buttons ---
+    // Clear previous custom search
+    $.fn.dataTable.ext.search = [];
+
     $('#problems-table thead tr#filters th').each(function(i) {
         if(i===4){
             $(this).html('<select><option value="">All</option><option>Mayer</option><option>Lagrange</option><option>Bolza</option></select>');
@@ -470,20 +473,36 @@ document.addEventListener("DOMContentLoaded", function() {
         } else if(i>0 && i<6){
             $(this).html('<input type="text" placeholder="min-max" style="width:100%"/>');
         }
+
         $('input, select', this).on('keyup change', function(){
-            const val = $(this).val();
-            if(val.includes('-')){
-                const [min,max] = val.split('-').map(Number);
-                $.fn.dataTable.ext.search.push(function(settings, data_row){
-                    const v = parseFloat(data_row[i])||0;
-                    return v>=min && v<=max;
-                });
-                table.draw();
-                $.fn.dataTable.ext.search.pop();
-            } else {
-                table.column(i).search(val).draw();
+            table.draw();
+        });
+    });
+
+    // Global filter for min–max inputs
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex){
+        let pass = true;
+        $('#problems-table thead tr#filters th').each(function(i){
+            const input = $('input', this);
+            if(input.length){
+                const val = input.val().trim();
+                if(val === '') return; // no filter
+
+                if(val.includes('-')){
+                    const [minStr,maxStr] = val.split('-').map(s=>s.trim());
+                    const min = minStr==='' ? -Infinity : Number(minStr);
+                    const max = maxStr==='' ?  Infinity : Number(maxStr);
+                    const v = parseFloat(data[i]) || 0;
+                    if(v < min || v > max) pass = false;
+                } else {
+                    // single number → exact match
+                    const num = Number(val);
+                    const v = parseFloat(data[i]) || 0;
+                    if(v !== num) pass = false;
+                }
             }
         });
+        return pass;
     });
 
     // --- Constraint filter buttons ---
@@ -533,4 +552,4 @@ mermaid.initialize({
     startOnLoad: true,
     theme: "neutral"
 });
-</script></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="problems-introduction.html">« Introduction</a><a class="docs-footer-nextpage" href="problems/beam.html">Beam »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Sunday 7 September 2025 20:37">Sunday 7 September 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</script></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="problems-introduction.html">« Introduction</a><a class="docs-footer-nextpage" href="problems/beam.html">Beam »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Monday 8 September 2025 10:32">Monday 8 September 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
