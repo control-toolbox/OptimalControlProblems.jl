@@ -30,7 +30,7 @@
     --color-constraints: var(--color-dark-blue);
 
     /* Constraint buttons */
-    --btn-x: #ddd;
+    --btn-x: var(--color-light-gray);
     --btn-u: var(--color-light-gray);
     --btn-v: var(--color-light-gray);
     --btn-c: var(--color-light-gray);
@@ -312,6 +312,7 @@ table.dataTable thead .sorting_desc_disabled::after {
     right: 2px !important;   /* adjust distance from right edge */
 }
 </style>
+
 <div>
     <table id="problems-table" class="display nowrap" style="width:100%">
         <thead>
@@ -351,9 +352,67 @@ table.dataTable thead .sorting_desc_disabled::after {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
 <script id="problems-json" type="application/json">
-{"Problem":["beam","bioreactor","cart_pendulum","chain","dielectrophoretic_particle","double_oscillator","ducted_fan","electric_vehicle","glider","insurance","jackson","moonlander","robbins","robot","rocket","space_shuttle","steering","vanderpol"],"State":[2,3,4,3,2,4,6,2,4,3,3,6,3,6,3,6,4,2],"Control":[1,1,1,1,1,1,2,1,1,5,1,2,1,3,1,2,1,1],"Variable":[0,0,2,0,1,0,1,0,1,1,0,1,0,1,1,1,1,0],"Cost":["Lagrange","Lagrange","Mayer","Mayer","Mayer","Lagrange","Bolza","Lagrange","Mayer","Lagrange","Mayer","Mayer","Lagrange","Mayer","Mayer","Mayer","Mayer","Lagrange"],"FinalTime":["fixed","fixed","free","fixed","free","fixed","free","fixed","free","fixed","fixed","free","fixed","free","free","free","free","fixed"],"DimStateConstraint":[1,3,2,0,0,0,1,0,2,2,3,0,1,3,3,6,0,0],"DimControlConstraint":[0,1,1,0,1,1,2,0,1,5,1,2,0,3,1,2,1,0],"DimVariableConstraint":[0,0,1,0,1,0,1,0,1,1,0,1,0,1,1,1,1,0],"DimPathConstraint":[0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0],"DimBoundaryConstraint":[4,3,5,5,3,2,12,4,7,4,3,10,6,12,4,9,8,2],"TotalConstraints":[5,7,9,5,5,3,16,4,11,16,7,13,7,19,9,18,10,2],"ConstraintButtonsHtml":["<span class='constraints-wrapper' data-order='5'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"1\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"0\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"0\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"4\">b</button> <strong style='margin-left:5px;'>(5)</strong>\n</span>","<span class='constraints-wrapper' data-order='7'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"3\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"1\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"0\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"3\">b</button> <strong style='margin-left:5px;'>(7)</strong>\n</span>","<span class='constraints-wrapper' data-order='9'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"2\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"1\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"1\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"5\">b</button> <strong style='margin-left:5px;'>(9)</strong>\n</span>","<span class='constraints-wrapper' data-order='5'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"0\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"0\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"0\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"5\">b</button> <strong style='margin-left:5px;'>(5)</strong>\n</span>","<span class='constraints-wrapper' data-order='5'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"0\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"1\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"1\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"3\">b</button> <strong style='margin-left:5px;'>(5)</strong>\n</span>","<span class='constraints-wrapper' data-order='3'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"0\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"1\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"0\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"2\">b</button> <strong style='margin-left:5px;'>(3)</strong>\n</span>","<span class='constraints-wrapper' data-order='16'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"1\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"2\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"1\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"12\">b</button> <strong style='margin-left:5px;'>(16)</strong>\n</span>","<span class='constraints-wrapper' data-order='4'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"0\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"0\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"0\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"4\">b</button> <strong style='margin-left:5px;'>(4)</strong>\n</span>","<span class='constraints-wrapper' data-order='11'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"2\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"1\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"1\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"7\">b</button> <strong style='margin-left:5px;'>(11)</strong>\n</span>","<span class='constraints-wrapper' data-order='16'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"2\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"5\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"1\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"4\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"4\">b</button> <strong style='margin-left:5px;'>(16)</strong>\n</span>","<span class='constraints-wrapper' data-order='7'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"3\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"1\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"0\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"3\">b</button> <strong style='margin-left:5px;'>(7)</strong>\n</span>","<span class='constraints-wrapper' data-order='13'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"0\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"2\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"1\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"10\">b</button> <strong style='margin-left:5px;'>(13)</strong>\n</span>","<span class='constraints-wrapper' data-order='7'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"1\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"0\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"0\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"6\">b</button> <strong style='margin-left:5px;'>(7)</strong>\n</span>","<span class='constraints-wrapper' data-order='19'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"3\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"3\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"1\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"12\">b</button> <strong style='margin-left:5px;'>(19)</strong>\n</span>","<span class='constraints-wrapper' data-order='9'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"3\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"1\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"1\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"4\">b</button> <strong style='margin-left:5px;'>(9)</strong>\n</span>","<span class='constraints-wrapper' data-order='18'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"6\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"2\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"1\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"9\">b</button> <strong style='margin-left:5px;'>(18)</strong>\n</span>","<span class='constraints-wrapper' data-order='10'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"0\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"1\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"1\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"8\">b</button> <strong style='margin-left:5px;'>(10)</strong>\n</span>","<span class='constraints-wrapper' data-order='2'>\n  <button class=\"constraint-btn\" data-type=\"x\" data-dim=\"0\">x</button>\n<button class=\"constraint-btn\" data-type=\"u\" data-dim=\"0\">u</button>\n<button class=\"constraint-btn\" data-type=\"v\" data-dim=\"0\">v</button>\n<button class=\"constraint-btn\" data-type=\"c\" data-dim=\"0\">c</button>\n<button class=\"constraint-btn\" data-type=\"b\" data-dim=\"2\">b</button> <strong style='margin-left:5px;'>(2)</strong>\n</span>"]}
+{"Problem":["beam","bioreactor","cart_pendulum","chain","dielectrophoretic_particle","double_oscillator","ducted_fan","electric_vehicle","glider","insurance","jackson","moonlander","robbins","robot","rocket","space_shuttle","steering","vanderpol"],"State":[2,3,4,3,2,4,6,2,4,3,3,6,3,6,3,6,4,2],"Control":[1,1,1,1,1,1,2,1,1,5,1,2,1,3,1,2,1,1],"Variable":[0,0,2,0,1,0,1,0,1,1,0,1,0,1,1,1,1,0],"Cost":["Lagrange","Lagrange","Mayer","Mayer","Mayer","Lagrange","Bolza","Lagrange","Mayer","Lagrange","Mayer","Mayer","Lagrange","Mayer","Mayer","Mayer","Mayer","Lagrange"],"FinalTime":["fixed","fixed","free","fixed","free","fixed","free","fixed","free","fixed","fixed","free","fixed","free","free","free","free","fixed"],"DimStateConstraint":[1,3,2,0,0,0,1,0,2,2,3,0,1,3,3,6,0,0],"DimControlConstraint":[0,1,1,0,1,1,2,0,1,5,1,2,0,3,1,2,1,0],"DimVariableConstraint":[0,0,1,0,1,0,1,0,1,1,0,1,0,1,1,1,1,0],"DimPathConstraint":[0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0],"DimBoundaryConstraint":[4,3,5,5,3,2,12,4,7,4,3,10,6,12,4,9,8,2],"TotalConstraints":[5,7,9,5,5,3,16,4,11,16,7,13,7,19,9,18,10,2],"ConstraintButtonsHtml":[{"x":1,"u":0,"v":0,"c":0,"b":4},{"x":3,"u":1,"v":0,"c":0,"b":3},{"x":2,"u":1,"v":1,"c":0,"b":5},{"x":0,"u":0,"v":0,"c":0,"b":5},{"x":0,"u":1,"v":1,"c":0,"b":3},{"x":0,"u":1,"v":0,"c":0,"b":2},{"x":1,"u":2,"v":1,"c":0,"b":12},{"x":0,"u":0,"v":0,"c":0,"b":4},{"x":2,"u":1,"v":1,"c":0,"b":7},{"x":2,"u":5,"v":1,"c":4,"b":4},{"x":3,"u":1,"v":0,"c":0,"b":3},{"x":0,"u":2,"v":1,"c":0,"b":10},{"x":1,"u":0,"v":0,"c":0,"b":6},{"x":3,"u":3,"v":1,"c":0,"b":12},{"x":3,"u":1,"v":1,"c":0,"b":4},{"x":6,"u":2,"v":1,"c":0,"b":9},{"x":0,"u":1,"v":1,"c":0,"b":8},{"x":0,"u":0,"v":0,"c":0,"b":2}]}
 </script>
+
 <script>
+// ==============================
+// Constraint Helper Functions
+// ==============================
+const ConstraintHelpers = (() => {
+
+    // Map single-letter types to column keys
+    const constraintMap = {
+        x: 'DimStateConstraint',
+        u: 'DimControlConstraint',
+        v: 'DimVariableConstraint',
+        c: 'DimPathConstraint',
+        b: 'DimBoundaryConstraint'
+    };
+
+    const colors = {x:'#003d4d', u:'#005f73', v:'#0096a0', c:'#f18f01', b:'#d72638'};
+
+    // Get active constraint letters for a row
+    function getConstraintParts(rowData) {
+        return Object.entries(constraintMap)
+            .filter(([letter, col]) => rowData[col] && Number(rowData[col]) > 0)
+            .map(([letter]) => letter);
+    }
+
+    // Generate summary string like "x u c (total)"
+    function summary(rowData) {
+        return getConstraintParts(rowData).join(' ') + ` (${rowData.TotalConstraints})`;
+    }
+
+    // Generate a single button HTML
+    function buttonHTML(type, dim, small, print_val) {
+        const colors = { x:'#003d4d', u:'#005f73', v:'#0096a0', c:'#f18f01', b:'#d72638' };
+        const bg = dim === 0 ? '#ddd' : colors[type] || '#ccc';
+        const color = dim === 0 ? '#666' : 'white';
+        const fontSize = small ? '0.75em' : '0.85em';
+        const text = print_val ? `${type}: ${dim}` : `${type}`;
+
+        return `<button class="constraint-btn" data-type="${type}" data-dim="${dim}"
+                    style="background:${bg};color:${color};border:none;border-radius:12px;padding:4px 8px;font-size:${fontSize};font-weight:bold;">
+                    ${text}
+                </button>`;
+    }
+
+    // HTML for table row display (summary)
+    function rowSummaryHTML(rowData, print_val=false) {
+        return Object.keys(constraintMap)
+            .map(k => buttonHTML(k, rowData[constraintMap[k]], true, print_val))
+            .join(' ') + ` <strong style="margin-left:5px;">(${rowData.TotalConstraints})</strong>`;
+    }
+
+    // HTML for row detail panel
+    function detailHTML(rowData) {
+        return `<div style="display:flex; gap:4px; align-items:center;">${rowSummaryHTML(rowData, true)}</div>`;
+    }
+
+    return {summary, rowSummaryHTML, detailHTML};
+})();
+
 document.addEventListener("DOMContentLoaded", function() {
     const data = JSON.parse(document.getElementById("problems-json").textContent);
 
@@ -373,20 +432,47 @@ document.addEventListener("DOMContentLoaded", function() {
             { data: 'Variable', width: '12%' },
             { data: 'Cost', width: '10%' },
             { data: 'FinalTime', width: '14%' },
-            { data: 'ConstraintButtonsHtml',
-              render: function(data, type, row) {
-                  if (type === 'sort' || type === 'type') return Number(row.TotalConstraints);
-                  return data;
-              }
+            {
+                data: 'ConstraintButtonsHtml',
+                render: function(data, type, row) {
+                    // Sorting uses total constraints
+                    if (type === 'sort' || type === 'type') return Number(row.TotalConstraints);
+
+                    // Display on page: keep the full buttons HTML
+                    return ConstraintHelpers.rowSummaryHTML(row);
+                }
             }
         ],
-        buttons: [
-            { extend: 'copy', text: '<i class="fas fa-copy"></i>', titleAttr: 'Copy to clipboard' },
-            { extend: 'csv',  text: '<i class="fas fa-file-csv"></i>', titleAttr: 'Download CSV' },
-            { extend: 'excel', text: '<i class="fas fa-file-excel"></i>', titleAttr: 'Download Excel' },
-            { extend: 'pdf', text: '<i class="fas fa-file-pdf"></i>', titleAttr: 'Download PDF' },
-            { extend: 'print', text: '<i class="fas fa-print"></i>', titleAttr: 'Print table' }
-        ]
+        buttons: ['copy','csv','excel','pdf','print'].map(ext => ({
+            extend: ext,
+            text: {
+                copy:  '<i class="fas fa-copy"></i>',
+                csv:   '<i class="fas fa-file-csv"></i>',
+                excel: '<i class="fas fa-file-excel"></i>',
+                pdf:   '<i class="fas fa-file-pdf"></i>',
+                print: '<i class="fas fa-print"></i>'
+            }[ext],
+            titleAttr: {
+                copy:  'Copy to clipboard',
+                csv:   'Download CSV',
+                excel: 'Download Excel',
+                pdf:   'Download PDF',
+                print: 'Print table'
+            }[ext],
+            exportOptions: {
+                columns: [0,1,2,3,4,5,6],
+                format: {
+                    body: function(data, rowIdx, colIdx, node) {
+                        // Only override the "Constraints" column (last column)
+                        if(colIdx === 6) {
+                            const rowData = table.row(rowIdx).data();
+                            return ConstraintHelpers.summary(rowData);
+                        }
+                        return data;
+                    }
+                }
+            }
+        }))
     });
 
     (function() {
@@ -443,15 +529,8 @@ document.addEventListener("DOMContentLoaded", function() {
             if (row.child.isShown()) {
                 row.child.hide();
             } else {
-            const detailHtml = `<div style="display:flex; gap:4px; align-items:center;">
-                <div style="min-width:50px;background:#003d4d;color:white;text-align:center;border-radius:4px;font-size:0.85em;">x: ${data.DimStateConstraint[i]}</div>
-                <div style="min-width:50px;background:#005f73;color:white;text-align:center;border-radius:4px;font-size:0.85em;">u: ${data.DimControlConstraint[i]}</div>
-                <div style="min-width:50px;background:#0096a0;color:white;text-align:center;border-radius:4px;font-size:0.85em;">v: ${data.DimVariableConstraint[i]}</div>
-                <div style="min-width:50px;background:#f18f01;color:white;text-align:center;border-radius:4px;font-size:0.85em;">c: ${data.DimPathConstraint[i]}</div>
-                <div style="min-width:50px;background:#d72638;color:white;text-align:center;border-radius:4px;font-size:0.85em;">b: ${data.DimBoundaryConstraint[i]}</div>
-                <div style="font-weight:bold;margin-left:10px;font-size:0.85em;">Total: ${totalConstraints}</div>
-            </div>`;
-                row.child(detailHtml).show();
+                // Use centralized helper to generate HTML
+                row.child(ConstraintHelpers.detailHTML(row.data())).show();
             }
         });
 
@@ -547,9 +626,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     $(document).on('change', '#constraints-logic', applyConstraintFilter);
 });
-</script><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+</script>
+<script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
 mermaid.initialize({
     startOnLoad: true,
     theme: "neutral"
 });
-</script></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="problems-introduction.html">« Introduction</a><a class="docs-footer-nextpage" href="problems/beam.html">Beam »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Monday 8 September 2025 13:30">Monday 8 September 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</script></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="problems-introduction.html">« Introduction</a><a class="docs-footer-nextpage" href="problems/beam.html">Beam »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Monday 8 September 2025 18:53">Monday 8 September 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
