@@ -97,14 +97,24 @@ function comparison(; max_iter, test_name)
     ε_rel_control = 1e-1
     ε_abs_control = 1e-6
 
-    # options for solvers
-    Options = Dict(
+    # options_ipopt for solvers
+    options_ipopt = Dict(
         :print_level => 0,
         :tol => TOL,
         :mu_strategy => MU_STRATEGY,
         :sb => SB,
         :max_iter => max_iter,
         :max_wall_time => MAX_WALL_TIME,
+    )
+
+    options_madnlp = Dict(
+        :print_level => MadNLP.ERROR,
+        :tol => TOL,
+        #:mu_strategy => MU_STRATEGY,
+        #:sb => SB,
+        :max_iter => max_iter,
+        :max_wall_time => MAX_WALL_TIME,
+        :linear_solver => MumpsSolver,
     )
 
     # we loop over the problems
@@ -119,30 +129,16 @@ function comparison(; max_iter, test_name)
             DEBUG && println("\n┌─ ", string(f), " (", string(test_name), ")")
             DEBUG && println("│")
 
-            ########## OptimalControl ##########
-            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
-            nlp_oc = nlp_model(docp)
-            nlp_sol = NLPModelsIpopt.ipopt(nlp_oc; Options...)
-            sol = build_ocp_solution(docp, nlp_sol)
-            sol_oc = deepcopy(sol)  # for plotting
-
-            t_oc = time_grid(sol)
-            x_oc = state(sol).(t_oc)
-            u_oc = control(sol).(t_oc)
-            o_oc = objective(sol)
-            i_oc = iterations(sol)
-            v_oc = variable(sol)
-
             ############### JuMP ###############
             nlp_jp = OptimalControlProblems.eval(f)(JuMPBackend(); N=N)
             set_optimizer(nlp_jp, Ipopt.Optimizer)
             set_silent(nlp_jp)
-            set_optimizer_attribute(nlp_jp, "tol", Options[:tol])
-            set_optimizer_attribute(nlp_jp, "max_iter", Options[:max_iter])
-            set_optimizer_attribute(nlp_jp, "mu_strategy", Options[:mu_strategy])
+            set_optimizer_attribute(nlp_jp, "tol", options_ipopt[:tol])
+            set_optimizer_attribute(nlp_jp, "max_iter", options_ipopt[:max_iter])
+            set_optimizer_attribute(nlp_jp, "mu_strategy", options_ipopt[:mu_strategy])
             set_optimizer_attribute(nlp_jp, "linear_solver", "mumps")
-            set_optimizer_attribute(nlp_jp, "max_wall_time", Options[:max_wall_time])
-            set_optimizer_attribute(nlp_jp, "sb", Options[:sb])
+            set_optimizer_attribute(nlp_jp, "max_wall_time", options_ipopt[:max_wall_time])
+            set_optimizer_attribute(nlp_jp, "sb", options_ipopt[:sb])
             optimize!(nlp_jp)
 
             t_jp = time_grid(f, nlp_jp)
@@ -153,8 +149,34 @@ function comparison(; max_iter, test_name)
             v_jp = variable(f, nlp_jp)
             p_jp = costate(f, nlp_jp).(t_jp)
 
+            ########## OptimalControl ##########
+            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
+            nlp_oc = nlp_model(docp)
+            nlp_sol = NLPModelsIpopt.ipopt(nlp_oc; options_ipopt...)
+            sol_oc = build_ocp_solution(docp, nlp_sol)
+
+            t_oc = time_grid(sol_oc)
+            x_oc = state(sol_oc).(t_oc)
+            u_oc = control(sol_oc).(t_oc)
+            o_oc = objective(sol_oc)
+            i_oc = iterations(sol_oc)
+            v_oc = variable(sol_oc)
+
+            ########## OptimalControl_s ##########
+            docp = OptimalControlProblems.eval(Symbol(f, :_s))(OptimalControlBackend(), :madnlp, :exa; N=N)
+            nlp_os = nlp_model(docp)
+            nlp_sol = madnlp(nlp_os; options_madnlp...)
+            sol_os = build_ocp_solution(docp, nlp_sol)
+
+            t_os = time_grid(sol_os)
+            x_os = state(sol_os).(t_os)
+            u_os = control(sol_os).(t_os)
+            o_os = objective(sol_os)
+            i_os = iterations(sol_os)
+            v_os = variable(sol_os)
+
             ########## Iterations ##########
-            DEBUG && println("├─ Iterations     → OC: ", i_oc, ", JP: ", i_jp)
+            DEBUG && println("├─ Iterations     → JP: ", i_jp, ", OC: ", i_oc, ", OS: ", i_os)
 
             keep_problem = true
 
@@ -303,6 +325,7 @@ function comparison(; max_iter, test_name)
             @assert(length(p_vars)==n)
 
             # OptimalControl
+            color = 1
             labelOC = if (test_name == :solution)
                 "OptimalControl: " * string(i_oc) * " it"
             else
@@ -310,11 +333,35 @@ function comparison(; max_iter, test_name)
             end
             plt = plot(
                 sol_oc;
-                state_style=(color=1,),
-                costate_style=(color=1, legend=:none),
-                control_style=(color=1, legend=:none),
-                path_style=(color=1, legend=:none),
-                dual_style=(color=1, legend=:none),
+                state_style=(color=color,),
+                costate_style=(color=color, legend=:none),
+                control_style=(color=color, legend=:none),
+                path_style=(color=color, legend=:none),
+                dual_style=(color=color, legend=:none),
+                size=(900, 220*(n+m)),
+                label=labelOC,
+                leftmargin=20mm,
+            )
+            for i in 2:n
+                plot!(plt[i]; legend=:none)
+            end
+
+            # OptimalControl_s
+            color = 2
+            labelOC = if (test_name == :solution)
+                "OptimalControl_s: " * string(i_oc) * " it"
+            else
+                "OptimalControl_s"
+            end
+            plot!(
+                plt,
+                sol_os;
+                linestyle=:dot,
+                state_style=(color=color,),
+                costate_style=(color=color, legend=:none),
+                control_style=(color=color, legend=:none),
+                path_style=(color=color, legend=:none),
+                dual_style=(color=color, legend=:none),
                 size=(900, 220*(n+m)),
                 label=labelOC,
                 leftmargin=20mm,
@@ -324,21 +371,22 @@ function comparison(; max_iter, test_name)
             end
 
             # JuMP
+            color = 3
             labelJP = (test_name == :solution) ? "JuMP: " * string(i_jp) * " it" : "JuMP"
             for i in eachindex(x_vars) # state
                 xi_jp = [x_jp[k][i] for k in eachindex(t_jp)]
                 label = i == 1 ? labelJP : :none
-                plot!(plt[i], t_jp, xi_jp; color=2, linestyle=:dash, label=label)
+                plot!(plt[i], t_jp, xi_jp; color=color, linestyle=:dash, label=label)
             end
 
             for i in eachindex(p_vars) # costate
                 pi_jp = [p_jp[k][i] for k in eachindex(t_jp)]
-                plot!(plt[n + i], t_jp, -pi_jp; color=2, linestyle=:dash, label=:none)
+                plot!(plt[n + i], t_jp, -pi_jp; color=color, linestyle=:dash, label=:none)
             end
 
             for i in eachindex(u_vars) # control
                 ui_jp = [u_jp[k][i] for k in eachindex(t_jp)]
-                plot!(plt[2n + i], t_jp, ui_jp; color=2, linestyle=:dash, label=:none)
+                plot!(plt[2n + i], t_jp, ui_jp; color=color, linestyle=:dash, label=:none)
             end
 
             # save figure

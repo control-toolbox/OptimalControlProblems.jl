@@ -7,13 +7,23 @@ function test_quick()
     ε_abs_objective = 1e-6
 
     # options for solvers
-    kwargs = Dict(
+    kwargs_ipopt = Dict(
         :print_level => 0,
         :tol => TOL,
         :mu_strategy => MU_STRATEGY,
         :sb => SB,
         :max_iter => MAX_ITER,
         :max_wall_time => MAX_WALL_TIME,
+    )
+
+    kwargs_madnlp = Dict(
+        :print_level => MadNLP.ERROR,
+        :tol => TOL,
+        #:mu_strategy => MU_STRATEGY,
+        #:sb => SB,
+        :max_iter => MAX_ITER,
+        :max_wall_time => MAX_WALL_TIME,
+        :linear_solver => MumpsSolver,
     )
 
     max_r_err = -Inf # relative error max
@@ -24,13 +34,6 @@ function test_quick()
         @testset "$(string(f)) (objective)" verbose=VERBOSE begin
             DEBUG && println("\n", "┌─ ", string(f))
             DEBUG && println("│")
-
-            ########## OptimalControl ##########
-            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
-            nlp = nlp_model(docp)
-            nlp_sol = NLPModelsIpopt.ipopt(nlp; kwargs...)
-            sol = build_ocp_solution(docp, nlp_sol)
-            o_oc = objective(sol)
 
             ############### JuMP ###############
             nlp = OptimalControlProblems.eval(f)(JuMPBackend(); N=N)
@@ -45,26 +48,67 @@ function test_quick()
             optimize!(nlp)
             o_jp = objective_value(nlp)
 
-            ############### TEST ###############
-            # objective
-            o_di = abs(o_oc-o_jp)
-            o_bd = max(0.5*(abs(o_oc) + abs(o_jp))*ε_rel_objective, ε_abs_objective)
+            ########## OptimalControl ##########
+            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
+            nlp = nlp_model(docp)
+            nlp_sol = NLPModelsIpopt.ipopt(nlp; kwargs_ipopt...)
+            sol = build_ocp_solution(docp, nlp_sol)
+            o_oc = objective(sol)
 
+            ########## OptimalControl_s ##########
+            docp = OptimalControlProblems.eval(Symbol(f, :_s))(OptimalControlBackend(), :madnlp, :exa; N=N)
+            nlp = nlp_model(docp)
+            nlp_sol = madnlp(nlp; kwargs_madnlp...)
+            sol = build_ocp_solution(docp, nlp_sol)
+            o_os = objective(sol)
+
+            ############### TEST ###############
             DEBUG && println("├─  objective")
             DEBUG && println("│")
-            DEBUG && println("│     o_oc  = ", o_oc)
             DEBUG && println("│     o_jp  = ", o_jp)
-            DEBUG && println("│     r_err = ", o_di/(0.5*(abs(o_oc) + abs(o_jp))))
-            DEBUG && println("│     a_err = ", o_di)
-            DEBUG && println("│     bound = ", o_bd)
+            DEBUG && println("│     o_oc  = ", o_oc)
+            DEBUG && println("│     o_os  = ", o_os)
+            DEBUG && println("│")
+
+            # comparison JuMP and OptimalControl
+            A = o_oc
+            B = o_jp
+
+            o_di = abs(A-B)
+            o_bd = max(0.5*(abs(A) + abs(B))*ε_rel_objective, ε_abs_objective)
+            max_r_err = max(max_r_err, o_di/(0.5*(abs(A) + abs(B))))
+
+            DEBUG && println("│     JuMP vs OptimalControl")
+            DEBUG && println("│")
+            DEBUG && println("│          r_err = ", o_di/(0.5*(abs(A) + abs(B))))
+            DEBUG && println("│          a_err = ", o_di)
+            DEBUG && println("│          bound = ", o_bd)
 
             res = @my_test_broken o_di < o_bd
 
-            DEBUG &&  res && println("│     \033[1;32mTest Passed\033[0m")
-            DEBUG && !res && println("│     \033[1;31mTest Failed\033[0m")
+            DEBUG &&  res && println("│          \033[1;32mTest Passed\033[0m")
+            DEBUG && !res && println("│          \033[1;31mTest Failed\033[0m")
             DEBUG && println("│")
 
-            max_r_err = max(max_r_err, o_di/(0.5*(abs(o_oc) + abs(o_jp))))
+            # comparison JuMP and OptimalControl_s
+            A = o_os
+            B = o_jp
+
+            o_di = abs(A-B)
+            o_bd = max(0.5*(abs(A) + abs(B))*ε_rel_objective, ε_abs_objective)
+            max_r_err = max(max_r_err, o_di/(0.5*(abs(A) + abs(B))))
+
+            DEBUG && println("│     JuMP vs OptimalControl_s")
+            DEBUG && println("│")
+            DEBUG && println("│          r_err = ", o_di/(0.5*(abs(A) + abs(B))))
+            DEBUG && println("│          a_err = ", o_di)
+            DEBUG && println("│          bound = ", o_bd)
+
+            res = @my_test_broken o_di < o_bd
+
+            DEBUG &&  res && println("│          \033[1;32mTest Passed\033[0m")
+            DEBUG && !res && println("│          \033[1;31mTest Failed\033[0m")
+            DEBUG && println("│")
 
             #
             DEBUG && println("└─")

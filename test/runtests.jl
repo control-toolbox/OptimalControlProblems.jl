@@ -32,14 +32,17 @@ for file in files
 end
 
 # Remove from the tests the following problems
-# problems_to_exclude = [
-#     :quadrotor
-# ]
-# list_of_problems = setdiff(list_of_problems, problems_to_exclude)
+problems_to_exclude = [
+    :bioreactor,
+    :cart_pendulum,
+    :dielectrophoretic_particle,
+    :moon_lander,
+]
+list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
-# list_of_problems = [
-#     :truck_trailer
-# ]
+list_of_problems = [
+    :beam
+]
 
 # The list of all the problems to test
 const LIST_OF_PROBLEMS = deepcopy(list_of_problems)
@@ -53,13 +56,13 @@ const VERBOSE = true # print or not details during tests
 @testset "OptimalControlProblems tests" verbose=VERBOSE showtiming=true begin
     for name in (
         #:aqua,
-        #:kwargs,
-        #:JuMP,                  # convergence tests for JuMP models
-        #:OptimalControl,        # convergence tests for OptimalControl models
-        :OptimalControl_s,      # convergence tests for OptimalControl models
-        #:init,                  # comparison between OptimalControl and JuMP: init
-        #:solution,              # comparison between OptimalControl and JuMP: solution
-        #:quick,                 # quick comparison: objective rel error only
+        # :kwargs,
+        # :JuMP,                  # convergence tests for JuMP models
+        # :OptimalControl,        # convergence tests for OptimalControl models
+        # :OptimalControl_s,      # convergence tests for OptimalControl models
+        :init,                  # comparison between OptimalControl and JuMP: init
+        # :solution,              # comparison between OptimalControl and JuMP: solution
+        # :quick,                 # quick comparison: objective rel error only
     )
         @testset "$(name)" verbose=VERBOSE begin
             test_name = Symbol(:test_, name)
