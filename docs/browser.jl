@@ -93,7 +93,7 @@ const TABLE_STYLE = """
     --color-constraints: var(--color-dark-blue);
 
     /* Constraint buttons */
-    --btn-x: #ddd;
+    --btn-x: var(--color-light-gray);
     --btn-u: var(--color-light-gray);
     --btn-v: var(--color-light-gray);
     --btn-c: var(--color-light-gray);
@@ -393,6 +393,8 @@ const ConstraintHelpers = (() => {
         b: 'DimBoundaryConstraint'
     };
 
+    const colors = {x:'#003d4d', u:'#005f73', v:'#0096a0', c:'#f18f01', b:'#d72638'};
+
     // Get active constraint letters for a row
     function getConstraintParts(rowData) {
         return Object.entries(constraintMap)
@@ -405,20 +407,33 @@ const ConstraintHelpers = (() => {
         return getConstraintParts(rowData).join(' ') + ` (\${rowData.TotalConstraints})`;
     }
 
-    // Generate HTML for row detail panel
-    function detailHTML(rowData) {
-        const colors = {x:'#003d4d', u:'#005f73', v:'#0096a0', c:'#f18f01', b:'#d72638'};
-        return `<div style="display:flex; gap:4px; align-items:center;">\${
-            Object.keys(colors).map(k =>
-                `<div style="min-width:50px;background:\${colors[k]};color:white;text-align:center;
-                    border-radius:4px;font-size:0.85em;">\${k}: \${rowData[constraintMap[k]]}</div>`
-            ).join('') 
-        }<div style="font-weight:bold;margin-left:10px;font-size:0.85em;">
-            Total: \${rowData.TotalConstraints}
-        </div></div>`;
+    // Generate a single button HTML
+    function buttonHTML(type, dim, small, print_val) {
+        const colors = { x:'#003d4d', u:'#005f73', v:'#0096a0', c:'#f18f01', b:'#d72638' };
+        const bg = dim === 0 ? '#ddd' : colors[type] || '#ccc';
+        const color = dim === 0 ? '#666' : 'white';
+        const fontSize = small ? '0.75em' : '0.85em';
+        const text = print_val ? `\${type}: \${dim}` : `\${type}`;
+
+        return `<button class="constraint-btn" data-type="\${type}" data-dim="\${dim}"
+                    style="background:\${bg};color:\${color};border:none;border-radius:12px;padding:4px 8px;font-size:\${fontSize};font-weight:bold;">
+                    \${text}
+                </button>`;
     }
 
-    return {getConstraintParts, summary, detailHTML};
+    // HTML for table row display (summary)
+    function rowSummaryHTML(rowData, print_val=false) {
+        return Object.keys(constraintMap)
+            .map(k => buttonHTML(k, rowData[constraintMap[k]], true, print_val))
+            .join(' ') + ` <strong style="margin-left:5px;">(\${rowData.TotalConstraints})</strong>`;
+    }
+
+    // HTML for row detail panel
+    function detailHTML(rowData) {
+        return `<div style="display:flex; gap:4px; align-items:center;">\${rowSummaryHTML(rowData, true)}</div>`;
+    }
+
+    return {summary, rowSummaryHTML, detailHTML};
 })();
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -447,7 +462,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     if (type === 'sort' || type === 'type') return Number(row.TotalConstraints);
 
                     // Display on page: keep the full buttons HTML
-                    return data;
+                    return ConstraintHelpers.rowSummaryHTML(row);
                 }
             }
         ],
@@ -658,14 +673,18 @@ function write_block(io, content)
     write(io, content)
 end
 
+# function generate_constraint_buttons_html(constraint_dims::NamedTuple)
+#     total_constraints = sum_namedtuple(constraint_dims)
+#     buttons_html = join([begin
+#         """<button class="constraint-btn" data-type="$key" data-dim="$dim">$key</button>"""
+#     end for (key, dim) in pairs(constraint_dims)], "\n")
+#     return """<span class='constraints-wrapper' data-order='$total_constraints'>
+#                 $buttons_html <strong style='margin-left:5px;'>($total_constraints)</strong>
+#               </span>"""
+# end
+
 function generate_constraint_buttons_html(constraint_dims::NamedTuple)
-    total_constraints = sum_namedtuple(constraint_dims)
-    buttons_html = join([begin
-        """<button class="constraint-btn" data-type="$key" data-dim="$dim">$key</button>"""
-    end for (key, dim) in pairs(constraint_dims)], "\n")
-    return """<span class='constraints-wrapper' data-order='$total_constraints'>
-                $buttons_html <strong style='margin-left:5px;'>($total_constraints)</strong>
-              </span>"""
+    return constraint_dims
 end
 
 function build_table_html(json_str::String)
