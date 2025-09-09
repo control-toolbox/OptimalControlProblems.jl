@@ -67,12 +67,12 @@ const TABLE_STYLE = """
     /* ==============================
        Base Palette
        ============================== */
-    --color-dark-blue:  #003d4d;   /* very dark blue */
-    --color-deep-blue:  #005f73;   /* deep blue */
-    --color-bright-blue:#0096a0;   /* bright blue */
-    --color-orange:     #f18f01;   /* orange / ochre */
-    --color-soft-red:   #d72638;   /* soft red */
-    --color-deep-violet:#6a0572;   /* deep violet */
+    --color-dark-blue:  #003d4d;
+    --color-deep-blue:  #005f73;
+    --color-bright-blue:#0096a0;
+    --color-orange:     #f18f01;
+    --color-soft-red:   #d72638;
+    --color-deep-violet:#6a0572;
     --color-bootstrap-blue: #007BFF;
     --color-light-gray: #ddd;
     --color-gray-text:  #666;
@@ -92,24 +92,13 @@ const TABLE_STYLE = """
     --color-final:   var(--color-dark-blue);
     --color-constraints: var(--color-dark-blue);
 
-    /* Constraint buttons */
-    --btn-x: var(--color-light-gray);
-    --btn-u: var(--color-light-gray);
-    --btn-v: var(--color-light-gray);
-    --btn-c: var(--color-light-gray);
-    --btn-b: var(--color-light-gray);
-
-    /* DataTables Filter buttons */
+    /* Buttons */
     --btn-filters-active: var(--color-soft-green);
     --btn-filters-disabled: var(--color-light-gray);
     --btn-filters-enabled: var(--color-bootstrap-blue);
     --btn-filters-hover: var(--color-soft-green-lighter);
 
-    /* DataTables Constraints buttons */
-    --btn-constraints-active: var(--color-soft-green);
     --btn-constraints-disabled: var(--color-light-gray);
-    --btn-constraints-enabled: var(--color-bootstrap-blue);
-    --btn-constraints-hover: var(--color-soft-green-lighter);
 }
 
 /* ==============================
@@ -118,7 +107,10 @@ const TABLE_STYLE = """
 #problems-table {
     width: 100%;
     border-collapse: collapse;
+    opacity: 0; /* fade-in on load */
+    transition: opacity 0.5s ease;
 }
+#problems-table.visible { opacity: 1; }
 
 #problems-table thead th {
     background: linear-gradient(to bottom, var(--color-table-bg), var(--color-table-bg-alt));
@@ -126,7 +118,6 @@ const TABLE_STYLE = """
     padding: 6px 8px;
     border-bottom: 2px solid var(--color-light-gray);
 }
-
 #problems-table thead th:nth-child(1) { color: var(--color-problem); }
 #problems-table thead th:nth-child(2) { color: var(--color-state); }
 #problems-table thead th:nth-child(3) { color: var(--color-control); }
@@ -139,11 +130,9 @@ const TABLE_STYLE = """
     padding: 6px 8px;
     text-align: left;
 }
-
 #problems-table tbody tr:nth-child(even) {
     background-color: var(--color-table-bg-alt);
 }
-
 #problems-table tbody tr:hover {
     background-color: var(--color-table-bg-alt);
     cursor: pointer;
@@ -152,45 +141,34 @@ const TABLE_STYLE = """
 /* ==============================
    DataTables Controls
    ============================== */
-div.dataTables_wrapper div.dataTables_length {
-    margin-bottom: 8px;
-}
-
 .dt-top-buttons {
     margin-bottom: 6px;
 }
-
 .dt-top-buttons .dt-buttons {
     display: flex;
     gap: 8px;
     align-items: center;
     margin-bottom: 20px;
 }
-
 .dt-top-buttons .dt-buttons button {
-    margin: 0;
-    padding: 6px 10px;
-}
-
-.dt-buttons button i {
-    font-size: 1.2em;
-    vertical-align: middle;
-}
-
-.dt-buttons button {
     padding: 4px 8px!important;
 }
-
-/* Export buttons colors */
-.dt-buttons .buttons-copy { color: #0096a0!important;}
-.dt-buttons .buttons-csv  { color: #f18f01!important;}
-.dt-buttons .buttons-excel{ color: #2F8F3F!important;}
-.dt-buttons .buttons-pdf  { color: #d72638!important;}
-.dt-buttons .buttons-print{ color: #6a0572!important;}
-
+.dt-buttons button i { font-size: 1.2em; vertical-align: middle; }
 .dt-buttons button:hover {
     opacity: 0.85;
     transform: scale(1.03);
+}
+
+/* Export buttons (semantic classes) */
+.dt-buttons .buttons-copy  { color: var(--color-bright-blue) !important; }
+.dt-buttons .buttons-csv   { color: var(--color-orange) !important; }
+.dt-buttons .buttons-excel { color: var(--color-soft-green) !important; }
+.dt-buttons .buttons-pdf   { color: var(--color-soft-red) !important; }
+.dt-buttons .buttons-print { color: var(--color-deep-violet) !important; }
+
+/* Also target icons inside buttons, in case <i> inherits default color */
+.dt-buttons button i {
+    color: inherit !important;
 }
 
 .dt-top-controls {
@@ -201,79 +179,59 @@ div.dataTables_wrapper div.dataTables_length {
     margin-bottom: 8px;
     width: 100%;
 }
-
-.dt-top-controls .dataTables_length {
-    margin: 0;
-}
-
-.dt-top-controls .dataTables_length label {
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.dt-top-controls .dataTables_length select {
-    min-width: 70px;
-}
-
-.dt-top-controls .dataTables_filter {
-    margin: 0;
-}
-
+.dt-top-controls .dataTables_length,
+.dt-top-controls .dataTables_filter { margin: 0; }
+.dt-top-controls .dataTables_length label,
 .dt-top-controls .dataTables_filter label {
-    margin: 0;
     display: flex;
     align-items: center;
     gap: 6px;
+    margin: 0;
 }
-
+.dt-top-controls .dataTables_length select { min-width: 70px; }
 .dt-top-controls .dataTables_filter input {
     width: 220px;
     max-width: 40vw;
     padding: 6px 8px;
     box-sizing: border-box;
 }
-
-/* responsive: stack controls vertically on narrow screens */
 @media (max-width: 680px) {
-    .dt-top-controls {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .dt-top-controls .dataTables_filter input {
-        width: 100%;
-    }
+    .dt-top-controls { flex-direction: column; align-items: stretch; }
+    .dt-top-controls .dataTables_filter input { width: 100%; }
 }
 
 /* ==============================
-   Constraint Buttons (Table Rows)
+   Constraint Buttons
    ============================== */
 .constraint-btn {
+    border: none;
     border-radius: 12px;
     padding: 4px 8px;
-    margin: 0px;
-    font-size: 0.85em;
     font-weight: bold;
-    border: none;
     cursor: pointer;
     transition: 0.2s;
 }
+.constraint-btn.small { font-size: 0.75em; }
+.constraint-btn.normal { font-size: 0.85em; }
 
-.constraint-btn[data-dim="0"] { background-color: var(--btn-constraints-disabled); color: var(--color-gray-text); }
-.constraint-btn[data-dim]:not([data-dim="0"]) { background-color: var(--btn-constraints-enabled); color: white; }
+/* State (zero vs nonzero) */
+.constraint-btn.dim-zero {
+    background-color: var(--btn-constraints-disabled);
+    color: var(--color-gray-text);
+}
+.constraint-btn.dim-nonzero { color: white; }
 
-.constraint-btn[data-type="x"] { background-color: var(--btn-x); }
-.constraint-btn[data-type="u"] { background-color: var(--btn-u); }
-.constraint-btn[data-type="v"] { background-color: var(--btn-v); }
-.constraint-btn[data-type="c"] { background-color: var(--btn-c); }
-.constraint-btn[data-type="b"] { background-color: var(--btn-b); color: white; }
+/* Type-specific (nonzero only) */
+.constraint-btn.constraint-x.dim-nonzero { background-color: var(--color-dark-blue); }
+.constraint-btn.constraint-u.dim-nonzero { background-color: var(--color-deep-blue); }
+.constraint-btn.constraint-v.dim-nonzero { background-color: var(--color-bright-blue); }
+.constraint-btn.constraint-c.dim-nonzero { background-color: var(--color-orange); }
+.constraint-btn.constraint-b.dim-nonzero { background-color: var(--color-soft-red); }
 
 .constraints-wrapper strong {
-    padding: 0px 0px;
-    border-radius: 4px;
     font-size: 0.95em;
     font-weight: bold;
+    border-radius: 4px;
     transition: background-color 0.3s, transform 0.2s;
 }
 
@@ -287,25 +245,23 @@ div.dataTables_wrapper div.dataTables_length {
     font-size: 0.85em;
     font-weight: bold;
     border: none;
-    transition: background-color 0.2s, transform 0.1s;
     cursor: pointer;
     background-color: var(--btn-filters-disabled);
     color: #333;
+    transition: background-color 0.2s, transform 0.1s;
 }
-
 .constraint-filter-btn:hover {
     background-color: var(--btn-filters-hover);
     color: white;
     transform: scale(1.05);
 }
-
 .constraint-filter-btn.active {
     background-color: var(--btn-filters-active);
     color: white;
 }
 
 /* ==============================
-   Filters (Numeric Inputs / Selects)
+   Filters (Inputs / Selects)
    ============================== */
 #problems-table thead input[type="text"] {
     width: 90%!important;
@@ -316,7 +272,6 @@ div.dataTables_wrapper div.dataTables_length {
     border-radius: 4px;
     text-align: center;
 }
-
 #problems-table thead select {
     width: 95%;
     max-width: 80px;
@@ -327,20 +282,15 @@ div.dataTables_wrapper div.dataTables_length {
     background: #fff;
     text-align: center;
 }
-
-/* Constraint Filter Container */
 #constraints-filter {
     text-align: center;
 }
-
 #constraints-filter > div:first-child {
     display: flex!important;
     flex-direction: column;
     align-items: center;
-    justify-content: center!important;
     padding: 2px;
 }
-
 #constraints-filter select {
     margin-left: 4px;
     padding: 2px 5px;
@@ -348,20 +298,19 @@ div.dataTables_wrapper div.dataTables_length {
     border-radius: 4px;
     margin-bottom: 5px;
 }
-
 #constraints-filter > div > div {
     display: flex!important;
     justify-content: left!important;
 }
-
 #constraints-filter .btn-label {
     font-size: 0.75em;
-    line-height: 1.1;
     margin-top: 2px;
     color: #333;
 }
 
-/* Reduce spacing of sort arrows (before and after) */
+/* ==============================
+   Sorting arrows spacing
+   ============================== */
 table.dataTable thead .sorting::before,
 table.dataTable thead .sorting::after,
 table.dataTable thead .sorting_asc::before,
@@ -372,19 +321,49 @@ table.dataTable thead .sorting_asc_disabled::before,
 table.dataTable thead .sorting_asc_disabled::after,
 table.dataTable thead .sorting_desc_disabled::before,
 table.dataTable thead .sorting_desc_disabled::after {
-    right: 2px !important;   /* adjust distance from right edge */
+    right: 2px !important;
+}
+
+/* ==============================
+   Loading Overlay
+   ============================== */
+#loading-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(255,255,255,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease;
+}
+#loading-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid var(--color-deep-blue);
+  border-radius: 50%;
+  width: 50px; height: 50px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>
 """
 
 const TABLE_LOGIC = """
+<div id="loading-overlay"><div class="spinner"></div></div>
 <script>
 // ==============================
-// Constraint Helper Functions
+// Constraint Helper Functions (CSS class-based)
 // ==============================
 const ConstraintHelpers = (() => {
 
-    // Map single-letter types to column keys
     const constraintMap = {
         x: 'DimStateConstraint',
         u: 'DimControlConstraint',
@@ -393,42 +372,33 @@ const ConstraintHelpers = (() => {
         b: 'DimBoundaryConstraint'
     };
 
-    const colors = {x:'#003d4d', u:'#005f73', v:'#0096a0', c:'#f18f01', b:'#d72638'};
-
-    // Get active constraint letters for a row
     function getConstraintParts(rowData) {
         return Object.entries(constraintMap)
             .filter(([letter, col]) => rowData[col] && Number(rowData[col]) > 0)
             .map(([letter]) => letter);
     }
 
-    // Generate summary string like "x u c (total)"
     function summary(rowData) {
         return getConstraintParts(rowData).join(' ') + ` (\${rowData.TotalConstraints})`;
     }
 
-    // Generate a single button HTML
-    function buttonHTML(type, dim, small, print_val) {
-        const colors = { x:'#003d4d', u:'#005f73', v:'#0096a0', c:'#f18f01', b:'#d72638' };
-        const bg = dim === 0 ? '#ddd' : colors[type] || '#ccc';
-        const color = dim === 0 ? '#666' : 'white';
-        const fontSize = small ? '0.75em' : '0.85em';
-        const text = print_val ? `\${type}: \${dim}` : `\${type}`;
-
-        return `<button class="constraint-btn" data-type="\${type}" data-dim="\${dim}"
-                    style="background:\${bg};color:\${color};border:none;border-radius:12px;padding:4px 8px;font-size:\${fontSize};font-weight:bold;">
-                    \${text}
-                </button>`;
+    function buttonHTML(type, dim, small = false, print_val = true) {
+        const classes = [
+            "constraint-btn",
+            `constraint-\${type}`,
+            small ? "small" : "normal",
+            dim === 0 ? "dim-zero" : "dim-nonzero"
+        ].join(" ");
+        const text = print_val ? `\${type}: \${dim}` : type;
+        return `<button class="\${classes}">\${text}</button>`;
     }
 
-    // HTML for table row display (summary)
     function rowSummaryHTML(rowData, print_val=false) {
         return Object.keys(constraintMap)
             .map(k => buttonHTML(k, rowData[constraintMap[k]], true, print_val))
             .join(' ') + ` <strong style="margin-left:5px;">(\${rowData.TotalConstraints})</strong>`;
     }
 
-    // HTML for row detail panel
     function detailHTML(rowData) {
         return `<div style="display:flex; gap:4px; align-items:center;">\${rowSummaryHTML(rowData, true)}</div>`;
     }
@@ -436,17 +406,25 @@ const ConstraintHelpers = (() => {
     return {summary, rowSummaryHTML, detailHTML};
 })();
 
-document.addEventListener("DOMContentLoaded", function() {
+// ==============================
+// Table Initialization
+// ==============================
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(initProblemsTable, 0);
+});
+
+function initProblemsTable() {
     const data = JSON.parse(document.getElementById("problems-json").textContent);
+    let constraintFilter = null; // placeholder for constraint filter
 
     const table = \$('#problems-table').DataTable({
+        deferRender: true,
         orderCellsTop: true,
         fixedHeader: true,
         responsive: false,
         pageLength: 25,
         lengthMenu: [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
-        dom: '<"dt-top-buttons"B><"dt-top-controls"lf>rt<"bottom"ip><"clear">', 
-        buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
+        dom: '<"dt-top-buttons"B><"dt-top-controls"lf>rt<"bottom"ip><"clear">',
         autoWidth: false,
         columns: [
             { data: 'Problem', width: '20%' },
@@ -458,10 +436,7 @@ document.addEventListener("DOMContentLoaded", function() {
             {
                 data: 'ConstraintButtonsHtml',
                 render: function(data, type, row) {
-                    // Sorting uses total constraints
                     if (type === 'sort' || type === 'type') return Number(row.TotalConstraints);
-
-                    // Display on page: keep the full buttons HTML
                     return ConstraintHelpers.rowSummaryHTML(row);
                 }
             }
@@ -486,7 +461,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 columns: [0,1,2,3,4,5,6],
                 format: {
                     body: function(data, rowIdx, colIdx, node) {
-                        // Only override the "Constraints" column (last column)
                         if(colIdx === 6) {
                             const rowData = table.row(rowIdx).data();
                             return ConstraintHelpers.summary(rowData);
@@ -495,79 +469,76 @@ document.addEventListener("DOMContentLoaded", function() {
                     }
                 }
             }
-        }))
-    });
+        })),
+        initComplete: function() {
+            const topButtons = \$('.dt-top-buttons').first();
+            const dtButtons = \$('.dt-buttons').first();
+            if(topButtons.length && dtButtons.length && dtButtons.parent().get(0) !== topButtons.get(0)) topButtons.empty().append(dtButtons);
 
-    (function() {
-        const topButtons = \$('.dt-top-buttons').first();
-        const dtButtons = \$('.dt-buttons').first();
-        if(topButtons.length && dtButtons.length && dtButtons.parent().get(0) !== topButtons.get(0)) {
-            topButtons.empty().append(dtButtons);
-        }
-        const topControls = \$('.dt-top-controls').first();
-        if(topControls.length) {
-            const length = \$('.dataTables_length').first();
-            const filter = \$('.dataTables_filter').first();
-            if(length.length && length.parent().get(0) !== topControls.get(0)) topControls.append(length);
-            if(filter.length && filter.parent().get(0) !== topControls.get(0)) topControls.append(filter);
-            const inp = topControls.find('.dataTables_filter input').first();
-            if(inp.length) {
-                inp.attr('placeholder', 'Search...');
-                inp.css({ 'width': '220px', 'display': 'inline-block' });
+            const topControls = \$('.dt-top-controls').first();
+            if(topControls.length){
+                const length = \$('.dataTables_length').first();
+                const filter = \$('.dataTables_filter').first();
+                if(length.length && length.parent().get(0) !== topControls.get(0)) topControls.append(length);
+                if(filter.length && filter.parent().get(0) !== topControls.get(0)) topControls.append(filter);
+                const inp = topControls.find('.dataTables_filter input').first();
+                if(inp.length){
+                    inp.attr('placeholder', 'Search...');
+                    inp.css({ 'width': '220px', 'display': 'inline-block' });
+                }
             }
         }
-    })();
-
-    const constraintTypes = ["x","u","v","c","b"];
-
-    \$('#problems-table tbody').on('mouseenter', '.constraint-btn', function(){
-        const count = \$(this).data('dim');
-        \$(this).attr('title', `\${\$(this).data('type').toUpperCase()}: \${count} constraints`);
     });
 
-    // --- Build table rows with clickable detail ---
+    // -------------------------
+    // Add rows
+    // -------------------------
+    const rows = [];
     data.Problem.forEach((_, i) => {
-        const totalConstraints = data.TotalConstraints[i];
-        const buttonsWrapperHtml = data.ConstraintButtonsHtml[i];
-
-        const rowNode = table.row.add({
+        rows.push({
             Problem: `<a href="problems/\${data.Problem[i]}.html" class="problem-link">\${data.Problem[i]}</a>`,
             State: data.State[i],
             Control: data.Control[i],
             Variable: data.Variable[i],
             Cost: data.Cost[i],
             FinalTime: data.FinalTime[i],
-            ConstraintButtonsHtml: buttonsWrapperHtml,
-            TotalConstraints: totalConstraints,
+            ConstraintButtonsHtml: data.ConstraintButtonsHtml[i],
+            TotalConstraints: data.TotalConstraints[i],
             DimStateConstraint: data.DimStateConstraint[i],
             DimControlConstraint: data.DimControlConstraint[i],
             DimVariableConstraint: data.DimVariableConstraint[i],
             DimPathConstraint: data.DimPathConstraint[i],
             DimBoundaryConstraint: data.DimBoundaryConstraint[i]
-        }).draw(false).node();
-
-        // --- Clickable row: show/hide constraint details ---
-        \$(rowNode).on('click', function() {
-            const row = table.row(this);
-            if (row.child.isShown()) {
-                row.child.hide();
-            } else {
-                // Use centralized helper to generate HTML
-                row.child(ConstraintHelpers.detailHTML(row.data())).show();
-            }
-        });
-
-        // --- Prevent row click when clicking on the link ---
-        \$(rowNode).find(".problem-link").on("click", function(e){
-            e.stopPropagation(); // stops the row click from firing
         });
     });
+    table.rows.add(rows).draw();
 
-    // --- Filters and constraint header buttons ---
-    // Clear previous custom search
-    \$.fn.dataTable.ext.search = [];
+    \$('#loading-overlay').addClass('hidden');
+    \$('#problems-table').addClass('visible');
 
-    \$('#problems-table thead tr#filters th').each(function(i) {
+    // -------------------------
+    // Hover tooltip
+    // -------------------------
+    \$('#problems-table tbody').off('mouseenter', '.constraint-btn').on('mouseenter', '.constraint-btn', function(){
+        let type = Array.from(this.classList).find(c => c.startsWith('constraint-'))?.split('-')[1] || '?';
+        let dim = \$(this).hasClass('dim-zero') ? 0 : '?';
+        \$(this).attr('title', `\${type.toUpperCase()}: \${dim} constraints`);
+    });
+
+    // Row click: toggle child detail
+    \$('#problems-table tbody').off('click', 'tr').on('click', 'tr', function(e) {
+        if (\$(e.target).closest('.problem-link').length) return;
+        const row = table.row(this);
+        if (row.child.isShown()) row.child.hide();
+        else row.child(ConstraintHelpers.detailHTML(row.data())).show();
+    });
+
+    \$(document).on('click', '.problem-link', function(e) { e.stopPropagation(); });
+
+    // -------------------------
+    // Filters (numeric + dropdown)
+    // -------------------------
+    \$('#problems-table thead tr#filters th').each(function(i){
         if(i===4){
             \$(this).html('<select><option value="">All</option><option>Mayer</option><option>Lagrange</option><option>Bolza</option></select>');
         } else if(i===5){
@@ -575,39 +546,53 @@ document.addEventListener("DOMContentLoaded", function() {
         } else if(i>0 && i<6){
             \$(this).html('<input type="text" placeholder="min-max" style="width:100%"/>');
         }
-
-        \$('input, select', this).on('keyup change', function(){
-            table.draw();
-        });
+        \$('input, select', this).on('keyup change', function(){ table.draw(); });
     });
 
-    // Global filter for min–max inputs
-    \$.fn.dataTable.ext.search.push(function(settings, data, dataIndex){
+    function combinedFilter(settings, data, dataIndex){
+        const rowData = table.row(dataIndex).data();
         let pass = true;
+
         \$('#problems-table thead tr#filters th').each(function(i){
             const input = \$('input', this);
+            const select = \$('select', this);
+
+            // Numeric input filter
             if(input.length){
                 const val = input.val().trim();
-                if(val === '') return; // no filter
+                if(val !== ''){
+                    const colName = ["Problem","State","Control","Variable","Cost","FinalTime","Constraints"][i];
+                    const v = Number(rowData[colName]) || 0;
+                    if(val.includes('-')){
+                        const [minStr,maxStr] = val.split('-').map(s=>s.trim());
+                        const min = minStr === '' ? -Infinity : Number(minStr);
+                        const max = maxStr === '' ? Infinity : Number(maxStr);
+                        if(v < min || v > max) pass = false;
+                    } else {
+                        const num = Number(val);
+                        if(v !== num) pass = false;
+                    }
+                }
+            }
 
-                if(val.includes('-')){
-                    const [minStr,maxStr] = val.split('-').map(s=>s.trim());
-                    const min = minStr==='' ? -Infinity : Number(minStr);
-                    const max = maxStr==='' ?  Infinity : Number(maxStr);
-                    const v = parseFloat(data[i]) || 0;
-                    if(v < min || v > max) pass = false;
-                } else {
-                    // single number → exact match
-                    const num = Number(val);
-                    const v = parseFloat(data[i]) || 0;
-                    if(v !== num) pass = false;
+            // Dropdown selects filter
+            if(select.length){
+                const val = select.val();
+                if(val !== ''){
+                    const colName = i===4 ? "Cost" : i===5 ? "FinalTime" : null;
+                    if(colName && rowData[colName] !== val) pass = false;
                 }
             }
         });
         return pass;
-    });
+    }
 
-    // --- Constraint filter buttons ---
+    \$.fn.dataTable.ext.search = [];
+    \$.fn.dataTable.ext.search.push(combinedFilter);
+
+    // -------------------------
+    // Constraint filter buttons
+    // -------------------------
     const filterContainer = \$('#constraints-filter');
     let html = `<div class="constraint-filter-wrapper">
                     <div class="constraint-logic">
@@ -618,7 +603,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         </select>
                     </div>
                     <div class="constraint-buttons-row">`;
-    constraintTypes.forEach(c => {
+    ["x","u","v","c","b"].forEach(c => {
         html += `<button class="constraint-filter-btn" data-type="\${c}">\${c}</button>`;
     });
     html += `</div></div>`;
@@ -634,21 +619,25 @@ document.addEventListener("DOMContentLoaded", function() {
         \$('.constraint-filter-btn.active').each(function(){ active.push(\$(this).data('type')); });
         const logic = \$('#constraints-logic').val();
 
-        \$.fn.dataTable.ext.search.push(function(settings, data_row, index){
+        // Remove old constraint filter
+        \$.fn.dataTable.ext.search = \$.fn.dataTable.ext.search.filter(f => f !== constraintFilter);
+
+        // New constraint filter
+        constraintFilter = function(settings, data, dataIndex){
             if(active.length === 0) return true;
-            const rowNode = table.row(index).node();
-            const hasConstraints = active.map(c=>{
-                const btn = \$(rowNode).find(`button[data-type="\${c}"]`)[0];
-                return btn && \$(btn).data('dim') > 0;
-            });
-            return logic === "AND" ? hasConstraints.every(v=>v) : hasConstraints.some(v=>v);
-        });
+            const rowData = table.row(dataIndex).data();
+            const hasConstraints = active.map(c => rowData["Dim"+{
+                x:"StateConstraint", u:"ControlConstraint", v:"VariableConstraint", c:"PathConstraint", b:"BoundaryConstraint"
+            }[c]] > 0);
+            return logic==="AND" ? hasConstraints.every(v=>v) : hasConstraints.some(v=>v);
+        };
+
+        \$.fn.dataTable.ext.search.push(constraintFilter);
         table.draw();
-        \$.fn.dataTable.ext.search.pop();
     }
 
     \$(document).on('change', '#constraints-logic', applyConstraintFilter);
-});
+}
 </script>
 """
 
