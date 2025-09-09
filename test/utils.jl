@@ -315,7 +315,6 @@ function comparison(; max_iter, test_name)
                     DEBUG && @printf("├─ Grid max error\n")
                     keep_problem, test_grid_ok = test_grid_max_error(t_jp, t_oc, "JP", "OC", keep_problem, test_grid_ok)
                     keep_problem, test_grid_ok = test_grid_max_error(t_jp, t_os, "JP", "OS", keep_problem, test_grid_ok)
-
                 end
             end
 

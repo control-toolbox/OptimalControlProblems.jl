@@ -69,6 +69,10 @@ function OptimalControlProblems.space_shuttle(
     v_t = 0.25         # velocity (ft/sec) / 1e4
     γ_t = deg2rad(-5)  # flight path angle (rad)
 
+    ## Scalings
+    scaling_h = 1e5
+    scaling_v = 1e4
+
     # model
     ocp = @def begin
 
@@ -120,8 +124,8 @@ function OptimalControlProblems.space_shuttle(
     function dynamics(x, u)
         scaled_h, ϕ, θ, scaled_v, γ, ψ = x
         α, β = u
-        h = scaled_h * 1e5
-        v = scaled_v * 1e4
+        h = scaled_h * scaling_h
+        v = scaled_v * scaling_v
 
         ## Helper functions
         c_D = b₀ + b₁ * rad2deg(α) + b₂ * (rad2deg(α)^2)
@@ -142,7 +146,7 @@ function OptimalControlProblems.space_shuttle(
             (1 / (m * v * cos(γ))) * L * sin(β) +
             (v / (r * cos(θ))) * cos(γ) * sin(ψ) * sin(θ)
 
-        return [h_dot / 1e5, dϕ, dθ, v_dot / 1e4, γ_dot, ψ_dot]
+        return [h_dot / scaling_h, dϕ, dθ, v_dot / scaling_v, γ_dot, ψ_dot]
     end
 
     # initial guess: linear interpolation for h, v, gamma (NB. t0 = 0), constant for the rest

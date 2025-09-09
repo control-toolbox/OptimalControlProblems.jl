@@ -81,11 +81,11 @@ function OptimalControlProblems.rocket_s(
         -h(tf) → min
     end
 
-
     # initial guess
+    tf_init = 1
     xinit = [[1, i / N * (1 - i / N), (mf - m0) * (i / N) + m0] for i in 0:N]
-    time_vec = LinRange(0, 1, N+1)
-    init = (time=time_vec, state=xinit, control=Tmax/2, variable=1)
+    time_vec = LinRange(0, tf_init, N+1)
+    init = (time=time_vec, state=xinit, control=Tmax/2, variable=tf_init)
 
     # discretise the optimal control problem
     docp = direct_transcription(
