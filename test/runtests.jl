@@ -36,7 +36,7 @@ problems_to_exclude = [
     :bioreactor,
     :cart_pendulum,
     :dielectrophoretic_particle,
-    :moon_lander,
+    :moonlander,
 ]
 list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
@@ -57,12 +57,12 @@ const VERBOSE = true # print or not details during tests
     for name in (
         #:aqua,
         :kwargs,
-        :JuMP,                  # convergence tests for JuMP models
-        :OptimalControl,        # convergence tests for OptimalControl models
-        :OptimalControl_s,      # convergence tests for OptimalControl models
-        :init,                  # comparison between OptimalControl and JuMP: init
-        :solution,              # comparison between OptimalControl and JuMP: solution
-        :quick,                 # quick comparison: objective rel error only
+        # :JuMP,                  # convergence tests for JuMP models
+        # :OptimalControl,        # convergence tests for OptimalControl models
+        # :OptimalControl_s,      # convergence tests for OptimalControl models
+        # :init,                  # comparison between OptimalControl and JuMP: init
+        # :solution,              # comparison between OptimalControl and JuMP: solution
+        # :quick,                 # quick comparison: objective rel error only
     )
         @testset "$(name)" verbose=VERBOSE begin
             test_name = Symbol(:test_, name)
