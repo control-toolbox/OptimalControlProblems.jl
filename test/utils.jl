@@ -262,7 +262,8 @@ function comparison(; max_iter, test_name)
             nb_con_oc = get_ncon(nlp_oc)
 
             ########## OptimalControl_s ##########
-            docp = OptimalControlProblems.eval(Symbol(f, :_s))(OptimalControlBackend(), :madnlp, :exa; N=N)
+            model_backend = :exa # :adnlp
+            docp = OptimalControlProblems.eval(Symbol(f, :_s))(OptimalControlBackend(), :madnlp, model_backend; N=N)
             nlp_os = nlp_model(docp)
             nlp_sol = madnlp(nlp_os; options_madnlp...)
             sol_os = build_ocp_solution(docp, nlp_sol)

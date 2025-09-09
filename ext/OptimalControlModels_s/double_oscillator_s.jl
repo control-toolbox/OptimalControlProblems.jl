@@ -58,7 +58,7 @@ function OptimalControlProblems.double_oscillator_s(
         ∂(x₁)(t) == x₃(t)
         ∂(x₂)(t) == x₄(t)
         ∂(x₃)(t) == -(k1 + k2) / m1 * x₁(t) + k2 / m1 * x₂(t) + 1 / m1 * F
-        ∂(x₄)(t) == k2 / m2 * x₁(t) - k2 / m2 * x₂(t) - c * (1 - u) / m2 * x₄(t)
+        ∂(x₄)(t) == k2 / m2 * x₁(t) - k2 / m2 * x₂(t) - c * (1 - u(t)) / m2 * x₄(t)
 
         0.5 * ∫(x₁(t)^2 + x₂(t)^2 + u(t)^2) → min
     end
