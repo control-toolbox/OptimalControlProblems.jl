@@ -36,7 +36,7 @@ function OptimalControlProblems.steering(
     u_min = -π/2
     u_max = π/2
     xs = zeros(4)
-    xf = [NaN, 5, 45, 0]
+    xf = [5, 45, 0]
 
     tf_start = 1
 
@@ -67,9 +67,9 @@ function OptimalControlProblems.steering(
     @constraint(model, x2[1] == xs[2])
     @constraint(model, x3[1] == xs[3])
     @constraint(model, x4[1] == xs[4])
-    @constraint(model, x2[N + 1] == xf[2])
-    @constraint(model, x3[N + 1] == xf[3])
-    @constraint(model, x4[N + 1] == xf[4])
+    @constraint(model, x2[N + 1] == xf[1])
+    @constraint(model, x3[N + 1] == xf[2])
+    @constraint(model, x4[N + 1] == xf[3])
 
     # constraint on final time
     @constraint(model, tf >= 0)

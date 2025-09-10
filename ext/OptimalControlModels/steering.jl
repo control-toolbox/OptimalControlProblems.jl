@@ -35,7 +35,7 @@ function OptimalControlProblems.steering(
     u_min = -π/2
     u_max = π/2
     xs = zeros(4)
-    xf = [NaN, 5, 45, 0]
+    xf = [5, 45, 0]
 
     # Model
     ocp = @def begin
@@ -46,7 +46,7 @@ function OptimalControlProblems.steering(
 
         tf ≥ 0, (tf_con)
         x(0) == xs, (x_ic)
-        x(tf) == xf, (x_fc)
+        x[2:4](tf) == xf, (x_fc)
         u_min ≤ u(t) ≤ u_max, (u_con)
 
         ẋ(t) == dynamics(x(t), u(t))
