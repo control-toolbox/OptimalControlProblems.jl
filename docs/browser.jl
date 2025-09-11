@@ -260,6 +260,10 @@ const TABLE_STYLE = """
     color: white;
 }
 
+.constraint-filter-btn { background: #ccc; color: #333; } /* default gray */
+.constraint-filter-btn.positive { background: #4caf50; color: white; } /* green */
+.constraint-filter-btn.negative { background: #f44336; color: white; } /* red */
+
 /* ==============================
    Filters (Inputs / Selects)
    ============================== */
@@ -610,31 +614,55 @@ function initProblemsTable() {
     filterContainer.append(html);
 
     \$(document).on('click', '.constraint-filter-btn', function() {
-        \$(this).toggleClass('active');
+        if (\$(this).hasClass('positive')) {
+            \$(this).removeClass('positive').addClass('negative'); // green → red
+        } else if (\$(this).hasClass('negative')) {
+            \$(this).removeClass('negative'); // red → gray
+        } else {
+            \$(this).addClass('positive'); // gray → green
+        }
         applyConstraintFilter();
     });
 
     function applyConstraintFilter() {
-        const active = [];
-        \$('.constraint-filter-btn.active').each(function(){ active.push(\$(this).data('type')); });
+        const activeConditions = [];
+
+        \$('.constraint-filter-btn.positive').each(function(){
+            const c = \$(this).data('type');
+            activeConditions.push({type: c, check: 'positive'});
+        });
+        \$('.constraint-filter-btn.negative').each(function(){
+            const c = \$(this).data('type');
+            activeConditions.push({type: c, check: 'negative'});
+        });
+
         const logic = \$('#constraints-logic').val();
 
         // Remove old constraint filter
         \$.fn.dataTable.ext.search = \$.fn.dataTable.ext.search.filter(f => f !== constraintFilter);
 
-        // New constraint filter
         constraintFilter = function(settings, data, dataIndex){
-            if(active.length === 0) return true;
             const rowData = table.row(dataIndex).data();
-            const hasConstraints = active.map(c => rowData["Dim"+{
-                x:"StateConstraint", u:"ControlConstraint", v:"VariableConstraint", c:"PathConstraint", b:"BoundaryConstraint"
-            }[c]] > 0);
-            return logic==="AND" ? hasConstraints.every(v=>v) : hasConstraints.some(v=>v);
+            const map = {
+                x:"StateConstraint", u:"ControlConstraint",
+                v:"VariableConstraint", c:"PathConstraint", b:"BoundaryConstraint"
+            };
+
+            // Build conditions
+            const results = activeConditions.map(cond => {
+                const val = rowData["Dim"+map[cond.type]];
+                return cond.check === 'positive' ? (val > 0) : (val === 0);
+            });
+
+            if (results.length === 0) return true;
+
+            return logic === "AND" ? results.every(v=>v) : results.some(v=>v);
         };
 
         \$.fn.dataTable.ext.search.push(constraintFilter);
         table.draw();
     }
+
 
     \$(document).on('change', '#constraints-logic', applyConstraintFilter);
 }
