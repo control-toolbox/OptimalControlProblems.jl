@@ -28,21 +28,40 @@ julia> model = OptimalControlProblems.electric_vehicle(JuMPBackend(); N=100)
 - Petit, N., & Sciarretta, A. (2011). *Optimal drive of electric vehicles using an inversion-based trajectory generation approach.* IFAC Proceedings Volumes, 44(1), 14519–14526. [PS2011]
 """
 function OptimalControlProblems.electric_vehicle(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:electric_vehicle), kwargs...
+    ::JuMPBackend, args...; N::Int=steps_number_data(:electric_vehicle), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    tf = final_time_data(:electric_vehicle)
-    D = 10
-    b1 = 1e0
-    b2 = 1e0
-    h0 = 0.1
-    h1 = 1
-    h2 = 1e-3
-    α0, α1, α2, α3 = (3, 0.4, -1, 0.1)
+    params = parameters_data(:electric_vehicle, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    D = params[:D]
+    b1 = params[:b1]
+    b2 = params[:b2]
+    h0 = params[:h0]
+    h1 = params[:h1]
+    h2 = params[:h2]
+    α0 = params[:α0]
+    α1 = params[:α1]
+    α2 = params[:α2]
+    α3 = params[:α3]
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            tf, tf  # (required if the final time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
 
     # state, control and initial guess
     @variable(model, x[0:N], start = 0.1)

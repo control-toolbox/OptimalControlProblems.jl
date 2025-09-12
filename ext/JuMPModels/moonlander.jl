@@ -29,19 +29,34 @@ julia> model = OptimalControlProblems.moonlander(JuMPBackend(); N=100)
 - Problem formulation available at: https://arxiv.org/pdf/2303.16746
 """
 function OptimalControlProblems.moonlander(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:moonlander), kwargs...
+    ::JuMPBackend, args...; N::Int=steps_number_data(:moonlander), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    target=[5.0, 5.0]
-    m = 1
-    g = 9.81
-    I = 0.1
-    D = 1
-    max_thrust = 2g
+    params = parameters_data(:moonlander, parameters)
+    t0 = params[:t0]
+    target = params[:target]
+    m = params[:m]
+    g = params[:g]
+    I = params[:I]
+    D = params[:D]
+    max_thrust = params[:max_thrust]
 
     # define the problem
     model = JuMP.Model(args...; kwargs...)
+
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
 
     # state, control and final time variables
     @variables(

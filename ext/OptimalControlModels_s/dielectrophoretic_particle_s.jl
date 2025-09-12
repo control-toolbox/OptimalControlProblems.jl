@@ -32,34 +32,32 @@ function OptimalControlProblems.dielectrophoretic_particle_s(
     ::OptimalControlBackend,
     description::Symbol...;
     N::Int=steps_number_data(:dielectrophoretic_particle),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    x0 = 1
-    xf = 2
-    α = -0.75
-    c = 1
+    params = parameters_data(:dielectrophoretic_particle, parameters)
+    t0 = params[:t0]
+    x0 = params[:x0]
+    xf = params[:xf]
+    α = params[:α]
+    c = params[:c]
 
     ocp = @def begin
         tf ∈ R, variable
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         q = (x, y) ∈ R², state
         u ∈ R, control
-
-        x(0) == x0, (x0_con)
-        y(0) == 0, (y0_con)
-        x(tf) == xf, (xf_con)
-
-        tf ≥ 0, (tf_con)
-        -1 ≤ u(t) ≤ 1, (u_con)
-
+        x(t0) == x0, (x_i)
+        y(t0) == 0, (y_i)
+        x(tf) == xf, (x_f)
+        tf ≥ 0, (tf_c)
+        -1 ≤ u(t) ≤ 1, (u_c)
         ∂(x)(t) == y(t) * u(t) + α * u(t)^2
         ∂(y)(t) == -c * y(t) + u(t)
-
         tf → min
     end
-
 
     # initial guess
     init = (state=[1, 1], control=0.1, variable=5)

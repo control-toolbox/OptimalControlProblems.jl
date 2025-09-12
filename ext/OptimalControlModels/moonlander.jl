@@ -27,23 +27,26 @@ function OptimalControlProblems.moonlander(
     ::OptimalControlBackend,
     description::Symbol...;
     N::Int=steps_number_data(:moonlander),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    target=[5.0, 5.0]
-    m = 1
-    g = 9.81
-    I = 0.1
-    D = 1
-    max_thrust = 2g
+    params = parameters_data(:moonlander, parameters)
+    t0 = params[:t0]
+    target = params[:target]
+    m = params[:m]
+    g = params[:g]
+    I = params[:I]
+    D = params[:D]
+    max_thrust = params[:max_thrust]
 
     # define the problem
     ocp = @def begin
 
         # state, control and final time variables, and time
         tf ∈ R, variable
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         x = (p1, p2, dp1, dp2, θ, dθ) ∈ R⁶, state
         u = (F1, F2) ∈ R², control
 
@@ -51,22 +54,22 @@ function OptimalControlProblems.moonlander(
         0.1 ≤ tf ≤ 1.0
 
         # control constraints
-        0 ≤ F1(t) ≤ max_thrust, (F1_con)
-        0 ≤ F2(t) ≤ max_thrust, (F2_con)
+        0 ≤ F1(t) ≤ max_thrust, (F1_c)
+        0 ≤ F2(t) ≤ max_thrust, (F2_c)
 
         # initial conditions
-        p1(0) == 0, (p1_ic)
-        p2(0) == 0, (p2_ic)
-        dp1(0) == 0, (dp1_ic)
-        dp2(0) == 0, (dp2_ic)
-        θ(0) == 0, (θ_ic)
-        dθ(0) == 0, (dθ_ic)
+        p1(t0) == 0, (p1_i)
+        p2(t0) == 0, (p2_i)
+        dp1(t0) == 0, (dp1_i)
+        dp2(t0) == 0, (dp2_i)
+        θ(t0) == 0, (θ_i)
+        dθ(t0) == 0, (dθ_i)
 
         # final conditions
-        p1(tf) == target[1], (p1_fc)
-        p2(tf) == target[2], (p2_fc)
-        dp1(tf) == 0, (dp1_fc)
-        dp2(tf) == 0, (dp2_fc)
+        p1(tf) == target[1], (p1_f)
+        p2(tf) == target[2], (p2_f)
+        dp1(tf) == 0, (dp1_f)
+        dp2(tf) == 0, (dp2_f)
 
         # dynamics
         ẋ(t) == dynamics(x(t), u(t))

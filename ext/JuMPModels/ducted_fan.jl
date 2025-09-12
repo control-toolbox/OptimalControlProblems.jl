@@ -29,18 +29,33 @@ julia> model = OptimalControlProblems.ducted_fan(JuMPBackend(); N=100)
   Optimal Control Applications and Methods, 30(6), 537–561. [GP2009]
 """
 function OptimalControlProblems.ducted_fan(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:ducted_fan), kwargs...
+    ::JuMPBackend, args...; N::Int=steps_number_data(:ducted_fan), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    r = 0.2         # [m]
-    J = 0.05        # [kg.m2]
-    m = 2.2         # [kg]
-    mg = 4          # [N]
-    μ = 1000
+    params = parameters_data(:ducted_fan, parameters)
+    t0 = params[:t0]
+    r = params[:r]
+    J = params[:J]
+    m = params[:m]
+    mg = params[:mg]
+    μ = params[:μ]
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
 
     # state, control, variable (final time) and initial guess
     @variable(model, x₁[0:N], start = 0.1)

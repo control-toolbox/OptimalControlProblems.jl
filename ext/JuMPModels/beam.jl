@@ -28,21 +28,41 @@ julia> model = OptimalControlProblems.beam(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.beam(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:beam), kwargs...
+    ::JuMPBackend, args...; 
+    N::Int=steps_number_data(:beam), 
+    parameters::Union{Nothing, NamedTuple}=nothing, 
+    kwargs...
 )
 
     # parameters
-    tf = final_time_data(:beam)
-    step = tf / N # t0 = 0
+    params = parameters_data(:beam, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    x_t0 = params[:x_t0]
+    x_tf = params[:x_tf]
+    x₁_l = params[:x₁_l]
+    x₁_u = params[:x₁_u]
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            tf, tf  # (required if the final time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
 
     # variables and initial guess
     @variables(
         model,
         begin
-            0.0 <= x1[0:N] <= 0.1, (start = 0.05)
+            x₁_l <= x1[0:N] <= x₁_u, (start = 0.05)
             x2[0:N], (start = 0.1)
             u[0:N], (start = 0.1)
         end
@@ -52,14 +72,15 @@ function OptimalControlProblems.beam(
     @constraints(
         model,
         begin
-            x1[0] == 0
-            x2[0] == 1
-            x1[N] == 0
-            x2[N] == -1
+            x1[0] == x_t0[1]
+            x2[0] == x_t0[2]
+            x1[N] == x_tf[1]
+            x2[N] == x_tf[2]
         end
     )
 
     # dynamics
+    step = (tf - t0) / N
     @constraints(
         model,
         begin

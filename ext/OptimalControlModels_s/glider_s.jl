@@ -32,53 +32,56 @@ function OptimalControlProblems.glider_s(
     ::OptimalControlBackend,
     description::Symbol...;
     N::Int=steps_number_data(:glider),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    x_0 = 0
-    y_0 = 1000
-    y_f = 900
-    vx_0 = 13.23
-    vx_f = 13.23
-    vy_0 = -1.288
-    vy_f = -1.288
-    u_c = 2.5
-    r_0 = 100
-    m = 100
-    g = 9.81
-    c0 = 0.034
-    c1 = 0.069662
-    S = 14
-    ρ = 1.13
-    cL_min = 0
-    cL_max = 1.4
+    params = parameters_data(:glider, parameters)
+    t0 = params[:t0]
+    x_0 = params[:x_0]
+    y_0 = params[:y_0]
+    y_f = params[:y_f]
+    vx_0 = params[:vx_0]
+    vx_f = params[:vx_f]
+    vy_0 = params[:vy_0]
+    vy_f = params[:vy_f]
+    u_c = params[:u_c]
+    r_0 = params[:r_0]
+    m = params[:m]
+    g = params[:g]
+    c0 = params[:c0]
+    c1 = params[:c1]
+    S = params[:S]
+    ρ = params[:ρ]
+    cL_min = params[:cL_min]
+    cL_max = params[:cL_max]
 
     # model
     ocp = @def begin
         tf ∈ R, variable
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         z = (x, y, vx, vy) ∈ R⁴, state
         cL ∈ R, control
 
         # state constraints
-        x(t) ≥ 0, (x_con)
-        vx(t) ≥ 0, (vx_con)
+        x(t) ≥ 0, (x_c)
+        vx(t) ≥ 0, (vx_c)
 
         # control constraints
-        cL_min ≤ cL(t) ≤ cL_max, (cL_con)
+        cL_min ≤ cL(t) ≤ cL_max, (cL_c)
 
         # initial conditions
-        x(0) == x_0, (x0_con)
-        y(0) == y_0, (y0_con)
-        vx(0) == vx_0, (vx0_con)
-        vy(0) == vy_0, (vy0_con)
+        x(t0) == x_0, (x0_i)
+        y(t0) == y_0, (y0_i)
+        vx(t0) == vx_0, (vx0_i)
+        vy(t0) == vy_0, (vy0_i)
 
         # final conditions
         tf ≥ 0
-        y(tf) == y_f, (yf_con)
-        vx(tf) == vx_f, (vxf_con)
-        vy(tf) == vy_f, (vyf_con)
+        y(tf) == y_f, (yf_f)
+        vx(tf) == vx_f, (vxf_f)
+        vy(tf) == vy_f, (vyf_f)
 
         # dynamics
         r = (x(t) / r_0 - 2.5)^2

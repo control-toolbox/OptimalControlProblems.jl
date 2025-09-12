@@ -29,17 +29,32 @@ julia> model = OptimalControlProblems.dielectrophoretic_particle(JuMPBackend(); 
   IEEE Transactions on Automatic Control, 51(7), 1100–1114.
 """
 function OptimalControlProblems.dielectrophoretic_particle(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:dielectrophoretic_particle), kwargs...
+    ::JuMPBackend, args...; N::Int=steps_number_data(:dielectrophoretic_particle), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    x0 = 1
-    xf = 2
-    α = -0.75
-    c = 1
+    params = parameters_data(:dielectrophoretic_particle, parameters)
+    t0 = params[:t0]
+    x0 = params[:x0]
+    xf = params[:xf]
+    α = params[:α]
+    c = params[:c]
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
 
     # state, control and variable (final time)
     @variable(model, x[0:N], start = 1)

@@ -28,20 +28,36 @@ julia> model = OptimalControlProblems.robbins(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.robbins(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:robbins), kwargs...
+    ::JuMPBackend, args...; N::Int=steps_number_data(:robbins), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    tf = final_time_data(:robbins)
-    α = 3
-    β = 0
-    γ = 0.5
+    params = parameters_data(:robbins, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    α = params[:α]
+    β = params[:β]
+    γ = params[:γ]
 
     #
     step = tf / N
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            tf, tf  # (required if the final time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
 
     # state, control and initial guess
     @variables(

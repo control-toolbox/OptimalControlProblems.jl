@@ -29,20 +29,36 @@ julia> model = OptimalControlProblems.double_oscillator(JuMPBackend(); N=200)
   IFAC-PapersOnLine, 51(2), 49–54.
 """
 function OptimalControlProblems.double_oscillator(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:double_oscillator), kwargs...
+    ::JuMPBackend, args...; N::Int=steps_number_data(:double_oscillator), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    m1 = 100    # [kg]
-    m2 = 2      # [kg]
-    c = 0.5     # [Ns/m]
-    k1 = 100    # [N/m]
-    k2 = 3      # [N/m]
-    tf = final_time_data(:double_oscillator)
+    params = parameters_data(:double_oscillator, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    m1 = params[:m1]
+    m2 = params[:m2]
+    c = params[:c]
+    k1 = params[:k1]
+    k2 = params[:k2]
 
     # model
     model = JuMP.Model(args...; kwargs...)
 
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            T, T    # (required if the final time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
+    
     # state, control and initial guess
     @variables(
         model,

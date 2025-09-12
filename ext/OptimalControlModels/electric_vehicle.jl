@@ -32,27 +32,33 @@ function OptimalControlProblems.electric_vehicle(
     ::OptimalControlBackend,
     description::Symbol...;
     N::Int=steps_number_data(:electric_vehicle),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    tf = final_time_data(:electric_vehicle)
-    D = 10
-    b1 = 1e0
-    b2 = 1e0
-    h0 = 0.1
-    h1 = 1
-    h2 = 1e-3
-    α0, α1, α2, α3 = (3, 0.4, -1, 0.1)
+    params = parameters_data(:electric_vehicle, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    D = params[:D]
+    b1 = params[:b1]
+    b2 = params[:b2]
+    h0 = params[:h0]
+    h1 = params[:h1]
+    h2 = params[:h2]
+    α0 = params[:α0]
+    α1 = params[:α1]
+    α2 = params[:α2]
+    α3 = params[:α3]
 
     # model
     ocp = @def begin
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         y = (x, v) ∈ R², state
         u ∈ R, control
 
-        x(0) == 0, (x_i)
-        v(0) == 0, (v_i)
+        x(t0) == 0, (x_i)
+        v(t0) == 0, (v_i)
         x(tf) == D, (x_f)
         v(tf) == 0, (v_f)
 

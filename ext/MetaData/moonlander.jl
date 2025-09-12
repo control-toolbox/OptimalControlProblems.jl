@@ -1,10 +1,21 @@
 moonlander_meta = OrderedDict(
-    :name => "moonlander",
     :N => 500,
-    :minimise => true,
     :state_name => ["p1", "p2", "dp1", "dp2", "θ", "dθ"],
     :costate_name => ["∂p1", "∂p2", "∂dp1", "∂dp2", "∂θ", "∂dθ"],
     :control_name => ["F1", "F2"],
     :variable_name => ["tf"],
-    :final_time => (:free, 1), # first component of the variable
+    :time_grid_name => Dict(
+        :initial_time => "t0", 
+        :final_time => "tf", 
+        :steps_number => "N"
+    ),
+    :parameters => (
+        t0 = 0,
+        target=[5.0, 5.0],
+        m = 1,
+        g = 9.81,
+        I = 0.1,
+        D = 1,
+        max_thrust = 2*9.81,
+    ),
 )

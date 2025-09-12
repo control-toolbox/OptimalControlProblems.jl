@@ -31,24 +31,26 @@ function OptimalControlProblems.cart_pendulum(
     ::OptimalControlBackend,
     description::Symbol...;
     N::Int=steps_number_data(:cart_pendulum),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    g = 9.81            # gravitation [m/s^2]
-    L = 1               # pendulum length [m]
-    m = 1               # pendulum mass [kg]
+    params = parameters_data(:cart_pendulum, parameters)
+    t0 = params[:t0]
+    g = params[:g]
+    L = params[:L]
+    m = params[:m]
     I = m * L^2 / 12    # pendulum moment of inertia
-    mcart = 0.5        # cart mass [kg]
-    max_f = 5
-    max_x = 1
-    max_v = 2
+    mcart = params[:mcart]
+    max_f = params[:max_f]
+    max_x = params[:max_x]
+    max_v = params[:max_v]
 
     ocp = @def begin
-
         # time, variable, state and control
         w = (tf, ddx) ∈ R², variable
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         y = (x, v, θ, ω) ∈ R⁴, state
         Fex ∈ R, control
 
@@ -63,9 +65,9 @@ function OptimalControlProblems.cart_pendulum(
         tf ≥ 0.1, (tf_con)
 
         # initial conditions
-        x(0) == 0, (x_ic)
-        θ(0) == 0, (θ_ic)
-        ω(0) == 0, (ω_ic)
+        x(t0) == 0, (x_ic)
+        θ(t0) == 0, (θ_ic)
+        ω(t0) == 0, (ω_ic)
 
         # final conditions
         θ(tf) == π, (θ_fc)

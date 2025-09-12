@@ -28,22 +28,38 @@ julia> model = OptimalControlProblems.insurance(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.insurance(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:insurance), kwargs...
+    ::JuMPBackend, args...; N::Int=steps_number_data(:insurance), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    tf = final_time_data(:insurance)
-    γ = 0.2
-    λ = 0.25
-    h0 = 1.5
-    w = 1
-    s = 10
-    k = 0
-    σ = 0
-    α = 4
+    params = parameters_data(:insurance, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    γ = params[:γ]
+    λ = params[:λ]
+    h0 = params[:h0]
+    w = params[:w]
+    s = params[:s]
+    k = params[:k]
+    σ = params[:σ]
+    α = params[:α]
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            tf, tf  # (required if the final time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
 
     # state, control and initial guess
     @variables(

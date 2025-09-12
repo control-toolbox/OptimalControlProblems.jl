@@ -28,24 +28,27 @@ function OptimalControlProblems.robbins(
     ::OptimalControlBackend,
     description::Symbol...;
     N::Int=steps_number_data(:robbins),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    tf = final_time_data(:robbins)
-    α = 3
-    β = 0
-    γ = 0.5
+    params = parameters_data(:robbins, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    α = params[:α]
+    β = params[:β]
+    γ = params[:γ]
 
     # model
     ocp = @def begin
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         x ∈ R³, state
         u ∈ R, control
 
         0 ≤ x[1](t) ≤ Inf
 
-        x(0) == [1, -2, 0]
+        x(t0) == [1, -2, 0]
         x(tf) == [0, 0, 0]
 
         ẋ(t) == [x[2](t), x[3](t), u(t)]

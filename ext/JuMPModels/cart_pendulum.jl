@@ -28,21 +28,36 @@ julia> model = OptimalControlProblems.cart_pendulum(JuMPBackend(); N=200)
 - [Cart–Pendulum Optimal Control Problem](https://arxiv.org/pdf/2303.16746)
 """
 function OptimalControlProblems.cart_pendulum(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:cart_pendulum), kwargs...
+    ::JuMPBackend, args...; N::Int=steps_number_data(:cart_pendulum), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    g = 9.81            # gravitation [m/s^2]
-    L = 1               # pendulum length [m]
-    m = 1               # pendulum mass [kg]
+    params = parameters_data(:cart_pendulum, parameters)
+    t0 = params[:t0]
+    g = params[:g]
+    L = params[:L]
+    m = params[:m]
     I = m * L^2 / 12    # pendulum moment of inertia
-    mcart = 0.5        # cart mass [kg]
-    max_f = 5
-    max_x = 1
-    max_v = 2
+    mcart = params[:mcart]
+    max_f = params[:max_f]
+    max_x = params[:max_x]
+    max_v = params[:max_v]
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
 
     # variables and initial guess
     @variables(

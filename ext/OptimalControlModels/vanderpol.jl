@@ -27,24 +27,27 @@ function OptimalControlProblems.vanderpol(
     ::OptimalControlBackend,
     description::Symbol...;
     N::Int=steps_number_data(:vanderpol),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    tf = final_time_data(:vanderpol)
-    ω = 1
-    ε = 1
+    params = parameters_data(:vanderpol, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    ω = params[:ω]
+    ε = params[:ε]
 
     # model
     ocp = @def begin
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         x ∈ R², state
         u ∈ R, control
 
-        x(0) == [1, 0]
+        x(t0) == [1, 0]
 
         ẋ(t) == [x[2](t), ε * ω * (1 - x[1](t)^2) * x[2](t) - ω^2 * x[1](t) + u(t)]
-
+        
         0.5∫(x[1](t)^2 + x[2](t)^2 + u(t)^2) → min
     end
 

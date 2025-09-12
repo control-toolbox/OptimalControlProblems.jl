@@ -1,13 +1,13 @@
 # test_OptimalControl_optimality
 function test_OptimalControl_s()
     kwargs_madnlp = Dict(
-        :print_level => ERROR,
+        :print_level => MadNLP.ERROR,
         :tol => TOL,
         #:mu_strategy => MU_STRATEGY,
         #:sb => SB,
         :max_iter => MAX_ITER,
         :max_wall_time => MAX_WALL_TIME,
-        linear_solver => MumpsSolver,
+        :linear_solver => MumpsSolver,
     )
 
     for f in LIST_OF_PROBLEMS

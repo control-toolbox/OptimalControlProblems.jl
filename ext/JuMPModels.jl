@@ -38,27 +38,12 @@ julia> tgrid = OptimalControlProblems.time_grid(:my_problem, model)
 0.0:0.1:1.0
 ```
 """
-function OptimalControlProblems.time_grid(problem::Symbol, model::JuMP.GenericModel)
-
-    # get N
-    x_vars = metadata[problem][:state_name]
-    x_jp_var = JuMP.value.(model[Symbol(x_vars[1])])
-    N = length(x_jp_var) - 1
-
-    ## time grid: we assume that t0 = 0
-    time_data, time_value_or_index = metadata[problem][:final_time]
-
-    t0 = 0
-    tf = if time_data == :fixed
-        time_value_or_index
-    elseif time_data == :free
-        v_vars = metadata[problem][:variable_name]
-        value.(model[Symbol(v_vars[time_value_or_index])])
-    else
-        error("the final time must be :fixed or :free, not: ", time_data)
-    end
+function OptimalControlProblems.time_grid(::Symbol, model::JuMP.GenericModel)
+    t_grid_vars = metadata[problem][:time_grid_name]
+    t0 = value.(model[Symbol(t_grid_vars[:initial_time])])
+    tf = value.(model[Symbol(t_grid_vars[:final_time])])
+    N  = value.(model[Symbol(t_grid_vars[:steps_number])])
     t_jp = range(t0, tf, N+1)
-
     return t_jp
 end
 

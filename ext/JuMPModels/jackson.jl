@@ -29,17 +29,33 @@ julia> model = OptimalControlProblems.jackson(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.jackson(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:jackson), kwargs...
+    ::JuMPBackend, args...; N::Int=steps_number_data(:jackson), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    tf = final_time_data(:jackson)
-    k1 = 1
-    k2 = 10
-    k3 = 1
+    params = parameters_data(:jackson, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    k1 = params[:k1]
+    k2 = params[:k2]
+    k3 = params[:k3]
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            tf, tf  # (required if the final time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
 
     @variables(
         model,

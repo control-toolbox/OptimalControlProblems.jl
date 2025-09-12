@@ -27,18 +27,23 @@ function OptimalControlProblems.rocket(
     ::OptimalControlBackend,
     description::Symbol...;
     N::Int=steps_number_data(:rocket),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    h0 = 1
-    v0 = 0
-    m0 = 1
-    g0 = 1
-    Tc = 3.5
-    hc = 500
-    vc = 620
-    mc = 0.6
+    params = parameters_data(:rocket, parameters)
+    t0 = params[:t0]
+    h0 = params[:h0]
+    v0 = params[:v0]
+    m0 = params[:m0]
+    g0 = params[:g0]
+    Tc = params[:Tc]
+    hc = params[:hc]
+    vc = params[:vc]
+    mc = params[:mc]
+
+    #
     c = 0.5 * sqrt(g0 * h0)
     mf = mc * m0
     Dc = 0.5 * vc * (m0 / g0)
@@ -47,28 +52,28 @@ function OptimalControlProblems.rocket(
     # Model
     ocp = @def begin
         tf ∈ R, variable
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         x = (h, v, m) ∈ R³, state
         T ∈ R, control
 
         # state constraints
-        h(t) ≥ h0, (x1_con)
-        v(t) ≥ v0, (x2_con)
-        mf ≤ m(t) ≤ m0, (x3_con)
+        h(t) ≥ h0, (x1_c)
+        v(t) ≥ v0, (x2_c)
+        mf ≤ m(t) ≤ m0, (x3_c)
 
         # control constraints
-        0 ≤ T(t) ≤ Tmax, (Tcon)
+        0 ≤ T(t) ≤ Tmax, (T_c)
 
         # time constraints
-        tf ≥ 0, (tf_con)
+        tf ≥ 0, (tf_c)
 
         # initial conditions
-        h(0) == h0, (x1_ic)
-        v(0) == v0, (x2_ic)
-        m(0) == m0, (x3_ic)
+        h(t0) == h0, (x1_i)
+        v(t0) == v0, (x2_i)
+        m(t0) == m0, (x3_i)
 
         # final conditions
-        m(tf) == mf, (x3_fc)
+        m(tf) == mf, (x3_f)
 
         # dynamics
         ẋ(t) == dynamics(h(t), v(t), m(t), T(t))

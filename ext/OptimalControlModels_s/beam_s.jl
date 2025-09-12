@@ -31,22 +31,29 @@ function OptimalControlProblems.beam_s(
     ::OptimalControlBackend,
     description::Symbol...;
     N::Int=steps_number_data(:beam),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
-    #
-    tf = final_time_data(:beam)
+    # parameters
+    params = parameters_data(:beam, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    x_t0 = params[:x_t0]
+    x_tf = params[:x_tf]
+    x₁_l = params[:x₁_l]
+    x₁_u = params[:x₁_u]
 
     # model
     ocp = @def begin
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         x ∈ R², state
         u ∈ R, control
-        x(0) == [0, 1]
-        x(tf) == [0, -1]
+        x(t0) == x_t0
+        x(tf) == x_tf
         ∂(x₁)(t) == x₂(t)
         ∂(x₂)(t) == u(t)
-        0 ≤ x₁(t) ≤ 0.1
+        x₁_l ≤ x₁(t) ≤ x₁_u
         ∫(u(t)^2) → min
     end
 

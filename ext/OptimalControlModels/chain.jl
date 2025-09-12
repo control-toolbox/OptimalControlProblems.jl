@@ -32,31 +32,32 @@ function OptimalControlProblems.chain(
     ::OptimalControlBackend,
     description::Symbol...;
     N::Int=steps_number_data(:chain),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    L = 4
-    a = 1
-    b = 3
-    tf = final_time_data(:chain)
+    params = parameters_data(:chain, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    L = params[:L]
+    a = params[:a]
+    b = params[:b]
 
     # model
     ocp = @def begin
-
-        #
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         x ∈ R³, state
         u ∈ R, control
 
         # initial conditions
-        x₁(0) == a, (x1_ic)
-        x₂(0) == 0, (x2_ic)
-        x₃(0) == 0, (x3_ic)
+        x₁(t0) == a, (x1_i)
+        x₂(t0) == 0, (x2_i)
+        x₃(t0) == 0, (x3_i)
 
         # final conditions
-        x₁(tf) == b, (x1_con)
-        x₃(tf) == L, (x3_con)
+        x₁(tf) == b, (x1_f)
+        x₃(tf) == L, (x3_f)
 
         # dynamics
         ẋ(t) == dynamics(x(t), u(t))
@@ -74,12 +75,12 @@ function OptimalControlProblems.chain(
     tmin = b > a ? 1 / 4 : 3 / 4
     xinit =
         t -> [
-            4 * abs(b - a) * t / tf * (0.5 * t / tf - tmin) + a,
-            (4 * abs(b - a) * t / tf * (0.5 * t / tf - tmin) + a) *
-            (4 * abs(b - a) * (t / tf - tmin)),
-            4 * abs(b - a) * (t / tf - tmin),
+            4 * abs(b - a) * (t - t0) / (tf - t0) * (0.5 * (t - t0) / (tf - t0) - tmin) + a,
+            (4 * abs(b - a) * (t - t0) / (tf - t0) * (0.5 * (t - t0) / (tf - t0) - tmin) + a) *
+            (4 * abs(b - a) * ((t - t0) / (tf - t0) - tmin)),
+            4 * abs(b - a) * ((t - t0) / (tf - t0) - tmin),
         ]
-    uinit = t -> 4 * abs(b - a) * (t / tf - tmin)
+    uinit = t -> 4 * abs(b - a) * ((t - t0) / (tf - t0) - tmin)
     init = (state=xinit, control=uinit)
 
     # discretise the optimal control problem

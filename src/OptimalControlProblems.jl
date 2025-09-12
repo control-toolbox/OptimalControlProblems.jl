@@ -137,25 +137,23 @@ end
 number_of_problems = length(files)
 
 const infos = [
-    :name
     :N
-    :minimise
     :state_name
     :costate_name
     :control_name
     :variable_name
-    :final_time
+    :time_grid_name
+    :parameters
 ]
 
 const types = [
-    String,
     Int,
-    Bool,
     Vector{String},
     Vector{String},
     Vector{String},
     Union{Vector{String},Nothing},
-    Tuple{Symbol,Union{Float64,Int}},
+    Dict,
+    Union{Nothing,NamedTuple},
 ]
 
 """
@@ -192,11 +190,6 @@ for i in 1:number_of_problems
         value = eval(Meta.parse("$(file_key)_meta"))[data]
         if !(value isa T)
             error("Type mismatch: Expected $(T) for $(data), but got $(typeof(value))")
-        end
-        if data == :final_time
-            if (value[1] != :fixed) && (value[1] != :free)
-                error("Incorrect value: Expected free or :fixed for $(value[1])")
-            end
         end
         metadata[file_key][data] = value
     end
@@ -418,31 +411,6 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Return the fixed final time, from the metadata, associated with a given optimal control problem.
-
-# Arguments
-
-- `problem::Symbol`: The name of the problem, used as a key in the global `metadata` dictionary.
-
-# Returns
-
-- `Float64`: The fixed final time of the specified problem.
-
-# Example
-
-```julia-repl
-julia> final_time_data(:beam)
-10.0
-```
-"""
-function final_time_data(problem::Symbol)
-    @assert metadata[problem][:final_time][1] == :fixed
-    return metadata[problem][:final_time][2]
-end
-
-"""
-$(TYPEDSIGNATURES)
-
 Return the number of discretisation steps, from the metadata, for a given optimal control problem.
 
 # Arguments
@@ -464,8 +432,31 @@ function steps_number_data(problem::Symbol)
     return metadata[problem][:N]
 end
 
+#
+merge(::Nothing, ::Nothing) = nothing
+merge(A::NamedTuple, ::Nothing) = A
+merge(::Nothing, ::NamedTuple) = throw(CTBase.UnauthorizedCall("There is nothing to merge."))
+function merge(A::NamedTuple, B::NamedTuple)
+    f(;kwargs...) = kwargs
+    return NamedTuple(f(; A..., B...))
+end
+function parameters_data(problem::Symbol)
+    return metadata[problem][:parameters]
+end
+function parameters_data(problem::Symbol, parameters::Union{Nothing, NamedTuple})
+    try
+        return merge(parameters_data(problem), parameters)
+    catch e
+        if e isa CTBase.UnauthorizedCall
+            throw(CTBase.UnauthorizedCall("There is no parameters to merge in problem: $problem."))
+        else
+            rethrow(e)
+        end
+    end
+end
+
 export JuMPBackend, OptimalControlBackend, problems
 export time_grid, state, costate, control, variable, iterations, objective
-export metadata, final_time_data, steps_number_data
+export metadata, steps_number_data, parameters_data
 
 end

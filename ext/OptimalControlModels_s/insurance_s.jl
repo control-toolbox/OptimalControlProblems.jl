@@ -31,19 +31,22 @@ function OptimalControlProblems.insurance_s(
     ::OptimalControlBackend,
     description::Symbol...;
     N::Int=steps_number_data(:insurance),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    tf = final_time_data(:insurance)
-    γ = 0.2
-    λ = 0.25
-    h0 = 1.5
-    w = 1
-    s = 10
-    k = 0
-    σ = 0
-    α = 4
+    params = parameters_data(:insurance, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    γ = params[:γ]
+    λ = params[:λ]
+    h0 = params[:h0]
+    w = params[:w]
+    s = params[:s]
+    k = params[:k]
+    σ = params[:σ]
+    α = params[:α]
 
     # I: Insurance
     # m: Expense
@@ -54,7 +57,7 @@ function OptimalControlProblems.insurance_s(
     # Model
     ocp = @def begin
         P ∈ R, variable
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         x = (I, m, x₃) ∈ R³, state
         u = (h, R, H, U, dUdR) ∈ R⁵, control
 
@@ -68,7 +71,7 @@ function OptimalControlProblems.insurance_s(
         0.001 ≤ dUdR(t) ≤ Inf
         0 ≤ P ≤ Inf
 
-        x(0) == [0, 0.001, 0]
+        x(t0) == [0, 0.001, 0]
         P - x₃(tf) == 0
 
         ε = k * t / (tf - t + 1)

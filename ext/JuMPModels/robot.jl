@@ -28,26 +28,41 @@ julia> model = OptimalControlProblems.robot(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/robot.jl
 """
 function OptimalControlProblems.robot(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:robot), kwargs...
+    ::JuMPBackend, args...; N::Int=steps_number_data(:robot), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
+    params = parameters_data(:robot, parameters)
+    t0 = params[:t0]
 
     # total length of arm
-    L = 5
+    L = params[:L]
 
     # Upper bounds on the controls
-    max_uρ = 1
-    max_uθ = 1
-    max_uϕ = 1
+    max_uρ = params[:max_uρ]
+    max_uθ = params[:max_uθ]
+    max_uϕ = params[:max_uϕ]
 
     # Initial positions of the length and the angles for the robot arm
-    ρ0 = 4.5
-    ϕ0 = π/4
-    θf = 2π/3
+    ρ0 = params[:ρ0]
+    ϕ0 = params[:ϕ0]
+    θf = params[:θf]
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
 
     # state, control, variable (final time) and initial guess
     @variables(

@@ -28,14 +28,18 @@ julia> model = OptimalControlProblems.chain(JuMPBackend(); N=300)
 - [COPS Benchmark Problems – Hanging Chain](https://www.mcs.anl.gov/~more/cops/)
 """
 function OptimalControlProblems.chain(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:chain), kwargs...
+    ::JuMPBackend, args...; N::Int=steps_number_data(:chain), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    L = 4
-    a = 1
-    b = 3
-    tf = final_time_data(:chain)
+    params = parameters_data(:chain, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    L = params[:L]
+    a = params[:a]
+    b = params[:b]
 
     #
     tmin = b > a ? 1 / 4 : 3 / 4
@@ -43,11 +47,23 @@ function OptimalControlProblems.chain(
     # model
     model = JuMP.Model(args...; kwargs...)
 
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            tf, tf  # (required if the final time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
+
     # time
     @expressions(
         model,
         begin
-            t[k = 0:N], k * tf / N
+            t[k = 0:N], t0 + k * (tf-t0) / N
         end
     )
 
@@ -55,16 +71,16 @@ function OptimalControlProblems.chain(
     @variables(
         model,
         begin
-            u[k = 0:N], (start = 4 * abs(b - a) * (t[k] / tf - tmin))
+            u[k = 0:N], (start = 4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
             x1[k = 0:N],
-            (start = 4 * abs(b - a) * t[k] / tf * (0.5 * t[k] / tf - tmin) + a)
+            (start = 4 * abs(b - a) * (t[k] - t0) / (tf - t0) * (0.5 * (t[k] - t0) / (tf - t0) - tmin) + a)
             x2[k = 0:N],
             (
                 start =
-                    (4 * abs(b - a) * t[k] / tf * (0.5 * t[k] / tf - tmin) + a) *
-                    (4 * abs(b - a) * (t[k] / tf - tmin))
+                    (4 * abs(b - a) * (t[k] - t0) / (tf - t0) * (0.5 * (t[k] - t0) / (tf - t0) - tmin) + a) *
+                    (4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
             )
-            x3[k = 0:N], (start = 4 * abs(b - a) * (t[k] / tf - tmin))
+            x3[k = 0:N], (start = 4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
         end
     )
 

@@ -1,10 +1,19 @@
 dielectrophoretic_particle_meta = OrderedDict(
-    :name => "dielectrophoretic_particle",
     :N => 500,
-    :minimise => true,
     :state_name => ["x", "y"],
     :costate_name => ["∂x", "∂y"],
     :control_name => ["u"],
     :variable_name => ["tf"],
-    :final_time => (:free, 1), # first component of the variable
+    :time_grid_name => Dict(
+        :initial_time => "t0", 
+        :final_time => "tf", 
+        :steps_number => "N"
+    ),
+    :parameters => (
+        t0 = 0,
+        x0 = 1,
+        xf = 2,
+        α = -0.75,
+        c = 1,
+    ),
 )

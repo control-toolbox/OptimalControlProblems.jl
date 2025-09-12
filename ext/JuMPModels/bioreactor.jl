@@ -31,31 +31,53 @@ julia> model = OptimalControlProblems.bioreactor(JuMPBackend(); N=100)
 - [control-toolbox/bocop](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
 function OptimalControlProblems.bioreactor(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:bioreactor), kwargs...
+    ::JuMPBackend, args...; 
+    N::Int=steps_number_data(:bioreactor), 
+    parameters::Union{Nothing, NamedTuple}=nothing, 
+    kwargs...
 )
 
     # parameters
-    β = 1
-    c = 2
-    γ = 1
-    halfperiod = 5
-    Ks = 0.05
-    μ2m = 0.1
-    μbar = 1
-    r = 0.005
-    T = final_time_data(:bioreactor)
+    params = parameters_data(:bioreactor, parameters)
+    t0 = params[:t0]
+    T = params[:T]
+    β = params[:β]
+    c = params[:c]
+    γ = params[:γ]
+    halfperiod = params[:halfperiod]
+    Ks = params[:Ks]
+    μ2m = params[:μ2m]
+    μbar = params[:μbar]
+    r = params[:r]
+    x_l = params[:x_l]
+    u_l = params[:u_l]
+    u_u = params[:u_u]
+    x0_l = params[:x0_l]
+    x0_u = params[:x0_u]
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            T, T    # (required if the final time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
 
     # variables and initial guess
     @variables(
         model,
         begin
-            y[0:N] >= 0, (start = 50)
-            s[0:N] >= 0, (start = 50)
-            b[0:N] >= 0.001, (start = 50)
-            0 <= u[0:N] <= 1, (start = 0.5)
+            y[0:N] >= x_l[1], (start = 50)
+            s[0:N] >= x_l[2], (start = 50)
+            b[0:N] >= x_l[3], (start = 50)
+            u_l <= u[0:N] <= u_u, (start = 0.5)
         end
     )
 
@@ -63,9 +85,9 @@ function OptimalControlProblems.bioreactor(
     @constraints(
         model,
         begin
-            0.05 <= y[0] <= 0.25
-            0.5 <= s[0] <= 5
-            0.5 <= b[0] <= 3
+            x0_l[1] <= y[0] <= x0_u[1]
+            x0_l[2] <= s[0] <= x0_u[2]
+            x0_l[3] <= b[0] <= x0_u[3]
         end
     )
 
@@ -75,7 +97,7 @@ function OptimalControlProblems.bioreactor(
         begin
 
             #
-            step, T / N
+            step, (T-t0) / N
 
             # intermediate variables
             growth[k = 0:N], μ2m * s[k] / (s[k] + Ks)

@@ -27,27 +27,30 @@ function OptimalControlProblems.steering(
     ::OptimalControlBackend,
     description::Symbol...;
     N::Int=steps_number_data(:steering),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    a = 100
-    u_min = -π/2
-    u_max = π/2
-    xs = zeros(4)
-    xf = [5, 45, 0]
+    params = parameters_data(:steering, parameters)
+    t0 = params[:t0]
+    a = params[:a]
+    u_min = params[:u_min]
+    u_max = params[:u_max]
+    xs = params[:xs]
+    xf = params[:xf]
 
     # Model
     ocp = @def begin
         tf ∈ R, variable
-        t ∈ [0.0, tf], time
+        t ∈ [t0, tf], time
         x ∈ R⁴, state
         u ∈ R¹, control
 
-        tf ≥ 0, (tf_con)
-        x(0) == xs, (x_ic)
-        x[2:4](tf) == xf, (x_fc)
-        u_min ≤ u(t) ≤ u_max, (u_con)
+        tf ≥ 0, (tf_c)
+        x(t0) == xs, (x_i)
+        x[2:4](tf) == xf, (x_f)
+        u_min ≤ u(t) ≤ u_max, (u_c)
 
         ẋ(t) == dynamics(x(t), u(t))
 

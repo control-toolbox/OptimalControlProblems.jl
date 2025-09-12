@@ -31,25 +31,28 @@ function OptimalControlProblems.jackson(
     ::OptimalControlBackend,
     description::Symbol...;
     N::Int=steps_number_data(:jackson),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    tf = final_time_data(:jackson)
-    k1 = 1
-    k2 = 10
-    k3 = 1
+    params = parameters_data(:jackson, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    k1 = params[:k1]
+    k2 = params[:k2]
+    k3 = params[:k3]
 
     # model
     ocp = @def begin
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         x ∈ R³, state
         u ∈ R, control
 
         a = x[1]
         b = x[2]
 
-        x(0) == [1, 0, 0]
+        x(t0) == [1, 0, 0]
 
         [0, 0, 0] ≤ x(t) ≤ [1.1, 1.1, 1.1]
         0 ≤ u(t) ≤ 1

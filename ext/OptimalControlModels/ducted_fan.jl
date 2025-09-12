@@ -32,39 +32,42 @@ function OptimalControlProblems.ducted_fan(
     ::OptimalControlBackend,
     description::Symbol...;
     N::Int=steps_number_data(:ducted_fan),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    r = 0.2         # [m]
-    J = 0.05        # [kg.m2]
-    m = 2.2         # [kg]
-    mg = 4          # [N]
-    μ = 1000
+    params = parameters_data(:ducted_fan, parameters)
+    t0 = params[:t0]
+    r = params[:r]
+    J = params[:J]
+    m = params[:m]
+    mg = params[:mg]
+    μ = params[:μ]
 
     ocp = @def begin
         tf ∈ R, variable
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         x = (x₁, v₁, x₂, v₂, α, vα) ∈ R⁶, state
         u ∈ R², control
 
         # tf constraints
-        tf ≥ 0.1, (tf_con)
+        tf ≥ 0.1, (tf_c)
 
         # state constraints
-        -deg2rad(30) ≤ α(t) ≤ deg2rad(30), (α_con)
+        -deg2rad(30) ≤ α(t) ≤ deg2rad(30), (α_c)
 
         # control constraints
-        -5 ≤ u₁(t) ≤ 5, (u₁_con)
-        0 ≤ u₂(t) ≤ 17, (u₂_con)
+        -5 ≤ u₁(t) ≤ 5, (u₁_c)
+        0 ≤ u₂(t) ≤ 17, (u₂_c)
 
         # initial constraints
-        x₁(0) == 0, (x₁_i)
-        v₁(0) == 0, (v₁_i)
-        x₂(0) == 0, (x₂_i)
-        v₂(0) == 0, (v₂_i)
-        α(0) == 0, (α_i)
-        vα(0) == 0, (vα_i)
+        x₁(t0) == 0, (x₁_i)
+        v₁(t0) == 0, (v₁_i)
+        x₂(t0) == 0, (x₂_i)
+        v₂(t0) == 0, (v₂_i)
+        α(t0) == 0, (α_i)
+        vα(t0) == 0, (vα_i)
 
         # final constraints
         x₁(tf) == 1, (x₁_f)

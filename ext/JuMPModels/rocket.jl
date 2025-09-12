@@ -28,18 +28,24 @@ julia> model = OptimalControlProblems.rocket(JuMPBackend(); N=200)
 - Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/rocket.jl
 """
 function OptimalControlProblems.rocket(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:rocket), kwargs...
+    ::JuMPBackend, args...; N::Int=steps_number_data(:rocket), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    h0 = 1
-    v0 = 0
-    m0 = 1
-    g0 = 1
-    Tc = 3.5
-    hc = 500
-    vc = 620
-    mc = 0.6
+    params = parameters_data(:rocket, parameters)
+    t0 = params[:t0]
+    h0 = params[:h0]
+    v0 = params[:v0]
+    m0 = params[:m0]
+    g0 = params[:g0]
+    Tc = params[:Tc]
+    hc = params[:hc]
+    vc = params[:vc]
+    mc = params[:mc]
+
+    #
     c = 0.5 * sqrt(g0 * h0)
     mf = mc * m0
     Dc = 0.5 * vc * (m0 / g0)
@@ -47,6 +53,17 @@ function OptimalControlProblems.rocket(
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
 
     # state, control, variable (final time) and initial guess
     @variables(

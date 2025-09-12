@@ -6,14 +6,12 @@ To add a new problem to **OptimalControlProblems**, you must follow these steps:
 
 ```julia
 new_problem_meta = OrderedDict(
-    :name => "new_problem",            # Problem name
-    :N => 100,                         # Number of steps
-    :minimise => true,                 # Whether we minimise (true) or maximise (false)
+    :N => 100,                         # Number of steps                 # Whether we minimise (true) or maximise (false)
     :state_name => ["x1", "x2"],       # Names of the state components
     :costate_name => ["∂x1", "∂x2"],   # Names of the dynamics constraints (for the costate)
     :control_name => ["u"],            # Names of the control components
     :variable_name => ["v"],           # Names of the optimisation variables
-    :final_time => (:fixed, 1),        # Final time information
+    :parameters => (tf = 1, ),         # Final time information
 )
 ```
 

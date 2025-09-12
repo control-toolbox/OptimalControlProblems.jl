@@ -31,8 +31,50 @@ function OptimalControlProblems.bioreactor(
     ::OptimalControlBackend,
     description::Symbol...;
     N::Int=steps_number_data(:bioreactor),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
+
+    # parameters
+    params = parameters_data(:bioreactor, parameters)
+    t0 = params[:t0]
+    T = params[:T]
+    β = params[:β]
+    c = params[:c]
+    γ = params[:γ]
+    halfperiod = params[:halfperiod]
+    Ks = params[:Ks]
+    μ2m = params[:μ2m]
+    μbar = params[:μbar]
+    r = params[:r]
+    x_l = params[:x_l]
+    u_l = params[:u_l]
+    u_u = params[:u_u]
+    x0_l = params[:x0_l]
+    x0_u = params[:x0_u]
+
+    # Model
+    ocp = @def begin
+        t ∈ [t0, T], time
+        x = (y, s, b) ∈ R³, state
+        u ∈ R, control
+
+        x(t) ≥ x_l
+        u_l ≤ u(t) ≤ u_u
+        
+        x0_l ≤ x(t0) ≤ x0_u
+
+        μ = light(t, halfperiod) * μbar
+        μ2 = growth(s(t), μ2m, Ks)
+
+        ẋ(t) == [
+            μ * y(t) / (1 + y(t)) - (r + u(t)) * y(t),
+            -μ2 * b(t) + u(t) * β * (γ * y(t) - s(t)),
+            (μ2 - u(t) * β) * b(t),
+        ]
+
+        -∫(μ2 * b(t) / (β + c)) → min
+    end
 
     # METHANE PROBLEM
     # μ2 according to growth model
@@ -50,42 +92,6 @@ function OptimalControlProblems.bioreactor(
         days = time / (halfperiod * 2)
         tau = (days - floor(days)) * 2π
         return max(0, sin(tau))^2
-    end
-
-    # parameters
-    β = 1
-    c = 2
-    γ = 1
-    halfperiod = 5
-    Ks = 0.05
-    μ2m = 0.1
-    μbar = 1
-    r = 0.005
-    T = final_time_data(:bioreactor)
-
-    # Model
-    ocp = @def begin
-        t ∈ [0, T], time
-        x = (y, s, b) ∈ R³, state
-        u ∈ R, control
-
-        x(t) ≥ [0, 0, 0.001]
-        0 ≤ u(t) ≤ 1
-
-        0.05 ≤ y(0) ≤ 0.25
-        0.5 ≤ s(0) ≤ 5
-        0.5 ≤ b(0) ≤ 3
-
-        μ = light(t, halfperiod) * μbar
-        μ2 = growth(s(t), μ2m, Ks)
-
-        ẋ(t) == [
-            μ * y(t) / (1 + y(t)) - (r + u(t)) * y(t),
-            -μ2 * b(t) + u(t) * β * (γ * y(t) - s(t)),
-            (μ2 - u(t) * β) * b(t),
-        ]
-
-        -∫(μ2 * b(t) / (β + c)) → min
     end
 
     # initial guess

@@ -29,54 +29,71 @@ julia> model = OptimalControlProblems.space_shuttle(JuMPBackend(); N=200)
 - Problem formulation and tutorial available at: https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/
 """
 function OptimalControlProblems.space_shuttle(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:space_shuttle), kwargs...
+    ::JuMPBackend, args...; N::Int=steps_number_data(:space_shuttle), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
-    ## Global variables
-    w = 203000.0    # weight (lb)
-    g₀ = 32.174     # acceleration (ft/sec^2)
+    # Parameters
+    params = parameters_data(:space_shuttle, parameters)
+    t0 = params[:t0]
+
+    ##
+    w = params[:w]
+    g₀ = params[:g₀]
     m = w / g₀      # mass (slug)
 
     ## Aerodynamic and atmospheric forces on the vehicle
-    ρ₀ = 0.002378
-    hᵣ = 23800
-    Rₑ = 20902900
-    μ = 0.14076539e17
-    S = 2690
-    a₀ = -0.20704
-    a₁ = 0.029244
-    b₀ = 0.07854
-    b₁ = -0.61592e-2
-    b₂ = 0.621408e-3
-    # c₀ = 1.0672181
-    # c₁ = -0.19213774e-1
-    # c₂ = 0.21286289e-3
-    # c₃ = -0.10117249e-5
+    ρ₀ = params[:ρ₀]
+    hᵣ = params[:hᵣ]
+    Rₑ = params[:Rₑ]
+    μ = params[:μ]
+    S = params[:S]
+    a₀ = params[:a₀]
+    a₁ = params[:a₁]
+    b₀ = params[:b₀]
+    b₁ = params[:b₁]
+    b₂ = params[:b₂]
 
     # 
-    Δt_min = 3.5
-    Δt_max = 4.5
-    tf_min = 500*Δt_min
-    tf_max = 500*Δt_max
+    Δt_min = params[:Δt_min]
+    Δt_max = params[:Δt_max]
+    tf_min = N*Δt_min
+    tf_max = N*Δt_max
 
     ## Initial conditions
-    h_s = 2.6          # altitude (ft) / 1e5
-    ϕ_s = deg2rad(0)   # longitude (rad)
-    θ_s = deg2rad(0)   # latitude (rad)
-    v_s = 2.56         # velocity (ft/sec) / 1e4
-    γ_s = deg2rad(-1)  # flight path angle (rad)
-    ψ_s = deg2rad(90)  # azimuth (rad)
-    α_s = deg2rad(0)   # angle of attack (rad)
-    β_s = deg2rad(0)   # bank angle (rad)
-    t_s = 1.00         # time step (sec)
+    h_s = params[:h_s]
+    ϕ_s = params[:ϕ_s]
+    θ_s = params[:θ_s]
+    v_s = params[:v_s]
+    γ_s = params[:γ_s]
+    ψ_s = params[:ψ_s]
+    α_s = params[:α_s]
+    β_s = params[:β_s]
+    t_s = params[:t_s]
 
     ## Final conditions, the so-called Terminal Area Energy Management (TAEM)
-    h_t = 0.8          # altitude (ft) / 1e5
-    v_t = 0.25         # velocity (ft/sec) / 1e4
-    γ_t = deg2rad(-5)  # flight path angle (rad)
+    h_t = params[:h_t]
+    v_t = params[:v_t]
+    γ_t = params[:γ_t]
+
+    ## Scalings
+    scaling_h = 1e5
+    scaling_v = 1e4
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
 
     # state, control and variable (final time)
     @variables(
@@ -84,10 +101,10 @@ function OptimalControlProblems.space_shuttle(
         begin
 
             # state
-            0 ≤ scaled_h[0:N]                          # altitude (ft) / 1e5
+            0 ≤ scaled_h[0:N]                          # altitude (ft) / scaling_h
             -2π ≤ ϕ[0:N] ≤ 2π                          # longitude (rad)
             deg2rad(-89) ≤ θ[0:N] ≤ deg2rad(89)        # latitude (rad)
-            1e-4 ≤ scaled_v[0:N]                       # velocity (ft/sec) / 1e4
+            1e-4 ≤ scaled_v[0:N]                       # velocity (ft/sec) / scaling_v
             deg2rad(-89) ≤ γ[0:N] ≤ deg2rad(89)        # flight path angle (rad)
             -2π ≤ ψ[0:N] ≤ 2π                          # azimuth (rad)
 
@@ -164,8 +181,8 @@ function OptimalControlProblems.space_shuttle(
     #set_start_value.(model[:Δt], vec(initial_guess[1:(end - 1), 9]))
 
     ## Functions to restore `h` and `v` to their true scale
-    @expression(model, h[j = 0:N], scaled_h[j] * 1e5)
-    @expression(model, v[j = 0:N], scaled_v[j] * 1e4)
+    @expression(model, h[j = 0:N], scaled_h[j] * scaling_h)
+    @expression(model, v[j = 0:N], scaled_v[j] * scaling_v)
 
     # Helper functions
     @expression(model, c_L[j = 0:N], a₀ + a₁ * rad2deg(α[j]))

@@ -28,30 +28,45 @@ julia> model = OptimalControlProblems.glider(JuMPBackend(); N=100)
 - Hang Glider Problem formulation as in: https://www.mcs.anl.gov/~more/cops/
 """
 function OptimalControlProblems.glider(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:glider), kwargs...
+    ::JuMPBackend, args...; N::Int=steps_number_data(:glider), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    x_0 = 0
-    y_0 = 1000
-    y_f = 900
-    vx_0 = 13.23
-    vx_f = 13.23
-    vy_0 = -1.288
-    vy_f = -1.288
-    u_c = 2.5
-    r_0 = 100
-    m = 100
-    g = 9.81
-    c0 = 0.034
-    c1 = 0.069662
-    S = 14
-    ρ = 1.13
-    cL_min = 0
-    cL_max = 1.4
+    params = parameters_data(:glider, parameters)
+    t0 = params[:t0]
+    x_0 = params[:x_0]
+    y_0 = params[:y_0]
+    y_f = params[:y_f]
+    vx_0 = params[:vx_0]
+    vx_f = params[:vx_f]
+    vy_0 = params[:vy_0]
+    vy_f = params[:vy_f]
+    u_c = params[:u_c]
+    r_0 = params[:r_0]
+    m = params[:m]
+    g = params[:g]
+    c0 = params[:c0]
+    c1 = params[:c1]
+    S = params[:S]
+    ρ = params[:ρ]
+    cL_min = params[:cL_min]
+    cL_max = params[:cL_max]
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            N, N    # (required)
+        end
+    )
+    # ------------------------------------------------
 
     # state, control, variable (final time) and initial guess
     @variables(
