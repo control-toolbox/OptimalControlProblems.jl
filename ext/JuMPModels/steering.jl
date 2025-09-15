@@ -8,7 +8,7 @@ The objective is to minimise the final time required for the particle to reach a
 # Arguments
 
 - `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `N::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
+- `grid_size::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
 
 # Returns
 

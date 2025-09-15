@@ -8,7 +8,7 @@ It then performs direct transcription to generate a discrete optimal control pro
 # Arguments
 
 - `::OptimalControlBackend`: Placeholder type to specify the OptimalControl backend or solver interface.
-- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
 
 # Returns
 

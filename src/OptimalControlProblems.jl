@@ -32,21 +32,21 @@ export nlp_model, ocp_model, build_ocp_solution
 """
 $(TYPEDEF)
 
-Abstract type for all optimal control problem model back-ends.
+Abstract type for all optimal control problem model backends.
 """
 abstract type AbstractModelBackend end
 
 """
 $(TYPEDEF)
 
-Back-end for modelling optimal control problems using the JuMP optimisation framework.
+Backend for modelling optimal control problems using the JuMP optimisation framework.
 """
 struct JuMPBackend <: AbstractModelBackend end
 
 """
 $(TYPEDEF)
 
-Back-end for modelling optimal control problems using the OptimalControl.jl package.
+Backend for modelling optimal control problems using the OptimalControl.jl package.
 """
 struct OptimalControlBackend <: AbstractModelBackend end
 
@@ -66,22 +66,7 @@ for file in files
     doc = """
     $(TYPEDSIGNATURES)
 
-    Defines the optimal control problem `$(string(problem))` for a given back-end.
-
-    # Arguments
-
-    - `model_backend::T`: The modelling back-end, subtype of `AbstractModelBackend`.
-    - `N::Int=0`: Number of discretisation steps (optional).
-
-    # Returns
-
-    - Throws an `ExtensionError` if the required back-end is not available.
-
-    # Example
-
-    ```julia-repl
-    julia> $(string(problem))(JuMPBackend(); N=20)
-    ERROR: ExtensionError(:JuMP)
+    This method throws an `ExtensionError` and is called if the required backend is not available.
     ```
     """
 
@@ -99,22 +84,7 @@ for file in files
     doc_s = """
     $(TYPEDSIGNATURES)
 
-    Defines the optimal control problem `$(string(problem_s))` for a given back-end.
-
-    # Arguments
-
-    - `model_backend::T`: The modelling back-end, subtype of `AbstractModelBackend`.
-    - `N::Int=0`: Number of discretisation steps (optional).
-
-    # Returns
-
-    - Throws an `ExtensionError` if the required back-end is not available.
-
-    # Example
-
-    ```julia-repl
-    julia> $(string(problem_s))(JuMPBackend(); N=20)
-    ERROR: ExtensionError(:JuMP)
+    This method throws an `ExtensionError` and is called if the required backend is not available.
     ```
     """
 
@@ -170,7 +140,6 @@ for i in 1:number_of_problems
     end
 end
 
-
 """
 $(TYPEDSIGNATURES)
 
@@ -191,21 +160,53 @@ Return a dictionary containing the metadata of `problem`.
 
 To get specific data, the following keys are valid:
 
-- `name::String`: the problem name.
-- `N::Int`: the default number of steps.
-- `minimise::Bool`: indicates whether the objective function is minimised (`true`) or maximised (`false`).
-- `state_name::Vector{String}`: names of the state components.
-- `costate_name::Vector{String}`: names of the differential constraints to obtain the costate (dual variables associated with the differential constraints).
-- `control_name::Vector{String}`: names of the control components.
-- `variable_name::Union{Vector{String},Nothing}`: names of the optimisation variables, or `nothing` if no such variable exists.
-- `final_time::Tuple{Symbol, Union{Float64, Int}}`: of the form `(type, value_or_index)`, where:
-    - `type` is either `:fixed` or `:free`.
-    - `value_or_index` is the index in `variable` if the final time is free, or its value if it is fixed.
+- `grid_size::Int`: the default number of steps. For example:
+```julia
+:grid_size => 500,
+```
+- `state_name::Vector{String}`: names of the state components. For example:
+```julia
+:state_name => ["x₁", "x₂"],
+```
+- `costate_name::Vector{String}`: names of the differential constraints to obtain the costate (dual variables associated with the differential constraints). For example:
+```julia
+:costate_name => ["∂x₁", "∂x₂"],
+```
+- `control_name::Vector{String}`: names of the control components. For example:
+```julia
+:control_name => ["u"],
+```
+- `variable_name::Union{Vector{String},Nothing}`: names of the optimisation variables, or `nothing` if no such variable exists. For example:
+```julia
+:variable_name => nothing,
+:variable_name => ["tf"],
+```
+- `time_grid_name::Dict`: names of the initial time, the final time and the grid size parameter. For example:
+```julia
+:time_grid_name => Dict(
+    :initial_time => "t0", 
+    :final_time => "tf", 
+    :grid_size => "N",
+),
+```
+- `parameters::Union{Nothing,NamedTuple}`: the list of parameters. For example:
+```julia
+:parameters => (
+    t0 = 0,
+    tf = 1,
+    x₁_l = 0,
+    x₁_u = 0.1,
+    x₁_t0 = 0,
+    x₂_t0 = 1,
+    x₁_tf = 0,
+    x₂_tf = -1,
+),
+```
 
 # Example
 
 ```julia-repl
-julia> data = metadata(:my_problem)
+julia> data = metadata(:beam)
 julia> data[:control_name]
 "u"
 ```
@@ -256,22 +257,10 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Retrieve the discretised time grid from a JuMP model.
+This method throws an `ExtensionError` and is called if the JuMP backend is not available. To get the JuMP backend, make:
 
-# Arguments
-
-- `::Symbol`: Problem name.
-- `model`: JuMP model object.
-
-# Returns
-
-- Throws `ExtensionError(:JuMP)` since JuMP support must be extended.
-
-# Example
-
-```julia-repl
-julia> time_grid(:problem1, model)
-ERROR: ExtensionError(:JuMP)
+```julia
+using JuMP
 ```
 """
 function time_grid(::Symbol, model)
@@ -281,22 +270,10 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Retrieve the state trajectory from a JuMP model.
+This method throws an `ExtensionError` and is called if the JuMP backend is not available. To get the JuMP backend, make:
 
-# Arguments
-
-- `::Symbol`: Problem name.
-- `model`: JuMP model object.
-
-# Returns
-
-- Throws `ExtensionError(:JuMP)` since JuMP support must be extended.
-
-# Example
-
-```julia-repl
-julia> state(:problem1, model)
-ERROR: ExtensionError(:JuMP)
+```julia
+using JuMP
 ```
 """
 function state(::Symbol, model)
@@ -306,22 +283,10 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Retrieve the costate (adjoint variables) from a JuMP model.
+This method throws an `ExtensionError` and is called if the JuMP backend is not available. To get the JuMP backend, make:
 
-# Arguments
-
-- `::Symbol`: Problem name.
-- `model`: JuMP model object.
-
-# Returns
-
-- Throws `ExtensionError(:JuMP)` since JuMP support must be extended.
-
-# Example
-
-```julia-repl
-julia> costate(:problem1, model)
-ERROR: ExtensionError(:JuMP)
+```julia
+using JuMP
 ```
 """
 function costate(::Symbol, model)
@@ -331,22 +296,10 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Retrieve the control trajectory from a JuMP model.
+This method throws an `ExtensionError` and is called if the JuMP backend is not available. To get the JuMP backend, make:
 
-# Arguments
-
-- `::Symbol`: Problem name.
-- `model`: JuMP model object.
-
-# Returns
-
-- Throws `ExtensionError(:JuMP)` since JuMP support must be extended.
-
-# Example
-
-```julia-repl
-julia> control(:problem1, model)
-ERROR: ExtensionError(:JuMP)
+```julia
+using JuMP
 ```
 """
 function control(::Symbol, model)
@@ -356,22 +309,10 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Retrieve optimisation variables from a JuMP model.
+This method throws an `ExtensionError` and is called if the JuMP backend is not available. To get the JuMP backend, make:
 
-# Arguments
-
-- `::Symbol`: Problem name.
-- `model`: JuMP model object.
-
-# Returns
-
-- Throws `ExtensionError(:JuMP)` since JuMP support must be extended.
-
-# Example
-
-```julia-repl
-julia> variable(:problem1, model)
-ERROR: ExtensionError(:JuMP)
+```julia
+using JuMP
 ```
 """
 function variable(::Symbol, model)
@@ -381,22 +322,10 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Retrieve objective value from a JuMP model.
+This method throws an `ExtensionError` and is called if the JuMP backend is not available. To get the JuMP backend, make:
 
-# Arguments
-
-- `::Symbol`: Problem name.
-- `model`: JuMP model object.
-
-# Returns
-
-- Throws `ExtensionError(:JuMP)` since JuMP support must be extended.
-
-# Example
-
-```julia-repl
-julia> objective(:problem1, model)
-ERROR: ExtensionError(:JuMP)
+```julia
+using JuMP
 ```
 """
 function objective(::Symbol, model)
@@ -406,22 +335,10 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Retrieve the number of iterations from a JuMP model.
+This method throws an `ExtensionError` and is called if the JuMP backend is not available. To get the JuMP backend, make:
 
-# Arguments
-
-- `::Symbol`: Problem name.
-- `model`: JuMP model object.
-
-# Returns
-
-- Throws `ExtensionError(:JuMP)` since JuMP support must be extended.
-
-# Example
-
-```julia-repl
-julia> iterations(:problem1, model)
-ERROR: ExtensionError(:JuMP)
+```julia
+using JuMP
 ```
 """
 function iterations(::Symbol, model)
@@ -435,7 +352,7 @@ Return the number of discretisation steps, from the metadata, for a given optima
 
 # Arguments
 
-- `problem::Symbol`: The name of the problem, used as a key in the global `metadata` dictionary.
+- `problem::Symbol`: The name of the problem.
 
 # Returns
 
@@ -452,17 +369,148 @@ function grid_size_data(problem::Symbol)
     return metadata(problem)[:grid_size]
 end
 
-#
+"""
+$(TYPEDSIGNATURES)
+
+Merge two `Nothing` values.
+
+# Arguments
+
+- `::Nothing`: first argument.
+- `::Nothing`: second argument.
+
+# Returns
+
+- `nothing::Nothing`: always returns `nothing`.
+
+# Example
+
+```julia-repl
+julia> merge(nothing, nothing)
+nothing
+```
+"""
 merge(::Nothing, ::Nothing) = nothing
+
+"""
+$(TYPEDSIGNATURES)
+
+Merge a `NamedTuple` with `nothing`.  
+
+# Arguments
+
+- `A::NamedTuple`: a named tuple to keep.
+- `::Nothing`: placeholder, ignored.
+
+# Returns
+
+- `::NamedTuple`: returns `A` unchanged.
+
+# Example
+
+```julia-repl
+julia> merge((a=1,), nothing)
+(a = 1,)
+```
+"""
 merge(A::NamedTuple, ::Nothing) = A
+
+"""
+$(TYPEDSIGNATURES)
+
+Throw an error when attempting to merge `nothing` with a `NamedTuple`.  
+
+# Arguments
+
+- `::Nothing`: indicates there is no data to merge.
+- `::NamedTuple`: the data that cannot be merged.
+
+# Returns
+
+- This function always throws `CTBase.UnauthorizedCall`.
+
+# Example
+
+```julia-repl
+julia> merge(nothing, (a=1,))
+ERROR: CTBase.UnauthorizedCall("There is nothing to merge.")
+```
+"""
 merge(::Nothing, ::NamedTuple) = throw(CTBase.UnauthorizedCall("There is nothing to merge."))
+
+"""
+$(TYPEDSIGNATURES)
+
+Merge two `NamedTuple`s, with the second one overriding keys from the first when duplicated.
+
+# Arguments
+
+- `A::NamedTuple`: first set of key–value pairs.
+- `B::NamedTuple`: second set of key–value pairs, takes precedence if keys overlap.
+
+# Returns
+
+- `::NamedTuple`: merged named tuple containing keys from both `A` and `B`.
+
+# Example
+
+```julia-repl
+julia> merge((a=1, b=2), (b=3, c=4))
+(a = 1, b = 3, c = 4)
+```
+"""
 function merge(A::NamedTuple, B::NamedTuple)
     f(;kwargs...) = kwargs
     return NamedTuple(f(; A..., B...))
 end
+
+"""
+$(TYPEDSIGNATURES)
+
+Return the parameter set associated with a given problem.
+
+# Arguments
+
+- `problem::Symbol`: the name of the problem whose parameters are requested.
+
+# Returns
+
+- `::Union{Nothing,NamedTuple}`: the parameters of the problem, or `nothing` if none exist.
+
+# Example
+
+```julia-repl
+julia> parameters_data(:beam)
+(t0 = 0, tf = 1, ...)
+```
+"""
 function parameters_data(problem::Symbol)
     return metadata(problem)[:parameters]
 end
+
+"""
+$(TYPEDSIGNATURES)
+
+Return the parameter set associated with a given problem, optionally merged with user-supplied parameters.
+
+# Arguments
+
+- `problem::Symbol`: the name of the problem.
+- `parameters::Union{Nothing,NamedTuple}`: user-supplied parameters to override or extend the defaults.  
+  If `nothing`, returns the default parameters unchanged.
+
+# Returns
+
+- `::Union{Nothing,NamedTuple}`: the merged parameters.  
+  Throws `CTBase.UnauthorizedCall` if attempting to merge with a problem that has no parameters.
+
+# Example
+
+```julia-repl
+julia> parameters_data(:beam, (tf = 2,))
+(t0 = 0, tf = 2, ...)
+```
+"""
 function parameters_data(problem::Symbol, parameters::Union{Nothing, NamedTuple})
     try
         return merge(parameters_data(problem), parameters)

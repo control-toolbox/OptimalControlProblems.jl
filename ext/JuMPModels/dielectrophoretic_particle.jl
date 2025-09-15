@@ -8,7 +8,7 @@ The system dynamics are discretised over `N` steps, with the final time optimise
 # Arguments
 
 - `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `N::Int=500`: (Keyword) Number of discretisation steps in the time grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation steps in the time grid.
 
 # Returns
 
@@ -37,14 +37,14 @@ function OptimalControlProblems.dielectrophoretic_particle(
     # parameters
     params = parameters_data(:dielectrophoretic_particle, parameters)
     t0 = params[:t0]
-    x0 = params[:x0]
-    xf = params[:xf]
+    x_t0 = params[:x_t0]
+    y_t0 = params[:y_t0]
+    x_tf = params[:x_tf]
     α = params[:α]
     c = params[:c]
     u_l = params[:u_l]
     u_u = params[:u_u]
     tf_l = params[:tf_l]
-    y_t0 = params[:y_t0]
     
     # model
     model = JuMP.Model(args...; kwargs...)
@@ -66,8 +66,8 @@ function OptimalControlProblems.dielectrophoretic_particle(
         begin
             x[0:N],                 (start = 1)
             y[0:N],                 (start = 1)
-            u_l ≤ u[0:N] ≤ u_u,   (start = 0.1)
-            tf_l ≤ tf,             (start = 5)
+            u_l ≤ u[0:N] ≤ u_u,     (start = 0.1)
+            tf_l ≤ tf,              (start = 5)
         end
     )
 
@@ -75,9 +75,9 @@ function OptimalControlProblems.dielectrophoretic_particle(
     @constraints(
         model,
         begin
-            x[0] == x0
-            x[N] == xf
+            x[0] == x_t0
             y[0] == y_t0
+            x[N] == x_tf
         end
     )
 

@@ -9,7 +9,7 @@ Note: No heating limit path constraint is included.
 # Arguments
 
 - `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
 
 # Returns
 

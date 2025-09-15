@@ -8,7 +8,7 @@ It performs direct transcription to produce a discretised optimal control proble
 # Arguments
 
 - `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
 
 # Returns
 
@@ -39,14 +39,14 @@ function OptimalControlProblems.dielectrophoretic_particle(
     # parameters
     params = parameters_data(:dielectrophoretic_particle, parameters)
     t0 = params[:t0]
-    x0 = params[:x0]
-    xf = params[:xf]
+    x_t0 = params[:x_t0]
+    y_t0 = params[:y_t0]
+    x_tf = params[:x_tf]
     α = params[:α]
     c = params[:c]
     u_l = params[:u_l]
     u_u = params[:u_u]
     tf_l = params[:tf_l]
-    y_t0 = params[:y_t0]
 
     ocp = @def begin
         tf ∈ R, variable
@@ -54,9 +54,9 @@ function OptimalControlProblems.dielectrophoretic_particle(
         q = (x, y) ∈ R², state
         u ∈ R, control
 
-        x(t0) == x0, (x_t0)
+        x(t0) == x_t0, (x_t0)
         y(t0) == y_t0, (y_t0)
-        x(tf) == xf, (x_tf)
+        x(tf) == x_tf, (x_tf)
         tf ≥ tf_l, (tf_c)
         u_l ≤ u(t) ≤ u_u, (u_c)
 

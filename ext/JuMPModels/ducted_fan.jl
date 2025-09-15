@@ -8,7 +8,7 @@ The system is discretised over `N` steps, with collocation constraints enforcing
 # Arguments
 
 - `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `N::Int=250`: (Keyword) Number of discretisation steps in the time grid.
+- `grid_size::Int=250`: (Keyword) Number of discretisation steps in the time grid.
 
 # Returns
 

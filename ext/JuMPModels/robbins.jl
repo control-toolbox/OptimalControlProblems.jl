@@ -8,7 +8,7 @@ The objective is to minimise a cost functional that combines linear and quadrati
 # Arguments
 
 - `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `N::Int=500`: (Keyword) Number of discretisation steps for the time grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation steps for the time grid.
 
 # Returns
 

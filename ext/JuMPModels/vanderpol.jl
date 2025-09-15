@@ -7,7 +7,7 @@ The model represents the dynamics of the Van der Pol oscillator with control inp
 # Arguments
 
 - `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `N::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
+- `grid_size::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
 
 # Returns
 

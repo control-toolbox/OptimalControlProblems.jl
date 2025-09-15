@@ -8,7 +8,7 @@ The objective is to minimise the final time required for the robot arm to move b
 # Arguments
 
 - `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `N::Int=250`: (Keyword) Number of discretisation steps for the time horizon.
+- `grid_size::Int=250`: (Keyword) Number of discretisation steps for the time horizon.
 
 # Returns
 

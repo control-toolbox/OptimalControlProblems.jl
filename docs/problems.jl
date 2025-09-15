@@ -5,9 +5,9 @@ function draft_meta(draft::Union{Bool,Nothing})
     if isnothing(draft)
         return ""
     elseif draft
-        return """```@meta\nDraft = true\n```"""
+        return """```@meta\nDraft = true\n```\n"""
     else
-        return """```@meta\nDraft = false\n```"""
+        return """```@meta\nDraft = false\n```\n"""
     end
 end
 
@@ -24,7 +24,7 @@ end
 # -----------------------------------
 function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Union{Bool,Nothing})
 
-    TITLE = uppercasefirst(replace(PROBLEM, "_" => " "))
+    TITLE = "[" * uppercasefirst(replace(PROBLEM, "_" => " ")) * "](@id description-$PROBLEM)"
     DRAFT = draft_meta(draft)
     LEFT_MARGIN = get_left_margin(Symbol(PROBLEM))
 
@@ -90,6 +90,8 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     metadata(:$PROBLEM)[:control_name]
     ```
 
+    $VARIABLE_COMPONENTS
+
     The default values of the parameters are:
 
     ```@example main
@@ -102,8 +104,6 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
         @printf("%11.4e\\n", e.second) # hide
     end # hide
     ```
-
-    $VARIABLE_COMPONENTS
 
     ## Initial guess
 
@@ -217,14 +217,12 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     Before solving, we can inspect the discretisation details of the problem. The table below reports the number of grid points, decision variables, and constraints associated with the chosen formulation.  
 
     ```@example main
-    push!(data_pb,
-        (
-            Problem=:$PROBLEM,
-            Grid_Size=metadata(:$PROBLEM)[:grid_size],
-            Variables=get_nvar(nlp_model($PROBLEM(OptimalControlBackend()))),
-            Constraints=get_ncon(nlp_model($PROBLEM(OptimalControlBackend()))),
-        )
-    )
+    push!(data_pb,(
+        Problem=:$PROBLEM,
+        Grid_Size=metadata(:$PROBLEM)[:grid_size],
+        Variables=get_nvar(nlp_model($PROBLEM(OptimalControlBackend()))),
+        Constraints=get_ncon(nlp_model($PROBLEM(OptimalControlBackend()))),
+    ))
     data_pb # hide
     ```
 
@@ -274,24 +272,20 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
 
     ```@example main
     # from OptimalControl model
-    push!(data_re,
-        (
-            Model=:OptimalControl,
-            Flag=nlp_oc_sol.status,
-            Iterations=nlp_oc_sol.iter,
-            Objective=nlp_oc_sol.objective,
-        )
-    )
+    push!(data_re,(
+        Model=:OptimalControl,
+        Flag=nlp_oc_sol.status,
+        Iterations=nlp_oc_sol.iter,
+        Objective=nlp_oc_sol.objective,
+    ))
 
     # from JuMP model
-    push!(data_re,
-        (
-            Model=:JuMP,
-            Flag=termination_status(nlp_jp),
-            Iterations=barrier_iterations(nlp_jp),
-            Objective=objective_value(nlp_jp),
-        )
-    )
+    push!(data_re,(
+        Model=:JuMP,
+        Flag=termination_status(nlp_jp),
+        Iterations=barrier_iterations(nlp_jp),
+        Objective=objective_value(nlp_jp),
+    ))
     data_re # hide
     ```    
 

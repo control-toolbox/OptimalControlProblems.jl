@@ -7,17 +7,17 @@ dielectrophoretic_particle_meta = OrderedDict(
     :time_grid_name => Dict(
         :initial_time => "t0", 
         :final_time => "tf", 
-        :grid_size => "N"
+        :grid_size => "N",
     ),
     :parameters => (
         t0 = 0,
-        x0 = 1,
-        xf = 2,
+        x_t0 = 1,
+        y_t0 = 0,
+        x_tf = 2,
         α = -0.75,
         c = 1,
         u_l = -1,
         u_u = 1,
         tf_l = 0,
-        y_t0 = 0,
     ),
 )

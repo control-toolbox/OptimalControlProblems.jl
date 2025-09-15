@@ -11,7 +11,7 @@ The objective is to minimise a cost function derived from the system dynamics.
 # Arguments
 
 - `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `N::Int=500`: (Keyword) Number of discretisation steps in the time grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation steps in the time grid.
 
 # Returns
 

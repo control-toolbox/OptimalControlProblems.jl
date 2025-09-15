@@ -8,7 +8,7 @@ It returns both a discretised direct optimal control problem (DOCP) and the corr
 # Arguments
 
 - `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `N::Int=250`: (Keyword) Number of discretisation points for the direct transcription grid.
+- `grid_size::Int=250`: (Keyword) Number of discretisation points for the direct transcription grid.
 
 # Returns
 

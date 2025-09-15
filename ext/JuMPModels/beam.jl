@@ -8,7 +8,7 @@ The problem is formulated as in the BOCOP repository.
 # Arguments
 
 - `::JuMPBackend`: Placeholder type to specify the JuMP backend or solver interface.
-- `N::Int=500`: (Keyword) Number of discretisation steps for the time grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation steps for the time grid.
 
 # Returns
 
@@ -53,8 +53,8 @@ function OptimalControlProblems.beam(
     @expressions(
         model,
         begin
-            t0, t0  # (required if the initial time is fixed)
-            tf, tf  # (required if the final time is fixed)
+            t0, t0          # (required if the initial time is fixed)
+            tf, tf          # (required if the final time is fixed)
             N, grid_size    # (required)
         end
     )

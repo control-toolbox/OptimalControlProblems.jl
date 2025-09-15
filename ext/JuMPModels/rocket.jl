@@ -8,7 +8,7 @@ The objective is to maximise the final altitude of the rocket while satisfying b
 # Arguments
 
 - `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `N::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
+- `grid_size::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
 
 # Returns
 

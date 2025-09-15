@@ -3,7 +3,7 @@
 1 0 obj
 <<
 /Creator (GKS)
-/CreationDate (D:20250909111225)
+/CreationDate (D:20250915153551)
 /Producer (GKS 5 PDF driver)
 >>
 endobj
@@ -56,7 +56,7 @@ endobj
 endobj
 6 0 obj
 <<
-/Length 355135
+/Length 355133
 >>
 stream
 /GS255 gs
@@ -1722,7 +1722,7 @@ Q
 [1 2] 0 d
 1 J 1 j 1 w
 /GS255 gs
-0.7644 0.4441 0.8243 RG
+0.8684 0.396 0.7135 RG
 q
 146.06 705.39 m
 448.20 705.39 l
@@ -1767,7 +1767,7 @@ Q
 [] 0 d
 1 J 1 j 1 w
 /GS255 gs
-0.7644 0.4441 0.8243 RG
+0.8684 0.396 0.7135 RG
 q
 146.06 705.39 m
 448.20 705.39 l
@@ -23254,5 +23254,5 @@ trailer
 /Info 1 0 R
 >>
 startxref
-355782
+355780
 %%EOF
