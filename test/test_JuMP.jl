@@ -2,7 +2,7 @@
 function test_JuMP()
     for f in LIST_OF_PROBLEMS
         @testset "$(f)" verbose=VERBOSE begin
-            N = metadata(f)[:grid_size]
+            grid_size = metadata(f)[:grid_size]
 
             # do we keep or remove the problem from the list
             keep_problem = true
@@ -12,7 +12,7 @@ function test_JuMP()
             DEBUG && println("│")
 
             # Set up the model
-            nlp = OptimalControlProblems.eval(f)(JuMPBackend(); N=N)
+            nlp = OptimalControlProblems.eval(f)(JuMPBackend(); grid_size=grid_size)
             set_optimizer(nlp, Ipopt.Optimizer)
             set_silent(nlp)
             set_optimizer_attribute(nlp, "tol", TOL)

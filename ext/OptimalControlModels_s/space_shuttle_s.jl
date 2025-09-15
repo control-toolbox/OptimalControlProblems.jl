@@ -27,7 +27,7 @@ julia> docp = OptimalControlProblems.space_shuttle(OptimalControlBackend(); N=50
 function OptimalControlProblems.space_shuttle_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:space_shuttle),
+    grid_size::Int=grid_size_data(:space_shuttle),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -53,27 +53,44 @@ function OptimalControlProblems.space_shuttle_s(
     b₁ = params[:b₁]
     b₂ = params[:b₂]
 
-    ## 
+    # 
     Δt_min = params[:Δt_min]
     Δt_max = params[:Δt_max]
-    tf_min = N*Δt_min
-    tf_max = N*Δt_max
+    tf_l = grid_size*Δt_min
+    tf_u = grid_size*Δt_max
 
     ## Initial conditions
-    h_s = params[:h_s]
-    ϕ_s = params[:ϕ_s]
-    θ_s = params[:θ_s]
-    v_s = params[:v_s]
-    γ_s = params[:γ_s]
-    ψ_s = params[:ψ_s]
+    h_t0 = params[:h_t0]
+    ϕ_t0 = params[:ϕ_t0]
+    θ_t0 = params[:θ_t0]
+    v_t0 = params[:v_t0]
+    γ_t0 = params[:γ_t0]
+    ψ_t0 = params[:ψ_t0]
+
+    # for initial guess
     α_s = params[:α_s]
     β_s = params[:β_s]
-    t_s = params[:t_s]
 
     ## Final conditions, the so-called Terminal Area Energy Management (TAEM)
-    h_t = params[:h_t]
-    v_t = params[:v_t]
-    γ_t = params[:γ_t]
+    h_tf = params[:h_tf]
+    v_tf = params[:v_tf]
+    γ_tf = params[:γ_tf]
+
+    ##
+    h_l = params[:h_l]
+    ϕ_l = params[:ϕ_l]
+    ϕ_u = params[:ϕ_u]
+    θ_l = params[:θ_l]
+    θ_u = params[:θ_u]
+    v_l = params[:v_l]
+    γ_l = params[:γ_l]
+    γ_u = params[:γ_u]
+    ψ_l = params[:ψ_l]
+    ψ_u = params[:ψ_u]
+    α_l = params[:α_l]
+    α_u = params[:α_u]
+    β_l = params[:β_l]
+    β_u = params[:β_u]
 
     ## Scalings
     scaling_h = 1e5
@@ -89,34 +106,34 @@ function OptimalControlProblems.space_shuttle_s(
 
         # constraints
         ## to help convergence and avoid domain value error
-        -2π ≤ ϕ(t) ≤ 2π
-        -2π ≤ ψ(t) ≤ 2π
+        ϕ_l ≤ ϕ(t) ≤ ϕ_u
+        ψ_l ≤ ψ(t) ≤ ψ_u
 
         ## final time constraints
-        tf_min ≤ tf ≤ tf_max
+        tf_l ≤ tf ≤ tf_u
 
         ## state constraints
-        0 ≤ scaled_h(t) ≤ Inf, (scaled_h_c)
-        deg2rad(-89) ≤ θ(t) ≤ deg2rad(89), (θ_c)
-        0 ≤ scaled_v(t) ≤ Inf, (scaled_v_c)
-        deg2rad(-89) ≤ γ(t) ≤ deg2rad(89), (γ_c)
+        scaled_h(t) ≥ h_l, (scaled_h_c)
+        θ_l ≤ θ(t) ≤ θ_u, (θ_c)
+        scaled_v(t) ≥ v_l, (scaled_v_c)
+        γ_l ≤ γ(t) ≤ γ_u, (γ_c)
 
         ## control constraints
-        deg2rad(-90) ≤ α(t) ≤ deg2rad(90), (α_c)
-        deg2rad(-89) ≤ β(t) ≤ deg2rad(1), (β_c)
+        α_l ≤ α(t) ≤ α_u, (α_c)
+        β_l ≤ β(t) ≤ β_u, (β_c)
 
         ## initial conditions
-        scaled_h(t0) == h_s, (scaled_h_i)
-        ϕ(t0) == ϕ_s, (ϕ_i)
-        θ(t0) == θ_s, (θ_i)
-        scaled_v(t0) == v_s, (scaled_v_i)
-        γ(t0) == γ_s, (γ_i)
-        ψ(t0) == ψ_s, (ψ_i)
+        scaled_h(t0) == h_t0, (scaled_h_t0)
+        ϕ(t0) == ϕ_t0, (ϕ_t0)
+        θ(t0) == θ_t0, (θ_t0)
+        scaled_v(t0) == v_t0, (scaled_v_t0)
+        γ(t0) == γ_t0, (γ_t0)
+        ψ(t0) == ψ_t0, (ψ_t0)
 
         ## final conditions
-        scaled_h(tf) == h_t, (scaled_h_f)
-        scaled_v(tf) == v_t, (scaled_v_f)
-        γ(tf) == γ_t, (γ_f)
+        scaled_h(tf) == h_tf, (scaled_h_tf)
+        scaled_v(tf) == v_tf, (scaled_v_tf)
+        γ(tf) == γ_tf, (γ_tf)
 
         # Helper functions
         h = scaled_h(t) * scaling_h
@@ -139,21 +156,21 @@ function OptimalControlProblems.space_shuttle_s(
         ∂(ψ)(t) == (1 / (m * v * cos(γ(t)))) * L * sin(β(t)) + (v / (r * cos(θ(t)))) * cos(γ(t)) * sin(ψ(t)) * sin(θ(t))
 
         # objective
-        -θ(tf) → min
+        θ(tf) → max
     end
 
     # initial guess: linear interpolation for h, v, gamma (NB. t0 = 0), constant for the rest
     # variable time step seems to be initialized at 1 in jump
     # note that ipopt will project the initial guess inside the bounds anyway.
-    tf_init = (tf_min+tf_max)/2
+    tf_init = (tf_l+tf_u)/2
     x_init =
         t -> [
-            h_s + t / tf_init * (h_t - h_s),
-            ϕ_s,
-            θ_s,
-            v_s + t / tf_init * (v_t - v_s),
-            γ_s + t / tf_init * (γ_t - γ_s),
-            ψ_s,
+            h_t0 + (t - t0) / (tf_init - t0) * (h_tf - h_t0),
+            ϕ_t0,
+            θ_t0,
+            v_t0 + (t - t0) / (tf_init - t0) * (v_tf - v_t0),
+            γ_t0 + (t - t0) / (tf_init - t0) * (γ_tf - γ_t0),
+            ψ_t0,
         ]
     init = (state=x_init, control=[α_s, β_s], variable=[tf_init])
 

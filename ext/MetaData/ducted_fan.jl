@@ -7,7 +7,7 @@ ducted_fan_meta = OrderedDict(
     :time_grid_name => Dict(
         :initial_time => "t0", 
         :final_time => "tf", 
-        :steps_number => "N"
+        :grid_size => "N"
     ),
     :parameters => (
         t0 = 0,
@@ -23,7 +23,17 @@ ducted_fan_meta = OrderedDict(
         u₂_l = 0,
         u₂_u = 17,
         tf_l = 0.1,
-        x_i = [0, 0, 0, 0, 0, 0],
-        x_f = [1, 0, 0, 0, 0, 0],
+        x₁_t0 = 0,
+        v₁_t0 = 0,
+        x₂_t0 = 0,
+        v₂_t0 = 0,
+        α_t0 = 0,
+        vα_t0 = 0,
+        x₁_tf = 1,
+        v₁_tf = 0,
+        x₂_tf = 0,
+        v₂_tf = 0,
+        α_tf = 0,
+        vα_tf = 0,
     ),
 )

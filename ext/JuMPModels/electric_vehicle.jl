@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.electric_vehicle(JuMPBackend(); N=100)
 - Petit, N., & Sciarretta, A. (2011). *Optimal drive of electric vehicles using an inversion-based trajectory generation approach.* IFAC Proceedings Volumes, 44(1), 14519–14526. [PS2011]
 """
 function OptimalControlProblems.electric_vehicle(
-    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:electric_vehicle), 
+    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:electric_vehicle), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -46,10 +46,10 @@ function OptimalControlProblems.electric_vehicle(
     α1 = params[:α1]
     α2 = params[:α2]
     α3 = params[:α3]
-    x_i = params[:x_i]
-    v_i = params[:v_i]
-    x_f = params[:x_f]
-    v_f = params[:v_f]
+    x_t0 = params[:x_t0]
+    v_t0 = params[:v_t0]
+    x_tf = params[:x_tf]
+    v_tf = params[:v_tf]
 
     # model
     model = JuMP.Model(args...; kwargs...)
@@ -80,10 +80,10 @@ function OptimalControlProblems.electric_vehicle(
     @constraints(
         model,
         begin
-            x[0] == x_i
-            v[0] == v_i
-            x[N] == x_f
-            v[N] == v_f
+            x[0] == x_t0
+            v[0] == v_t0
+            x[N] == x_tf
+            v[N] == v_tf
         end
     )
 
@@ -91,9 +91,8 @@ function OptimalControlProblems.electric_vehicle(
     @expressions(
         model,
         begin
-
             #
-            step, tf / N
+            Δt, (tf - t0) / N
             road[k = 0:N], α0 + α1 * x[k] + α2 * x[k]^2 + α3 * x[k]^3
 
             # dynamics
@@ -108,13 +107,13 @@ function OptimalControlProblems.electric_vehicle(
     @constraints(
         model,
         begin
-            ∂x[k = 1:N], x[k] == x[k - 1] + 0.5 * step * (dx[k - 1] + dx[k])
-            ∂v[k = 1:N], v[k] == v[k - 1] + 0.5 * step * (dv[k - 1] + dv[k])
+            ∂x[k = 1:N], x[k] == x[k - 1] + 0.5 * Δt * (dx[k - 1] + dx[k])
+            ∂v[k = 1:N], v[k] == v[k - 1] + 0.5 * Δt * (dv[k - 1] + dv[k])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(dc[k] + dc[k - 1] for k in 1:N))
+    @objective(model, Min, 0.5 * Δt * sum(dc[k] + dc[k - 1] for k in 1:N))
 
     return model
 end

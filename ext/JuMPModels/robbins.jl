@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.robbins(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.robbins(
-    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:robbins), 
+    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:robbins), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -40,9 +40,13 @@ function OptimalControlProblems.robbins(
     α = params[:α]
     β = params[:β]
     γ = params[:γ]
-
-    #
-    step = tf / N
+    x₁_l = params[:x₁_l]
+    x₁_t0 = params[:x₁_t0]
+    x₂_t0 = params[:x₂_t0]
+    x₃_t0 = params[:x₃_t0]
+    x₁_tf = params[:x₁_tf]
+    x₂_tf = params[:x₂_tf]
+    x₃_tf = params[:x₃_tf]
 
     # model
     model = JuMP.Model(args...; kwargs...)
@@ -63,9 +67,9 @@ function OptimalControlProblems.robbins(
     @variables(
         model,
         begin
-            0 <= x1[0:N], (start = 0.1)
-            x2[0:N], (start = 0.1)
-            x3[0:N], (start = 0.1)
+            x₁[0:N] ≥ x₁_l, (start = 0.1)
+            x₂[0:N], (start = 0.1)
+            x₃[0:N], (start = 0.1)
             u[0:N], (start = 0.1)
         end
     )
@@ -74,22 +78,28 @@ function OptimalControlProblems.robbins(
     @constraints(
         model,
         begin
-            x1[0] == 1
-            x2[0] == -2
-            x3[0] == 0
-            x1[N] == 0
-            x2[N] == 0
-            x3[N] == 0
+            x₁[0] == x₁_t0
+            x₂[0] == x₂_t0
+            x₃[0] == x₃_t0
+            x₁[N] == x₁_tf
+            x₂[N] == x₂_tf
+            x₃[N] == x₃_tf
         end
     )
 
     # dynamics
+    @expressions(
+        model,
+        begin
+            Δt, (tf - t0) / N
+        end
+    )
     @constraints(
         model,
         begin
-            ∂x1[i = 1:N], x1[i] == x1[i - 1] + 0.5 * step * (x2[i] + x2[i - 1])
-            ∂x2[i = 1:N], x2[i] == x2[i - 1] + 0.5 * step * (x3[i] + x3[i - 1])
-            ∂x3[i = 1:N], x3[i] == x3[i - 1] + 0.5 * step * (u[i] + u[i - 1])
+            ∂x₁[i = 1:N], x₁[i] == x₁[i - 1] + 0.5 * Δt * (x₂[i] + x₂[i - 1])
+            ∂x₂[i = 1:N], x₂[i] == x₂[i - 1] + 0.5 * Δt * (x₃[i] + x₃[i - 1])
+            ∂x₃[i = 1:N], x₃[i] == x₃[i - 1] + 0.5 * Δt * (u[i] + u[i - 1])
         end
     )
 
@@ -97,11 +107,11 @@ function OptimalControlProblems.robbins(
     @expressions(
         model,
         begin
-            dc[i = 0:N], (α * x1[i] + β * x1[i]^2 + γ * u[i]^2)
+            dc[i = 0:N], (α * x₁[i] + β * x₁[i]^2 + γ * u[i]^2)
         end
     )
 
-    @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i - 1] for i in 1:N))
+    @objective(model, Min, 0.5 * Δt * sum(dc[i] + dc[i - 1] for i in 1:N))
 
     return model
 end

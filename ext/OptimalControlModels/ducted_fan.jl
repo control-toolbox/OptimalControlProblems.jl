@@ -31,7 +31,7 @@ julia> docp = OptimalControlProblems.ducted_fan(OptimalControlBackend(); N=250);
 function OptimalControlProblems.ducted_fan(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:ducted_fan),
+    grid_size::Int=grid_size_data(:ducted_fan),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -51,8 +51,18 @@ function OptimalControlProblems.ducted_fan(
     u₂_l = params[:u₂_l]
     u₂_u = params[:u₂_u]
     tf_l = params[:tf_l]
-    x_i = params[:x_i]
-    x_f = params[:x_f]
+    x₁_t0 = params[:x₁_t0]
+    v₁_t0 = params[:v₁_t0]
+    x₂_t0 = params[:x₂_t0]
+    v₂_t0 = params[:v₂_t0]
+    α_t0 = params[:α_t0]
+    vα_t0 = params[:vα_t0]
+    x₁_tf = params[:x₁_tf]
+    v₁_tf = params[:v₁_tf]
+    x₂_tf = params[:x₂_tf]
+    v₂_tf = params[:v₂_tf]
+    α_tf = params[:α_tf]
+    vα_tf = params[:vα_tf]
 
     ocp = @def begin
         tf ∈ R, variable
@@ -71,20 +81,20 @@ function OptimalControlProblems.ducted_fan(
         u₂_l ≤ u₂(t) ≤ u₂_u, (u₂_c)
 
         # initial constraints
-        x₁(t0) == x_i[1], (x₁_i)
-        v₁(t0) == x_i[2], (v₁_i)
-        x₂(t0) == x_i[3], (x₂_i)
-        v₂(t0) == x_i[4], (v₂_i)
-        α(t0)  == x_i[5], (α_i)
-        vα(t0) == x_i[6], (vα_i)
+        x₁(t0) == x₁_t0, (x₁_t0)
+        v₁(t0) == v₁_t0, (v₁_t0)
+        x₂(t0) == x₂_t0, (x₂_t0)
+        v₂(t0) == v₂_t0, (v₂_t0)
+        α(t0)  == α_t0, (α_t0)
+        vα(t0) == vα_t0, (vα_t0)
 
         # final constraints
-        x₁(tf) == x_f[1], (x₁_f)
-        v₁(tf) == x_f[2], (v₁_f)
-        x₂(tf) == x_f[3], (x₂_f)
-        v₂(tf) == x_f[4], (v₂_f)
-        α(tf)  == x_f[5], (α_f)
-        vα(tf) == x_f[6], (vα_f)
+        x₁(tf) == x₁_tf, (x₁_tf)
+        v₁(tf) == v₁_tf, (v₁_tf)
+        x₂(tf) == x₂_tf, (x₂_tf)
+        v₂(tf) == v₂_tf, (v₂_tf)
+        α(tf)  == α_tf , (α_tf )
+        vα(tf) == vα_tf, (vα_tf)
 
         # dynamics
         ẋ(t) == dynamics(v₁(t), v₂(t), α(t), vα(t), u₁(t), u₂(t))

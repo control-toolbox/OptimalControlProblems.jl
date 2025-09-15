@@ -1,6 +1,6 @@
 # test_OptimalControl_optimality
 function test_OptimalControl()
-    kwargs = Dict(
+    options_ipopt = Dict(
         :print_level => 0,
         :tol => TOL,
         :mu_strategy => MU_STRATEGY,
@@ -11,7 +11,7 @@ function test_OptimalControl()
 
     for f in LIST_OF_PROBLEMS
         @testset "$(f)" verbose=VERBOSE begin
-            N = metadata(f)[:grid_size]
+            grid_size = metadata(f)[:grid_size]
 
             # do we keep or remove the problem from the list
             keep_problem = true
@@ -21,16 +21,16 @@ function test_OptimalControl()
             DEBUG && println("│")
 
             # Set up the model
-            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
+            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); grid_size=grid_size)
             nlp = nlp_model(docp)
 
             # Solve the model
             DEBUG && println("├─  Solve")
             DEBUG && println("│")
             print("  First solve:  ");
-            @time sol = NLPModelsIpopt.ipopt(nlp; kwargs...)
+            @time sol = NLPModelsIpopt.ipopt(nlp; options_ipopt...)
             print("  Second solve: ");
-            @time sol = NLPModelsIpopt.ipopt(nlp; kwargs...)
+            @time sol = NLPModelsIpopt.ipopt(nlp; options_ipopt...)
             DEBUG && println("│")
 
             # Infos

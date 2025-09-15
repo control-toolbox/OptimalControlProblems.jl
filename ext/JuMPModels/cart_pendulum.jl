@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.cart_pendulum(JuMPBackend(); N=200)
 - [Cart–Pendulum Optimal Control Problem](https://arxiv.org/pdf/2303.16746)
 """
 function OptimalControlProblems.cart_pendulum(
-    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:cart_pendulum), 
+    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:cart_pendulum), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -41,15 +41,15 @@ function OptimalControlProblems.cart_pendulum(
     m = params[:m]
     I = m * L^2 / 12    # pendulum moment of inertia
     mcart = params[:mcart]
-    max_f = params[:max_f]
+    max_tf = params[:max_tf]
     max_x = params[:max_x]
     max_v = params[:max_v]
     tf_l  = params[:tf_l]
-    x_i = params[:x_i]
-    θ_i = params[:θ_i]
-    ω_i = params[:ω_i]
-    θ_f = params[:θ_f]
-    ω_f = params[:ω_f]
+    x_t0 = params[:x_t0]
+    θ_t0 = params[:θ_t0]
+    ω_t0 = params[:ω_t0]
+    θ_tf = params[:θ_tf]
+    ω_tf = params[:ω_tf]
     
     # model
     model = JuMP.Model(args...; kwargs...)
@@ -69,13 +69,13 @@ function OptimalControlProblems.cart_pendulum(
     @variables(
         model,
         begin
-            tf >= tf_l,                     (start = 1.0)
+            tf ≥ tf_l,                     (start = 1.0)
             ddx,                            (start = 0.1)
-            -max_x <= x[0:N] <= max_x,      (start = 0.1)
-            -max_v <= v[0:N] <= max_v,      (start = 0.1)
+            -max_x ≤ x[0:N] ≤ max_x,      (start = 0.1)
+            -max_v ≤ v[0:N] ≤ max_v,      (start = 0.1)
             θ[0:N],                         (start = 0.1)
             ω[0:N],                         (start = 0.1)
-            -max_f <= Fex[0:N] <= max_f,    (start = 0.1)
+            -max_tf ≤ Fex[0:N] ≤ max_tf,    (start = 0.1)
         end
     )
 
@@ -83,11 +83,11 @@ function OptimalControlProblems.cart_pendulum(
     @constraints(
         model,
         begin
-            x[0] == x_i
-            θ[0] == θ_i
-            ω[0] == ω_i
-            θ[N] == θ_f
-            ω[N] == ω_f
+            x[0] == x_t0
+            θ[0] == θ_t0
+            ω[0] == ω_t0
+            θ[N] == θ_tf
+            ω[N] == ω_tf
         end
     )
 
@@ -95,7 +95,7 @@ function OptimalControlProblems.cart_pendulum(
     @expressions(
         model,
         begin
-            step, (tf - t0) / N
+            Δt, (tf - t0) / N
 
             α_ddx[i = 0:N],
             1 / (I + 0.25 * m * L^2) * 0.5 * L * m * (-ddx * cos(θ[i]) - g * sin(θ[i]))
@@ -121,10 +121,10 @@ function OptimalControlProblems.cart_pendulum(
     @constraints(
         model,
         begin
-            ∂x[k = 1:N], x[k] == x[k - 1] + 0.5 * step * (dx[k] + dx[k - 1])
-            ∂v[k = 1:N], v[k] == v[k - 1] + 0.5 * step * (dv[k] + dv[k - 1])
-            ∂θ[k = 1:N], θ[k] == θ[k - 1] + 0.5 * step * (dθ[k] + dθ[k - 1])
-            ∂ω[k = 1:N], ω[k] == ω[k - 1] + 0.5 * step * (dω[k] + dω[k - 1])
+            ∂x[k = 1:N], x[k] == x[k - 1] + 0.5 * Δt * (dx[k] + dx[k - 1])
+            ∂v[k = 1:N], v[k] == v[k - 1] + 0.5 * Δt * (dv[k] + dv[k - 1])
+            ∂θ[k = 1:N], θ[k] == θ[k - 1] + 0.5 * Δt * (dθ[k] + dθ[k - 1])
+            ∂ω[k = 1:N], ω[k] == ω[k - 1] + 0.5 * Δt * (dω[k] + dω[k - 1])
         end
     )
 

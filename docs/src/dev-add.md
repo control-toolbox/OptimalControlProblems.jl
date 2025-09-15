@@ -7,8 +7,8 @@ To add a new problem to **OptimalControlProblems**, you must follow these steps:
 ```julia
 new_problem_meta = OrderedDict(
     :grid_size => 100,                         # Number of steps                 # Whether we minimise (true) or maximise (false)
-    :state_name => ["x1", "x2"],       # Names of the state components
-    :costate_name => ["∂x1", "∂x2"],   # Names of the dynamics constraints (for the costate)
+    :state_name => ["x₁", "x₂"],       # Names of the state components
+    :costate_name => ["∂x₁", "∂x₂"],   # Names of the dynamics constraints (for the costate)
     :control_name => ["u"],            # Names of the control components
     :variable_name => ["v"],           # Names of the optimisation variables
     :parameters => (tf = 1, ),         # Final time information
@@ -28,7 +28,7 @@ new_problem_meta = OrderedDict(
 function OptimalControlProblems.new_problem(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:new_problem),
+    grid_size::Int=grid_size_data(:new_problem),
     kwargs...,
 )
 
@@ -67,7 +67,7 @@ end
     Documentation of the method
 """
 function OptimalControlProblems.new_problem(
-    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:new_problem), kwargs...
+    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:new_problem), kwargs...
 )
 
     # if tf is fixed

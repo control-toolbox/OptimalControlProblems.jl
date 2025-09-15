@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.glider(JuMPBackend(); N=100)
 - Hang Glider Problem formulation as in: https://www.mcs.anl.gov/~more/cops/
 """
 function OptimalControlProblems.glider(
-    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:glider), 
+    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:glider), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -36,15 +36,15 @@ function OptimalControlProblems.glider(
     # parameters
     params = parameters_data(:glider, parameters)
     t0 = params[:t0]
-    x_i = params[:x_i]
-    y_i = params[:y_i]
-    y_f = params[:y_f]
-    vx_i = params[:vx_i]
-    vx_f = params[:vx_f]
-    vy_i = params[:vy_i]
-    vy_f = params[:vy_f]
+    x_t0 = params[:x_t0]
+    y_t0 = params[:y_t0]
+    y_tf = params[:y_tf]
+    vx_t0 = params[:vx_t0]
+    vx_tf = params[:vx_tf]
+    vy_t0 = params[:vy_t0]
+    vy_tf = params[:vy_tf]
     u_c = params[:u_c]
-    r_i = params[:r_i]
+    r_t0 = params[:r_t0]
     m = params[:m]
     g = params[:g]
     c0 = params[:c0]
@@ -75,12 +75,12 @@ function OptimalControlProblems.glider(
     @variables(
         model,
         begin
-            tf >= tf_l,                         (start = 1)
-            x[k = 0:N] >= x_l,                  (start = x_i + vx_i * k / N)
-            y[k = 0:N],                         (start = y_i + (k / N) * (y_f - y_i))
-            vx[k = 0:N] >= vx_l,                (start = vx_i)
-            vy[k = 0:N],                        (start = vy_i)
-            cL_min <= cL[k = 0:N] <= cL_max,    (start = cL_max / 2)
+            tf ≥ tf_l,                         (start = 1)
+            x[k = 0:N] ≥ x_l,                  (start = x_t0 + vx_t0 * k / N)
+            y[k = 0:N],                         (start = y_t0 + (k / N) * (y_tf - y_t0))
+            vx[k = 0:N] ≥ vx_l,                (start = vx_t0)
+            vy[k = 0:N],                        (start = vy_t0)
+            cL_min ≤ cL[k = 0:N] ≤ cL_max,    (start = cL_max / 2)
         end
     )
 
@@ -88,13 +88,13 @@ function OptimalControlProblems.glider(
     @constraints(
         model,
         begin
-            x[0]  == x_i
-            y[0]  == y_i
-            vx[0] == vx_i
-            vy[0] == vy_i
-            y[N]  == y_f
-            vx[N] == vx_f
-            vy[N] == vy_f
+            x[0]  == x_t0
+            y[0]  == y_t0
+            vx[0] == vx_t0
+            vy[0] == vy_t0
+            y[N]  == y_tf
+            vx[N] == vx_tf
+            vy[N] == vy_tf
         end
     )
 
@@ -102,12 +102,11 @@ function OptimalControlProblems.glider(
     @expressions(
         model,
         begin
+            #
+            Δt, (tf - t0) / N
 
             #
-            step, (tf - t0) / N
-
-            #
-            r[k = 0:N], (x[k] / r_i - 2.5)^2
+            r[k = 0:N], (x[k] / r_t0 - 2.5)^2
             u[k = 0:N], u_c * (1 - r[k]) * exp(-r[k])
             w[k = 0:N], vy[k] - u[k]
             v[k = 0:N], √(vx[k]^2 + w[k]^2)
@@ -123,15 +122,15 @@ function OptimalControlProblems.glider(
     @constraints(
         model,
         begin
-            ∂x[k = 1:N], x[k] == x[k - 1] + 0.5 * step * (vx[k] + vx[k - 1])
-            ∂y[k = 1:N], y[k] == y[k - 1] + 0.5 * step * (vy[k] + vy[k - 1])
-            ∂vx[k = 1:N], vx[k] == vx[k - 1] + 0.5 * step * (dvx[k] + dvx[k - 1])
-            ∂vy[k = 1:N], vy[k] == vy[k - 1] + 0.5 * step * (dvy[k] + dvy[k - 1])
+            ∂x[k = 1:N], x[k] == x[k - 1] + 0.5 * Δt * (vx[k] + vx[k - 1])
+            ∂y[k = 1:N], y[k] == y[k - 1] + 0.5 * Δt * (vy[k] + vy[k - 1])
+            ∂vx[k = 1:N], vx[k] == vx[k - 1] + 0.5 * Δt * (dvx[k] + dvx[k - 1])
+            ∂vy[k = 1:N], vy[k] == vy[k - 1] + 0.5 * Δt * (dvy[k] + dvy[k - 1])
         end
     )
 
     # objective
-    @objective(model, Min, -x[N])
+    @objective(model, Max, x[N])
 
     return model
 end

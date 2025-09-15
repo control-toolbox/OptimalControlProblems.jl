@@ -29,7 +29,7 @@ julia> model = OptimalControlProblems.beam(JuMPBackend(); N=100)
 """
 function OptimalControlProblems.beam(
     ::JuMPBackend, args...; 
-    grid_size::Int=steps_number_data(:beam), 
+    grid_size::Int=grid_size_data(:beam), 
     parameters::Union{Nothing, NamedTuple}=nothing, 
     kwargs...
 )
@@ -38,10 +38,12 @@ function OptimalControlProblems.beam(
     params = parameters_data(:beam, parameters)
     t0 = params[:t0]
     tf = params[:tf]
-    x_t0 = params[:x_t0]
-    x_tf = params[:x_tf]
     x₁_l = params[:x₁_l]
     x₁_u = params[:x₁_u]
+    x₁_t0 = params[:x₁_t0]
+    x₂_t0 = params[:x₂_t0]
+    x₁_tf = params[:x₁_tf]
+    x₂_tf = params[:x₂_tf]
 
     # model
     model = JuMP.Model(args...; kwargs...)
@@ -62,9 +64,9 @@ function OptimalControlProblems.beam(
     @variables(
         model,
         begin
-            x₁_l <= x1[0:N] <= x₁_u,    (start = 0.05)
-            x2[0:N],                    (start = 0.1)
-            u[0:N],                     (start = 0.1)
+            x₁_l ≤ x₁[0:N] ≤ x₁_u,    (start = 0.05)
+            x₂[0:N],                  (start = 0.1)
+            u[0:N],                   (start = 0.1)
         end
     )
 
@@ -72,10 +74,10 @@ function OptimalControlProblems.beam(
     @constraints(
         model,
         begin
-            x1[0] == x_t0[1]
-            x2[0] == x_t0[2]
-            x1[N] == x_tf[1]
-            x2[N] == x_tf[2]
+            x₁[0] == x₁_t0
+            x₂[0] == x₂_t0
+            x₁[N] == x₁_tf
+            x₂[N] == x₂_tf
         end
     )
 
@@ -83,13 +85,12 @@ function OptimalControlProblems.beam(
     @expressions(
         model,
         begin
-
             #
-            step, (tf - t0) / N
+            Δt, (tf - t0) / N
 
             # dynamics
-            dx1[i = 0:N], x2[i]
-            dx2[i = 0:N], u[i]
+            dx₁[i = 0:N], x₂[i]
+            dx₂[i = 0:N], u[i]
 
             # objective
             dc[i = 0:N], u[i]^2
@@ -98,13 +99,13 @@ function OptimalControlProblems.beam(
     @constraints(
         model,
         begin
-            ∂x1[i = 1:N], x1[i] == x1[i - 1] + 0.5 * step * (dx1[i] + dx1[i - 1])
-            ∂x2[i = 1:N], x2[i] == x2[i - 1] + 0.5 * step * (dx2[i] + dx2[i - 1])
+            ∂x₁[i = 1:N], x₁[i] == x₁[i - 1] + 0.5 * Δt * (dx₁[i] + dx₁[i - 1])
+            ∂x₂[i = 1:N], x₂[i] == x₂[i - 1] + 0.5 * Δt * (dx₂[i] + dx₂[i - 1])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i - 1] for i in 1:N))
+    @objective(model, Min, 0.5 * Δt * sum(dc[i] + dc[i - 1] for i in 1:N))
 
     return model
 end

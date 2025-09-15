@@ -214,7 +214,7 @@ function comparison(; max_iter, test_name)
 
     # we loop over the problems
     for f in LIST_OF_PROBLEMS
-        N = metadata(f)[:grid_size] # get default number of steps
+        grid_size = metadata(f)[:grid_size] # get default number of steps
         x_vars = metadata(f)[:state_name]
         p_vars = metadata(f)[:costate_name]
         u_vars = metadata(f)[:control_name]
@@ -225,7 +225,7 @@ function comparison(; max_iter, test_name)
             DEBUG && println("│")
 
             ############### JuMP ###############
-            nlp_jp = OptimalControlProblems.eval(f)(JuMPBackend(); N=N)
+            nlp_jp = OptimalControlProblems.eval(f)(JuMPBackend(); grid_size=grid_size)
             set_optimizer(nlp_jp, Ipopt.Optimizer)
             set_silent(nlp_jp)
             set_optimizer_attribute(nlp_jp, "tol", options_ipopt[:tol])
@@ -247,7 +247,7 @@ function comparison(; max_iter, test_name)
             nb_con_jp = num_constraints(nlp_jp; count_variable_in_set_constraints=false)
 
             ########## OptimalControl ##########
-            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
+            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); grid_size=grid_size)
             nlp_oc = nlp_model(docp)
             nlp_sol = NLPModelsIpopt.ipopt(nlp_oc; options_ipopt...)
             sol_oc = build_ocp_solution(docp, nlp_sol)
@@ -263,7 +263,7 @@ function comparison(; max_iter, test_name)
 
             ########## OptimalControl_s ##########
             model_backend = :exa # :adnlp
-            docp = OptimalControlProblems.eval(Symbol(f, :_s))(OptimalControlBackend(), :madnlp, model_backend; N=N)
+            docp = OptimalControlProblems.eval(Symbol(f, :_s))(OptimalControlBackend(), :madnlp, model_backend; grid_size=grid_size)
             nlp_os = nlp_model(docp)
             nlp_sol = madnlp(nlp_os; options_madnlp...)
             sol_os = build_ocp_solution(docp, nlp_sol)

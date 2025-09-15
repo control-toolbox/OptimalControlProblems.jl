@@ -29,14 +29,14 @@ function test_quick()
     max_r_err = -Inf # relative error max
 
     for f in LIST_OF_PROBLEMS
-        N = metadata(f)[:grid_size]
+        grid_size = metadata(f)[:grid_size]
 
         @testset "$(string(f)) (objective)" verbose=VERBOSE begin
             DEBUG && println("\n", "┌─ ", string(f))
             DEBUG && println("│")
 
             ############### JuMP ###############
-            nlp = OptimalControlProblems.eval(f)(JuMPBackend(); N=N)
+            nlp = OptimalControlProblems.eval(f)(JuMPBackend(); grid_size=grid_size)
             set_optimizer(nlp, Ipopt.Optimizer)
             set_silent(nlp)
             set_optimizer_attribute(nlp, "tol", TOL)
@@ -49,14 +49,14 @@ function test_quick()
             o_jp = objective_value(nlp)
 
             ########## OptimalControl ##########
-            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
+            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); grid_size=grid_size)
             nlp = nlp_model(docp)
             nlp_sol = NLPModelsIpopt.ipopt(nlp; kwargs_ipopt...)
             sol = build_ocp_solution(docp, nlp_sol)
             o_oc = objective(sol)
 
             ########## OptimalControl_s ##########
-            docp = OptimalControlProblems.eval(Symbol(f, :_s))(OptimalControlBackend(), :madnlp, :exa; N=N)
+            docp = OptimalControlProblems.eval(Symbol(f, :_s))(OptimalControlBackend(), :madnlp, :exa; grid_size=grid_size)
             nlp = nlp_model(docp)
             nlp_sol = madnlp(nlp; kwargs_madnlp...)
             sol = build_ocp_solution(docp, nlp_sol)

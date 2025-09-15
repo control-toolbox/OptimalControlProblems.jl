@@ -26,7 +26,7 @@ julia> docp = OptimalControlProblems.steering(OptimalControlBackend(); N=500);
 function OptimalControlProblems.steering(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:steering),
+    grid_size::Int=grid_size_data(:steering),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -37,8 +37,14 @@ function OptimalControlProblems.steering(
     a = params[:a]
     u_min = params[:u_min]
     u_max = params[:u_max]
-    xs = params[:xs]
-    yf = params[:yf]
+    tf_l = params[:tf_l]
+    x₁_t0 = params[:x₁_t0]
+    x₂_t0 = params[:x₂_t0]
+    x₃_t0 = params[:x₃_t0]
+    x₄_t0 = params[:x₄_t0]
+    x₂_tf = params[:x₂_tf]
+    x₃_tf = params[:x₃_tf]
+    x₄_tf = params[:x₄_tf]
 
     # Model
     ocp = @def begin
@@ -47,11 +53,17 @@ function OptimalControlProblems.steering(
         x ∈ R⁴, state
         u ∈ R, control
 
-        tf ≥ 0, (tf_c)
-        x(t0) == xs, (x_i)
-        x[2:4](tf) == yf, (y_f)
-        u_min ≤ u(t) ≤ u_max, (u_c)
+        x₁(t0) == x₁_t0, (x₁_t0)
+        x₂(t0) == x₂_t0, (x₂_t0)
+        x₃(t0) == x₃_t0, (x₃_t0)
+        x₄(t0) == x₄_t0, (x₄_t0)
+        x₂(tf) == x₂_tf, (x₂_tf)
+        x₃(tf) == x₃_tf, (x₃_tf)
+        x₄(tf) == x₄_tf, (x₄_tf)
 
+        tf ≥ tf_l, (tf_c)
+        u_min ≤ u(t) ≤ u_max, (u_c)
+        
         ẋ(t) == dynamics(x(t), u(t))
 
         tf → min

@@ -31,7 +31,7 @@ julia> docp = OptimalControlProblems.chain(OptimalControlBackend(); N=100);
 function OptimalControlProblems.chain_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:chain),
+    grid_size::Int=grid_size_data(:chain),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -43,8 +43,11 @@ function OptimalControlProblems.chain_s(
     L = params[:L]
     a = params[:a]
     b = params[:b]
-    x2_i = params[:x2_i]
-    x3_i = params[:x3_i]
+    x₁_t0 = a
+    x₂_t0 = params[:x₂_t0]
+    x₃_t0 = params[:x₃_t0]
+    x₁_tf = b
+    x₃_tf = L
 
     # model
     ocp = @def begin
@@ -53,13 +56,13 @@ function OptimalControlProblems.chain_s(
         u ∈ R, control
 
         # initial conditions
-        x₁(t0) == a, (x1_i)
-        x₂(t0) == x2_i, (x2_i)
-        x₃(t0) == x3_i, (x3_i)
+        x₁(t0) == x₁_t0, (x₁_t0)
+        x₂(t0) == x₂_t0, (x₂_t0)
+        x₃(t0) == x₃_t0, (x₃_t0)
 
         # final conditions
-        x₁(tf) == b, (x1_f)
-        x₃(tf) == L, (x3_f)
+        x₁(tf) == x₁_tf, (x₁_tf)
+        x₃(tf) == x₃_tf, (x₃_tf)
 
         # dynamics
         ∂(x₁)(t) == u(t)

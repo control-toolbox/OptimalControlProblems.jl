@@ -31,7 +31,7 @@ julia> docp = OptimalControlProblems.double_oscillator(OptimalControlBackend(); 
 function OptimalControlProblems.double_oscillator_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:double_oscillator),
+    grid_size::Int=grid_size_data(:double_oscillator),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -47,8 +47,8 @@ function OptimalControlProblems.double_oscillator_s(
     k2 = params[:k2]
     u_l = params[:u_l]
     u_u = params[:u_u]
-    x1_i = params[:x1_i]
-    x2_i = params[:x2_i]
+    x₁_t0 = params[:x₁_t0]
+    x₂_t0 = params[:x₂_t0]
 
     # model
     ocp = @def begin
@@ -57,10 +57,10 @@ function OptimalControlProblems.double_oscillator_s(
         u ∈ R, control
         
         u_l ≤ u(t) ≤ u_u, (u_c)
-        x₁(t0) == x1_i, (x1_i)
-        x₂(t0) == x2_i, (x2_i)
+        x₁(t0) == x₁_t0, (x₁_t0)
+        x₂(t0) == x₂_t0, (x₂_t0)
 
-        F = sin(t * 2π / tf)
+        F = sin((t - t0) * 2π / (tf - t0))
         ∂(x₁)(t) == x₃(t)
         ∂(x₂)(t) == x₄(t)
         ∂(x₃)(t) == -(k1 + k2) / m1 * x₁(t) + k2 / m1 * x₂(t) + 1 / m1 * F
@@ -70,7 +70,7 @@ function OptimalControlProblems.double_oscillator_s(
     end
 
     # initial guess
-    xinit = [0.1, 0.1, 0.1, 0.1]  # [x1, x2, x3, x4]
+    xinit = [0.1, 0.1, 0.1, 0.1]  # [x₁, x₂, x₃, x₄]
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 

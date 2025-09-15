@@ -29,7 +29,7 @@ julia> model = OptimalControlProblems.double_oscillator(JuMPBackend(); N=200)
   IFAC-PapersOnLine, 51(2), 49–54.
 """
 function OptimalControlProblems.double_oscillator(
-    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:double_oscillator), 
+    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:double_oscillator), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -45,8 +45,8 @@ function OptimalControlProblems.double_oscillator(
     k2 = params[:k2]
     u_l = params[:u_l]
     u_u = params[:u_u]
-    x1_i = params[:x1_i]
-    x2_i = params[:x2_i]
+    x₁_t0 = params[:x₁_t0]
+    x₂_t0 = params[:x₂_t0]
 
     # model
     model = JuMP.Model(args...; kwargs...)
@@ -67,11 +67,11 @@ function OptimalControlProblems.double_oscillator(
     @variables(
         model,
         begin
-            x1[0:N], (start = 0.1)
-            x2[0:N], (start = 0.1)
-            x3[0:N], (start = 0.1)
-            x4[0:N], (start = 0.1)
-            u_l <= u[0:N] <= u_u, (start = 0.1)
+            x₁[0:N], (start = 0.1)
+            x₂[0:N], (start = 0.1)
+            x₃[0:N], (start = 0.1)
+            x₄[0:N], (start = 0.1)
+            u_l ≤ u[0:N] ≤ u_u, (start = 0.1)
         end
     )
 
@@ -79,8 +79,8 @@ function OptimalControlProblems.double_oscillator(
     @constraints(
         model,
         begin
-            x1[0] == x1_i
-            x2[0] == x2_i
+            x₁[0] == x₁_t0
+            x₂[0] == x₂_t0
         end
     )
 
@@ -88,35 +88,34 @@ function OptimalControlProblems.double_oscillator(
     @expressions(
         model,
         begin
-
             #
-            step, tf / N
-            t[k = 0:N], k * tf / N
-            F[k = 0:N], sin(t[k] * 2π / tf)
+            Δt, (tf - t0) / N
+            t[k = 0:N], t0 + k * (tf-t0) / N
+            F[k = 0:N], sin((t[k] - t0) * 2π / (tf - t0))
 
             # dynamics
-            dx1[k = 0:N], x3[k]
-            dx2[k = 0:N], x4[k]
-            dx3[k = 0:N], -(k1 + k2) / m1 * x1[k] + k2 / m1 * x2[k] + 1 / m1 * F[k]
-            dx4[k = 0:N], k2 / m2 * x1[k] - k2 / m2 * x2[k] - c * (1 - u[k]) / m2 * x4[k]
+            dx₁[k = 0:N], x₃[k]
+            dx₂[k = 0:N], x₄[k]
+            dx₃[k = 0:N], -(k1 + k2) / m1 * x₁[k] + k2 / m1 * x₂[k] + 1 / m1 * F[k]
+            dx₄[k = 0:N], k2 / m2 * x₁[k] - k2 / m2 * x₂[k] - c * (1 - u[k]) / m2 * x₄[k]
 
             # objective
-            dc[k = 0:N], 0.5 * (x1[k]^2 + x2[k]^2 + u[k]^2)
+            dc[k = 0:N], 0.5 * (x₁[k]^2 + x₂[k]^2 + u[k]^2)
         end
     )
 
     @constraints(
         model,
         begin
-            ∂x1[k = 1:N], x1[k] == x1[k - 1] + 0.5 * step * (dx1[k] + dx1[k - 1])
-            ∂x2[k = 1:N], x2[k] == x2[k - 1] + 0.5 * step * (dx2[k] + dx2[k - 1])
-            ∂x3[k = 1:N], x3[k] == x3[k - 1] + 0.5 * step * (dx3[k] + dx3[k - 1])
-            ∂x4[k = 1:N], x4[k] == x4[k - 1] + 0.5 * step * (dx4[k] + dx4[k - 1])
+            ∂x₁[k = 1:N], x₁[k] == x₁[k - 1] + 0.5 * Δt * (dx₁[k] + dx₁[k - 1])
+            ∂x₂[k = 1:N], x₂[k] == x₂[k - 1] + 0.5 * Δt * (dx₂[k] + dx₂[k - 1])
+            ∂x₃[k = 1:N], x₃[k] == x₃[k - 1] + 0.5 * Δt * (dx₃[k] + dx₃[k - 1])
+            ∂x₄[k = 1:N], x₄[k] == x₄[k - 1] + 0.5 * Δt * (dx₄[k] + dx₄[k - 1])
         end
     )
 
     # objective: trapeze rule
-    @objective(model, Min, 0.5 * step * sum(dc[k] + dc[k - 1] for k in 1:N))
+    @objective(model, Min, 0.5 * Δt * sum(dc[k] + dc[k - 1] for k in 1:N))
 
     return model
 end

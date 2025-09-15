@@ -7,7 +7,7 @@ cart_pendulum_meta = OrderedDict(
     :time_grid_name => Dict(
         :initial_time => "t0", 
         :final_time => "tf", 
-        :steps_number => "N",
+        :grid_size => "N",
     ),
     :parameters => (
         t0 = 0,
@@ -15,14 +15,14 @@ cart_pendulum_meta = OrderedDict(
         L = 1,               # pendulum length [m]
         m = 1,               # pendulum mass [kg]
         mcart = 0.5,         # cart mass [kg]
-        max_f = 5,
+        max_tf = 5,
         max_x = 1,
         max_v = 2,
         tf_l = 0.1,
-        x_i = 0,
-        θ_i = 0,
-        ω_i = 0,
-        θ_f = π,
-        ω_f = 0,
+        x_t0 = 0,
+        θ_t0 = 0,
+        ω_t0 = 0,
+        θ_tf = π,
+        ω_tf = 0,
     ),
 )

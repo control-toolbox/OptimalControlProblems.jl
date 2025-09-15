@@ -27,7 +27,7 @@ julia> docp = OptimalControlProblems.robbins(OptimalControlBackend(); N=500);
 function OptimalControlProblems.robbins_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:robbins),
+    grid_size::Int=grid_size_data(:robbins),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -39,6 +39,13 @@ function OptimalControlProblems.robbins_s(
     α = params[:α]
     β = params[:β]
     γ = params[:γ]
+    x₁_l = params[:x₁_l]
+    x₁_t0 = params[:x₁_t0]
+    x₂_t0 = params[:x₂_t0]
+    x₃_t0 = params[:x₃_t0]
+    x₁_tf = params[:x₁_tf]
+    x₂_tf = params[:x₂_tf]
+    x₃_tf = params[:x₃_tf]
 
     # model
     ocp = @def begin
@@ -46,10 +53,10 @@ function OptimalControlProblems.robbins_s(
         x ∈ R³, state
         u ∈ R, control
 
-        0 ≤ x[1](t) ≤ Inf
+        x[1](t) ≥ x₁_l
 
-        x(t0) == [1, -2, 0]
-        x(tf) == [0, 0, 0]
+        x(t0) == [x₁_t0, x₂_t0, x₃_t0]
+        x(tf) == [x₁_tf, x₂_tf, x₃_tf]
 
         ∂(x₁)(t) == x₂(t)
         ∂(x₂)(t) == x₃(t)
@@ -59,7 +66,7 @@ function OptimalControlProblems.robbins_s(
     end
 
     # initial guess
-    xinit = [0.1, 0.1, 0.1]  # [x1, x2, x3]
+    xinit = [0.1, 0.1, 0.1]  # [x₁, x₂, x₃]
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 

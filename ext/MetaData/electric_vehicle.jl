@@ -7,7 +7,7 @@ electric_vehicle_meta = OrderedDict(
     :time_grid_name => Dict(
         :initial_time => "t0", 
         :final_time => "tf", 
-        :steps_number => "N"
+        :grid_size => "N"
     ),
     :parameters => (
         t0 = 0,
@@ -21,9 +21,9 @@ electric_vehicle_meta = OrderedDict(
         α1 = 0.4,
         α2 = -1,
         α3 = 0.1,
-        x_i = 0,
-        v_i = 0,
-        x_f = 10,
-        v_f = 0,
+        x_t0 = 0,
+        v_t0 = 0,
+        x_tf = 10,
+        v_tf = 0,
     ),
 )

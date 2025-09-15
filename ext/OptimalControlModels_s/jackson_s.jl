@@ -30,7 +30,7 @@ julia> docp = OptimalControlProblems.jackson(OptimalControlBackend(); N=500);
 function OptimalControlProblems.jackson_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:jackson),
+    grid_size::Int=grid_size_data(:jackson),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -42,30 +42,38 @@ function OptimalControlProblems.jackson_s(
     k1 = params[:k1]
     k2 = params[:k2]
     k3 = params[:k3]
+    a_l = params[:a_l]
+    a_u = params[:a_u]
+    b_l = params[:b_l]
+    b_u = params[:b_u]
+    x₃_l = params[:x₃_l]
+    x₃_u = params[:x₃_u]
+    u_l = params[:u_l]
+    u_u = params[:u_u]
+    a_t0 = params[:a_t0]
+    b_t0 = params[:b_t0]
+    x₃_t0 = params[:x₃_t0]
 
     # model
     ocp = @def begin
         t ∈ [t0, tf], time
-        x ∈ R³, state
+        x = (a, b, x₃) ∈ R³, state
         u ∈ R, control
 
-        a = x[1]
-        b = x[2]
+        x(t0) == [a_t0, b_t0, x₃_t0]
 
-        x(t0) == [1, 0, 0]
-
-        [0, 0, 0] ≤ x(t) ≤ [1.1, 1.1, 1.1]
-        0 ≤ u(t) ≤ 1
+        [a_l, b_l, x₃_l] ≤ x(t) ≤ [a_u, b_u, x₃_u]
+        u_l ≤ u(t) ≤ u_u
 
         ∂(x₁)(t) == -u(t) * (k1 * a(t) - k2 * b(t))
         ∂(x₂)(t) == u(t) * (k1 * a(t) - k2 * b(t)) - (1 - u(t)) * k3 * b(t)
         ∂(x₃)(t) == (1 - u(t)) * k3 * b(t)
 
-        -x₃(tf) → min
+        x₃(tf) → max
     end
 
     # initial guess
-    xinit = [0.1, 0.1, 0.1]  # [a, b, x3]
+    xinit = [0.1, 0.1, 0.1]  # [a, b, x₃]
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 

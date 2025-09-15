@@ -32,7 +32,7 @@ julia> model = OptimalControlProblems.bioreactor(JuMPBackend(); N=100)
 """
 function OptimalControlProblems.bioreactor(
     ::JuMPBackend, args...; 
-    grid_size::Int=steps_number_data(:bioreactor), 
+    grid_size::Int=grid_size_data(:bioreactor), 
     parameters::Union{Nothing, NamedTuple}=nothing, 
     kwargs...
 )
@@ -49,11 +49,17 @@ function OptimalControlProblems.bioreactor(
     μ2m = params[:μ2m]
     μbar = params[:μbar]
     r = params[:r]
-    x_l = params[:x_l]
+    y_l = params[:y_l]
+    s_l = params[:s_l]
+    b_l = params[:b_l]
     u_l = params[:u_l]
     u_u = params[:u_u]
-    x0_l = params[:x0_l]
-    x0_u = params[:x0_u]
+    y_t0_l = params[:y_t0_l]
+    y_t0_u = params[:y_t0_u]
+    s_t0_l = params[:s_t0_l]
+    s_t0_u = params[:s_t0_u]
+    b_t0_l = params[:b_t0_l]
+    b_t0_u = params[:b_t0_u]
 
     # model
     model = JuMP.Model(args...; kwargs...)
@@ -74,10 +80,10 @@ function OptimalControlProblems.bioreactor(
     @variables(
         model,
         begin
-            y[0:N] >= x_l[1], (start = 50)
-            s[0:N] >= x_l[2], (start = 50)
-            b[0:N] >= x_l[3], (start = 50)
-            u_l <= u[0:N] <= u_u, (start = 0.5)
+            y[0:N] ≥ y_l, (start = 50)
+            s[0:N] ≥ s_l, (start = 50)
+            b[0:N] ≥ b_l, (start = 50)
+            u_l ≤ u[0:N] ≤ u_u, (start = 0.5)
         end
     )
 
@@ -85,9 +91,9 @@ function OptimalControlProblems.bioreactor(
     @constraints(
         model,
         begin
-            x0_l[1] <= y[0] <= x0_u[1]
-            x0_l[2] <= s[0] <= x0_u[2]
-            x0_l[3] <= b[0] <= x0_u[3]
+            y_t0_l ≤ y[0] ≤ y_t0_u
+            s_t0_l ≤ s[0] ≤ s_t0_u
+            b_t0_l ≤ b[0] ≤ b_t0_u
         end
     )
 
@@ -95,15 +101,14 @@ function OptimalControlProblems.bioreactor(
     @expressions(
         model,
         begin
-
             #
-            step, (tf-t0) / N
+            Δt, (tf-t0) / N
 
             # intermediate variables
             growth[k = 0:N], μ2m * s[k] / (s[k] + Ks)
             μ2[k = 0:N], growth[k]
 
-            days[k = 0:N], (k * step) / (halfperiod * 2)
+            days[k = 0:N], (k * Δt) / (halfperiod * 2)
             tau[k = 0:N], (days[k] - floor(days[k])) * 2π
             light[k = 0:N], max(0, sin(tau[k]))^2
             μ[k = 0:N], light[k] * μbar
@@ -114,21 +119,21 @@ function OptimalControlProblems.bioreactor(
             db[k = 0:N], (μ2[k] - u[k] * β) * b[k]
 
             # objective
-            dc[k = 0:N], -μ2[k] * b[k] / (β + c)
+            dc[k = 0:N], μ2[k] * b[k] / (β + c)
         end
     )
 
     @constraints(
         model,
         begin
-            ∂y[k = 1:N], y[k] == y[k - 1] + 0.5 * step * (dy[k] + dy[k - 1])
-            ∂s[k = 1:N], s[k] == s[k - 1] + 0.5 * step * (ds[k] + ds[k - 1])
-            ∂b[k = 1:N], b[k] == b[k - 1] + 0.5 * step * (db[k] + db[k - 1])
+            ∂y[k = 1:N], y[k] == y[k - 1] + 0.5 * Δt * (dy[k] + dy[k - 1])
+            ∂s[k = 1:N], s[k] == s[k - 1] + 0.5 * Δt * (ds[k] + ds[k - 1])
+            ∂b[k = 1:N], b[k] == b[k - 1] + 0.5 * Δt * (db[k] + db[k - 1])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(dc[k] + dc[k - 1] for k in 1:N))
+    @objective(model, Max, 0.5 * Δt * sum(dc[k] + dc[k - 1] for k in 1:N))
 
     return model
 end

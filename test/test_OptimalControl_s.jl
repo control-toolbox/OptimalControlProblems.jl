@@ -1,6 +1,6 @@
 # test_OptimalControl_optimality
 function test_OptimalControl_s()
-    kwargs_madnlp = Dict(
+    options_madnlp = Dict(
         :print_level => MadNLP.ERROR,
         :tol => TOL,
         #:mu_strategy => MU_STRATEGY,
@@ -12,7 +12,7 @@ function test_OptimalControl_s()
 
     for f in LIST_OF_PROBLEMS
         @testset "$(f)" verbose=VERBOSE begin
-            N = metadata(f)[:grid_size]
+            grid_size = metadata(f)[:grid_size]
 
             # do we keep or remove the problem from the list
             keep_problem = true
@@ -22,16 +22,16 @@ function test_OptimalControl_s()
             DEBUG && println("│")
 
             # Set up the model
-            docp = OptimalControlProblems.eval(Symbol(f, :_s))(OptimalControlBackend(), :madnlp, :exa; N=N)
+            docp = OptimalControlProblems.eval(Symbol(f, :_s))(OptimalControlBackend(), :madnlp, :exa; grid_size=grid_size)
             nlp = nlp_model(docp)
 
             # Solve the model
             DEBUG && println("├─  Solve")
             DEBUG && println("│")
             print("  First solve:  ");
-            @time sol = madnlp(nlp; kwargs...)
+            @time sol = madnlp(nlp; options_madnlp...)
             print("  Second solve: ");
-            @time sol = madnlp(nlp; kwargs...)
+            @time sol = madnlp(nlp; options_madnlp...)
             DEBUG && println("│")
 
             # Infos

@@ -26,7 +26,7 @@ julia> docp = OptimalControlProblems.robot(OptimalControlBackend(); N=250);
 function OptimalControlProblems.robot_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:robot),
+    grid_size::Int=grid_size_data(:robot),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -39,14 +39,37 @@ function OptimalControlProblems.robot_s(
     L = params[:L]
 
     # Upper bounds on the controls
-    max_uρ = params[:max_uρ]
-    max_uθ = params[:max_uθ]
-    max_uϕ = params[:max_uϕ]
+    uρ_l = params[:uρ_l]
+    uρ_u = params[:uρ_u]
+    uθ_l = params[:uθ_l]
+    uθ_u = params[:uθ_u]
+    uϕ_l = params[:uϕ_l]
+    uϕ_u = params[:uϕ_u]
 
     # Initial positions of the length and the angles for the robot arm
-    ρ0 = params[:ρ0]
-    ϕ0 = params[:ϕ0]
-    θf = params[:θf]
+    ρ_t0 = params[:ρ_t0]
+    θ_t0 = params[:θ_t0]
+    ϕ_t0 = params[:ϕ_t0]
+    dρ_t0 = params[:dρ_t0]
+    dθ_t0 = params[:dθ_t0]
+    dϕ_t0 = params[:dϕ_t0]
+
+    # Final positions
+    ρ_tf = params[:ρ_tf]
+    θ_tf = params[:θ_tf]
+    ϕ_tf = params[:ϕ_tf]
+    dρ_tf = params[:dρ_tf]
+    dθ_tf = params[:dθ_tf]
+    dϕ_tf = params[:dϕ_tf]
+
+    #
+    ρ_l = params[:ρ_l]
+    ρ_u = L
+    θ_l = params[:θ_l]
+    θ_u = params[:θ_u]
+    ϕ_l = params[:ϕ_l]
+    ϕ_u = params[:ϕ_u]
+    tf_l = params[:tf_l]
 
     ocp = @def begin
         tf ∈ R, variable
@@ -54,33 +77,33 @@ function OptimalControlProblems.robot_s(
         x = (ρ, dρ, θ, dθ, ϕ, dϕ) ∈ R⁶, state
         u = (uρ, uθ, uϕ) ∈ R³, control
 
-        tf ≥ 0.1
+        tf ≥ tf_l
 
         # state constraints
-        0 ≤ ρ(t) ≤ L, (ρ_c)
-        -π ≤ θ(t) ≤ π, (θ_c)
-        0 ≤ ϕ(t) ≤ π, (ϕ_c)
+        ρ_l ≤ ρ(t) ≤ ρ_u, (ρ_c)
+        θ_l ≤ θ(t) ≤ θ_u, (θ_c)
+        ϕ_l ≤ ϕ(t) ≤ ϕ_u, (ϕ_c)
 
         # control constraints
-        -max_uρ ≤ uρ(t) ≤ max_uρ, (u_ρ_c)
-        -max_uθ ≤ uθ(t) ≤ max_uθ, (u_θ_c)
-        -max_uϕ ≤ uϕ(t) ≤ max_uϕ, (u_ϕ_c)
+        uρ_l ≤ uρ(t) ≤ uρ_u, (u_ρ_c)
+        uθ_l ≤ uθ(t) ≤ uθ_u, (u_θ_c)
+        uϕ_l ≤ uϕ(t) ≤ uϕ_u, (u_ϕ_c)
 
         # initial conditions
-        ρ(t0) == ρ0, (ρ_i)
-        ϕ(t0) == ϕ0, (ϕ_i)
-        θ(t0) == 0, (θ_i)
-        dθ(t0) == 0, (dθ_i)
-        dϕ(t0) == 0, (dϕ_i)
-        dρ(t0) == 0, (dρ0_i)
+        ρ(t0) == ρ_t0, (ρ_t0)
+        θ(t0) == θ_t0, (θ_t0)
+        ϕ(t0) == ϕ_t0, (ϕ_t0)
+        dρ(t0) == dρ_t0, (dρ_t0)
+        dθ(t0) == dθ_t0, (dθ_t0)
+        dϕ(t0) == dϕ_t0, (dϕ_t0)
 
         # final conditions
-        ρ(tf) == ρ0, (ρ_f)
-        θ(tf) == θf, (θ_f)
-        ϕ(tf) == ϕ0, (ϕ_f)
-        dθ(tf) == 0, (dθ_f)
-        dϕ(tf) == 0, (dϕ_f)
-        dρ(tf) == 0, (dρ_f)
+        ρ(tf) == ρ_tf, (ρ_tf)
+        θ(tf) == θ_tf, (θ_tf)
+        ϕ(tf) == ϕ_tf, (ϕ_tf)
+        dρ(tf) == dρ_tf, (dρ_tf)
+        dθ(tf) == dθ_tf, (dθ_tf)
+        dϕ(tf) == dϕ_tf, (dϕ_tf)
 
         # aliases
         I_θ = ((L - ρ(t))^3 + ρ(t)^3) * sin(ϕ(t))^2
@@ -100,7 +123,7 @@ function OptimalControlProblems.robot_s(
 
     # initial guess
     tf = 1
-    xinit = t -> [ρ0, 0, 2π/3 * ((t - t0) / (tf - t0))^2, 4π/3 * ((t - t0) / (tf - t0)), ϕ0, 0]
+    xinit = t -> [ρ_t0, 0, 2π/3 * ((t - t0) / (tf - t0))^2, 4π/3 * ((t - t0) / (tf - t0)), ϕ_t0, 0]
     uinit = [0, 0, 0]
     init = (state=xinit, control=uinit, variable=tf)
 

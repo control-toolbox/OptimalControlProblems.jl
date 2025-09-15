@@ -444,11 +444,11 @@ Return the number of discretisation steps, from the metadata, for a given optima
 # Example
 
 ```julia-repl
-julia> steps_number_data(:beam)
+julia> grid_size_data(:beam)
 500
 ```
 """
-function steps_number_data(problem::Symbol)
+function grid_size_data(problem::Symbol)
     return metadata(problem)[:grid_size]
 end
 
@@ -477,6 +477,6 @@ end
 
 export JuMPBackend, OptimalControlBackend, problems
 export time_grid, state, costate, control, variable, iterations, objective
-export metadata, steps_number_data, parameters_data
+export metadata, grid_size_data, parameters_data
 
 end

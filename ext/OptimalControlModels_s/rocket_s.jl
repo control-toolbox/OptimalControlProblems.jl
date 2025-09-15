@@ -26,7 +26,7 @@ julia> docp = OptimalControlProblems.rocket(OptimalControlBackend(); N=500);
 function OptimalControlProblems.rocket_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:rocket),
+    grid_size::Int=grid_size_data(:rocket),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -34,20 +34,22 @@ function OptimalControlProblems.rocket_s(
     # parameters
     params = parameters_data(:rocket, parameters)
     t0 = params[:t0]
-    h0 = params[:h0]
-    v0 = params[:v0]
-    m0 = params[:m0]
+    h_t0 = params[:h_t0]
+    v_t0 = params[:v_t0]
+    m_t0 = params[:m_t0]
     g0 = params[:g0]
     Tc = params[:Tc]
     hc = params[:hc]
     vc = params[:vc]
     mc = params[:mc]
+    T_l = params[:T_l]
+    tf_l = params[:tf_l]
 
     #
-    c = 0.5 * sqrt(g0 * h0)
-    mf = mc * m0
-    Dc = 0.5 * vc * (m0 / g0)
-    Tmax = Tc * m0 * g0
+    c = 0.5 * sqrt(g0 * h_t0)
+    m_tf = mc * m_t0
+    Dc = 0.5 * vc * (m_t0 / g0)
+    Tmax = Tc * m_t0 * g0
 
     # Model
     ocp = @def begin
@@ -57,38 +59,39 @@ function OptimalControlProblems.rocket_s(
         T ∈ R, control
 
         # state constraints
-        h(t) ≥ h0, (x1_c)
-        v(t) ≥ v0, (x2_c)
-        mf ≤ m(t) ≤ m0, (x3_c)
+        h(t) ≥ h_t0, (h_c)
+        v(t) ≥ v_t0, (v_c)
+        m_tf ≤ m(t) ≤ m_t0, (m_c)
 
         # control constraints
-        0 ≤ T(t) ≤ Tmax, (T_c)
+        T_l ≤ T(t) ≤ Tmax, (T_c)
 
         # time constraints
-        tf ≥ 0, (tf_c)
+        tf ≥ tf_l, (tf_c)
 
         # initial conditions
-        h(t0) == h0, (x1_i)
-        v(t0) == v0, (x2_i)
-        m(t0) == m0, (x3_i)
+        h(t0) == h_t0, (h_t0)
+        v(t0) == v_t0, (v_t0)
+        m(t0) == m_t0, (m_t0)
 
         # final conditions
-        m(tf) == mf, (x3_f)
+        m(tf) == m_tf, (m_tf)
 
         # dynamics
-        D = (Dc * v(t)^2 * exp(-hc * (h(t) - h0)) / h0)
-        g = g0 * (h0 / h(t))^2
+        D = (Dc * v(t)^2 * exp(-hc * (h(t) - h_t0)) / h_t0)
+        g = g0 * (h_t0 / h(t))^2
         ∂(h)(t) == v(t)
         ∂(v)(t) == (T(t) - D - m(t) * g) / m(t)
         ∂(m)(t) == -T(t) / c
 
         # objective
-        -h(tf) → min
+        h(tf) → max
     end
 
     # initial guess
+    N = grid_size
     tf_init = 1
-    xinit = [[1, i / N * (1 - i / N), (mf - m0) * (i / N) + m0] for i in 0:N]
+    xinit = [[1, i / N * (1 - i / N), (m_tf - m_t0) * (i / N) + m_t0] for i in 0:N]
     time_vec = LinRange(0, tf_init, N+1)
     init = (time=time_vec, state=xinit, control=Tmax/2, variable=tf_init)
 

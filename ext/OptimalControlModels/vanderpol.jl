@@ -26,7 +26,7 @@ julia> docp = OptimalControlProblems.vanderpol(OptimalControlBackend(); N=500);
 function OptimalControlProblems.vanderpol(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:vanderpol),
+    grid_size::Int=grid_size_data(:vanderpol),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -37,6 +37,8 @@ function OptimalControlProblems.vanderpol(
     tf = params[:tf]
     ω = params[:ω]
     ε = params[:ε]
+    x₁_t0 = params[:x₁_t0]
+    x₂_t0 = params[:x₂_t0]
 
     # model
     ocp = @def begin
@@ -44,7 +46,7 @@ function OptimalControlProblems.vanderpol(
         x ∈ R², state
         u ∈ R, control
 
-        x(t0) == [1, 0]
+        x(t0) == [x₁_t0, x₂_t0]
 
         ẋ(t) == [x[2](t), ε * ω * (1 - x[1](t)^2) * x[2](t) - ω^2 * x[1](t) + u(t)]
         
@@ -52,7 +54,7 @@ function OptimalControlProblems.vanderpol(
     end
 
     # initial guess
-    xinit = [0.1, 0.1]  # [x1, x2]
+    xinit = [0.1, 0.1]  # [x₁, x₂]
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 

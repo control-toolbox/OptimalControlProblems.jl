@@ -30,7 +30,7 @@ julia> docp = OptimalControlProblems.beam(OptimalControlBackend(); N=100);
 function OptimalControlProblems.beam(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:beam),
+    grid_size::Int=grid_size_data(:beam),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -39,20 +39,25 @@ function OptimalControlProblems.beam(
     params = parameters_data(:beam, parameters)
     t0 = params[:t0]
     tf = params[:tf]
-    x_t0 = params[:x_t0]
-    x_tf = params[:x_tf]
     x₁_l = params[:x₁_l]
     x₁_u = params[:x₁_u]
+    x₁_t0 = params[:x₁_t0]
+    x₂_t0 = params[:x₂_t0]
+    x₁_tf = params[:x₁_tf]
+    x₂_tf = params[:x₂_tf]
 
     # model
     ocp = @def begin
         t ∈ [t0, tf], time
         x ∈ R², state
         u ∈ R, control
-        x(t0) == x_t0
-        x(tf) == x_tf
-        ẋ(t) == [x₂(t), u(t)]
+
+        x(t0) == [x₁_t0, x₂_t0]
+        x(tf) == [x₁_tf, x₂_tf]
         x₁_l ≤ x₁(t) ≤ x₁_u
+
+        ẋ(t) == [x₂(t), u(t)]
+
         ∫(u(t)^2) → min
     end
 

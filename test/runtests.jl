@@ -56,14 +56,14 @@ const VERBOSE = true # print or not details during tests
 @testset "OptimalControlProblems tests" verbose=VERBOSE showtiming=true begin
     for name in (
         #:aqua,
-        # :kwargs,
-        # :JuMP,                  # convergence tests for JuMP models
-        # :OptimalControl,        # convergence tests for OptimalControl models
-        # :OptimalControl_s,      # convergence tests for OptimalControl models
+        :kwargs,
+        :JuMP,                  # convergence tests for JuMP models
+        :OptimalControl,        # convergence tests for OptimalControl models
+        :OptimalControl_s,      # convergence tests for OptimalControl models
         :init,                  # comparison between OptimalControl and JuMP: init
-        # :solution,              # comparison between OptimalControl and JuMP: solution
-        # :quick,                 # quick comparison: objective rel error only
-        # :parameters,            # tests with different parameters values, does no depend on `list_of_problems`
+        :solution,              # comparison between OptimalControl and JuMP: solution
+        :quick,                 # quick comparison: objective rel error only
+        :parameters,            # tests with different parameters values, does no depend on `list_of_problems`
     )
         @testset "$(name)" verbose=VERBOSE begin
             test_name = Symbol(:test_, name)

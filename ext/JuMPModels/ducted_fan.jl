@@ -29,7 +29,7 @@ julia> model = OptimalControlProblems.ducted_fan(JuMPBackend(); N=100)
   Optimal Control Applications and Methods, 30(6), 537–561. [GP2009]
 """
 function OptimalControlProblems.ducted_fan(
-    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:ducted_fan), 
+    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:ducted_fan), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -49,9 +49,19 @@ function OptimalControlProblems.ducted_fan(
     u₂_l = params[:u₂_l]
     u₂_u = params[:u₂_u]
     tf_l = params[:tf_l]
-    x_i = params[:x_i]
-    x_f = params[:x_f]
-    
+    x₁_t0 = params[:x₁_t0]
+    v₁_t0 = params[:v₁_t0]
+    x₂_t0 = params[:x₂_t0]
+    v₂_t0 = params[:v₂_t0]
+    α_t0 = params[:α_t0]
+    vα_t0 = params[:vα_t0]
+    x₁_tf = params[:x₁_tf]
+    v₁_tf = params[:v₁_tf]
+    x₂_tf = params[:x₂_tf]
+    v₂_tf = params[:v₂_tf]
+    α_tf = params[:α_tf]
+    vα_tf = params[:vα_tf]
+
     # model
     model = JuMP.Model(args...; kwargs...)
 
@@ -74,11 +84,11 @@ function OptimalControlProblems.ducted_fan(
             v₁[0:N],                    (start = 0.1)
             x₂[0:N],                    (start = -0.1)
             v₂[0:N],                    (start = 0.1)
-            α_l <= α[0:N] <= α_u,       (start = 0.1)     # radian
+            α_l ≤ α[0:N] ≤ α_u,         (start = 0.1)     # radian
             vα[0:N],                    (start = 0.1)
-            u₁_l <= u₁[0:N] <= u₁_u,    (start = 0.1)     # [N]
-            u₂_l <= u₂[0:N] <= u₂_u,    (start = 1)       # [N]
-            tf >= tf_l,                 (start = 1.5)
+            u₁_l ≤ u₁[0:N] ≤ u₁_u,      (start = 0.1)     # [N]
+            u₂_l ≤ u₂[0:N] ≤ u₂_u,      (start = 1)       # [N]
+            tf ≥ tf_l,                  (start = 1.5)
         end
     )
 
@@ -87,20 +97,20 @@ function OptimalControlProblems.ducted_fan(
         model,
         begin
             # initial
-            x₁[0] == x_i[1]
-            v₁[0] == x_i[2]
-            x₂[0] == x_i[3]
-            v₂[0] == x_i[4]
-            α[0]  == x_i[5]
-            vα[0] == x_i[6]
+            x₁[0] == x₁_t0
+            v₁[0] == v₁_t0
+            x₂[0] == x₂_t0
+            v₂[0] == v₂_t0
+            α[0]  == α_t0
+            vα[0] == vα_t0
 
             # final
-            x₁[N] == x_f[1]
-            v₁[N] == x_f[2]
-            x₂[N] == x_f[3]
-            v₂[N] == x_f[4]
-            α[N]  == x_f[5]
-            vα[N] == x_f[6]
+            x₁[N] == x₁_tf
+            v₁[N] == v₁_tf
+            x₂[N] == x₂_tf
+            v₂[N] == v₂_tf
+            α[N]  == α_tf
+            vα[N] == vα_tf
         end
     )
 
@@ -109,7 +119,7 @@ function OptimalControlProblems.ducted_fan(
         model,
         begin
             #
-            step, (tf - t0) / N
+            Δt, (tf - t0) / N
 
             # dynamics
             dx₁[k = 0:N], v₁[k]
@@ -127,18 +137,18 @@ function OptimalControlProblems.ducted_fan(
     @constraints(
         model,
         begin
-            ∂x₁[k = 1:N], x₁[k] == x₁[k - 1] + 0.5 * step * (dx₁[k] + dx₁[k - 1])
-            ∂v₁[k = 1:N], v₁[k] == v₁[k - 1] + 0.5 * step * (dv₁[k] + dv₁[k - 1])
-            ∂x₂[k = 1:N], x₂[k] == x₂[k - 1] + 0.5 * step * (dx₂[k] + dx₂[k - 1])
-            ∂v₂[k = 1:N], v₂[k] == v₂[k - 1] + 0.5 * step * (dv₂[k] + dv₂[k - 1])
-            ∂α[k = 1:N],   α[k] ==  α[k - 1] + 0.5 * step * (dα[k]  + dα[k - 1])
-            ∂vα[k = 1:N], vα[k] == vα[k - 1] + 0.5 * step * (dvα[k] + dvα[k - 1])
+            ∂x₁[k = 1:N], x₁[k] == x₁[k - 1] + 0.5 * Δt * (dx₁[k] + dx₁[k - 1])
+            ∂v₁[k = 1:N], v₁[k] == v₁[k - 1] + 0.5 * Δt * (dv₁[k] + dv₁[k - 1])
+            ∂x₂[k = 1:N], x₂[k] == x₂[k - 1] + 0.5 * Δt * (dx₂[k] + dx₂[k - 1])
+            ∂v₂[k = 1:N], v₂[k] == v₂[k - 1] + 0.5 * Δt * (dv₂[k] + dv₂[k - 1])
+            ∂α[k = 1:N],   α[k] ==  α[k - 1] + 0.5 * Δt * (dα[k]  + dα[k - 1])
+            ∂vα[k = 1:N], vα[k] == vα[k - 1] + 0.5 * Δt * (dvα[k] + dvα[k - 1])
         end
     )
 
     # objective
     @objective(
-        model, Min, (1 / tf) * 0.5 * step * sum(dc[k] + dc[k - 1] for k in 1:N) + (μ * tf)
+        model, Min, (1 / tf) * 0.5 * Δt * sum(dc[k] + dc[k - 1] for k in 1:N) + (μ * tf)
     )
 
     return model

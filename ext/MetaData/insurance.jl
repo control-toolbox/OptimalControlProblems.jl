@@ -7,7 +7,7 @@ insurance_meta = OrderedDict(
     :time_grid_name => Dict(
         :initial_time => "t0", 
         :final_time => "tf", 
-        :steps_number => "N"
+        :grid_size => "N"
     ),
     :parameters => (
         t0 = 0, 
@@ -20,5 +20,19 @@ insurance_meta = OrderedDict(
         k = 0,
         σ = 0,
         α = 4,
+        I_l = 0,
+        I_u = 1.5,
+        m_l = 0,
+        m_u = 1.5,
+        h_l = 0,
+        h_u = 25,
+        R_l = 0,
+        H_l = 0,
+        U_l = 0,
+        dUdR_l = 0.001,
+        P_l = 0,
+        I_t0 = 0,
+        m_t0 = 0.001,
+        x₃_t0 = 0,
     ),
 )

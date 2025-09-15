@@ -42,7 +42,7 @@ function OptimalControlProblems.time_grid(problem::Symbol, model::JuMP.GenericMo
     t_grid_vars = metadata(problem)[:time_grid_name]
     t0 = value.(model[Symbol(t_grid_vars[:initial_time])])
     tf = value.(model[Symbol(t_grid_vars[:final_time])])
-    N  = value.(model[Symbol(t_grid_vars[:steps_number])])
+    N  = value.(model[Symbol(t_grid_vars[:grid_size])])
     t_jp = range(t0, tf, N+1)
     return t_jp
 end

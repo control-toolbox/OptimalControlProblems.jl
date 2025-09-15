@@ -31,7 +31,7 @@ julia> docp = OptimalControlProblems.glider(OptimalControlBackend(); N=500);
 function OptimalControlProblems.glider(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:glider),
+    grid_size::Int=grid_size_data(:glider),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -39,15 +39,15 @@ function OptimalControlProblems.glider(
     # parameters
     params = parameters_data(:glider, parameters)
     t0 = params[:t0]
-    x_i = params[:x_i]
-    y_i = params[:y_i]
-    y_f = params[:y_f]
-    vx_i = params[:vx_i]
-    vx_f = params[:vx_f]
-    vy_i = params[:vy_i]
-    vy_f = params[:vy_f]
+    x_t0 = params[:x_t0]
+    y_t0 = params[:y_t0]
+    y_tf = params[:y_tf]
+    vx_t0 = params[:vx_t0]
+    vx_tf = params[:vx_tf]
+    vy_t0 = params[:vy_t0]
+    vy_tf = params[:vy_tf]
     u_c = params[:u_c]
-    r_i = params[:r_i]
+    r_t0 = params[:r_t0]
     m = params[:m]
     g = params[:g]
     c0 = params[:c0]
@@ -75,26 +75,26 @@ function OptimalControlProblems.glider(
         cL_min ≤ cL(t) ≤ cL_max, (cL_c)
 
         # initial conditions
-        x(t0) == x_i, (x0_i)
-        y(t0) == y_i, (y0_i)
-        vx(t0) == vx_i, (vx0_i)
-        vy(t0) == vy_i, (vy0_i)
+        x(t0) == x_t0, (x0_t0)
+        y(t0) == y_t0, (y0_t0)
+        vx(t0) == vx_t0, (vx0_t0)
+        vy(t0) == vy_t0, (vy0_t0)
 
         # final conditions
         tf ≥ tf_l
-        y(tf) == y_f, (yf_f)
-        vx(tf) == vx_f, (vxf_f)
-        vy(tf) == vy_f, (vyf_f)
+        y(tf) == y_tf, (yf_tf)
+        vx(tf) == vx_tf, (vxf_tf)
+        vy(tf) == vy_tf, (vyf_tf)
 
         # dynamics
         ż(t) == dynamics(x(t), vx(t), vy(t), cL(t))
 
         # objective
-        -x(tf) → min
+        x(tf) → max
     end
 
     function dynamics(x, vx, vy, cL)
-        r = (x / r_i - 2.5)^2
+        r = (x / r_t0 - 2.5)^2
         UpD = u_c * (1 - r) * exp(-r)
         w = vy - UpD
         v = √(vx^2 + w^2)
@@ -111,7 +111,7 @@ function OptimalControlProblems.glider(
 
     # initial guess
     tfinit = 1
-    xinit = t -> [x_i + vx_i * t / tfinit, y_i + t / tfinit * (y_f - y_i), vx_i, vy_i]
+    xinit = t -> [x_t0 + vx_t0 * t / tfinit, y_t0 + t / tfinit * (y_tf - y_t0), vx_t0, vy_t0]
     uinit = cL_max / 2
     init = (state=xinit, control=uinit, variable=tfinit)
 

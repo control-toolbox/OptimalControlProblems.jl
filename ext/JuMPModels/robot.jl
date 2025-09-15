@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.robot(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/robot.jl
 """
 function OptimalControlProblems.robot(
-    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:robot), 
+    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:robot), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -41,14 +41,37 @@ function OptimalControlProblems.robot(
     L = params[:L]
 
     # Upper bounds on the controls
-    max_uρ = params[:max_uρ]
-    max_uθ = params[:max_uθ]
-    max_uϕ = params[:max_uϕ]
+    uρ_l = params[:uρ_l]
+    uρ_u = params[:uρ_u]
+    uθ_l = params[:uθ_l]
+    uθ_u = params[:uθ_u]
+    uϕ_l = params[:uϕ_l]
+    uϕ_u = params[:uϕ_u]
 
     # Initial positions of the length and the angles for the robot arm
-    ρ0 = params[:ρ0]
-    ϕ0 = params[:ϕ0]
-    θf = params[:θf]
+    ρ_t0 = params[:ρ_t0]
+    θ_t0 = params[:θ_t0]
+    ϕ_t0 = params[:ϕ_t0]
+    dρ_t0 = params[:dρ_t0]
+    dθ_t0 = params[:dθ_t0]
+    dϕ_t0 = params[:dϕ_t0]
+
+    # Final positions
+    ρ_tf = params[:ρ_tf]
+    θ_tf = params[:θ_tf]
+    ϕ_tf = params[:ϕ_tf]
+    dρ_tf = params[:dρ_tf]
+    dθ_tf = params[:dθ_tf]
+    dϕ_tf = params[:dϕ_tf]
+
+    #
+    ρ_l = params[:ρ_l]
+    ρ_u = L
+    θ_l = params[:θ_l]
+    θ_u = params[:θ_u]
+    ϕ_l = params[:ϕ_l]
+    ϕ_u = params[:ϕ_u]
+    tf_l = params[:tf_l]
 
     # model
     model = JuMP.Model(args...; kwargs...)
@@ -68,19 +91,19 @@ function OptimalControlProblems.robot(
     @variables(
         model,
         begin
-            0 <= ρ[k = 0:N] <= L, (start = ρ0)
-            -π <= θ[k = 0:N] <= π, (start = 2π/3 * (k / N)^2)
-            0 <= ϕ[k = 0:N] <= π, (start = ϕ0)
+            ρ_l ≤ ρ[k = 0:N] ≤ ρ_u,         (start = ρ_t0)
+            θ_l ≤ θ[k = 0:N] ≤ θ_u,         (start = 2π/3 * (k / N)^2)
+            ϕ_l ≤ ϕ[k = 0:N] ≤ ϕ_u,         (start = ϕ_t0)
 
-            dρ[k = 0:N], (start = 0)
-            dθ[k = 0:N], (start = 4π/3 * (k / N))
-            dϕ[k = 0:N], (start = 0)
+            dρ[k = 0:N],                    (start = 0)
+            dθ[k = 0:N],                    (start = 4π/3 * (k / N))
+            dϕ[k = 0:N],                    (start = 0)
 
-            -max_uρ <= uρ[0:N] <= max_uρ, (start = 0)
-            -max_uθ <= uθ[0:N] <= max_uθ, (start = 0)
-            -max_uϕ <= uϕ[0:N] <= max_uϕ, (start = 0)
+            uρ_l ≤ uρ[0:N] ≤ uρ_u,          (start = 0)
+            uθ_l ≤ uθ[0:N] ≤ uθ_u,          (start = 0)
+            uϕ_l ≤ uϕ[0:N] ≤ uϕ_u,          (start = 0)
 
-            tf >= 0.1, (start = 1)
+            tf ≥ tf_l,                      (start = 1)
         end
     )
 
@@ -89,20 +112,20 @@ function OptimalControlProblems.robot(
         model,
         begin
             # initial
-            ρ[0] == ρ0
-            ϕ[0] == ϕ0
-            θ[0] == 0
-            dρ[0] == 0
-            dθ[0] == 0
-            dϕ[0] == 0
+            ρ[0] == ρ_t0
+            θ[0] == θ_t0
+            ϕ[0] == ϕ_t0
+            dρ[0] == dρ_t0
+            dθ[0] == dθ_t0
+            dϕ[0] == dϕ_t0
 
             # final
-            ρ[N] == ρ0
-            θ[N] == θf
-            ϕ[N] == ϕ0
-            dρ[N] == 0
-            dθ[N] == 0
-            dϕ[N] == 0
+            ρ[N] == ρ_tf
+            θ[N] == θ_tf
+            ϕ[N] == ϕ_tf
+            dρ[N] == dρ_tf
+            dθ[N] == dθ_tf
+            dϕ[N] == dϕ_tf
         end
     )
 
@@ -110,9 +133,8 @@ function OptimalControlProblems.robot(
     @expressions(
         model,
         begin
-
             #
-            step, tf / N
+            Δt, (tf - t0) / N
 
             #
             I_θ[i = 0:N], ((L - ρ[i])^3 + ρ[i]^3) * (sin(ϕ[i]))^2
@@ -128,12 +150,12 @@ function OptimalControlProblems.robot(
     @constraints(
         model,
         begin
-            ∂ρ[i = 1:N], ρ[i] == ρ[i - 1] + 0.5 * step * (dρ[i] + dρ[i - 1])
-            ∂ϕ[i = 1:N], ϕ[i] == ϕ[i - 1] + 0.5 * step * (dϕ[i] + dϕ[i - 1])
-            ∂θ[i = 1:N], θ[i] == θ[i - 1] + 0.5 * step * (dθ[i] + dθ[i - 1])
-            ∂dρ[i = 1:N], dρ[i] == dρ[i - 1] + 0.5 * step * (ddρ[i] + ddρ[i - 1])
-            ∂dθ[i = 1:N], dθ[i] == dθ[i - 1] + 0.5 * step * (ddθ[i] + ddθ[i - 1])
-            ∂dϕ[i = 1:N], dϕ[i] == dϕ[i - 1] + 0.5 * step * (ddϕ[i] + ddϕ[i - 1])
+            ∂ρ[i = 1:N], ρ[i] == ρ[i - 1] + 0.5 * Δt * (dρ[i] + dρ[i - 1])
+            ∂ϕ[i = 1:N], ϕ[i] == ϕ[i - 1] + 0.5 * Δt * (dϕ[i] + dϕ[i - 1])
+            ∂θ[i = 1:N], θ[i] == θ[i - 1] + 0.5 * Δt * (dθ[i] + dθ[i - 1])
+            ∂dρ[i = 1:N], dρ[i] == dρ[i - 1] + 0.5 * Δt * (ddρ[i] + ddρ[i - 1])
+            ∂dθ[i = 1:N], dθ[i] == dθ[i - 1] + 0.5 * Δt * (ddθ[i] + ddθ[i - 1])
+            ∂dϕ[i = 1:N], dϕ[i] == dϕ[i - 1] + 0.5 * Δt * (ddϕ[i] + ddϕ[i - 1])
         end
     )
 

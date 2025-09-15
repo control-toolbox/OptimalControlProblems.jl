@@ -30,7 +30,7 @@ julia> docp = OptimalControlProblems.insurance(OptimalControlBackend(); N=500);
 function OptimalControlProblems.insurance_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:insurance),
+    grid_size::Int=grid_size_data(:insurance),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -47,6 +47,20 @@ function OptimalControlProblems.insurance_s(
     k = params[:k]
     σ = params[:σ]
     α = params[:α]
+    I_l = params[:I_l]
+    I_u = params[:I_u]
+    m_l = params[:m_l]
+    m_u = params[:m_u]
+    h_l = params[:h_l]
+    h_u = params[:h_u]
+    R_l = params[:R_l]
+    H_l = params[:H_l]
+    U_l = params[:U_l]
+    dUdR_l = params[:dUdR_l]
+    P_l = params[:P_l]
+    I_t0 = params[:I_t0]
+    m_t0 = params[:m_t0]
+    x₃_t0 = params[:x₃_t0]
 
     # I: Insurance
     # m: Expense
@@ -62,22 +76,23 @@ function OptimalControlProblems.insurance_s(
         u = (h, R, H, U, dUdR) ∈ R⁵, control
 
         # constraints
-        0 ≤ I(t) ≤ 1.5
-        0 ≤ m(t) ≤ 1.5
-        0 ≤ h(t) ≤ 25
-        0 ≤ R(t) ≤ Inf
-        0 ≤ H(t) ≤ Inf
-        0 ≤ U(t) ≤ Inf
-        0.001 ≤ dUdR(t) ≤ Inf
-        0 ≤ P ≤ Inf
+        I_l ≤ I(t) ≤ I_u
+        m_l ≤ m(t) ≤ m_u
+        h_l ≤ h(t) ≤ h_u
+        R(t) ≥ R_l
+        H(t) ≥ H_l
+        U(t) ≥ U_l
+        dUdR(t) ≥ dUdR_l
+        P ≥ P_l
 
-        x(t0) == [0, 0.001, 0]
+        x(t0) == [I_t0, m_t0, x₃_t0]
         P - x₃(tf) == 0
 
-        ε = k * t / (tf - t + 1)
+        #
+        ε = k * (t - t0) / (tf - t + 1)
 
         # illness distribution
-        fx = λ * exp(-λ * t) + exp(-λ * tf) / tf
+        fx = λ * exp(-λ * (t - t0)) + exp(-λ * (tf - t0)) / (tf - t0)
 
         # expense effect
         v = m(t)^(α / 2) / (1 + m(t)^(α / 2))
@@ -85,17 +100,17 @@ function OptimalControlProblems.insurance_s(
 
         # constraints
         R(t) - (w - P + I(t) - m(t) - ε) == 0
-        H(t) - (h0 - γ * t * (1 - v)) == 0
+        H(t) - (h0 - γ * (t - t0) * (1 - v)) == 0
         U(t) - (1 - exp(-s * R(t)) + H(t)) == 0
         dUdR(t) - (s * exp(-s * R(t))) == 0
 
         # dynamics
-        ∂(I)(t) == (1 - γ * t * vprime / dUdR(t)) * h(t)
+        ∂(I)(t) == (1 - γ * (t - t0) * vprime / dUdR(t)) * h(t)
         ∂(m)(t) == h(t)
         ∂(x₃)(t) == (1 + σ) * I(t) * fx
 
         # objective
-        -∫(U(t) * fx) → min
+        ∫(U(t) * fx) → max
     end
 
     # initial guess

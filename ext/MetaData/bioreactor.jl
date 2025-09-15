@@ -7,7 +7,7 @@ bioreactor_meta = OrderedDict(
     :time_grid_name => Dict(
         :initial_time => "t0", 
         :final_time => "tf", 
-        :steps_number => "N"
+        :grid_size => "N"
     ),
     :parameters => (
         t0 = 0,
@@ -20,10 +20,16 @@ bioreactor_meta = OrderedDict(
         μ2m = 0.1,
         μbar = 1,
         r = 0.005,
-        x_l = [0, 0, 0.001],
+        y_l = 0,
+        s_l = 0,
+        b_l = 0.001,
         u_l = 0,
         u_u = 1,
-        x0_l = [0.05, 0.5, 0.5],
-        x0_u = [0.25, 5, 3],
+        y_t0_l = 0.05,
+        y_t0_u = 0.25,
+        s_t0_l = 0.5,
+        s_t0_u = 5,
+        b_t0_l = 0.5,
+        b_t0_u = 3,
     ), 
 )

@@ -1,5 +1,5 @@
 function test_kwargs()
-    N = 2
+    grid_size = 2
     scheme = :euler
     solver_backend = :madnlp
     optimiser = Ipopt.Optimizer
@@ -13,7 +13,7 @@ function test_kwargs()
                 OptimalControlBackend(), solver_backend; grid_size=grid_size, disc_method=scheme
             )
             @test docp isa CTDirect.DOCP
-            @test docp.time.steps == N
+            @test docp.time.steps == grid_size
             @test docp.discretization isa CTDirect.Euler
 
             # OptimalControl_s model
@@ -21,7 +21,7 @@ function test_kwargs()
                 OptimalControlBackend(), :madnlp, :exa; grid_size=grid_size, disc_method=scheme
             )
             @test docp isa CTDirect.DOCP
-            @test docp.time.steps == N
+            @test docp.time.steps == grid_size
             @test docp.discretization isa CTDirect.Euler
 
             # JuMP model

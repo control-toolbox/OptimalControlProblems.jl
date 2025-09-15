@@ -30,7 +30,7 @@ julia> docp = OptimalControlProblems.bioreactor(OptimalControlBackend(); N=100);
 function OptimalControlProblems.bioreactor(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:bioreactor),
+    grid_size::Int=grid_size_data(:bioreactor),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -47,11 +47,17 @@ function OptimalControlProblems.bioreactor(
     μ2m = params[:μ2m]
     μbar = params[:μbar]
     r = params[:r]
-    x_l = params[:x_l]
+    y_l = params[:y_l]
+    s_l = params[:s_l]
+    b_l = params[:b_l]
     u_l = params[:u_l]
     u_u = params[:u_u]
-    x0_l = params[:x0_l]
-    x0_u = params[:x0_u]
+    y_t0_l = params[:y_t0_l]
+    y_t0_u = params[:y_t0_u]
+    s_t0_l = params[:s_t0_l]
+    s_t0_u = params[:s_t0_u]
+    b_t0_l = params[:b_t0_l]
+    b_t0_u = params[:b_t0_u]
 
     # Model
     ocp = @def begin
@@ -59,9 +65,9 @@ function OptimalControlProblems.bioreactor(
         x = (y, s, b) ∈ R³, state
         u ∈ R, control
 
-        x(t) ≥ x_l
+        x(t) ≥ [y_l, s_l, b_l]
         u_l ≤ u(t) ≤ u_u
-        x0_l ≤ x(t0) ≤ x0_u
+        [y_t0_l, s_t0_l, b_t0_l] ≤ x(t0) ≤ [y_t0_u, s_t0_u, b_t0_u]
 
         μ = light(t, halfperiod) * μbar
         μ2 = growth(s(t), μ2m, Ks)
@@ -72,7 +78,7 @@ function OptimalControlProblems.bioreactor(
             (μ2 - u(t) * β) * b(t),
         ]
 
-        -∫(μ2 * b(t) / (β + c)) → min
+        ∫(μ2 * b(t) / (β + c)) → max
     end
 
     # METHANE PROBLEM

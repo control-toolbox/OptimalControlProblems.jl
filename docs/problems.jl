@@ -28,6 +28,15 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     DRAFT = draft_meta(draft)
     LEFT_MARGIN = get_left_margin(Symbol(PROBLEM))
 
+    VARIABLE_COMPONENTS = isnothing(OptimalControlProblems.metadata(Symbol(PROBLEM))[:variable_name]) ? "" : 
+    """
+    The variable components are named:
+
+    ```@example main
+    metadata(:$PROBLEM)[:variable_name]
+    ```    
+    """
+
     documentation=DRAFT * """
     # $TITLE
 
@@ -66,6 +75,35 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     )
     nothing # hide
     ```
+
+    ## Metadata
+
+    The state components are named:
+
+    ```@example main
+    metadata(:$PROBLEM)[:state_name]
+    ```
+
+    The control components are named:
+
+    ```@example main
+    metadata(:$PROBLEM)[:control_name]
+    ```
+
+    The default values of the parameters are:
+
+    ```@example main
+    metadata(:$PROBLEM)[:parameters]
+    using Printf # hide
+    println("Parameter = Value") # hide
+    println("------------------") # hide
+    for e ∈ pairs(metadata(:$PROBLEM)[:parameters]) # hide
+        @printf("%6s = ", string(e.first)) # hide
+        @printf("%11.4e\\n", e.second) # hide
+    end # hide
+    ```
+
+    $VARIABLE_COMPONENTS
 
     ## Initial guess
 

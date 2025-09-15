@@ -1,13 +1,13 @@
 chain_meta = OrderedDict(
     :grid_size => 500,
-    :state_name => ["x1", "x2", "x3"],
-    :costate_name => ["∂x1", "∂x2", "∂x3"],
+    :state_name => ["x₁", "x₂", "x₃"],
+    :costate_name => ["∂x₁", "∂x₂", "∂x₃"],
     :control_name => ["u"],
     :variable_name => nothing,
     :time_grid_name => Dict(
         :initial_time => "t0", 
         :final_time => "tf", 
-        :steps_number => "N"
+        :grid_size => "N"
     ),
     :parameters => (
         t0 = 0,
@@ -15,7 +15,7 @@ chain_meta = OrderedDict(
         L = 4,
         a = 1,
         b = 3,
-        x2_i = 0,
-        x3_i = 0,
+        x₂_t0 = 0,
+        x₃_t0 = 0,
     ),
 )

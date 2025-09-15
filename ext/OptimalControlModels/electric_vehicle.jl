@@ -31,7 +31,7 @@ julia> docp = OptimalControlProblems.electric_vehicle(OptimalControlBackend(); N
 function OptimalControlProblems.electric_vehicle(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=steps_number_data(:electric_vehicle),
+    grid_size::Int=grid_size_data(:electric_vehicle),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -49,10 +49,10 @@ function OptimalControlProblems.electric_vehicle(
     α1 = params[:α1]
     α2 = params[:α2]
     α3 = params[:α3]
-    x_i = params[:x_i]
-    v_i = params[:v_i]
-    x_f = params[:x_f]
-    v_f = params[:v_f]
+    x_t0 = params[:x_t0]
+    v_t0 = params[:v_t0]
+    x_tf = params[:x_tf]
+    v_tf = params[:v_tf]
 
     # model
     ocp = @def begin
@@ -60,10 +60,10 @@ function OptimalControlProblems.electric_vehicle(
         y = (x, v) ∈ R², state
         u ∈ R, control
 
-        x(t0) == x_i, (x_i)
-        v(t0) == v_i, (v_i)
-        x(tf) == x_f, (x_f)
-        v(tf) == v_f, (v_f)
+        x(t0) == x_t0, (x_t0)
+        v(t0) == v_t0, (v_t0)
+        x(tf) == x_tf, (x_tf)
+        v(tf) == v_tf, (v_tf)
 
         ẏ(t) == dynamics(x(t), v(t), u(t))
 

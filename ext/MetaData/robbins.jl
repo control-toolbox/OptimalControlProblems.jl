@@ -1,13 +1,13 @@
 robbins_meta = OrderedDict(
     :grid_size => 500,
-    :state_name => ["x1", "x2", "x3"],
-    :costate_name => ["∂x1", "∂x2", "∂x3"],
+    :state_name => ["x₁", "x₂", "x₃"],
+    :costate_name => ["∂x₁", "∂x₂", "∂x₃"],
     :control_name => ["u"],
     :variable_name => nothing,
     :time_grid_name => Dict(
         :initial_time => "t0", 
         :final_time => "tf", 
-        :steps_number => "N"
+        :grid_size => "N"
     ),
     :parameters => (
         t0 = 0,
@@ -15,5 +15,12 @@ robbins_meta = OrderedDict(
         α = 3,
         β = 0,
         γ = 0.5,
+        x₁_l = 0,
+        x₁_t0 = 1,
+        x₂_t0 = -2,
+        x₃_t0 = 0,
+        x₁_tf = 0,
+        x₂_tf = 0,
+        x₃_tf = 0,
     ),
 )

@@ -47,12 +47,12 @@ If you want to ask a question, feel free to start a discussion [here](https://gi
 
 ## Credits (not exhaustive!)
 
-- [Nico77310](https://github.com/Nico77310)
-- [0Yassine0](https://github.com/0Yassine0)
-- [frapac](https://github.com/frapac)
 - [BaptisteCbl](https://github.com/BaptisteCbl)
-- [COPS: Large-Scale Optimization Problems](https://www.mcs.anl.gov/~more/cops) and [COPSBenchmark.jl](https://github.com/MadNLP/COPSBenchmark.jl)
+- [0Yassine0](https://github.com/0Yassine0)
+- [Nico77310](https://github.com/Nico77310)
+- [frapac](https://github.com/frapac)
 - [BOCOP - A collection of examples](https://project.inria.fr/bocop/files/2017/05/Examples-BOCOP.pdf)
+- [COPS: Large-Scale Optimization Problems](https://www.mcs.anl.gov/~more/cops) and [COPSBenchmark.jl](https://github.com/MadNLP/COPSBenchmark.jl)
 
 ## Reproducibility
 

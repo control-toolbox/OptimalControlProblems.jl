@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.chain(JuMPBackend(); N=300)
 - [COPS Benchmark Problems – Hanging Chain](https://www.mcs.anl.gov/~more/cops/)
 """
 function OptimalControlProblems.chain(
-    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:chain), 
+    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:chain), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -40,8 +40,11 @@ function OptimalControlProblems.chain(
     L = params[:L]
     a = params[:a]
     b = params[:b]
-    x2_i = params[:x2_i]
-    x3_i = params[:x3_i]
+    x₁_t0 = a
+    x₂_t0 = params[:x₂_t0]
+    x₃_t0 = params[:x₃_t0]
+    x₁_tf = b
+    x₃_tf = L
 
     #
     tmin = b > a ? 1 / 4 : 3 / 4
@@ -74,25 +77,25 @@ function OptimalControlProblems.chain(
         model,
         begin
             u[k = 0:N],     (start = 4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
-            x1[k = 0:N],    (start = 4 * abs(b - a) * (t[k] - t0) / (tf - t0) * (0.5 * (t[k] - t0) / (tf - t0) - tmin) + a)
-            x2[k = 0:N],
+            x₁[k = 0:N],    (start = 4 * abs(b - a) * (t[k] - t0) / (tf - t0) * (0.5 * (t[k] - t0) / (tf - t0) - tmin) + a)
+            x₂[k = 0:N],
             (
                 start =
                     (4 * abs(b - a) * (t[k] - t0) / (tf - t0) * (0.5 * (t[k] - t0) / (tf - t0) - tmin) + a) *
                     (4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
             )
-            x3[k = 0:N],    (start = 4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
+            x₃[k = 0:N],    (start = 4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
         end
     )
 
     @constraints(
         model,
         begin
-            x1[0] == a
-            x2[0] == x2_i
-            x3[0] == x3_i
-            x1[N] == b
-            x3[N] == L
+            x₁[0] == x₁_t0
+            x₂[0] == x₂_t0
+            x₃[0] == x₃_t0
+            x₁[N] == x₁_tf
+            x₃[N] == x₃_tf
         end
     )
 
@@ -100,23 +103,23 @@ function OptimalControlProblems.chain(
     @expressions(
         model,
         begin
-            step, (tf - t0) / N
-            dx1[k = 0:N], u[k]
-            dx2[k = 0:N], x1[k] * √(1 + u[k]^2)
-            dx3[k = 0:N], √(1 + u[k]^2)
+            Δt, (tf - t0) / N
+            dx₁[k = 0:N], u[k]
+            dx₂[k = 0:N], x₁[k] * √(1 + u[k]^2)
+            dx₃[k = 0:N], √(1 + u[k]^2)
         end
     )
 
     @constraints(
         model,
         begin
-            ∂x1[k = 1:N], x1[k] == x1[k - 1] + 0.5 * step * (dx1[k] + dx1[k - 1])
-            ∂x2[k = 1:N], x2[k] == x2[k - 1] + 0.5 * step * (dx2[k] + dx2[k - 1])
-            ∂x3[k = 1:N], x3[k] == x3[k - 1] + 0.5 * step * (dx3[k] + dx3[k - 1])
+            ∂x₁[k = 1:N], x₁[k] == x₁[k - 1] + 0.5 * Δt * (dx₁[k] + dx₁[k - 1])
+            ∂x₂[k = 1:N], x₂[k] == x₂[k - 1] + 0.5 * Δt * (dx₂[k] + dx₂[k - 1])
+            ∂x₃[k = 1:N], x₃[k] == x₃[k - 1] + 0.5 * Δt * (dx₃[k] + dx₃[k - 1])
         end
     )
 
-    @objective(model, Min, x2[N])
+    @objective(model, Min, x₂[N])
 
     return model
 end
