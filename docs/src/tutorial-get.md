@@ -101,7 +101,7 @@ println("nnzh = ", nnzh)
 The (default) number of steps $N$ is stored in the metadata:
 
 ```@example main_oc
-metadata(:beam)[:grid_size]
+N = metadata(:beam)[:grid_size]
 ```
 
 !!! note
@@ -110,12 +110,12 @@ metadata(:beam)[:grid_size]
 Each problem can be parameterised by the number of steps:
 
 ```@example main_oc
-docp = beam(OptimalControlBackend(); N=100)
+docp = beam(OptimalControlBackend(); grid_size=100)
 get_nvar(nlp_model(docp))
 ```
 
 ```@example main_oc
-docp = beam(OptimalControlBackend(); N=200)
+docp = beam(OptimalControlBackend(); grid_size=200)
 get_nvar(nlp_model(docp))
 ```
 
