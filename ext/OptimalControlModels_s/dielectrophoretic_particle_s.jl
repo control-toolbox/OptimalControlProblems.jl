@@ -8,7 +8,7 @@ It performs direct transcription to produce a discretised optimal control proble
 # Arguments
 
 - `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
 
 # Returns
 
@@ -31,35 +31,40 @@ julia> docp = OptimalControlProblems.dielectrophoretic_particle(OptimalControlBa
 function OptimalControlProblems.dielectrophoretic_particle_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:dielectrophoretic_particle),
+    grid_size::Int=grid_size_data(:dielectrophoretic_particle),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    x0 = 1
-    xf = 2
-    α = -0.75
-    c = 1
+    params = parameters_data(:dielectrophoretic_particle, parameters)
+    t0 = params[:t0]
+    x_t0 = params[:x_t0]
+    y_t0 = params[:y_t0]
+    x_tf = params[:x_tf]
+    α = params[:α]
+    c = params[:c]
+    u_l = params[:u_l]
+    u_u = params[:u_u]
+    tf_l = params[:tf_l]
 
     ocp = @def begin
         tf ∈ R, variable
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         q = (x, y) ∈ R², state
         u ∈ R, control
 
-        x(0) == x0, (x0_con)
-        y(0) == 0, (y0_con)
-        x(tf) == xf, (xf_con)
-
-        tf ≥ 0, (tf_con)
-        -1 ≤ u(t) ≤ 1, (u_con)
+        x(t0) == x_t0, (x_t0)
+        y(t0) == y_t0, (y_t0)
+        x(tf) == x_tf, (x_tf)
+        tf ≥ tf_l, (tf_c)
+        u_l ≤ u(t) ≤ u_u, (u_c)
 
         ∂(x)(t) == y(t) * u(t) + α * u(t)^2
         ∂(y)(t) == -c * y(t) + u(t)
 
         tf → min
     end
-
 
     # initial guess
     init = (state=[1, 1], control=0.1, variable=5)
@@ -70,7 +75,7 @@ function OptimalControlProblems.dielectrophoretic_particle_s(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

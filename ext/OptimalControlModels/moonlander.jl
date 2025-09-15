@@ -8,7 +8,7 @@ It returns both a discretised direct optimal control problem (DOCP) and the corr
 # Arguments
 
 - `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
 
 # Returns
 
@@ -26,47 +26,69 @@ julia> docp = OptimalControlProblems.moonlander(OptimalControlBackend(); N=500);
 function OptimalControlProblems.moonlander(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:moonlander),
+    grid_size::Int=grid_size_data(:moonlander),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    target=[5.0, 5.0]
-    m = 1
-    g = 9.81
-    I = 0.1
-    D = 1
-    max_thrust = 2g
+    params = parameters_data(:moonlander, parameters)
+    t0 = params[:t0]
+    m = params[:m]
+    g = params[:g]
+    I = params[:I]
+    D = params[:D]
+    max_thrust = params[:max_thrust]
+    tf_l = params[:tf_l]
+    tf_u = params[:tf_u]
+    F₁_l = params[:F₁_l]
+    F₁_u = max_thrust
+    F₂_l = params[:F₂_l]
+    F₂_u = max_thrust
+    tf_l = params[:tf_l]
+    tf_u = params[:tf_u]
+    F₁_l = params[:F₁_l]
+    F₂_l = params[:F₂_l]
+    p₁_t0 = params[:p₁_t0]
+    p₂_t0 = params[:p₂_t0]
+    dp₁_t0 = params[:dp₁_t0]
+    dp₂_t0 = params[:dp₂_t0]
+    θ_t0 = params[:θ_t0]
+    dθ_t0 = params[:dθ_t0]
+    p₁_tf = params[:p₁_tf]
+    p₂_tf = params[:p₂_tf]
+    dp₁_tf = params[:dp₁_tf]
+    dp₂_tf = params[:dp₂_tf]
 
     # define the problem
     ocp = @def begin
 
         # state, control and final time variables, and time
         tf ∈ R, variable
-        t ∈ [0, tf], time
-        x = (p1, p2, dp1, dp2, θ, dθ) ∈ R⁶, state
-        u = (F1, F2) ∈ R², control
+        t ∈ [t0, tf], time
+        x = (p₁, p₂, dp₁, dp₂, θ, dθ) ∈ R⁶, state
+        u = (F₁, F₂) ∈ R², control
 
         # final time constraint
-        0.1 ≤ tf ≤ 1.0
+        tf_l ≤ tf ≤ tf_u
 
         # control constraints
-        0 ≤ F1(t) ≤ max_thrust, (F1_con)
-        0 ≤ F2(t) ≤ max_thrust, (F2_con)
+        F₁_l ≤ F₁(t) ≤ F₁_u, (F₁_c)
+        F₂_l ≤ F₂(t) ≤ F₂_u, (F₂_c)
 
         # initial conditions
-        p1(0) == 0, (p1_ic)
-        p2(0) == 0, (p2_ic)
-        dp1(0) == 0, (dp1_ic)
-        dp2(0) == 0, (dp2_ic)
-        θ(0) == 0, (θ_ic)
-        dθ(0) == 0, (dθ_ic)
+        p₁(t0) == p₁_t0, (p₁_t0)
+        p₂(t0) == p₂_t0, (p₂_t0)
+        dp₁(t0) == dp₁_t0, (dp₁_t0)
+        dp₂(t0) == dp₂_t0, (dp₂_t0)
+        θ(t0) == θ_t0, (θ_t0)
+        dθ(t0) == dθ_t0, (dθ_t0)
 
         # final conditions
-        p1(tf) == target[1], (p1_fc)
-        p2(tf) == target[2], (p2_fc)
-        dp1(tf) == 0, (dp1_fc)
-        dp2(tf) == 0, (dp2_fc)
+        p₁(tf) == p₁_tf, (p₁_tf)
+        p₂(tf) == p₂_tf, (p₂_tf)
+        dp₁(tf) == dp₁_tf, (dp₁_tf)
+        dp₂(tf) == dp₂_tf, (dp₂_tf)
 
         # dynamics
         ẋ(t) == dynamics(x(t), u(t))
@@ -77,25 +99,25 @@ function OptimalControlProblems.moonlander(
 
     # dynamics
     function dynamics(x, u)
-        p1, p2, dp1, dp2, θ, dθ = x
-        F1, F2 = u
+        p₁, p₂, dp₁, dp₂, θ, dθ = x
+        F₁, F₂ = u
 
         F_r = [
-            cos(θ) -sin(θ) p1
-            sin(θ) cos(θ) p2
+            cos(θ) -sin(θ) p₁
+            sin(θ) cos(θ) p₂
             0 0 1
         ]
-        F_tot = (F_r * [0; F1 + F2; 0])[1:2]
-        ddp1 = (1 / m) * F_tot[1]
-        ddp2 = (1 / m) * F_tot[2] - g
-        ddθ = (1 / I) * (D / 2) * (F2 - F1)
+        F_tot = (F_r * [0; F₁ + F₂; 0])[1:2]
+        ddp₁ = (1 / m) * F_tot[1]
+        ddp₂ = (1 / m) * F_tot[2] - g
+        ddθ = (1 / I) * (D / 2) * (F₂ - F₁)
 
-        return [dp1, dp2, ddp1, ddp2, dθ, ddθ]
+        return [dp₁, dp₂, ddp₁, ddp₂, dθ, ddθ]
     end
 
     # initial guess
-    xinit = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [p1, p2, dp1, dp2, θ, dθ]
-    uinit = [5.0, 5.0]  # [F1, F2] 
+    xinit = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [p₁, p₂, dp₁, dp₂, θ, dθ]
+    uinit = [5.0, 5.0]  # [F₁, F₂] 
     varinit = [0.5]  # [tf] 
     init = (state=xinit, control=uinit, variable=varinit)
 
@@ -105,7 +127,7 @@ function OptimalControlProblems.moonlander(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

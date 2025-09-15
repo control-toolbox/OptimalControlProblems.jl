@@ -8,7 +8,7 @@ It performs direct transcription to produce a discretised optimal control proble
 # Arguments
 
 - `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
 
 # Returns
 
@@ -31,32 +31,38 @@ julia> docp = OptimalControlProblems.chain(OptimalControlBackend(); N=100);
 function OptimalControlProblems.chain(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:chain),
+    grid_size::Int=grid_size_data(:chain),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    L = 4
-    a = 1
-    b = 3
-    tf = final_time_data(:chain)
+    params = parameters_data(:chain, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    L = params[:L]
+    a = params[:a]
+    b = params[:b]
+    x₁_t0 = a
+    x₂_t0 = params[:x₂_t0]
+    x₃_t0 = params[:x₃_t0]
+    x₁_tf = b
+    x₃_tf = L
 
     # model
     ocp = @def begin
-
-        #
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         x ∈ R³, state
         u ∈ R, control
 
         # initial conditions
-        x₁(0) == a, (x1_ic)
-        x₂(0) == 0, (x2_ic)
-        x₃(0) == 0, (x3_ic)
+        x₁(t0) == x₁_t0, (x₁_t0)
+        x₂(t0) == x₂_t0, (x₂_t0)
+        x₃(t0) == x₃_t0, (x₃_t0)
 
         # final conditions
-        x₁(tf) == b, (x1_con)
-        x₃(tf) == L, (x3_con)
+        x₁(tf) == x₁_tf, (x₁_tf)
+        x₃(tf) == x₃_tf, (x₃_tf)
 
         # dynamics
         ẋ(t) == dynamics(x(t), u(t))
@@ -74,12 +80,12 @@ function OptimalControlProblems.chain(
     tmin = b > a ? 1 / 4 : 3 / 4
     xinit =
         t -> [
-            4 * abs(b - a) * t / tf * (0.5 * t / tf - tmin) + a,
-            (4 * abs(b - a) * t / tf * (0.5 * t / tf - tmin) + a) *
-            (4 * abs(b - a) * (t / tf - tmin)),
-            4 * abs(b - a) * (t / tf - tmin),
+            4 * abs(b - a) * (t - t0) / (tf - t0) * (0.5 * (t - t0) / (tf - t0) - tmin) + a,
+            (4 * abs(b - a) * (t - t0) / (tf - t0) * (0.5 * (t - t0) / (tf - t0) - tmin) + a) *
+            (4 * abs(b - a) * ((t - t0) / (tf - t0) - tmin)),
+            4 * abs(b - a) * ((t - t0) / (tf - t0) - tmin),
         ]
-    uinit = t -> 4 * abs(b - a) * (t / tf - tmin)
+    uinit = t -> 4 * abs(b - a) * ((t - t0) / (tf - t0) - tmin)
     init = (state=xinit, control=uinit)
 
     # discretise the optimal control problem
@@ -88,7 +94,7 @@ function OptimalControlProblems.chain(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

@@ -11,7 +11,7 @@ The objective is to minimise a cost function derived from the system dynamics.
 # Arguments
 
 - `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `N::Int=500`: (Keyword) Number of discretisation steps in the time grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation steps in the time grid.
 
 # Returns
 
@@ -31,31 +31,59 @@ julia> model = OptimalControlProblems.bioreactor(JuMPBackend(); N=100)
 - [control-toolbox/bocop](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
 function OptimalControlProblems.bioreactor(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:bioreactor), kwargs...
+    ::JuMPBackend, args...; 
+    grid_size::Int=grid_size_data(:bioreactor), 
+    parameters::Union{Nothing, NamedTuple}=nothing, 
+    kwargs...
 )
 
     # parameters
-    β = 1
-    c = 2
-    γ = 1
-    halfperiod = 5
-    Ks = 0.05
-    μ2m = 0.1
-    μbar = 1
-    r = 0.005
-    T = final_time_data(:bioreactor)
+    params = parameters_data(:bioreactor, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    β = params[:β]
+    c = params[:c]
+    γ = params[:γ]
+    halfperiod = params[:halfperiod]
+    Ks = params[:Ks]
+    μ2m = params[:μ2m]
+    μbar = params[:μbar]
+    r = params[:r]
+    y_l = params[:y_l]
+    s_l = params[:s_l]
+    b_l = params[:b_l]
+    u_l = params[:u_l]
+    u_u = params[:u_u]
+    y_t0_l = params[:y_t0_l]
+    y_t0_u = params[:y_t0_u]
+    s_t0_l = params[:s_t0_l]
+    s_t0_u = params[:s_t0_u]
+    b_t0_l = params[:b_t0_l]
+    b_t0_u = params[:b_t0_u]
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            tf, tf    # (required if the final time is fixed)
+            N, grid_size    # (required)
+        end
+    )
+    # ------------------------------------------------
 
     # variables and initial guess
     @variables(
         model,
         begin
-            y[0:N] >= 0, (start = 50)
-            s[0:N] >= 0, (start = 50)
-            b[0:N] >= 0.001, (start = 50)
-            0 <= u[0:N] <= 1, (start = 0.5)
+            y[0:N] ≥ y_l, (start = 50)
+            s[0:N] ≥ s_l, (start = 50)
+            b[0:N] ≥ b_l, (start = 50)
+            u_l ≤ u[0:N] ≤ u_u, (start = 0.5)
         end
     )
 
@@ -63,9 +91,9 @@ function OptimalControlProblems.bioreactor(
     @constraints(
         model,
         begin
-            0.05 <= y[0] <= 0.25
-            0.5 <= s[0] <= 5
-            0.5 <= b[0] <= 3
+            y_t0_l ≤ y[0] ≤ y_t0_u
+            s_t0_l ≤ s[0] ≤ s_t0_u
+            b_t0_l ≤ b[0] ≤ b_t0_u
         end
     )
 
@@ -73,15 +101,14 @@ function OptimalControlProblems.bioreactor(
     @expressions(
         model,
         begin
-
             #
-            step, T / N
+            Δt, (tf-t0) / N
 
             # intermediate variables
             growth[k = 0:N], μ2m * s[k] / (s[k] + Ks)
             μ2[k = 0:N], growth[k]
 
-            days[k = 0:N], (k * step) / (halfperiod * 2)
+            days[k = 0:N], (k * Δt) / (halfperiod * 2)
             tau[k = 0:N], (days[k] - floor(days[k])) * 2π
             light[k = 0:N], max(0, sin(tau[k]))^2
             μ[k = 0:N], light[k] * μbar
@@ -92,21 +119,21 @@ function OptimalControlProblems.bioreactor(
             db[k = 0:N], (μ2[k] - u[k] * β) * b[k]
 
             # objective
-            dc[k = 0:N], -μ2[k] * b[k] / (β + c)
+            dc[k = 0:N], μ2[k] * b[k] / (β + c)
         end
     )
 
     @constraints(
         model,
         begin
-            ∂y[k = 1:N], y[k] == y[k - 1] + 0.5 * step * (dy[k] + dy[k - 1])
-            ∂s[k = 1:N], s[k] == s[k - 1] + 0.5 * step * (ds[k] + ds[k - 1])
-            ∂b[k = 1:N], b[k] == b[k - 1] + 0.5 * step * (db[k] + db[k - 1])
+            ∂y[k = 1:N], y[k] == y[k - 1] + 0.5 * Δt * (dy[k] + dy[k - 1])
+            ∂s[k = 1:N], s[k] == s[k - 1] + 0.5 * Δt * (ds[k] + ds[k - 1])
+            ∂b[k = 1:N], b[k] == b[k - 1] + 0.5 * Δt * (db[k] + db[k - 1])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(dc[k] + dc[k - 1] for k in 1:N))
+    @objective(model, Max, 0.5 * Δt * sum(dc[k] + dc[k - 1] for k in 1:N))
 
     return model
 end

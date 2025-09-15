@@ -1,25 +1,41 @@
-function generate_documentation(
-    PROBLEM::String, DESCRIPTION::String; draft::Union{Bool,Nothing}
-)
-    TITLE = uppercasefirst(replace(PROBLEM, "_" => " "))
-
-    DRAFT = if isnothing(draft)
-        ""
+# -----------------------------------
+# Helper: draft metadata block
+# -----------------------------------
+function draft_meta(draft::Union{Bool,Nothing})
+    if isnothing(draft)
+        return ""
     elseif draft
-        """
-        ```@meta
-        Draft = true
-        ```
-        """
+        return """```@meta\nDraft = true\n```\n"""
     else
-        """
-        ```@meta
-        Draft = false
-        ```
-        """
+        return """```@meta\nDraft = false\n```\n"""
     end
+end
 
+# -----------------------------------
+# Helper: left margin for plots
+# -----------------------------------
+function get_left_margin(problem::Symbol)
+    margins = Dict(:beam => "5mm")
+    return get(margins, problem, "20mm")
+end
+
+# -----------------------------------
+# Generate documentation for a problem
+# -----------------------------------
+function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Union{Bool,Nothing})
+
+    TITLE = "[" * uppercasefirst(replace(PROBLEM, "_" => " ")) * "](@id description-$PROBLEM)"
+    DRAFT = draft_meta(draft)
     LEFT_MARGIN = get_left_margin(Symbol(PROBLEM))
+
+    VARIABLE_COMPONENTS = isnothing(OptimalControlProblems.metadata(Symbol(PROBLEM))[:variable_name]) ? "" : 
+    """
+    The variable components are named:
+
+    ```@example main
+    metadata(:$PROBLEM)[:variable_name]
+    ```    
+    """
 
     documentation=DRAFT * """
     # $TITLE
@@ -60,6 +76,35 @@ function generate_documentation(
     nothing # hide
     ```
 
+    ## Metadata
+
+    The state components are named:
+
+    ```@example main
+    metadata(:$PROBLEM)[:state_name]
+    ```
+
+    The control components are named:
+
+    ```@example main
+    metadata(:$PROBLEM)[:control_name]
+    ```
+
+    $VARIABLE_COMPONENTS
+
+    The default values of the parameters are:
+
+    ```@example main
+    metadata(:$PROBLEM)[:parameters]
+    using Printf # hide
+    println("Parameter = Value") # hide
+    println("------------------") # hide
+    for e ∈ pairs(metadata(:$PROBLEM)[:parameters]) # hide
+        @printf("%6s = ", string(e.first)) # hide
+        @printf("%11.4e\\n", e.second) # hide
+    end # hide
+    ```
+
     ## Initial guess
 
     Before solving the problem, it is often useful to inspect the initial guess (sometimes called the first iterate). This guess is obtained by running the NLP solver with `max_iter = 0`, which evaluates the problem formulation without performing any optimisation steps.  
@@ -78,8 +123,8 @@ function generate_documentation(
             # -----------------------------
             # Extract dimensions from metadata
             # -----------------------------
-            x_vars = metadata[problem][:state_name]
-            u_vars = metadata[problem][:control_name]
+            x_vars = metadata(problem)[:state_name]
+            u_vars = metadata(problem)[:control_name]
             n_states = length(x_vars)
             n_controls = length(u_vars)
 
@@ -172,14 +217,12 @@ function generate_documentation(
     Before solving, we can inspect the discretisation details of the problem. The table below reports the number of grid points, decision variables, and constraints associated with the chosen formulation.  
 
     ```@example main
-    push!(data_pb,
-        (
-            Problem=:$PROBLEM,
-            Grid_Size=metadata[:$PROBLEM][:N],
-            Variables=get_nvar(nlp_model($PROBLEM(OptimalControlBackend()))),
-            Constraints=get_ncon(nlp_model($PROBLEM(OptimalControlBackend()))),
-        )
-    )
+    push!(data_pb,(
+        Problem=:$PROBLEM,
+        Grid_Size=metadata(:$PROBLEM)[:grid_size],
+        Variables=get_nvar(nlp_model($PROBLEM(OptimalControlBackend()))),
+        Constraints=get_ncon(nlp_model($PROBLEM(OptimalControlBackend()))),
+    ))
     data_pb # hide
     ```
 
@@ -229,24 +272,20 @@ function generate_documentation(
 
     ```@example main
     # from OptimalControl model
-    push!(data_re,
-        (
-            Model=:OptimalControl,
-            Flag=nlp_oc_sol.status,
-            Iterations=nlp_oc_sol.iter,
-            Objective=nlp_oc_sol.objective,
-        )
-    )
+    push!(data_re,(
+        Model=:OptimalControl,
+        Flag=nlp_oc_sol.status,
+        Iterations=nlp_oc_sol.iter,
+        Objective=nlp_oc_sol.objective,
+    ))
 
     # from JuMP model
-    push!(data_re,
-        (
-            Model=:JuMP,
-            Flag=termination_status(nlp_jp),
-            Iterations=barrier_iterations(nlp_jp),
-            Objective=objective_value(nlp_jp),
-        )
-    )
+    push!(data_re,(
+        Model=:JuMP,
+        Flag=termination_status(nlp_jp),
+        Iterations=barrier_iterations(nlp_jp),
+        Objective=objective_value(nlp_jp),
+    ))
     data_re # hide
     ```    
 
@@ -287,9 +326,9 @@ function generate_documentation(
             v_jp = variable(problem, nlp_jp)
             i_jp = iterations(problem, nlp_jp)
 
-            x_vars = metadata[problem][:state_name]
-            u_vars = metadata[problem][:control_name]
-            v_vars = metadata[problem][:variable_name]
+            x_vars = metadata(problem)[:state_name]
+            u_vars = metadata(problem)[:control_name]
+            v_vars = metadata(problem)[:variable_name]
 
             println("┌─ ", string(problem))
             println("│")
@@ -358,8 +397,8 @@ function generate_documentation(
     ocp_sol = build_ocp_solution(docp, nlp_oc_sol)
 
     # dimensions
-    n = state_dimension(ocp_sol)   # or length(metadata[:$PROBLEM][:state_name])
-    m = control_dimension(ocp_sol) # or length(metadata[:$PROBLEM][:control_name])
+    n = state_dimension(ocp_sol)   # or length(metadata(:$PROBLEM)[:state_name])
+    m = control_dimension(ocp_sol) # or length(metadata(:$PROBLEM)[:control_name])
 
     # from OptimalControl solution
     plt = plot(
@@ -398,53 +437,29 @@ function generate_documentation(
     return documentation
 end
 
-function generate_documentation_problems(;
-    draft::Union{Bool,Nothing}=nothing, exclude_from_draft::Vector{Symbol}=Symbol[]
-)
+# -----------------------------------
+# Generate documentation for all problems
+# -----------------------------------
+function generate_documentation_problems(; draft::Union{Bool,Nothing}=nothing,
+                                         exclude_from_draft::Vector{Symbol}=Symbol[])
 
-    # List of problems
     problems_list = problems()
+    problems_pages = map(p -> joinpath("problems", string(p) * ".md"), problems_list)
 
-    # 
-    problems_pages = []
+    # reset problems directory
+    problems_dir = joinpath(@__DIR__, "src", "problems")
+    rm(problems_dir; recursive=true, force=true)
+    mkpath(problems_dir)
+    mkpath(joinpath(problems_dir, "assets"))
+
     for problem in problems_list
-        push!(problems_pages, joinpath("problems", string(problem) * ".md"))
-    end
-
-    # remove and create problems directory
-    rm(joinpath(@__DIR__, "src", "problems"); recursive=true, force=true)
-    mkpath(joinpath(@__DIR__, "src", "problems"))
-    mkpath(joinpath(@__DIR__, "src", "problems", "assets"))
-
-    # create file for documentation
-    for problem in problems_list
-
-        # create the file
-        filename = joinpath(@__DIR__, "src", "problems", string(problem) * ".md")
-        touch(filename)
-
-        # get the description
-        description = read(
-            joinpath(@__DIR__, "..", "ext", "Descriptions", string(problem) * ".md"), String
-        )
-
-        # generate the content
+        description = read(joinpath(@__DIR__, "..", "ext", "Descriptions", string(problem) * ".md"), String)
         draft_problem = problem ∈ exclude_from_draft ? false : draft
         contents = generate_documentation(string(problem), description; draft=draft_problem)
 
-        # write the content in the file
-        open(filename, "a") do io
-            write(io, contents)
-        end
+        filename = joinpath(problems_dir, string(problem) * ".md")
+        write(filename, contents)
     end
 
     return problems_pages
-end
-
-function get_left_margin(problem)
-    return if problem == :beam
-        "5mm"
-    else
-        "20mm"
-    end
 end

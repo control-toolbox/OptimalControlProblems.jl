@@ -94,14 +94,14 @@ Depth = 1
 For each problem, additional data is provided in the [MetaData](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/MetaData) directory:
 
 ```@docs; canonical=false
-metadata
+OptimalControlProblems.metadata
 ```
 
-To list all metadata, use `metadata`. To access the metadata of a specific problem, for example `chain`, run:
+To list all metadata, use `metadata()`. To access the metadata of a specific problem, for example `chain`, run:
 
 ```@example main
 using OptimalControlProblems
-metadata[:chain]
+metadata(:chain)
 ```
 
 ## Problems characteristics
@@ -179,35 +179,35 @@ We detail below the characteristics of the optimal control problems and their as
         end
 
         #
-        push!(data_ocp,
-            (
-                Problem=problem,
-                State=state_dimension(ocp),
-                Control=control_dimension(ocp),
-                Variable=variable_dimension(ocp),
-                Cost=cost,
-                FinalTime=final_time,
-                Constraints=constraints,
-            )
-        )
+        push!(data_ocp,(
+            Problem=problem,
+            State=state_dimension(ocp),
+            Control=control_dimension(ocp),
+            Variable=variable_dimension(ocp),
+            Cost=cost,
+            FinalTime=final_time,
+            Constraints=constraints,
+        ))
 
         #
-        N = metadata[problem][:N] # get default number of steps
+        N = metadata(problem)[:grid_size] # get default number of steps
 
-        push!(data_nlp,
-            (
-                Problem=problem,
-                Steps=N,
-                Variables=get_nvar(nlp),
-                Constraints=get_ncon(nlp),
-            )
-        )
+        push!(data_nlp,(
+            Problem=problem,
+            Steps=N,
+            Variables=get_nvar(nlp),
+            Constraints=get_ncon(nlp),
+        ))
     end
     ```
 
     ```@raw html
     </details>
     ```
+
+!!! tip "Interactive problems browser"
+
+    The table from [Problems browser](@ref problems-browser) page provides an overview of all **optimal control problems** and allows interactive exploration, filtering, and export.
 
 For each optimal control problem, we provide the dimensions of the state, control, and variable. We also specify the type of objective function (Mayer, Lagrange, or Bolza), whether the final time is free or fixed, and whether there are constraints on the state (`x`), control (`u`), variable (`v`), path (`c`—from *chemin* in French, since `p` is reserved for the costate), or boundary (`b`).
 

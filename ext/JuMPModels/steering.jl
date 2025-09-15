@@ -2,13 +2,13 @@
 $(TYPEDSIGNATURES)
 
 Constructs and returns a JuMP model for the **Particle Steering Problem**.  
-The model represents the dynamics of a particle with four state variables (`x1`, `x2`, `x3`, `x4`) and a control input `u`.  
+The model represents the dynamics of a particle with four state variables (`x₁`, `x₂`, `x₃`, `x₄`) and a control input `u`.  
 The objective is to minimise the final time required for the particle to reach a specified altitude and terminal velocity while satisfying the system dynamics and boundary conditions.
 
 # Arguments
 
 - `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `N::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
+- `grid_size::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
 
 # Returns
 
@@ -28,62 +28,88 @@ julia> model = OptimalControlProblems.steering(JuMPBackend(); N=200)
 - Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/steering.jl
 """
 function OptimalControlProblems.steering(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:steering), kwargs...
+    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:steering), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    a = 100
-    u_min = -π/2
-    u_max = π/2
-    xs = zeros(4)
-    xf = [NaN, 5, 45, 0]
+    params = parameters_data(:steering, parameters)
+    t0 = params[:t0]
+    a = params[:a]
+    u_min = params[:u_min]
+    u_max = params[:u_max]
+    tf_l = params[:tf_l]
+    x₁_t0 = params[:x₁_t0]
+    x₂_t0 = params[:x₂_t0]
+    x₃_t0 = params[:x₃_t0]
+    x₄_t0 = params[:x₄_t0]
+    x₂_tf = params[:x₂_tf]
+    x₃_tf = params[:x₃_tf]
+    x₄_tf = params[:x₄_tf]
 
+    #
     tf_start = 1
-
     function gen_x0(k, i)
         if i == 1 || i == 4
             return 0.0
         elseif i == 2
-            return 5.0 * k * tf_start / N
+            return 5.0 * k * (tf_start-t0) / N
         elseif i == 3
-            return 45.0 * k * tf_start / N
+            return 45.0 * k * (tf_start-t0) / N
         end
     end
 
     # model
     model = JuMP.Model(args...; kwargs...)
 
-    @variable(model, u_min <= u[i = 1:(N + 1)] <= u_max, start = 0)   # control
-    @variable(model, x1[i = 1:(N + 1)], start = gen_x0(i, 1))           # state x1
-    @variable(model, x2[i = 1:(N + 1)], start = gen_x0(i, 2))           # state x2
-    @variable(model, x3[i = 1:(N + 1)], start = gen_x0(i, 3))           # state x3
-    @variable(model, x4[i = 1:(N + 1)], start = gen_x0(i, 4))           # state x4
-    @variable(model, tf, start = tf_start)                             # final time
+    # ------------------------------------------------
+    # expressions to get grid time infos
+    @expressions(
+        model,
+        begin
+            t0, t0  # (required if the initial time is fixed)
+            N, grid_size    # (required)
+        end
+    )
+    # ------------------------------------------------
 
-    @expression(model, Δt, tf / N) # step size
+    # state, control and variable (final time)
+    @variables(
+        model,
+        begin
+            u_min ≤ u[i = 0:N] ≤ u_max,     (start = 0)
+            x₁[i = 0:N],                    (start = gen_x0(i, 1))
+            x₂[i = 0:N],                    (start = gen_x0(i, 2))
+            x₃[i = 0:N],                    (start = gen_x0(i, 3))
+            x₄[i = 0:N],                    (start = gen_x0(i, 4))
+            tf ≥ tf_l,                      (start = tf_start)
+        end
+    )
 
     # boundary conditions
-    @constraint(model, x1[1] == xs[1])
-    @constraint(model, x2[1] == xs[2])
-    @constraint(model, x3[1] == xs[3])
-    @constraint(model, x4[1] == xs[4])
-    @constraint(model, x2[N + 1] == xf[2])
-    @constraint(model, x3[N + 1] == xf[3])
-    @constraint(model, x4[N + 1] == xf[4])
-
-    # constraint on final time
-    @constraint(model, tf >= 0)
-
-    # dynamics
     @constraints(
         model,
         begin
-            ∂x1[i = 1:N], x1[i + 1] == x1[i] + 0.5 * Δt * (x3[i] + x3[i + 1])
-            ∂x2[i = 1:N], x2[i + 1] == x2[i] + 0.5 * Δt * (x4[i] + x4[i + 1])
-            ∂x3[i = 1:N],
-            x3[i + 1] == x3[i] + 0.5 * Δt * (a * cos(u[i]) + a * cos(u[i + 1]))
-            ∂x4[i = 1:N],
-            x4[i + 1] == x4[i] + 0.5 * Δt * (a * sin(u[i]) + a * sin(u[i + 1]))
+            x₁[0] == x₁_t0
+            x₂[0] == x₂_t0
+            x₃[0] == x₃_t0
+            x₄[0] == x₄_t0
+            x₂[N] == x₂_tf
+            x₃[N] == x₃_tf
+            x₄[N] == x₄_tf
+        end
+    )
+
+    # dynamics
+    @expression(model, Δt, (tf - t0) / N) # Δt size
+    @constraints(
+        model,
+        begin
+            ∂x₁[i = 1:N], x₁[i] == x₁[i - 1] + 0.5 * Δt * (x₃[i - 1] + x₃[i])
+            ∂x₂[i = 1:N], x₂[i] == x₂[i - 1] + 0.5 * Δt * (x₄[i - 1] + x₄[i])
+            ∂x₃[i = 1:N], x₃[i] == x₃[i - 1] + 0.5 * Δt * (a * cos(u[i - 1]) + a * cos(u[i]))
+            ∂x₄[i = 1:N], x₄[i] == x₄[i - 1] + 0.5 * Δt * (a * sin(u[i - 1]) + a * sin(u[i]))
         end
     )
 

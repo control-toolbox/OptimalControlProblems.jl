@@ -8,7 +8,7 @@ The state vector has four components, and the control is a single scalar input.
 # Arguments
 
 - `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
 
 # Returns
 
@@ -26,28 +26,43 @@ julia> docp = OptimalControlProblems.steering(OptimalControlBackend(); N=500);
 function OptimalControlProblems.steering_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:steering),
+    grid_size::Int=grid_size_data(:steering),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    a = 100
-    u_min = -π/2
-    u_max = π/2
-    xs = zeros(4)
-    xf = [5, 45, 0]
+    params = parameters_data(:steering, parameters)
+    t0 = params[:t0]
+    a = params[:a]
+    u_min = params[:u_min]
+    u_max = params[:u_max]
+    tf_l = params[:tf_l]
+    x₁_t0 = params[:x₁_t0]
+    x₂_t0 = params[:x₂_t0]
+    x₃_t0 = params[:x₃_t0]
+    x₄_t0 = params[:x₄_t0]
+    x₂_tf = params[:x₂_tf]
+    x₃_tf = params[:x₃_tf]
+    x₄_tf = params[:x₄_tf]
 
     # Model
     ocp = @def begin
         tf ∈ R, variable
-        t ∈ [0.0, tf], time
+        t ∈ [t0, tf], time
         x ∈ R⁴, state
         u ∈ R, control
 
-        tf ≥ 0, (tf_con)
-        x(0) == xs, (x_ic)
-        x[2:4](tf) == xf, (x_fc)
-        u_min ≤ u(t) ≤ u_max, (u_con)
+        x₁(t0) == x₁_t0, (x₁_t0)
+        x₂(t0) == x₂_t0, (x₂_t0)
+        x₃(t0) == x₃_t0, (x₃_t0)
+        x₄(t0) == x₄_t0, (x₄_t0)
+        x₂(tf) == x₂_tf, (x₂_tf)
+        x₃(tf) == x₃_tf, (x₃_tf)
+        x₄(tf) == x₄_tf, (x₄_tf)
+
+        tf ≥ tf_l, (tf_c)
+        u_min ≤ u(t) ≤ u_max, (u_c)
 
         ∂(x₁)(t) == x₃(t)
         ∂(x₂)(t) == x₄(t)
@@ -64,9 +79,9 @@ function OptimalControlProblems.steering_s(
         if i == 1 || i == 4
             return 0.0
         elseif i == 2
-            return 5.0 * t
+            return 5.0 * (t-t0)
         elseif i == 3
-            return 45.0 * t
+            return 45.0 * (t-t0)
         end
     end
     xinit = t -> [gen_x0(t, i) for i in 1:4]
@@ -78,7 +93,7 @@ function OptimalControlProblems.steering_s(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

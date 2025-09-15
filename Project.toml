@@ -16,13 +16,10 @@ SolverCore = "ff4d7338-4cf1-434d-91df-b86cb86fb843"
 [weakdeps]
 JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
 OptimalControl = "5f98b655-cc9a-415a-b60e-744165666948"
-HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 
 [extensions]
 JuMPModels = "JuMP"
 OptimalControlModels = "OptimalControl"
-OCPDocumentation = ["HTTP","JSON"]
 
 [compat]
 ADNLPModels = "0.8"
@@ -31,8 +28,6 @@ CTDirect = "0.16"
 CTModels = "0.6"
 DocStringExtensions = "0.9"
 ExaModels = "0.9"
-HTTP = "1"
-JSON = "0.21"
 JuMP = "1"
 OptimalControl = "1"
 OrderedCollections = "1"
