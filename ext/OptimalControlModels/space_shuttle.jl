@@ -150,8 +150,9 @@ function OptimalControlProblems.space_shuttle(
         v = scaled_v * scaling_v
 
         ## Helper functions
-        c_D = b₀ + b₁ * rad2deg(α) + b₂ * (rad2deg(α)^2)
-        c_L = a₀ + a₁ * rad2deg(α)
+        r2dα = α * (180 / π)
+        c_D = b₀ + b₁ * r2dα + b₂ * (r2dα^2)
+        c_L = a₀ + a₁ * r2dα
         ρ = ρ₀ * exp(-h / hᵣ)
         D = (1 / 2) * c_D * S * ρ * (v^2)
         L = (1 / 2) * c_L * S * ρ * (v^2)
