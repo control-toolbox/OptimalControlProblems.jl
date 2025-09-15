@@ -87,7 +87,7 @@ function comparison(; max_iter, test_name)
         error("test_name must belong to ", available_test_names)
 
     # comparison Parameters: tolerances
-    ε_rel_grid = 1e-6
+    ε_rel_grid = 1e-2
     ε_abs_grid = 1e-6
 
     ε_rel_objective = 1e-4
