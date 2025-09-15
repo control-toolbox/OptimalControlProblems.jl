@@ -39,26 +39,11 @@ julia> tgrid = OptimalControlProblems.time_grid(:my_problem, model)
 ```
 """
 function OptimalControlProblems.time_grid(problem::Symbol, model::JuMP.GenericModel)
-
-    # get N
-    x_vars = metadata[problem][:state_name]
-    x_jp_var = JuMP.value.(model[Symbol(x_vars[1])])
-    N = length(x_jp_var) - 1
-
-    ## time grid: we assume that t0 = 0
-    time_data, time_value_or_index = metadata[problem][:final_time]
-
-    t0 = 0
-    tf = if time_data == :fixed
-        time_value_or_index
-    elseif time_data == :free
-        v_vars = metadata[problem][:variable_name]
-        value.(model[Symbol(v_vars[time_value_or_index])])
-    else
-        error("the final time must be :fixed or :free, not: ", time_data)
-    end
+    t_grid_vars = metadata(problem)[:time_grid_name]
+    t0 = value.(model[Symbol(t_grid_vars[:initial_time])])
+    tf = value.(model[Symbol(t_grid_vars[:final_time])])
+    N  = value.(model[Symbol(t_grid_vars[:grid_size])])
     t_jp = range(t0, tf, N+1)
-
     return t_jp
 end
 
@@ -92,7 +77,7 @@ function OptimalControlProblems.state(problem::Symbol, model::JuMP.GenericModel)
     N = length(T) - 1
 
     # get dimension
-    state_names = metadata[problem][:state_name]
+    state_names = metadata(problem)[:state_name]
     dim_x = length(state_names)
 
     # get state from the model
@@ -143,7 +128,7 @@ function OptimalControlProblems.control(problem::Symbol, model::JuMP.GenericMode
     N = length(T) - 1
 
     # get dimension
-    control_names = metadata[problem][:control_name]
+    control_names = metadata(problem)[:control_name]
     dim_u = length(control_names)
 
     # get control from the model
@@ -194,7 +179,7 @@ function OptimalControlProblems.costate(problem::Symbol, model::JuMP.GenericMode
     N = length(T) - 1
 
     # get dimension
-    costate_names = metadata[problem][:costate_name]
+    costate_names = metadata(problem)[:costate_name]
     dim_x = length(costate_names)
 
     # get costate from the model
@@ -244,7 +229,7 @@ julia> v = OptimalControlProblems.variable(:my_problem, model)
 ```
 """
 function OptimalControlProblems.variable(problem::Symbol, model::JuMP.GenericModel)
-    variable_names = metadata[problem][:variable_name]
+    variable_names = metadata(problem)[:variable_name]
 
     if isnothing(variable_names)
         return nothing

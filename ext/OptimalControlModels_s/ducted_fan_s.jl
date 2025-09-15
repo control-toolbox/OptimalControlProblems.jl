@@ -8,49 +8,70 @@ Ref: Graichen, K., & Petit, N. (2009). Incorporating a class of constraints into
 function OptimalControlProblems.ducted_fan_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:ducted_fan),
+    grid_size::Int=grid_size_data(:ducted_fan),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    r = 0.2         # [m]
-    J = 0.05        # [kg.m2]
-    m = 2.2         # [kg]
-    mg = 4          # [N]
-    μ = 1000
+    params = parameters_data(:ducted_fan, parameters)
+    t0 = params[:t0]
+    r = params[:r]
+    J = params[:J]
+    m = params[:m]
+    mg = params[:mg]
+    μ = params[:μ]
+    α_l = params[:α_l]
+    α_u = params[:α_u]
+    u₁_l = params[:u₁_l]
+    u₁_u = params[:u₁_u]
+    u₂_l = params[:u₂_l]
+    u₂_u = params[:u₂_u]
+    tf_l = params[:tf_l]
+    x₁_t0 = params[:x₁_t0]
+    v₁_t0 = params[:v₁_t0]
+    x₂_t0 = params[:x₂_t0]
+    v₂_t0 = params[:v₂_t0]
+    α_t0 = params[:α_t0]
+    vα_t0 = params[:vα_t0]
+    x₁_tf = params[:x₁_tf]
+    v₁_tf = params[:v₁_tf]
+    x₂_tf = params[:x₂_tf]
+    v₂_tf = params[:v₂_tf]
+    α_tf = params[:α_tf]
+    vα_tf = params[:vα_tf]
 
     ocp = @def begin
-
         tf ∈ R, variable
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         x = (x₁, v₁, x₂, v₂, α, vα) ∈ R⁶, state
         u ∈ R², control
 
         # tf constraints
-        tf ≥ 0.1, (tf_con)
+        tf ≥ tf_l, (tf_c)
 
         # state constraints
-        -deg2rad(30) ≤ α(t) ≤ deg2rad(30), (α_con)
+        α_l ≤ α(t) ≤ α_u, (α_c)
 
         # control constraints
-        -5 ≤ u₁(t) ≤ 5, (u₁_con)
-        0 ≤ u₂(t) ≤ 17, (u₂_con)
+        u₁_l ≤ u₁(t) ≤ u₁_u, (u₁_c)
+        u₂_l ≤ u₂(t) ≤ u₂_u, (u₂_c)
 
         # initial constraints
-        x₁(0) == 0, (x₁_i)
-        v₁(0) == 0, (v₁_i)
-        x₂(0) == 0, (x₂_i)
-        v₂(0) == 0, (v₂_i)
-        α(0) == 0, (α_i)
-        vα(0) == 0, (vα_i)
+        x₁(t0) == x₁_t0, (x₁_t0)
+        v₁(t0) == v₁_t0, (v₁_t0)
+        x₂(t0) == x₂_t0, (x₂_t0)
+        v₂(t0) == v₂_t0, (v₂_t0)
+        α(t0)  == α_t0, (α_t0)
+        vα(t0) == vα_t0, (vα_t0)
 
         # final constraints
-        x₁(tf) == 1, (x₁_f)
-        v₁(tf) == 0, (v₁_f)
-        x₂(tf) == 0, (x₂_f)
-        v₂(tf) == 0, (v₂_f)
-        α(tf) == 0, (α_f)
-        vα(tf) == 0, (vα_f)
+        x₁(tf) == x₁_tf, (x₁_tf)
+        v₁(tf) == v₁_tf, (v₁_tf)
+        x₂(tf) == x₂_tf, (x₂_tf)
+        v₂(tf) == v₂_tf, (v₂_tf)
+        α(tf)  == α_tf , (α_tf )
+        vα(tf) == vα_tf, (vα_tf)
 
         # dynamics
         ∂(x₁)(t) == v₁(t)
@@ -77,7 +98,7 @@ function OptimalControlProblems.ducted_fan_s(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

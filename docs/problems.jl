@@ -5,9 +5,9 @@ function draft_meta(draft::Union{Bool,Nothing})
     if isnothing(draft)
         return ""
     elseif draft
-        return """```@meta\nDraft = true\n```"""
+        return """```@meta\nDraft = true\n```\n"""
     else
-        return """```@meta\nDraft = false\n```"""
+        return """```@meta\nDraft = false\n```\n"""
     end
 end
 
@@ -24,9 +24,18 @@ end
 # -----------------------------------
 function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Union{Bool,Nothing})
 
-    TITLE = uppercasefirst(replace(PROBLEM, "_" => " "))
+    TITLE = "[" * uppercasefirst(replace(PROBLEM, "_" => " ")) * "](@id description-$PROBLEM)"
     DRAFT = draft_meta(draft)
     LEFT_MARGIN = get_left_margin(Symbol(PROBLEM))
+
+    VARIABLE_COMPONENTS = isnothing(OptimalControlProblems.metadata(Symbol(PROBLEM))[:variable_name]) ? "" : 
+    """
+    The variable components are named:
+
+    ```@example main
+    metadata(:$PROBLEM)[:variable_name]
+    ```    
+    """
 
     documentation=DRAFT * """
     # $TITLE
@@ -67,6 +76,35 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     nothing # hide
     ```
 
+    ## Metadata
+
+    The state components are named:
+
+    ```@example main
+    metadata(:$PROBLEM)[:state_name]
+    ```
+
+    The control components are named:
+
+    ```@example main
+    metadata(:$PROBLEM)[:control_name]
+    ```
+
+    $VARIABLE_COMPONENTS
+
+    The default values of the parameters are:
+
+    ```@example main
+    metadata(:$PROBLEM)[:parameters]
+    using Printf # hide
+    println("Parameter = Value") # hide
+    println("------------------") # hide
+    for e ∈ pairs(metadata(:$PROBLEM)[:parameters]) # hide
+        @printf("%6s = ", string(e.first)) # hide
+        @printf("%11.4e\\n", e.second) # hide
+    end # hide
+    ```
+
     ## Initial guess
 
     Before solving the problem, it is often useful to inspect the initial guess (sometimes called the first iterate). This guess is obtained by running the NLP solver with `max_iter = 0`, which evaluates the problem formulation without performing any optimisation steps.  
@@ -85,8 +123,8 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
             # -----------------------------
             # Extract dimensions from metadata
             # -----------------------------
-            x_vars = metadata[problem][:state_name]
-            u_vars = metadata[problem][:control_name]
+            x_vars = metadata(problem)[:state_name]
+            u_vars = metadata(problem)[:control_name]
             n_states = length(x_vars)
             n_controls = length(u_vars)
 
@@ -179,14 +217,12 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     Before solving, we can inspect the discretisation details of the problem. The table below reports the number of grid points, decision variables, and constraints associated with the chosen formulation.  
 
     ```@example main
-    push!(data_pb,
-        (
-            Problem=:$PROBLEM,
-            Grid_Size=metadata[:$PROBLEM][:N],
-            Variables=get_nvar(nlp_model($PROBLEM(OptimalControlBackend()))),
-            Constraints=get_ncon(nlp_model($PROBLEM(OptimalControlBackend()))),
-        )
-    )
+    push!(data_pb,(
+        Problem=:$PROBLEM,
+        Grid_Size=metadata(:$PROBLEM)[:grid_size],
+        Variables=get_nvar(nlp_model($PROBLEM(OptimalControlBackend()))),
+        Constraints=get_ncon(nlp_model($PROBLEM(OptimalControlBackend()))),
+    ))
     data_pb # hide
     ```
 
@@ -236,24 +272,20 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
 
     ```@example main
     # from OptimalControl model
-    push!(data_re,
-        (
-            Model=:OptimalControl,
-            Flag=nlp_oc_sol.status,
-            Iterations=nlp_oc_sol.iter,
-            Objective=nlp_oc_sol.objective,
-        )
-    )
+    push!(data_re,(
+        Model=:OptimalControl,
+        Flag=nlp_oc_sol.status,
+        Iterations=nlp_oc_sol.iter,
+        Objective=nlp_oc_sol.objective,
+    ))
 
     # from JuMP model
-    push!(data_re,
-        (
-            Model=:JuMP,
-            Flag=termination_status(nlp_jp),
-            Iterations=barrier_iterations(nlp_jp),
-            Objective=objective_value(nlp_jp),
-        )
-    )
+    push!(data_re,(
+        Model=:JuMP,
+        Flag=termination_status(nlp_jp),
+        Iterations=barrier_iterations(nlp_jp),
+        Objective=objective_value(nlp_jp),
+    ))
     data_re # hide
     ```    
 
@@ -294,9 +326,9 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
             v_jp = variable(problem, nlp_jp)
             i_jp = iterations(problem, nlp_jp)
 
-            x_vars = metadata[problem][:state_name]
-            u_vars = metadata[problem][:control_name]
-            v_vars = metadata[problem][:variable_name]
+            x_vars = metadata(problem)[:state_name]
+            u_vars = metadata(problem)[:control_name]
+            v_vars = metadata(problem)[:variable_name]
 
             println("┌─ ", string(problem))
             println("│")
@@ -365,8 +397,8 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     ocp_sol = build_ocp_solution(docp, nlp_oc_sol)
 
     # dimensions
-    n = state_dimension(ocp_sol)   # or length(metadata[:$PROBLEM][:state_name])
-    m = control_dimension(ocp_sol) # or length(metadata[:$PROBLEM][:control_name])
+    n = state_dimension(ocp_sol)   # or length(metadata(:$PROBLEM)[:state_name])
+    m = control_dimension(ocp_sol) # or length(metadata(:$PROBLEM)[:control_name])
 
     # from OptimalControl solution
     plt = plot(

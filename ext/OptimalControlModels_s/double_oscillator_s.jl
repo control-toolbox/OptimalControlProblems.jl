@@ -8,7 +8,7 @@ It uses direct transcription to produce a discretised optimal control problem (D
 # Arguments
 
 - `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
 
 # Returns
 
@@ -31,30 +31,36 @@ julia> docp = OptimalControlProblems.double_oscillator(OptimalControlBackend(); 
 function OptimalControlProblems.double_oscillator_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:double_oscillator),
+    grid_size::Int=grid_size_data(:double_oscillator),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    m1 = 100    # [kg]
-    m2 = 2      # [kg]
-    c = 0.5     # [Ns/m]
-    k1 = 100    # [N/m]
-    k2 = 3      # [N/m]
-    tf = final_time_data(:double_oscillator)
+    params = parameters_data(:double_oscillator, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    m1 = params[:m1]
+    m2 = params[:m2]
+    c = params[:c]
+    k1 = params[:k1]
+    k2 = params[:k2]
+    u_l = params[:u_l]
+    u_u = params[:u_u]
+    x₁_t0 = params[:x₁_t0]
+    x₂_t0 = params[:x₂_t0]
 
     # model
     ocp = @def begin
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         x ∈ R⁴, state
         u ∈ R, control
+        
+        u_l ≤ u(t) ≤ u_u, (u_c)
+        x₁(t0) == x₁_t0, (x₁_t0)
+        x₂(t0) == x₂_t0, (x₂_t0)
 
-        -1 ≤ u(t) ≤ 1, (u_con)
-
-        x₁(0) == 0, (x1_con)
-        x₂(0) == 0, (x2_con)
-
-        F = sin(t * 2π / tf)
+        F = sin((t - t0) * 2π / (tf - t0))
         ∂(x₁)(t) == x₃(t)
         ∂(x₂)(t) == x₄(t)
         ∂(x₃)(t) == -(k1 + k2) / m1 * x₁(t) + k2 / m1 * x₂(t) + 1 / m1 * F
@@ -63,9 +69,8 @@ function OptimalControlProblems.double_oscillator_s(
         0.5 * ∫(x₁(t)^2 + x₂(t)^2 + u(t)^2) → min
     end
 
-
     # initial guess
-    xinit = [0.1, 0.1, 0.1, 0.1]  # [x1, x2, x3, x4]
+    xinit = [0.1, 0.1, 0.1, 0.1]  # [x₁, x₂, x₃, x₄]
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 
@@ -75,7 +80,7 @@ function OptimalControlProblems.double_oscillator_s(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

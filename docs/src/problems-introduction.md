@@ -97,11 +97,11 @@ For each problem, additional data is provided in the [MetaData](https://github.c
 OptimalControlProblems.metadata
 ```
 
-To list all metadata, use `metadata`. To access the metadata of a specific problem, for example `chain`, run:
+To list all metadata, use `metadata()`. To access the metadata of a specific problem, for example `chain`, run:
 
 ```@example main
 using OptimalControlProblems
-metadata[:chain]
+metadata(:chain)
 ```
 
 ## Problems characteristics
@@ -179,29 +179,25 @@ We detail below the characteristics of the optimal control problems and their as
         end
 
         #
-        push!(data_ocp,
-            (
-                Problem=problem,
-                State=state_dimension(ocp),
-                Control=control_dimension(ocp),
-                Variable=variable_dimension(ocp),
-                Cost=cost,
-                FinalTime=final_time,
-                Constraints=constraints,
-            )
-        )
+        push!(data_ocp,(
+            Problem=problem,
+            State=state_dimension(ocp),
+            Control=control_dimension(ocp),
+            Variable=variable_dimension(ocp),
+            Cost=cost,
+            FinalTime=final_time,
+            Constraints=constraints,
+        ))
 
         #
-        N = metadata[problem][:N] # get default number of steps
+        N = metadata(problem)[:grid_size] # get default number of steps
 
-        push!(data_nlp,
-            (
-                Problem=problem,
-                Steps=N,
-                Variables=get_nvar(nlp),
-                Constraints=get_ncon(nlp),
-            )
-        )
+        push!(data_nlp,(
+            Problem=problem,
+            Steps=N,
+            Variables=get_nvar(nlp),
+            Constraints=get_ncon(nlp),
+        ))
     end
     ```
 

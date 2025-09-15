@@ -31,17 +31,33 @@ The `nlp` model represents the nonlinear programming problem (NLP) obtained afte
 
     You also have access to the DOCP model, which corresponds to the discretised optimal control problem. Roughly speaking, the DOCP model is the union of the NLP and OCP models. For more details, see this [tutorial](@extref Tutorials Discretization-and-NLP-problem) or the documentation of [`CTDirect.DOCP`](@extref). To get the OCP model:
 
-    ```julia
+    ```@example main_oc
     ocp = ocp_model(docp)
+    nothing # hide
     ```
 
-!!! note
+You can pass any `description` and `kwargs` of [`CTDirect.direct_transcription`](@extref) to the `beam` problem or any other.
 
-    You can pass any `description` and `kwargs` of [`CTDirect.direct_transcription`](@extref) to the `beam` problem or any other.
+```@example main_oc
+docp = beam(OptimalControlBackend(), :madnlp; grid_size=100, disc_method=:euler)
+nothing # hide
+```
 
-    ```julia
-    docp = beam(OptimalControlBackend(), :madnlp; grid_size=100, disc_method=:euler)
-    ```
+You can also replace any default parameter value:
+
+```@example main_oc
+docp = beam(OptimalControlBackend(); parameters=(tf=2, ))
+nothing # hide
+```
+
+To get the list of `:beam` parameters and the default values, make:
+
+```@example main_oc
+metadata(:beam)[:parameters]
+nothing # hide
+```
+
+To have a description of the parameters, either check the Beam [page](@ref description-beam) or the [code](https://github.com/control-toolbox/OptimalControlProblems.jl/blob/main/ext/OptimalControlModels/beam.jl).
 
 ### Number of variables, constraints, and nonzeros
 
@@ -85,7 +101,7 @@ println("nnzh = ", nnzh)
 The (default) number of steps $N$ is stored in the metadata:
 
 ```@example main_oc
-metadata[:beam][:N]
+metadata(:beam)[:grid_size]
 ```
 
 !!! note
@@ -117,13 +133,14 @@ Then, to obtain the JuMP model of the beam problem, run:
 nlp = beam(JuMPBackend())
 ```
 
-!!! note
-    For details on how to interact with the JuMP model, see the [JuMP documentation](https://jump.dev/JuMP.jl). In particular, you can pass any arguments and keyword arguments of [`JuMP.Model`](@extref) to the `beam` problem or any other.
+For details on how to interact with the JuMP model, see the [JuMP documentation](https://jump.dev/JuMP.jl). In particular, you can pass any arguments and keyword arguments of [`JuMP.Model`](@extref) to the `beam` problem or any other.
 
-    ```julia
-    using Ipopt
-    nlp = beam(JuMPBackend(), Ipopt.Optimizer; add_bridges=true)
-    ``` 
+```julia
+using Ipopt
+nlp = beam(JuMPBackend(), Ipopt.Optimizer; add_bridges=true)
+```
 
 !!! note
-    You can also transform the JuMP model into a [`NLPModelsJuMP.MathOptNLPModel`](@extref) and then use all the API of [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl). See this [tutorial](https://jso.dev/NLPModelsJuMP.jl/dev/tutorial) for more details.
+
+    - As with `OptimalControlBackend`, you can replace any default parameter value.
+    - You can transform the JuMP model into a [`NLPModelsJuMP.MathOptNLPModel`](@extref) and then use all the API of [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl). See this [tutorial](https://jso.dev/NLPModelsJuMP.jl/dev/tutorial) for more details.
