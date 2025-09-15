@@ -26,7 +26,7 @@ julia> docp = OptimalControlProblems.rocket(OptimalControlBackend(); N=500);
 function OptimalControlProblems.rocket(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:rocket),
+    grid_size::Int=steps_number_data(:rocket),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -101,7 +101,7 @@ function OptimalControlProblems.rocket(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

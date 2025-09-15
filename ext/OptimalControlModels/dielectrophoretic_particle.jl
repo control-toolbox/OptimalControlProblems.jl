@@ -31,7 +31,7 @@ julia> docp = OptimalControlProblems.dielectrophoretic_particle(OptimalControlBa
 function OptimalControlProblems.dielectrophoretic_particle(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:dielectrophoretic_particle),
+    grid_size::Int=steps_number_data(:dielectrophoretic_particle),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -43,18 +43,25 @@ function OptimalControlProblems.dielectrophoretic_particle(
     xf = params[:xf]
     α = params[:α]
     c = params[:c]
+    u_l = params[:u_l]
+    u_u = params[:u_u]
+    tf_l = params[:tf_l]
+    y_i = params[:y_i]
 
     ocp = @def begin
         tf ∈ R, variable
         t ∈ [t0, tf], time
         q = (x, y) ∈ R², state
         u ∈ R, control
+
         x(t0) == x0, (x_i)
-        y(t0) == 0, (y_i)
+        y(t0) == y_i, (y_i)
         x(tf) == xf, (x_f)
-        tf ≥ 0, (tf_c)
-        -1 ≤ u(t) ≤ 1, (u_c)
+        tf ≥ tf_l, (tf_c)
+        u_l ≤ u(t) ≤ u_u, (u_c)
+
         q̇(t) == dynamics(y(t), u(t))
+
         tf → min
     end
 
@@ -71,7 +78,7 @@ function OptimalControlProblems.dielectrophoretic_particle(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

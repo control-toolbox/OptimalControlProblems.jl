@@ -12,7 +12,7 @@ function test_OptimalControl_s()
 
     for f in LIST_OF_PROBLEMS
         @testset "$(f)" verbose=VERBOSE begin
-            N = metadata[f][:N]
+            N = metadata(f)[:grid_size]
 
             # do we keep or remove the problem from the list
             keep_problem = true

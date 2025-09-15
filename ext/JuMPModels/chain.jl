@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.chain(JuMPBackend(); N=300)
 - [COPS Benchmark Problems – Hanging Chain](https://www.mcs.anl.gov/~more/cops/)
 """
 function OptimalControlProblems.chain(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:chain), 
+    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:chain), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -40,6 +40,8 @@ function OptimalControlProblems.chain(
     L = params[:L]
     a = params[:a]
     b = params[:b]
+    x2_i = params[:x2_i]
+    x3_i = params[:x3_i]
 
     #
     tmin = b > a ? 1 / 4 : 3 / 4
@@ -54,7 +56,7 @@ function OptimalControlProblems.chain(
         begin
             t0, t0  # (required if the initial time is fixed)
             tf, tf  # (required if the final time is fixed)
-            N, N    # (required)
+            N, grid_size    # (required)
         end
     )
     # ------------------------------------------------
@@ -71,16 +73,15 @@ function OptimalControlProblems.chain(
     @variables(
         model,
         begin
-            u[k = 0:N], (start = 4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
-            x1[k = 0:N],
-            (start = 4 * abs(b - a) * (t[k] - t0) / (tf - t0) * (0.5 * (t[k] - t0) / (tf - t0) - tmin) + a)
+            u[k = 0:N],     (start = 4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
+            x1[k = 0:N],    (start = 4 * abs(b - a) * (t[k] - t0) / (tf - t0) * (0.5 * (t[k] - t0) / (tf - t0) - tmin) + a)
             x2[k = 0:N],
             (
                 start =
                     (4 * abs(b - a) * (t[k] - t0) / (tf - t0) * (0.5 * (t[k] - t0) / (tf - t0) - tmin) + a) *
                     (4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
             )
-            x3[k = 0:N], (start = 4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
+            x3[k = 0:N],    (start = 4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
         end
     )
 
@@ -88,8 +89,8 @@ function OptimalControlProblems.chain(
         model,
         begin
             x1[0] == a
-            x2[0] == 0
-            x3[0] == 0
+            x2[0] == x2_i
+            x3[0] == x3_i
             x1[N] == b
             x3[N] == L
         end
@@ -99,7 +100,7 @@ function OptimalControlProblems.chain(
     @expressions(
         model,
         begin
-            step, tf / N
+            step, (tf - t0) / N
             dx1[k = 0:N], u[k]
             dx2[k = 0:N], x1[k] * √(1 + u[k]^2)
             dx3[k = 0:N], √(1 + u[k]^2)

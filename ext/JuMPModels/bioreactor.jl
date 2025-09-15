@@ -32,7 +32,7 @@ julia> model = OptimalControlProblems.bioreactor(JuMPBackend(); N=100)
 """
 function OptimalControlProblems.bioreactor(
     ::JuMPBackend, args...; 
-    N::Int=steps_number_data(:bioreactor), 
+    grid_size::Int=steps_number_data(:bioreactor), 
     parameters::Union{Nothing, NamedTuple}=nothing, 
     kwargs...
 )
@@ -40,7 +40,7 @@ function OptimalControlProblems.bioreactor(
     # parameters
     params = parameters_data(:bioreactor, parameters)
     t0 = params[:t0]
-    T = params[:T]
+    tf = params[:tf]
     β = params[:β]
     c = params[:c]
     γ = params[:γ]
@@ -64,8 +64,8 @@ function OptimalControlProblems.bioreactor(
         model,
         begin
             t0, t0  # (required if the initial time is fixed)
-            T, T    # (required if the final time is fixed)
-            N, N    # (required)
+            tf, tf    # (required if the final time is fixed)
+            N, grid_size    # (required)
         end
     )
     # ------------------------------------------------
@@ -97,7 +97,7 @@ function OptimalControlProblems.bioreactor(
         begin
 
             #
-            step, (T-t0) / N
+            step, (tf-t0) / N
 
             # intermediate variables
             growth[k = 0:N], μ2m * s[k] / (s[k] + Ks)

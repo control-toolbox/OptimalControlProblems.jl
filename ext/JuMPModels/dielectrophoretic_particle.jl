@@ -29,7 +29,7 @@ julia> model = OptimalControlProblems.dielectrophoretic_particle(JuMPBackend(); 
   IEEE Transactions on Automatic Control, 51(7), 1100–1114.
 """
 function OptimalControlProblems.dielectrophoretic_particle(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:dielectrophoretic_particle), 
+    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:dielectrophoretic_particle), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -41,7 +41,11 @@ function OptimalControlProblems.dielectrophoretic_particle(
     xf = params[:xf]
     α = params[:α]
     c = params[:c]
-
+    u_l = params[:u_l]
+    u_u = params[:u_u]
+    tf_l = params[:tf_l]
+    y_i = params[:y_i]
+    
     # model
     model = JuMP.Model(args...; kwargs...)
 
@@ -51,30 +55,41 @@ function OptimalControlProblems.dielectrophoretic_particle(
         model,
         begin
             t0, t0  # (required if the initial time is fixed)
-            N, N    # (required)
+            N, grid_size    # (required)
         end
     )
     # ------------------------------------------------
 
     # state, control and variable (final time)
-    @variable(model, x[0:N], start = 1)
-    @variable(model, y[0:N], start = 1)
-    @variable(model, -1 <= u[0:N] <= 1, start = 0.1)
-    @variable(model, 0 <= tf, start = 5)
+    @variables(
+        model,
+        begin
+            x[0:N],                 (start = 1)
+            y[0:N],                 (start = 1)
+            u_l <= u[0:N] <= u_u,   (start = 0.1)
+            tf_l <= tf,             (start = 5)
+        end
+    )
 
-    # Objective
-    @objective(model, Min, tf)
+    # Boundary constraints
+    @constraints(
+        model,
+        begin
+            x[0] == x0
+            x[N] == xf
+            y[0] == y_i
+        end
+    )
 
     # Dynamics
     @expressions(
         model,
         begin
-            step, tf / N
+            step, (tf - t0) / N
             dx[k = 0:N], y[k] * u[k] + α * u[k]^2
             dy[k = 0:N], -c * y[k] + u[k]
         end
     )
-    # Collocation
     @constraints(
         model,
         begin
@@ -82,15 +97,9 @@ function OptimalControlProblems.dielectrophoretic_particle(
             ∂y[k = 1:N], y[k] == y[k - 1] + 0.5 * step * (dy[k] + dy[k - 1])
         end
     )
-    # Boundary constraints
-    @constraints(
-        model,
-        begin
-            x[0] == x0
-            x[N] == xf
-            y[0] == 0
-        end
-    )
+
+    # Objective
+    @objective(model, Min, tf)
 
     return model
 end

@@ -85,8 +85,8 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
             # -----------------------------
             # Extract dimensions from metadata
             # -----------------------------
-            x_vars = metadata[problem][:state_name]
-            u_vars = metadata[problem][:control_name]
+            x_vars = metadata(problem)[:state_name]
+            u_vars = metadata(problem)[:control_name]
             n_states = length(x_vars)
             n_controls = length(u_vars)
 
@@ -182,7 +182,7 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     push!(data_pb,
         (
             Problem=:$PROBLEM,
-            Grid_Size=metadata[:$PROBLEM][:N],
+            Grid_Size=metadata(:$PROBLEM)[:grid_size],
             Variables=get_nvar(nlp_model($PROBLEM(OptimalControlBackend()))),
             Constraints=get_ncon(nlp_model($PROBLEM(OptimalControlBackend()))),
         )
@@ -294,9 +294,9 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
             v_jp = variable(problem, nlp_jp)
             i_jp = iterations(problem, nlp_jp)
 
-            x_vars = metadata[problem][:state_name]
-            u_vars = metadata[problem][:control_name]
-            v_vars = metadata[problem][:variable_name]
+            x_vars = metadata(problem)[:state_name]
+            u_vars = metadata(problem)[:control_name]
+            v_vars = metadata(problem)[:variable_name]
 
             println("┌─ ", string(problem))
             println("│")
@@ -365,8 +365,8 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     ocp_sol = build_ocp_solution(docp, nlp_oc_sol)
 
     # dimensions
-    n = state_dimension(ocp_sol)   # or length(metadata[:$PROBLEM][:state_name])
-    m = control_dimension(ocp_sol) # or length(metadata[:$PROBLEM][:control_name])
+    n = state_dimension(ocp_sol)   # or length(metadata(:$PROBLEM)[:state_name])
+    m = control_dimension(ocp_sol) # or length(metadata(:$PROBLEM)[:control_name])
 
     # from OptimalControl solution
     plt = plot(

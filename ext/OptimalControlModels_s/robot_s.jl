@@ -26,7 +26,7 @@ julia> docp = OptimalControlProblems.robot(OptimalControlBackend(); N=250);
 function OptimalControlProblems.robot_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:robot),
+    grid_size::Int=steps_number_data(:robot),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -110,7 +110,7 @@ function OptimalControlProblems.robot_s(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

@@ -31,7 +31,7 @@ julia> docp = OptimalControlProblems.double_oscillator(OptimalControlBackend(); 
 function OptimalControlProblems.double_oscillator_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:double_oscillator),
+    grid_size::Int=steps_number_data(:double_oscillator),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -45,20 +45,27 @@ function OptimalControlProblems.double_oscillator_s(
     c = params[:c]
     k1 = params[:k1]
     k2 = params[:k2]
+    u_l = params[:u_l]
+    u_u = params[:u_u]
+    x1_i = params[:x1_i]
+    x2_i = params[:x2_i]
 
     # model
     ocp = @def begin
         t ∈ [t0, tf], time
         x ∈ R⁴, state
         u ∈ R, control
-        -1 ≤ u(t) ≤ 1, (u_c)
-        x₁(t0) == 0, (x1_i)
-        x₂(t0) == 0, (x2_i)
+        
+        u_l ≤ u(t) ≤ u_u, (u_c)
+        x₁(t0) == x1_i, (x1_i)
+        x₂(t0) == x2_i, (x2_i)
+
         F = sin(t * 2π / tf)
         ∂(x₁)(t) == x₃(t)
         ∂(x₂)(t) == x₄(t)
         ∂(x₃)(t) == -(k1 + k2) / m1 * x₁(t) + k2 / m1 * x₂(t) + 1 / m1 * F
         ∂(x₄)(t) == k2 / m2 * x₁(t) - k2 / m2 * x₂(t) - c * (1 - u(t)) / m2 * x₄(t)
+
         0.5 * ∫(x₁(t)^2 + x₂(t)^2 + u(t)^2) → min
     end
 
@@ -73,7 +80,7 @@ function OptimalControlProblems.double_oscillator_s(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

@@ -29,7 +29,7 @@ julia> model = OptimalControlProblems.double_oscillator(JuMPBackend(); N=200)
   IFAC-PapersOnLine, 51(2), 49–54.
 """
 function OptimalControlProblems.double_oscillator(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:double_oscillator), 
+    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:double_oscillator), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -43,6 +43,10 @@ function OptimalControlProblems.double_oscillator(
     c = params[:c]
     k1 = params[:k1]
     k2 = params[:k2]
+    u_l = params[:u_l]
+    u_u = params[:u_u]
+    x1_i = params[:x1_i]
+    x2_i = params[:x2_i]
 
     # model
     model = JuMP.Model(args...; kwargs...)
@@ -53,8 +57,8 @@ function OptimalControlProblems.double_oscillator(
         model,
         begin
             t0, t0  # (required if the initial time is fixed)
-            T, T    # (required if the final time is fixed)
-            N, N    # (required)
+            tf, tf  # (required if the final time is fixed)
+            N, grid_size    # (required)
         end
     )
     # ------------------------------------------------
@@ -67,7 +71,7 @@ function OptimalControlProblems.double_oscillator(
             x2[0:N], (start = 0.1)
             x3[0:N], (start = 0.1)
             x4[0:N], (start = 0.1)
-            -1 <= u[0:N] <= 1, (start = 0.1)
+            u_l <= u[0:N] <= u_u, (start = 0.1)
         end
     )
 
@@ -75,8 +79,8 @@ function OptimalControlProblems.double_oscillator(
     @constraints(
         model,
         begin
-            x1[0] == 0
-            x2[0] == 0
+            x1[0] == x1_i
+            x2[0] == x2_i
         end
     )
 

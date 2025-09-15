@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.robot(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/robot.jl
 """
 function OptimalControlProblems.robot(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:robot), 
+    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:robot), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -59,7 +59,7 @@ function OptimalControlProblems.robot(
         model,
         begin
             t0, t0  # (required if the initial time is fixed)
-            N, N    # (required)
+            N, grid_size    # (required)
         end
     )
     # ------------------------------------------------
@@ -88,7 +88,6 @@ function OptimalControlProblems.robot(
     @constraints(
         model,
         begin
-
             # initial
             ρ[0] == ρ0
             ϕ[0] == ϕ0

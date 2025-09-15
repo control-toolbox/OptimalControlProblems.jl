@@ -1,5 +1,5 @@
 rocket_meta = OrderedDict(
-    :N => 500,
+    :grid_size => 500,
     :state_name => ["h", "v", "m"],
     :costate_name => ["∂h", "∂v", "∂m"],
     :control_name => ["T"],

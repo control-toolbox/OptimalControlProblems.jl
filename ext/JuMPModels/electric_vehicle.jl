@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.electric_vehicle(JuMPBackend(); N=100)
 - Petit, N., & Sciarretta, A. (2011). *Optimal drive of electric vehicles using an inversion-based trajectory generation approach.* IFAC Proceedings Volumes, 44(1), 14519–14526. [PS2011]
 """
 function OptimalControlProblems.electric_vehicle(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:electric_vehicle), 
+    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:electric_vehicle), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -37,7 +37,6 @@ function OptimalControlProblems.electric_vehicle(
     params = parameters_data(:electric_vehicle, parameters)
     t0 = params[:t0]
     tf = params[:tf]
-    D = params[:D]
     b1 = params[:b1]
     b2 = params[:b2]
     h0 = params[:h0]
@@ -47,6 +46,10 @@ function OptimalControlProblems.electric_vehicle(
     α1 = params[:α1]
     α2 = params[:α2]
     α3 = params[:α3]
+    x_i = params[:x_i]
+    v_i = params[:v_i]
+    x_f = params[:x_f]
+    v_f = params[:v_f]
 
     # model
     model = JuMP.Model(args...; kwargs...)
@@ -58,24 +61,29 @@ function OptimalControlProblems.electric_vehicle(
         begin
             t0, t0  # (required if the initial time is fixed)
             tf, tf  # (required if the final time is fixed)
-            N, N    # (required)
+            N, grid_size    # (required)
         end
     )
     # ------------------------------------------------
 
     # state, control and initial guess
-    @variable(model, x[0:N], start = 0.1)
-    @variable(model, v[0:N], start = 0.1)
-    @variable(model, u[0:N], start = 0.1)
+    @variables(
+        model,
+        begin
+            x[0:N],                    (start = 0.1)
+            v[0:N],                    (start = 0.1)
+            u[0:N],                    (start = 0.1)
+        end
+    )
 
     # boundary constraints
     @constraints(
         model,
         begin
-            x[0] == 0
-            v[0] == 0
-            x[N] == D
-            v[N] == 0
+            x[0] == x_i
+            v[0] == v_i
+            x[N] == x_f
+            v[N] == v_f
         end
     )
 

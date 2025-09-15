@@ -30,7 +30,7 @@ julia> docp = OptimalControlProblems.bioreactor(OptimalControlBackend(); N=100);
 function OptimalControlProblems.bioreactor(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:bioreactor),
+    grid_size::Int=steps_number_data(:bioreactor),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -38,7 +38,7 @@ function OptimalControlProblems.bioreactor(
     # parameters
     params = parameters_data(:bioreactor, parameters)
     t0 = params[:t0]
-    T = params[:T]
+    tf = params[:tf]
     β = params[:β]
     c = params[:c]
     γ = params[:γ]
@@ -55,13 +55,12 @@ function OptimalControlProblems.bioreactor(
 
     # Model
     ocp = @def begin
-        t ∈ [t0, T], time
+        t ∈ [t0, tf], time
         x = (y, s, b) ∈ R³, state
         u ∈ R, control
 
         x(t) ≥ x_l
         u_l ≤ u(t) ≤ u_u
-        
         x0_l ≤ x(t0) ≤ x0_u
 
         μ = light(t, halfperiod) * μbar
@@ -103,7 +102,7 @@ function OptimalControlProblems.bioreactor(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

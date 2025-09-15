@@ -30,7 +30,7 @@ julia> docp = OptimalControlProblems.insurance(OptimalControlBackend(); N=500);
 function OptimalControlProblems.insurance_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:insurance),
+    grid_size::Int=steps_number_data(:insurance),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -110,7 +110,7 @@ function OptimalControlProblems.insurance_s(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

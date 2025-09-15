@@ -29,7 +29,7 @@ julia> model = OptimalControlProblems.moonlander(JuMPBackend(); N=100)
 - Problem formulation available at: https://arxiv.org/pdf/2303.16746
 """
 function OptimalControlProblems.moonlander(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:moonlander), 
+    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:moonlander), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -53,7 +53,7 @@ function OptimalControlProblems.moonlander(
         model,
         begin
             t0, t0  # (required if the initial time is fixed)
-            N, N    # (required)
+            N, grid_size    # (required)
         end
     )
     # ------------------------------------------------

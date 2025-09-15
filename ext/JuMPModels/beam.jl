@@ -29,7 +29,7 @@ julia> model = OptimalControlProblems.beam(JuMPBackend(); N=100)
 """
 function OptimalControlProblems.beam(
     ::JuMPBackend, args...; 
-    N::Int=steps_number_data(:beam), 
+    grid_size::Int=steps_number_data(:beam), 
     parameters::Union{Nothing, NamedTuple}=nothing, 
     kwargs...
 )
@@ -53,7 +53,7 @@ function OptimalControlProblems.beam(
         begin
             t0, t0  # (required if the initial time is fixed)
             tf, tf  # (required if the final time is fixed)
-            N, N    # (required)
+            N, grid_size    # (required)
         end
     )
     # ------------------------------------------------
@@ -62,9 +62,9 @@ function OptimalControlProblems.beam(
     @variables(
         model,
         begin
-            x₁_l <= x1[0:N] <= x₁_u, (start = 0.05)
-            x2[0:N], (start = 0.1)
-            u[0:N], (start = 0.1)
+            x₁_l <= x1[0:N] <= x₁_u,    (start = 0.05)
+            x2[0:N],                    (start = 0.1)
+            u[0:N],                     (start = 0.1)
         end
     )
 
@@ -80,17 +80,31 @@ function OptimalControlProblems.beam(
     )
 
     # dynamics
-    step = (tf - t0) / N
+    @expressions(
+        model,
+        begin
+
+            #
+            step, (tf - t0) / N
+
+            # dynamics
+            dx1[i = 0:N], x2[i]
+            dx2[i = 0:N], u[i]
+
+            # objective
+            dc[i = 0:N], u[i]^2
+        end
+    )
     @constraints(
         model,
         begin
-            ∂x1[i = 1:N], x1[i] == x1[i - 1] + 0.5 * step * (x2[i] + x2[i - 1])
-            ∂x2[i = 1:N], x2[i] == x2[i - 1] + 0.5 * step * (u[i] + u[i - 1])
+            ∂x1[i = 1:N], x1[i] == x1[i - 1] + 0.5 * step * (dx1[i] + dx1[i - 1])
+            ∂x2[i = 1:N], x2[i] == x2[i - 1] + 0.5 * step * (dx2[i] + dx2[i - 1])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(u[i]^2 + u[i - 1]^2 for i in 1:N))
+    @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i - 1] for i in 1:N))
 
     return model
 end

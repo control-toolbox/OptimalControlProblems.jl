@@ -26,7 +26,7 @@ julia> docp = OptimalControlProblems.moonlander(OptimalControlBackend(); N=500);
 function OptimalControlProblems.moonlander(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:moonlander),
+    grid_size::Int=steps_number_data(:moonlander),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -108,7 +108,7 @@ function OptimalControlProblems.moonlander(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

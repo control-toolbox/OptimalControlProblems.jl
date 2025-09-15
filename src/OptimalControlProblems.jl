@@ -134,10 +134,10 @@ end
 for file in files
     include(joinpath(path, file))
 end
-number_of_problems = length(files)
+const number_of_problems = length(files)
 
 const infos = [
-    :N
+    :grid_size
     :state_name
     :costate_name
     :control_name
@@ -156,12 +156,40 @@ const types = [
     Union{Nothing,NamedTuple},
 ]
 
+const metadata_storage = OrderedDict()
+
+for i in 1:number_of_problems
+    file_key = Symbol(split(files[i], ".")[1])
+    metadata_storage[file_key] = OrderedDict()
+    for (data, T) in zip(infos, types)
+        value = eval(Meta.parse("$(file_key)_meta"))[data]
+        if !(value isa T)
+            error("Type mismatch: Expected $(T) for $(data), but got $(typeof(value))")
+        end
+        metadata_storage[file_key][data] = value
+    end
+end
+
+
 """
-metadata::Dict()
+$(TYPEDSIGNATURES)
 
-Dictionary containing metadata for all available optimal control problems.
+Return the dictionary containing the metadata of all available optimal control problems.
 
-The following keys are valid:
+# Example
+
+```julia-repl
+julia> metadata()
+```
+"""
+metadata() = metadata_storage
+
+"""
+$(TYPEDSIGNATURES)
+
+Return a dictionary containing the metadata of `problem`. 
+
+To get specific data, the following keys are valid:
 
 - `name::String`: the problem name.
 - `N::Int`: the default number of steps.
@@ -177,22 +205,14 @@ The following keys are valid:
 # Example
 
 ```julia-repl
-julia> metadata[:my_problem][:name]
-"My Problem"
+julia> data = metadata(:my_problem)
+julia> data[:control_name]
+"u"
 ```
 """
-const metadata = Dict()
-
-for i in 1:number_of_problems
-    file_key = Symbol(split(files[i], ".")[1])
-    metadata[file_key] = OrderedDict()
-    for (data, T) in zip(infos, types)
-        value = eval(Meta.parse("$(file_key)_meta"))[data]
-        if !(value isa T)
-            error("Type mismatch: Expected $(T) for $(data), but got $(typeof(value))")
-        end
-        metadata[file_key][data] = value
-    end
+function metadata(problem::Symbol)
+    !(problem ∈ keys(metadata_storage)) && throw(CTBase.IncorrectArgument("There is no problem named $problem in metadata. To get the list of available problems, make julia> metadata()"))
+    return metadata_storage[problem]
 end
 
 # ------- Available Problems Function -------
@@ -429,7 +449,7 @@ julia> steps_number_data(:beam)
 ```
 """
 function steps_number_data(problem::Symbol)
-    return metadata[problem][:N]
+    return metadata(problem)[:grid_size]
 end
 
 #
@@ -441,7 +461,7 @@ function merge(A::NamedTuple, B::NamedTuple)
     return NamedTuple(f(; A..., B...))
 end
 function parameters_data(problem::Symbol)
-    return metadata[problem][:parameters]
+    return metadata(problem)[:parameters]
 end
 function parameters_data(problem::Symbol, parameters::Union{Nothing, NamedTuple})
     try

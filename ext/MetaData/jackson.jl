@@ -1,5 +1,5 @@
 jackson_meta = OrderedDict(
-    :N => 500,
+    :grid_size => 500,
     :state_name => ["a", "b", "x3"],
     :costate_name => ["∂a", "∂b", "∂x3"],
     :control_name => ["u"],

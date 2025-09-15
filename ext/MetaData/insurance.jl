@@ -1,5 +1,5 @@
 insurance_meta = OrderedDict(
-    :N => 500,
+    :grid_size => 500,
     :state_name => ["I", "m", "x₃"],
     :costate_name => ["∂I", "∂m", "∂x₃"],
     :control_name => ["h", "R", "H", "U", "dUdR"],

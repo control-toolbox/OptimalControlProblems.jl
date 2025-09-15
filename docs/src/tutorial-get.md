@@ -85,7 +85,7 @@ println("nnzh = ", nnzh)
 The (default) number of steps $N$ is stored in the metadata:
 
 ```@example main_oc
-metadata[:beam][:N]
+metadata(:beam)[:grid_size]
 ```
 
 !!! note

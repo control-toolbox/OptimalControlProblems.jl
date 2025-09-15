@@ -26,7 +26,7 @@ julia> docp = OptimalControlProblems.steering(OptimalControlBackend(); N=500);
 function OptimalControlProblems.steering_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:steering),
+    grid_size::Int=steps_number_data(:steering),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -38,18 +38,18 @@ function OptimalControlProblems.steering_s(
     u_min = params[:u_min]
     u_max = params[:u_max]
     xs = params[:xs]
-    xf = params[:xf]
+    yf = params[:yf]
 
     # Model
     ocp = @def begin
         tf ∈ R, variable
         t ∈ [t0, tf], time
         x ∈ R⁴, state
-        u ∈ R¹, control
+        u ∈ R, control
 
         tf ≥ 0, (tf_c)
         x(t0) == xs, (x_i)
-        x[2:4](tf) == xf, (x_f)
+        x[2:4](tf) == yf, (y_f)
         u_min ≤ u(t) ≤ u_max, (u_c)
 
         ∂(x₁)(t) == x₃(t)
@@ -67,9 +67,9 @@ function OptimalControlProblems.steering_s(
         if i == 1 || i == 4
             return 0.0
         elseif i == 2
-            return 5.0 * t
+            return 5.0 * (t-t0)
         elseif i == 3
-            return 45.0 * t
+            return 45.0 * (t-t0)
         end
     end
     xinit = t -> [gen_x0(t, i) for i in 1:4]
@@ -81,7 +81,7 @@ function OptimalControlProblems.steering_s(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

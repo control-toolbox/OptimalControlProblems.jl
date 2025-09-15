@@ -1,5 +1,5 @@
 steering_meta = OrderedDict(
-    :N => 500,
+    :grid_size => 500,
     :state_name => ["x1", "x2", "x3", "x4"],
     :costate_name => ["∂x1", "∂x2", "∂x3", "∂x4"],
     :control_name => ["u"],
@@ -15,6 +15,6 @@ steering_meta = OrderedDict(
         u_min = -π/2,
         u_max = π/2,
         xs = zeros(4),
-        xf = [5, 45, 0],
+        yf = [5, 45, 0],
     ),
 )

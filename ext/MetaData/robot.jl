@@ -1,5 +1,5 @@
 robot_meta = OrderedDict(
-    :N => 250,
+    :grid_size => 250,
     :state_name => ["ρ", "dρ", "θ", "dθ", "ϕ", "dϕ"],
     :costate_name => ["∂ρ", "∂dρ", "∂θ", "∂dθ", "∂ϕ", "∂dϕ"],
     :control_name => ["uρ", "uθ", "uϕ"],

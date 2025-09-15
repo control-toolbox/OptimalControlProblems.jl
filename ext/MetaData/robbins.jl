@@ -1,5 +1,5 @@
 robbins_meta = OrderedDict(
-    :N => 500,
+    :grid_size => 500,
     :state_name => ["x1", "x2", "x3"],
     :costate_name => ["∂x1", "∂x2", "∂x3"],
     :control_name => ["u"],

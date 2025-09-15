@@ -29,7 +29,7 @@ julia> model = OptimalControlProblems.ducted_fan(JuMPBackend(); N=100)
   Optimal Control Applications and Methods, 30(6), 537–561. [GP2009]
 """
 function OptimalControlProblems.ducted_fan(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:ducted_fan), 
+    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:ducted_fan), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -42,7 +42,16 @@ function OptimalControlProblems.ducted_fan(
     m = params[:m]
     mg = params[:mg]
     μ = params[:μ]
-
+    α_l = params[:α_l]
+    α_u = params[:α_u]
+    u₁_l = params[:u₁_l]
+    u₁_u = params[:u₁_u]
+    u₂_l = params[:u₂_l]
+    u₂_u = params[:u₂_u]
+    tf_l = params[:tf_l]
+    x_i = params[:x_i]
+    x_f = params[:x_f]
+    
     # model
     model = JuMP.Model(args...; kwargs...)
 
@@ -52,42 +61,46 @@ function OptimalControlProblems.ducted_fan(
         model,
         begin
             t0, t0  # (required if the initial time is fixed)
-            N, N    # (required)
+            N, grid_size    # (required)
         end
     )
     # ------------------------------------------------
 
     # state, control, variable (final time) and initial guess
-    @variable(model, x₁[0:N], start = 0.1)
-    @variable(model, v₁[0:N], start = 0.1)
-    @variable(model, x₂[0:N], start = -0.1)
-    @variable(model, v₂[0:N], start = 0.1)
-    @variable(model, -deg2rad(30) <= α[0:N] <= deg2rad(30), start = 0.1) # radian
-    @variable(model, vα[0:N], start = 0.1)
-    @variable(model, -5 <= u₁[0:N] <= 5, start = 0.1) # [N]
-    @variable(model, 0 <= u₂[0:N] <= 17, start = 1) # [N]
-    @variable(model, 0.1 <= tf, start = 1.5)
+    @variables(
+        model,
+        begin
+            x₁[0:N],                    (start = 0.1)
+            v₁[0:N],                    (start = 0.1)
+            x₂[0:N],                    (start = -0.1)
+            v₂[0:N],                    (start = 0.1)
+            α_l <= α[0:N] <= α_u,       (start = 0.1)     # radian
+            vα[0:N],                    (start = 0.1)
+            u₁_l <= u₁[0:N] <= u₁_u,    (start = 0.1)     # [N]
+            u₂_l <= u₂[0:N] <= u₂_u,    (start = 1)       # [N]
+            tf >= tf_l,                 (start = 1.5)
+        end
+    )
 
     # Boundary constraints
     @constraints(
         model,
         begin
-
             # initial
-            x₁[0] == 0
-            v₁[0] == 0
-            x₂[0] == 0
-            v₂[0] == 0
-            α[0] == 0
-            vα[0] == 0
+            x₁[0] == x_i[1]
+            v₁[0] == x_i[2]
+            x₂[0] == x_i[3]
+            v₂[0] == x_i[4]
+            α[0]  == x_i[5]
+            vα[0] == x_i[6]
 
             # final
-            x₁[N] == 1
-            v₁[N] == 0
-            x₂[N] == 0
-            v₂[N] == 0
-            α[N] == 0
-            vα[N] == 0
+            x₁[N] == x_f[1]
+            v₁[N] == x_f[2]
+            x₂[N] == x_f[3]
+            v₂[N] == x_f[4]
+            α[N]  == x_f[5]
+            vα[N] == x_f[6]
         end
     )
 
@@ -95,9 +108,8 @@ function OptimalControlProblems.ducted_fan(
     @expressions(
         model,
         begin
-
             #
-            step, tf / N
+            step, (tf - t0) / N
 
             # dynamics
             dx₁[k = 0:N], v₁[k]
@@ -119,7 +131,7 @@ function OptimalControlProblems.ducted_fan(
             ∂v₁[k = 1:N], v₁[k] == v₁[k - 1] + 0.5 * step * (dv₁[k] + dv₁[k - 1])
             ∂x₂[k = 1:N], x₂[k] == x₂[k - 1] + 0.5 * step * (dx₂[k] + dx₂[k - 1])
             ∂v₂[k = 1:N], v₂[k] == v₂[k - 1] + 0.5 * step * (dv₂[k] + dv₂[k - 1])
-            ∂α[k = 1:N], α[k] == α[k - 1] + 0.5 * step * (dα[k] + dα[k - 1])
+            ∂α[k = 1:N],   α[k] ==  α[k - 1] + 0.5 * step * (dα[k]  + dα[k - 1])
             ∂vα[k = 1:N], vα[k] == vα[k - 1] + 0.5 * step * (dvα[k] + dvα[k - 1])
         end
     )

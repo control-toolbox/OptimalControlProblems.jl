@@ -1,5 +1,5 @@
 electric_vehicle_meta = OrderedDict(
-    :N => 500,
+    :grid_size => 500,
     :state_name => ["x", "v"],
     :costate_name => ["∂x", "∂v"],
     :control_name => ["u"],
@@ -11,8 +11,7 @@ electric_vehicle_meta = OrderedDict(
     ),
     :parameters => (
         t0 = 0,
-        tf = 1, 
-        D = 10,
+        tf = 1,
         b1 = 1e0,
         b2 = 1e0,
         h0 = 0.1,
@@ -22,5 +21,9 @@ electric_vehicle_meta = OrderedDict(
         α1 = 0.4,
         α2 = -1,
         α3 = 0.1,
+        x_i = 0,
+        v_i = 0,
+        x_f = 10,
+        v_f = 0,
     ),
 )

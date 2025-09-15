@@ -1,5 +1,5 @@
 vanderpol_meta = OrderedDict(
-    :N => 500,
+    :grid_size => 500,
     :state_name => ["x1", "x2"],
     :costate_name => ["∂x1", "∂x2"],
     :control_name => ["u"],

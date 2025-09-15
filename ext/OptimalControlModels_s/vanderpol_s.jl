@@ -26,7 +26,7 @@ julia> docp = OptimalControlProblems.vanderpol(OptimalControlBackend(); N=500);
 function OptimalControlProblems.vanderpol_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:vanderpol),
+    grid_size::Int=steps_number_data(:vanderpol),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -63,7 +63,7 @@ function OptimalControlProblems.vanderpol_s(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

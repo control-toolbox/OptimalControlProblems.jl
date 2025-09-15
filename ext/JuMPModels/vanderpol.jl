@@ -27,7 +27,7 @@ julia> model = OptimalControlProblems.vanderpol(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.vanderpol(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:vanderpol), 
+    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:vanderpol), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -49,7 +49,7 @@ function OptimalControlProblems.vanderpol(
         begin
             t0, t0  # (required if the initial time is fixed)
             tf, tf  # (required if the final time is fixed)
-            N, N    # (required)
+            N, grid_size    # (required)
         end
     )
     # ------------------------------------------------

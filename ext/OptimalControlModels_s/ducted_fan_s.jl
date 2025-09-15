@@ -8,7 +8,7 @@ Ref: Graichen, K., & Petit, N. (2009). Incorporating a class of constraints into
 function OptimalControlProblems.ducted_fan_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:ducted_fan),
+    grid_size::Int=steps_number_data(:ducted_fan),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -21,6 +21,15 @@ function OptimalControlProblems.ducted_fan_s(
     m = params[:m]
     mg = params[:mg]
     μ = params[:μ]
+    α_l = params[:α_l]
+    α_u = params[:α_u]
+    u₁_l = params[:u₁_l]
+    u₁_u = params[:u₁_u]
+    u₂_l = params[:u₂_l]
+    u₂_u = params[:u₂_u]
+    tf_l = params[:tf_l]
+    x_i = params[:x_i]
+    x_f = params[:x_f]
 
     ocp = @def begin
         tf ∈ R, variable
@@ -29,30 +38,30 @@ function OptimalControlProblems.ducted_fan_s(
         u ∈ R², control
 
         # tf constraints
-        tf ≥ 0.1, (tf_c)
+        tf ≥ tf_l, (tf_c)
 
         # state constraints
-        -deg2rad(30) ≤ α(t) ≤ deg2rad(30), (α_c)
+        α_l ≤ α(t) ≤ α_u, (α_c)
 
         # control constraints
-        -5 ≤ u₁(t) ≤ 5, (u₁_c)
-        0 ≤ u₂(t) ≤ 17, (u₂_c)
+        u₁_l ≤ u₁(t) ≤ u₁_u, (u₁_c)
+        u₂_l ≤ u₂(t) ≤ u₂_u, (u₂_c)
 
         # initial constraints
-        x₁(t0) == 0, (x₁_i)
-        v₁(t0) == 0, (v₁_i)
-        x₂(t0) == 0, (x₂_i)
-        v₂(t0) == 0, (v₂_i)
-        α(t0) == 0, (α_i)
-        vα(t0) == 0, (vα_i)
+        x₁(t0) == x_i[1], (x₁_i)
+        v₁(t0) == x_i[2], (v₁_i)
+        x₂(t0) == x_i[3], (x₂_i)
+        v₂(t0) == x_i[4], (v₂_i)
+        α(t0)  == x_i[5], (α_i)
+        vα(t0) == x_i[6], (vα_i)
 
         # final constraints
-        x₁(tf) == 1, (x₁_f)
-        v₁(tf) == 0, (v₁_f)
-        x₂(tf) == 0, (x₂_f)
-        v₂(tf) == 0, (v₂_f)
-        α(tf) == 0, (α_f)
-        vα(tf) == 0, (vα_f)
+        x₁(tf) == x_f[1], (x₁_f)
+        v₁(tf) == x_f[2], (v₁_f)
+        x₂(tf) == x_f[3], (x₂_f)
+        v₂(tf) == x_f[4], (v₂_f)
+        α(tf)  == x_f[5], (α_f)
+        vα(tf) == x_f[6], (vα_f)
 
         # dynamics
         ∂(x₁)(t) == v₁(t)
@@ -79,7 +88,7 @@ function OptimalControlProblems.ducted_fan_s(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

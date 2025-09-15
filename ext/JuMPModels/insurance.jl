@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.insurance(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.insurance(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:insurance), 
+    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:insurance), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -56,7 +56,7 @@ function OptimalControlProblems.insurance(
         begin
             t0, t0  # (required if the initial time is fixed)
             tf, tf  # (required if the final time is fixed)
-            N, N    # (required)
+            N, grid_size    # (required)
         end
     )
     # ------------------------------------------------
@@ -65,15 +65,15 @@ function OptimalControlProblems.insurance(
     @variables(
         model,
         begin
-            0 <= I[0:N] <= 1.5, (start = 0.1)
-            0 <= m[0:N] <= 1.5, (start = 0.1)
-            x₃[0:N], (start = 0.1)
-            0 <= h[0:N] <= 25, (start = 0.1)
-            0 <= R[0:N], (start = 0.1)
-            0 <= H[0:N], (start = 0.1)
-            0 <= U[0:N], (start = 0.1)
-            0.001 <= dUdR[0:N], (start = 0.1)
-            P >= 0, (start = 0.1)
+            0 <= I[0:N] <= 1.5,     (start = 0.1)
+            0 <= m[0:N] <= 1.5,     (start = 0.1)
+            x₃[0:N],                (start = 0.1)
+            0 <= h[0:N] <= 25,      (start = 0.1)
+            0 <= R[0:N],            (start = 0.1)
+            0 <= H[0:N],            (start = 0.1)
+            0 <= U[0:N],            (start = 0.1)
+            0.001 <= dUdR[0:N],     (start = 0.1)
+            P >= 0,                 (start = 0.1)
         end
     )
 
@@ -114,7 +114,6 @@ function OptimalControlProblems.insurance(
     @expressions(
         model,
         begin
-
             # dynamics
             dI[i = 0:N], (1 - γ * t[i] * vprime[i] / dUdR[i]) * h[i]
             dm[i = 0:N], h[i]

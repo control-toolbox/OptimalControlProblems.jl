@@ -30,7 +30,7 @@ julia> docp = OptimalControlProblems.beam(OptimalControlBackend(); N=100);
 function OptimalControlProblems.beam_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:beam),
+    grid_size::Int=steps_number_data(:beam),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -66,7 +66,7 @@ function OptimalControlProblems.beam_s(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

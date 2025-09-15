@@ -1,5 +1,5 @@
 cart_pendulum_meta = OrderedDict(
-    :N => 500,
+    :grid_size => 500,
     :state_name => ["x", "v", "θ", "ω"],
     :costate_name => ["∂x", "∂v", "∂θ", "∂ω"],
     :control_name => ["Fex"],
@@ -18,5 +18,11 @@ cart_pendulum_meta = OrderedDict(
         max_f = 5,
         max_x = 1,
         max_v = 2,
+        tf_l = 0.1,
+        x_i = 0,
+        θ_i = 0,
+        ω_i = 0,
+        θ_f = π,
+        ω_f = 0,
     ),
 )

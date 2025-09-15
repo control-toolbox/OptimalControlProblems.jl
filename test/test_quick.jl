@@ -29,7 +29,7 @@ function test_quick()
     max_r_err = -Inf # relative error max
 
     for f in LIST_OF_PROBLEMS
-        N = metadata[f][:N]
+        N = metadata(f)[:grid_size]
 
         @testset "$(string(f)) (objective)" verbose=VERBOSE begin
             DEBUG && println("\n", "┌─ ", string(f))

@@ -28,7 +28,7 @@ julia> model = OptimalControlProblems.steering(JuMPBackend(); N=200)
 - Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/steering.jl
 """
 function OptimalControlProblems.steering(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:steering), 
+    ::JuMPBackend, args...; grid_size::Int=steps_number_data(:steering), 
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -40,7 +40,7 @@ function OptimalControlProblems.steering(
     u_min = params[:u_min]
     u_max = params[:u_max]
     xs = params[:xs]
-    xf = params[:xf]
+    yf = params[:yf]
 
     tf_start = 1
 
@@ -48,9 +48,9 @@ function OptimalControlProblems.steering(
         if i == 1 || i == 4
             return 0.0
         elseif i == 2
-            return 5.0 * k * tf_start / N
+            return 5.0 * k * (tf_start-t0) / N
         elseif i == 3
-            return 45.0 * k * tf_start / N
+            return 45.0 * k * (tf_start-t0) / N
         end
     end
 
@@ -63,42 +63,46 @@ function OptimalControlProblems.steering(
         model,
         begin
             t0, t0  # (required if the initial time is fixed)
-            N, N    # (required)
+            N, grid_size    # (required)
         end
     )
     # ------------------------------------------------
 
-    @variable(model, u_min <= u[i = 1:(N + 1)] <= u_max, start = 0)   # control
-    @variable(model, x1[i = 1:(N + 1)], start = gen_x0(i, 1))           # state x1
-    @variable(model, x2[i = 1:(N + 1)], start = gen_x0(i, 2))           # state x2
-    @variable(model, x3[i = 1:(N + 1)], start = gen_x0(i, 3))           # state x3
-    @variable(model, x4[i = 1:(N + 1)], start = gen_x0(i, 4))           # state x4
-    @variable(model, tf, start = tf_start)                             # final time
-
-    @expression(model, Δt, tf / N) # step size
+    # state, control and variable (final time)
+    @variables(
+        model,
+        begin
+            u_min <= u[i = 0:N] <= u_max,   (start = 0)
+            x1[i = 0:N],                    (start = gen_x0(i, 1))
+            x2[i = 0:N],                    (start = gen_x0(i, 2))
+            x3[i = 0:N],                    (start = gen_x0(i, 3))
+            x4[i = 0:N],                    (start = gen_x0(i, 4))
+            tf >= 0,                        (start = tf_start)
+        end
+    )
 
     # boundary conditions
-    @constraint(model, x1[1] == xs[1])
-    @constraint(model, x2[1] == xs[2])
-    @constraint(model, x3[1] == xs[3])
-    @constraint(model, x4[1] == xs[4])
-    @constraint(model, x2[N + 1] == xf[1])
-    @constraint(model, x3[N + 1] == xf[2])
-    @constraint(model, x4[N + 1] == xf[3])
-
-    # constraint on final time
-    @constraint(model, tf >= 0)
-
-    # dynamics
     @constraints(
         model,
         begin
-            ∂x1[i = 1:N], x1[i + 1] == x1[i] + 0.5 * Δt * (x3[i] + x3[i + 1])
-            ∂x2[i = 1:N], x2[i + 1] == x2[i] + 0.5 * Δt * (x4[i] + x4[i + 1])
-            ∂x3[i = 1:N],
-            x3[i + 1] == x3[i] + 0.5 * Δt * (a * cos(u[i]) + a * cos(u[i + 1]))
-            ∂x4[i = 1:N],
-            x4[i + 1] == x4[i] + 0.5 * Δt * (a * sin(u[i]) + a * sin(u[i + 1]))
+            x1[0] == xs[1]
+            x3[0] == xs[3]
+            x4[0] == xs[4]
+            x2[N] == yf[1]
+            x3[N] == yf[2]
+            x4[N] == yf[3]
+        end
+    )
+
+    # dynamics
+    @expression(model, Δt, (tf-t0) / N) # step size
+    @constraints(
+        model,
+        begin
+            ∂x1[i = 1:N], x1[i] == x1[i - 1] + 0.5 * Δt * (x3[i - 1] + x3[i])
+            ∂x2[i = 1:N], x2[i] == x2[i - 1] + 0.5 * Δt * (x4[i - 1] + x4[i])
+            ∂x3[i = 1:N], x3[i] == x3[i - 1] + 0.5 * Δt * (a * cos(u[i - 1]) + a * cos(u[i]))
+            ∂x4[i = 1:N], x4[i] == x4[i - 1] + 0.5 * Δt * (a * sin(u[i - 1]) + a * sin(u[i]))
         end
     )
 

@@ -30,7 +30,7 @@ julia> docp = OptimalControlProblems.cart_pendulum(OptimalControlBackend(); N=10
 function OptimalControlProblems.cart_pendulum(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:cart_pendulum),
+    grid_size::Int=steps_number_data(:cart_pendulum),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -46,6 +46,12 @@ function OptimalControlProblems.cart_pendulum(
     max_f = params[:max_f]
     max_x = params[:max_x]
     max_v = params[:max_v]
+    tf_l  = params[:tf_l]
+    x_i = params[:x_i]
+    θ_i = params[:θ_i]
+    ω_i = params[:ω_i]
+    θ_f = params[:θ_f]
+    ω_f = params[:ω_f]
 
     ocp = @def begin
         # time, variable, state and control
@@ -55,23 +61,23 @@ function OptimalControlProblems.cart_pendulum(
         Fex ∈ R, control
 
         # state constraints
-        -max_x ≤ x(t) ≤ max_x, (x_con)
-        -max_v ≤ v(t) ≤ max_v, (v_con)
+        -max_x ≤ x(t) ≤ max_x, (x_c)
+        -max_v ≤ v(t) ≤ max_v, (v_c)
 
         # control constraints
-        -max_f ≤ Fex(t) ≤ max_f, (Fex_con)
+        -max_f ≤ Fex(t) ≤ max_f, (Fex_c)
 
         # variables constraints
-        tf ≥ 0.1, (tf_con)
+        tf ≥ tf_l, (tf_c)
 
         # initial conditions
-        x(t0) == 0, (x_ic)
-        θ(t0) == 0, (θ_ic)
-        ω(t0) == 0, (ω_ic)
+        x(t0) == x_i, (x_i)
+        θ(t0) == θ_i, (θ_i)
+        ω(t0) == ω_i, (ω_i)
 
         # final conditions
-        θ(tf) == π, (θ_fc)
-        ω(tf) == 0, (ω_fc)
+        θ(tf) == θ_f, (θ_f)
+        ω(tf) == ω_f, (ω_f)
 
         # dynamics
         ẏ(t) == dynamics(v(t), θ(t), ω(t), Fex(t), ddx)
@@ -112,7 +118,7 @@ function OptimalControlProblems.cart_pendulum(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

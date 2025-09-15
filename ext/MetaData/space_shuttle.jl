@@ -1,5 +1,5 @@
 space_shuttle_meta = OrderedDict(
-    :N => 500,
+    :grid_size => 500,
     :state_name => ["scaled_h", "ϕ", "θ", "scaled_v", "γ", "ψ"],
     :costate_name => ["∂h", "∂ϕ", "∂θ", "∂v", "∂γ", "∂ψ"],
     :control_name => ["α", "β"],

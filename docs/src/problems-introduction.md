@@ -97,11 +97,11 @@ For each problem, additional data is provided in the [MetaData](https://github.c
 OptimalControlProblems.metadata
 ```
 
-To list all metadata, use `metadata`. To access the metadata of a specific problem, for example `chain`, run:
+To list all metadata, use `metadata()`. To access the metadata of a specific problem, for example `chain`, run:
 
 ```@example main
 using OptimalControlProblems
-metadata[:chain]
+metadata(:chain)
 ```
 
 ## Problems characteristics
@@ -192,7 +192,7 @@ We detail below the characteristics of the optimal control problems and their as
         )
 
         #
-        N = metadata[problem][:N] # get default number of steps
+        N = metadata(problem)[:grid_size] # get default number of steps
 
         push!(data_nlp,
             (

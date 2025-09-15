@@ -31,7 +31,7 @@ julia> docp = OptimalControlProblems.electric_vehicle(OptimalControlBackend(); N
 function OptimalControlProblems.electric_vehicle_s(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:electric_vehicle),
+    grid_size::Int=steps_number_data(:electric_vehicle),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
@@ -40,7 +40,6 @@ function OptimalControlProblems.electric_vehicle_s(
     params = parameters_data(:electric_vehicle, parameters)
     t0 = params[:t0]
     tf = params[:tf]
-    D = params[:D]
     b1 = params[:b1]
     b2 = params[:b2]
     h0 = params[:h0]
@@ -50,6 +49,10 @@ function OptimalControlProblems.electric_vehicle_s(
     α1 = params[:α1]
     α2 = params[:α2]
     α3 = params[:α3]
+    x_i = params[:x_i]
+    v_i = params[:v_i]
+    x_f = params[:x_f]
+    v_f = params[:v_f]
 
     # model
     ocp = @def begin
@@ -57,10 +60,10 @@ function OptimalControlProblems.electric_vehicle_s(
         y = (x, v) ∈ R², state
         u ∈ R, control
 
-        x(t0) == 0, (x_i)
-        v(t0) == 0, (v_i)
-        x(tf) == D, (x_f)
-        v(tf) == 0, (v_f)
+        x(t0) == x_i, (x_i)
+        v(t0) == v_i, (v_i)
+        x(tf) == x_f, (x_f)
+        v(tf) == v_f, (v_f)
 
         road = α0 + α1 * x(t) + α2 * x(t)^2 + α3 * x(t)^3
         ∂(x)(t) == v(t)
@@ -80,7 +83,7 @@ function OptimalControlProblems.electric_vehicle_s(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

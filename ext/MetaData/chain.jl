@@ -1,5 +1,5 @@
 chain_meta = OrderedDict(
-    :N => 500,
+    :grid_size => 500,
     :state_name => ["x1", "x2", "x3"],
     :costate_name => ["∂x1", "∂x2", "∂x3"],
     :control_name => ["u"],
@@ -15,5 +15,7 @@ chain_meta = OrderedDict(
         L = 4,
         a = 1,
         b = 3,
+        x2_i = 0,
+        x3_i = 0,
     ),
 )
