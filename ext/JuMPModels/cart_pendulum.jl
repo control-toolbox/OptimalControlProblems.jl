@@ -41,9 +41,12 @@ function OptimalControlProblems.cart_pendulum(
     m = params[:m]
     I = m * L^2 / 12    # pendulum moment of inertia
     mcart = params[:mcart]
-    max_tf = params[:max_tf]
-    max_x = params[:max_x]
-    max_v = params[:max_v]
+    Fex_l = params[:Fex_l]
+    Fex_u = params[:Fex_u]
+    x_l = params[:x_l]
+    x_u = params[:x_u]
+    v_l = params[:v_l]
+    v_u = params[:v_u]
     tf_l  = params[:tf_l]
     x_t0 = params[:x_t0]
     θ_t0 = params[:θ_t0]
@@ -69,13 +72,13 @@ function OptimalControlProblems.cart_pendulum(
     @variables(
         model,
         begin
-            tf ≥ tf_l,                     (start = 1.0)
+            tf ≥ tf_l,                      (start = 1.0)
             ddx,                            (start = 0.1)
-            -max_x ≤ x[0:N] ≤ max_x,      (start = 0.1)
-            -max_v ≤ v[0:N] ≤ max_v,      (start = 0.1)
+            x_l ≤ x[0:N] ≤ x_u,             (start = 0.1)
+            v_l ≤ v[0:N] ≤ v_u,             (start = 0.1)
             θ[0:N],                         (start = 0.1)
             ω[0:N],                         (start = 0.1)
-            -max_tf ≤ Fex[0:N] ≤ max_tf,    (start = 0.1)
+            Fex_l ≤ Fex[0:N] ≤ Fex_u,       (start = 0.1)
         end
     )
 
@@ -111,7 +114,7 @@ function OptimalControlProblems.cart_pendulum(
             J, mcart
             c[i = 0:N], eq[i] - J * ddx
 
-            dv[i = 0:N], v[i]
+            dx[i = 0:N], v[i]
             dv[i = 0:N], -1 / J * c[i]
             dθ[i = 0:N], ω[i]
             dω[i = 0:N], 1 / (I + 0.25 * m * L^2) * 0.5 * L * m * (-dv[i] * cos(θ[i]) - g * sin(θ[i]))

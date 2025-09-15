@@ -43,9 +43,12 @@ function OptimalControlProblems.cart_pendulum(
     m = params[:m]
     I = m * L^2 / 12    # pendulum moment of inertia
     mcart = params[:mcart]
-    max_tf = params[:max_tf]
-    max_x = params[:max_x]
-    max_v = params[:max_v]
+    Fex_l = params[:Fex_l]
+    Fex_u = params[:Fex_u]
+    x_l = params[:x_l]
+    x_u = params[:x_u]
+    v_l = params[:v_l]
+    v_u = params[:v_u]
     tf_l  = params[:tf_l]
     x_t0 = params[:x_t0]
     θ_t0 = params[:θ_t0]
@@ -61,11 +64,11 @@ function OptimalControlProblems.cart_pendulum(
         Fex ∈ R, control
 
         # state constraints
-        -max_x ≤ x(t) ≤ max_x, (x_c)
-        -max_v ≤ v(t) ≤ max_v, (v_c)
+        x_l ≤ x(t) ≤ x_u, (x_c)
+        v_l ≤ v(t) ≤ v_u, (v_c)
 
         # control constraints
-        -max_tf ≤ Fex(t) ≤ max_tf, (Fex_c)
+        Fex_l ≤ Fex(t) ≤ Fex_u, (Fex_c)
 
         # variables constraints
         tf ≥ tf_l, (tf_c)
