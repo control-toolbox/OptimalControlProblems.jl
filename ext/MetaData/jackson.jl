@@ -1,10 +1,10 @@
 jackson_meta = OrderedDict(
     :grid_size => 500,
-    :state_name => ["a", "b", "x₃"],
-    :costate_name => ["∂a", "∂b", "∂x₃"],
-    :control_name => ["u"],
-    :variable_name => nothing,
-    :time_grid_name => Dict(
+    :state_components => ["a", "b", "x₃"],
+    :costate_components => ["∂a", "∂b", "∂x₃"],
+    :control_components => ["u"],
+    :variable_components => nothing,
+    :time_grid_names => Dict(
         :initial_time => "t0", 
         :final_time => "tf", 
         :grid_size => "N",

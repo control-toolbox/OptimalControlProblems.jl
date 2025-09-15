@@ -28,12 +28,12 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     DRAFT = draft_meta(draft)
     LEFT_MARGIN = get_left_margin(Symbol(PROBLEM))
 
-    VARIABLE_COMPONENTS = isnothing(OptimalControlProblems.metadata(Symbol(PROBLEM))[:variable_name]) ? "" : 
+    VARIABLE_COMPONENTS = isnothing(OptimalControlProblems.metadata(Symbol(PROBLEM))[:variable_components]) ? "" : 
     """
     The variable components are named:
 
     ```@example main
-    metadata(:$PROBLEM)[:variable_name]
+    metadata(:$PROBLEM)[:variable_components]
     ```    
     """
 
@@ -81,13 +81,13 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     The state components are named:
 
     ```@example main
-    metadata(:$PROBLEM)[:state_name]
+    metadata(:$PROBLEM)[:state_components]
     ```
 
     The control components are named:
 
     ```@example main
-    metadata(:$PROBLEM)[:control_name]
+    metadata(:$PROBLEM)[:control_components]
     ```
 
     $VARIABLE_COMPONENTS
@@ -123,8 +123,8 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
             # -----------------------------
             # Extract dimensions from metadata
             # -----------------------------
-            x_vars = metadata(problem)[:state_name]
-            u_vars = metadata(problem)[:control_name]
+            x_vars = metadata(problem)[:state_components]
+            u_vars = metadata(problem)[:control_components]
             n_states = length(x_vars)
             n_controls = length(u_vars)
 
@@ -326,9 +326,9 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
             v_jp = variable(problem, nlp_jp)
             i_jp = iterations(problem, nlp_jp)
 
-            x_vars = metadata(problem)[:state_name]
-            u_vars = metadata(problem)[:control_name]
-            v_vars = metadata(problem)[:variable_name]
+            x_vars = metadata(problem)[:state_components]
+            u_vars = metadata(problem)[:control_components]
+            v_vars = metadata(problem)[:variable_components]
 
             println("┌─ ", string(problem))
             println("│")
@@ -397,8 +397,8 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     ocp_sol = build_ocp_solution(docp, nlp_oc_sol)
 
     # dimensions
-    n = state_dimension(ocp_sol)   # or length(metadata(:$PROBLEM)[:state_name])
-    m = control_dimension(ocp_sol) # or length(metadata(:$PROBLEM)[:control_name])
+    n = state_dimension(ocp_sol)   # or length(metadata(:$PROBLEM)[:state_components])
+    m = control_dimension(ocp_sol) # or length(metadata(:$PROBLEM)[:control_components])
 
     # from OptimalControl solution
     plt = plot(

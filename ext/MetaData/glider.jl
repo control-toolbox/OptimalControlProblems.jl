@@ -1,10 +1,10 @@
 glider_meta = OrderedDict(
     :grid_size => 500,
-    :state_name => ["x", "y", "vx", "vy"],
-    :costate_name => ["∂x", "∂y", "∂vx", "∂vy"],
-    :control_name => ["cL"],
-    :variable_name => ["tf"],
-    :time_grid_name => Dict(
+    :state_components => ["x", "y", "vx", "vy"],
+    :costate_components => ["∂x", "∂y", "∂vx", "∂vy"],
+    :control_components => ["cL"],
+    :variable_components => ["tf"],
+    :time_grid_names => Dict(
         :initial_time => "t0", 
         :final_time => "tf", 
         :grid_size => "N",

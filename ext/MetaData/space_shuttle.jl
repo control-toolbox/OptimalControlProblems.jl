@@ -1,10 +1,10 @@
 space_shuttle_meta = OrderedDict(
     :grid_size => 500,
-    :state_name => ["scaled_h", "ϕ", "θ", "scaled_v", "γ", "ψ"],
-    :costate_name => ["∂h", "∂ϕ", "∂θ", "∂v", "∂γ", "∂ψ"],
-    :control_name => ["α", "β"],
-    :variable_name => ["tf"],
-    :time_grid_name => Dict(
+    :state_components => ["scaled_h", "ϕ", "θ", "scaled_v", "γ", "ψ"],
+    :costate_components => ["∂h", "∂ϕ", "∂θ", "∂v", "∂γ", "∂ψ"],
+    :control_components => ["α", "β"],
+    :variable_components => ["tf"],
+    :time_grid_names => Dict(
         :initial_time => "t0", 
         :final_time => "tf", 
         :grid_size => "N",

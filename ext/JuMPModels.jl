@@ -39,7 +39,7 @@ julia> tgrid = OptimalControlProblems.time_grid(:my_problem, model)
 ```
 """
 function OptimalControlProblems.time_grid(problem::Symbol, model::JuMP.GenericModel)
-    t_grid_vars = metadata(problem)[:time_grid_name]
+    t_grid_vars = metadata(problem)[:time_grid_names]
     t0 = value.(model[Symbol(t_grid_vars[:initial_time])])
     tf = value.(model[Symbol(t_grid_vars[:final_time])])
     N  = value.(model[Symbol(t_grid_vars[:grid_size])])
@@ -77,13 +77,13 @@ function OptimalControlProblems.state(problem::Symbol, model::JuMP.GenericModel)
     N = length(T) - 1
 
     # get dimension
-    state_names = metadata(problem)[:state_name]
-    dim_x = length(state_names)
+    state_components = metadata(problem)[:state_components]
+    dim_x = length(state_components)
 
     # get state from the model
     X = zeros(N + 1, dim_x)
     for i in 1:dim_x
-        x_name = state_names[i]
+        x_name = state_components[i]
         X[:, i] = JuMP.value.(model[Symbol(x_name)])
     end
 
@@ -128,13 +128,13 @@ function OptimalControlProblems.control(problem::Symbol, model::JuMP.GenericMode
     N = length(T) - 1
 
     # get dimension
-    control_names = metadata(problem)[:control_name]
-    dim_u = length(control_names)
+    control_components = metadata(problem)[:control_components]
+    dim_u = length(control_components)
 
     # get control from the model
     U = zeros(N + 1, dim_u)
     for i in 1:dim_u
-        u_name = control_names[i]
+        u_name = control_components[i]
         U[:, i] = JuMP.value.(model[Symbol(u_name)])
     end
 
@@ -179,13 +179,13 @@ function OptimalControlProblems.costate(problem::Symbol, model::JuMP.GenericMode
     N = length(T) - 1
 
     # get dimension
-    costate_names = metadata(problem)[:costate_name]
-    dim_x = length(costate_names)
+    costate_components = metadata(problem)[:costate_components]
+    dim_x = length(costate_components)
 
     # get costate from the model
     P = zeros(N, dim_x)
     for i in 1:dim_x
-        p_name = costate_names[i]
+        p_name = costate_components[i]
         P[:, i] = JuMP.dual.(model[Symbol(p_name)])
     end
 
@@ -229,18 +229,18 @@ julia> v = OptimalControlProblems.variable(:my_problem, model)
 ```
 """
 function OptimalControlProblems.variable(problem::Symbol, model::JuMP.GenericModel)
-    variable_names = metadata(problem)[:variable_name]
+    variable_components = metadata(problem)[:variable_components]
 
-    if isnothing(variable_names)
+    if isnothing(variable_components)
         return nothing
     end
 
-    dim_v = length(variable_names)
+    dim_v = length(variable_components)
 
     # get variable from the model
     v = zeros(dim_v)
     for i in 1:dim_v
-        v_name = variable_names[i]
+        v_name = variable_components[i]
         v[i] = JuMP.value.(model[Symbol(v_name)])
     end
 

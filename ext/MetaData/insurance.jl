@@ -1,10 +1,10 @@
 insurance_meta = OrderedDict(
     :grid_size => 500,
-    :state_name => ["I", "m", "x₃"],
-    :costate_name => ["∂I", "∂m", "∂x₃"],
-    :control_name => ["h", "R", "H", "U", "dUdR"],
-    :variable_name => nothing,
-    :time_grid_name => Dict(
+    :state_components => ["I", "m", "x₃"],
+    :costate_components => ["∂I", "∂m", "∂x₃"],
+    :control_components => ["h", "R", "H", "U", "dUdR"],
+    :variable_components => nothing,
+    :time_grid_names => Dict(
         :initial_time => "t0", 
         :final_time => "tf", 
         :grid_size => "N",

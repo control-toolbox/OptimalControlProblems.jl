@@ -7,11 +7,11 @@ To add a new problem to **OptimalControlProblems**, you must follow these steps:
 ```julia
 new_problem_meta = OrderedDict(
     :grid_size => 100,                 # Number of steps
-    :state_name => ["x₁", "x₂"],       # Names of the state components
-    :costate_name => ["∂x₁", "∂x₂"],   # Names of the dynamics constraints (for the costate)
-    :control_name => ["u"],            # Names of the control components
-    :variable_name => ["v"],           # Names of the optimisation variables
-    :time_grid_name => Dict(
+    :state_components => ["x₁", "x₂"],       # Names of the state components
+    :costate_components => ["∂x₁", "∂x₂"],   # Names of the dynamics constraints (for the costate)
+    :control_components => ["u"],            # Names of the control components
+    :variable_components => ["v"],           # Names of the optimisation variables
+    :time_grid_names => Dict(
         :initial_time => "t0",         # Name of the initial time
         :final_time => "tf",           # Name of the final time
         :grid_size => "N",             # Name of the grid size
@@ -134,7 +134,7 @@ end
     The names `t0`, `tf` and `N` in `@expressions` command are the same as in the metadata:
     
     ```julia
-    :time_grid_name => Dict(
+    :time_grid_names => Dict(
         :initial_time => "t0", 
         :final_time => "tf", 
         :grid_size => "N",

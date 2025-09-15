@@ -18,8 +18,8 @@ function test_parameters()
             ocp = ocp_model(docp)
             t0_fixed = has_fixed_initial_time(ocp)
             tf_fixed = has_fixed_final_time(ocp)
-            t0_name = metadata(problem)[:time_grid_name][:initial_time]
-            tf_name = metadata(problem)[:time_grid_name][:final_time]
+            t0_name = metadata(problem)[:time_grid_names][:initial_time]
+            tf_name = metadata(problem)[:time_grid_names][:final_time]
 
             if t0_fixed
                 params = NamedTuple(Dict(Symbol(t0_name) => t0, ))

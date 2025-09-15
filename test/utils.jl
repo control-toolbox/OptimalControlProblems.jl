@@ -215,10 +215,10 @@ function comparison(; max_iter, test_name)
     # we loop over the problems
     for f in LIST_OF_PROBLEMS
         grid_size = metadata(f)[:grid_size] # get default number of steps
-        x_vars = metadata(f)[:state_name]
-        p_vars = metadata(f)[:costate_name]
-        u_vars = metadata(f)[:control_name]
-        v_vars = metadata(f)[:variable_name]
+        x_vars = metadata(f)[:state_components]
+        p_vars = metadata(f)[:costate_components]
+        u_vars = metadata(f)[:control_components]
+        v_vars = metadata(f)[:variable_components]
 
         @testset "$(string(f)) ($(string(test_name)))" verbose=VERBOSE begin
             DEBUG && println("\n┌─ ", string(f), " (", string(test_name), ")")

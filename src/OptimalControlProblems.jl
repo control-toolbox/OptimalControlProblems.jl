@@ -108,11 +108,11 @@ const number_of_problems = length(files)
 
 const infos = [
     :grid_size
-    :state_name
-    :costate_name
-    :control_name
-    :variable_name
-    :time_grid_name
+    :state_components
+    :costate_components
+    :control_components
+    :variable_components
+    :time_grid_names
     :parameters
 ]
 
@@ -164,26 +164,26 @@ To get specific data, the following keys are valid:
 ```julia
 :grid_size => 500,
 ```
-- `state_name::Vector{String}`: names of the state components. For example:
+- `state_components::Vector{String}`: names of the state components. For example:
 ```julia
-:state_name => ["x₁", "x₂"],
+:state_components => ["x₁", "x₂"],
 ```
-- `costate_name::Vector{String}`: names of the differential constraints to obtain the costate (dual variables associated with the differential constraints). For example:
+- `costate_components::Vector{String}`: names of the differential constraints to obtain the costate (dual variables associated with the differential constraints). For example:
 ```julia
-:costate_name => ["∂x₁", "∂x₂"],
+:costate_components => ["∂x₁", "∂x₂"],
 ```
-- `control_name::Vector{String}`: names of the control components. For example:
+- `control_components::Vector{String}`: names of the control components. For example:
 ```julia
-:control_name => ["u"],
+:control_components => ["u"],
 ```
-- `variable_name::Union{Vector{String},Nothing}`: names of the optimisation variables, or `nothing` if no such variable exists. For example:
+- `variable_components::Union{Vector{String},Nothing}`: names of the optimisation variables, or `nothing` if no such variable exists. For example:
 ```julia
-:variable_name => nothing,
-:variable_name => ["tf"],
+:variable_components => nothing,
+:variable_components => ["tf"],
 ```
-- `time_grid_name::Dict`: names of the initial time, the final time and the grid size parameter. For example:
+- `time_grid_names::Dict`: names of the initial time, the final time and the grid size parameter. For example:
 ```julia
-:time_grid_name => Dict(
+:time_grid_names => Dict(
     :initial_time => "t0", 
     :final_time => "tf", 
     :grid_size => "N",
@@ -207,7 +207,7 @@ To get specific data, the following keys are valid:
 
 ```julia-repl
 julia> data = metadata(:beam)
-julia> data[:control_name]
+julia> data[:control_components]
 "u"
 ```
 """
