@@ -60,16 +60,15 @@ function OptimalControlProblems.glider(
     # model
     model = JuMP.Model(args...; kwargs...)
 
-    # ------------------------------------------------
-    # expressions to get grid time infos
-    @expressions(
-        model,
-        begin
-            t0, t0  # (required if the initial time is fixed)
-            N, grid_size    # (required)
-        end
-    )
-    # ------------------------------------------------
+    # metadata: required
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
+    model[:state_components] = ["x", "y", "vx", "vy"]
+    model[:costate_components] = ["∂x", "∂y", "∂vx", "∂vy"]
+    model[:control_components] = ["cL"]
+    model[:variable_components] = ["tf"]
+
+    # N = grid_size
+    @expression(model, N, grid_size)
 
     # state, control, variable (final time) and initial guess
     @variables(

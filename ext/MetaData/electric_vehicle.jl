@@ -1,14 +1,5 @@
 electric_vehicle_meta = OrderedDict(
     :grid_size => 500,
-    :state_components => ["x", "v"],
-    :costate_components => ["∂x", "∂v"],
-    :control_components => ["u"],
-    :variable_components => nothing,
-    :time_grid_names => Dict(
-        :initial_time => "t0", 
-        :final_time => "tf", 
-        :grid_size => "N",
-    ),
     :parameters => (
         t0 = 0,
         tf = 1,

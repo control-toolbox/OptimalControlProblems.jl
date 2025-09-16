@@ -76,16 +76,15 @@ function OptimalControlProblems.robot(
     # model
     model = JuMP.Model(args...; kwargs...)
 
-    # ------------------------------------------------
-    # expressions to get grid time infos
-    @expressions(
-        model,
-        begin
-            t0, t0  # (required if the initial time is fixed)
-            N, grid_size    # (required)
-        end
-    )
-    # ------------------------------------------------
+    # metadata: required
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
+    model[:state_components] = ["ρ", "dρ", "θ", "dθ", "ϕ", "dϕ"]
+    model[:costate_components] = ["∂ρ", "∂dρ", "∂θ", "∂dθ", "∂ϕ", "∂dϕ"]
+    model[:control_components] = ["uρ", "uθ", "uϕ"]
+    model[:variable_components] = ["tf"]
+
+    # N = grid_size
+    @expression(model, N, grid_size)
 
     # state, control, variable (final time) and initial guess
     @variables(

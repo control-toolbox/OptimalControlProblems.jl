@@ -78,7 +78,7 @@ From `ocp_sol` you can also plot the state, control, and costate trajectories. F
 
 ```@example main
 using Plots
-plt = plot(ocp_sol; color=1, size=(800, 700), control_style=(label="OptimalControl", ))
+plt = plot(ocp_sol; color=1, size=(700, 600), control_style=(label="OptimalControl", ))
 ```
 
 ## Solving from a JuMP model
@@ -122,12 +122,12 @@ objective_value(nlp)
 To get the time grid, state, control, and costate, but also to retrieve the number of iterations and the objective value, OptimalControlProblems provides the following getters:
 
 ```@example main
-t = time_grid(:beam, nlp)    # t0, ..., tN = tf
-x = state(:beam, nlp)        # function of time
-u = control(:beam, nlp)      # function of time
-p = costate(:beam, nlp)      # function of time
-o = objective(:beam, nlp)    # scalar objective value
-i = iterations(:beam, nlp)   # number of iteration
+t = time_grid(nlp)    # t0, ..., tN = tf
+x = state(nlp)        # function of time
+u = control(nlp)      # function of time
+p = costate(nlp)      # function of time
+o = objective(nlp)    # scalar objective value
+i = iterations(nlp)   # number of iteration
 
 tf = t[end]
 println("tf = ", tf)
@@ -142,14 +142,14 @@ println("iterations: ", i)
     If the `problem` includes additional optimisation variables, such as the final time, you can retrieve them with:
 
     ```julia
-    v = variable(problem, nlp)
+    v = variable(nlp)
     ```
 
 Now, we can add the state, costate, and control to the plot:
 
 ```@example main
-n = length(metadata(:beam)[:state_components])   # dimension of the state
-m = length(metadata(:beam)[:control_components]) # dimension of the control
+n = state_dimension(nlp)
+m = control_dimension(nlp)
 
 for i in 1:n # state
     plot!(plt[i], t, t -> x(t)[i]; color=2, linestyle=:dash, label=:none)

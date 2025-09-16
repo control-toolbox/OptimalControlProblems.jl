@@ -7,15 +7,6 @@ To add a new problem to **OptimalControlProblems**, you must follow these steps:
 ```julia
 new_problem_meta = OrderedDict(
     :grid_size => 100,                 # Number of steps
-    :state_components => ["x₁", "x₂"],       # Names of the state components
-    :costate_components => ["∂x₁", "∂x₂"],   # Names of the dynamics constraints (for the costate)
-    :control_components => ["u"],            # Names of the control components
-    :variable_components => ["v"],           # Names of the optimisation variables
-    :time_grid_names => Dict(
-        :initial_time => "t0",         # Name of the initial time
-        :final_time => "tf",           # Name of the final time
-        :grid_size => "N",             # Name of the grid size
-    ),
     :parameters => (
         t0 = 0,                        # Value of the initial time
         tf = 1,                        # Value of the final time
@@ -109,20 +100,27 @@ function OptimalControlProblems.new_problem(
     # model
     model = JuMP.Model(args...; kwargs...)
 
-    # ------------------------------------------------
-    # expressions to get grid time infos
-    @expressions(
+    # metadata: required
+    model[:time_grid] = () -> range(t0, tf, grid_size+1) # tf is a fixed
+    model[:state_components] = ["x₁", "x₂"]
+    model[:costate_components] = ["∂x₁", "∂x₂"]
+    model[:control_components] = ["u"]
+    model[:variable_components] = String[]               # no variable
+
+    # N = grid_size
+    @expression(model, N, grid_size)
+
+    # variables and initial guess
+    @variables(
         model,
         begin
-            t0, t0          # (required if the initial time is fixed)
-            tf, tf          # (required if the final time is fixed)
-            N, grid_size    # (required)
+            x₁[0:N],    (start = 0.5) # consistent with model[:state_components]
+            x₂[0:N],    (start = 0.1) # consistent with model[:state_components]
+            u[0:N],     (start = 0.1) # consistent with model[:control_components]
         end
     )
-    # ------------------------------------------------
-
-    # define the problem
-    # @variables, @constraints, @objective...
+    
+    # @constraints, @objective...
 
     return model
 
@@ -131,14 +129,11 @@ end
 
 !!! warning
 
-    The names `t0`, `tf` and `N` in `@expressions` command are the same as in the metadata:
-    
+    - The metadata in JuMP are required and must be consistent with the other models. 
+    - If `tf` is free, then define:
+
     ```julia
-    :time_grid_names => Dict(
-        :initial_time => "t0", 
-        :final_time => "tf", 
-        :grid_size => "N",
-    ),
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
     ```
 
 !!! tip

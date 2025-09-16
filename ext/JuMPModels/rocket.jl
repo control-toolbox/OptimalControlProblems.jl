@@ -56,16 +56,15 @@ function OptimalControlProblems.rocket(
     # model
     model = JuMP.Model(args...; kwargs...)
 
-    # ------------------------------------------------
-    # expressions to get grid time infos
-    @expressions(
-        model,
-        begin
-            t0, t0  # (required if the initial time is fixed)
-            N, grid_size    # (required)
-        end
-    )
-    # ------------------------------------------------
+    # metadata
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
+    model[:state_components] = ["h", "v", "m"]
+    model[:costate_components] = ["∂h", "∂v", "∂m"]
+    model[:control_components] = ["T"]
+    model[:variable_components] = ["tf"]
+
+    # N = grid_size
+    @expression(model, N, grid_size)
 
     # state, control, variable (final time) and initial guess
     @variables(
@@ -73,9 +72,9 @@ function OptimalControlProblems.rocket(
         begin
             h[i = 0:N] ≥ h_t0,               (start = 1)
             v[i = 0:N] ≥ v_t0,               (start = i / N * (1 - i / N))
-            m_tf ≤ m[i = 0:N] ≤ m_t0,         (start = (m_tf - m_t0) * (i / N) + m_t0)
-            T_l ≤ T[i = 0:N] ≤ Tmax,        (start = Tmax / 2)
-            tf ≥ tf_l,                      (start = 1)
+            m_tf ≤ m[i = 0:N] ≤ m_t0,        (start = (m_tf - m_t0) * (i / N) + m_t0)
+            T_l ≤ T[i = 0:N] ≤ Tmax,         (start = Tmax / 2)
+            tf ≥ tf_l,                       (start = 1)
         end
     )
 

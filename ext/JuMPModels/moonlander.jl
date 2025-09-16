@@ -66,16 +66,15 @@ function OptimalControlProblems.moonlander(
     # define the problem
     model = JuMP.Model(args...; kwargs...)
 
-    # ------------------------------------------------
-    # expressions to get grid time infos
-    @expressions(
-        model,
-        begin
-            t0, t0  # (required if the initial time is fixed)
-            N, grid_size    # (required)
-        end
-    )
-    # ------------------------------------------------
+    # metadata: required
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
+    model[:state_components] = ["p₁", "p₂", "dp₁", "dp₂", "θ", "dθ"]
+    model[:costate_components] = ["∂p₁", "∂p₂", "∂dp₁", "∂dp₂", "∂θ", "∂dθ"]
+    model[:control_components] = ["F₁", "F₂"]
+    model[:variable_components] = ["tf"]
+
+    # N = grid_size
+    @expression(model, N, grid_size)
 
     # state, control and final time variables
     @variables(

@@ -54,17 +54,15 @@ function OptimalControlProblems.electric_vehicle(
     # model
     model = JuMP.Model(args...; kwargs...)
 
-    # ------------------------------------------------
-    # expressions to get grid time infos
-    @expressions(
-        model,
-        begin
-            t0, t0  # (required if the initial time is fixed)
-            tf, tf  # (required if the final time is fixed)
-            N, grid_size    # (required)
-        end
-    )
-    # ------------------------------------------------
+    # metadata: required
+    model[:time_grid] = () -> range(t0, tf, grid_size+1) # tf is a fixed
+    model[:state_components] = ["x", "v"]
+    model[:costate_components] = ["∂x", "∂v"]
+    model[:control_components] = ["u"]
+    model[:variable_components] = String[]
+
+    # N = grid_size
+    @expression(model, N, grid_size)
 
     # state, control and initial guess
     @variables(

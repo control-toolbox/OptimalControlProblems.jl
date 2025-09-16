@@ -1,14 +1,5 @@
 robot_meta = OrderedDict(
     :grid_size => 250,
-    :state_components => ["ρ", "dρ", "θ", "dθ", "ϕ", "dϕ"],
-    :costate_components => ["∂ρ", "∂dρ", "∂θ", "∂dθ", "∂ϕ", "∂dϕ"],
-    :control_components => ["uρ", "uθ", "uϕ"],
-    :variable_components => ["tf"],
-    :time_grid_names => Dict(
-        :initial_time => "t0", 
-        :final_time => "tf", 
-        :grid_size => "N",
-    ),
     :parameters => (
         t0 = 0,
         L = 5,
