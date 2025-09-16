@@ -2,7 +2,19 @@ module OptimalControlProblems
 
 using CTBase
 using CTDirect
-import CTModels: CTModels, time_grid, state, control, costate, iterations
+import CTModels: 
+    CTModels, 
+    time_grid, 
+    state, 
+    control, 
+    costate, 
+    iterations, 
+    control_components, 
+    control_dimension,
+    state_components,
+    state_dimension,
+    variable_components,
+    variable_dimension
 import ExaModels: ExaModels, ExaModel, variable, objective
 using DocStringExtensions
 using OrderedCollections: OrderedDict
@@ -108,21 +120,11 @@ const number_of_problems = length(files)
 
 const infos = [
     :grid_size
-    :state_components
-    :costate_components
-    :control_components
-    :variable_components
-    :time_grid_names
     :parameters
 ]
 
 const types = [
     Int,
-    Vector{String},
-    Vector{String},
-    Vector{String},
-    Union{Vector{String},Nothing},
-    Dict,
     Union{Nothing,NamedTuple},
 ]
 
@@ -164,31 +166,6 @@ To get specific data, the following keys are valid:
 ```julia
 :grid_size => 500,
 ```
-- `state_components::Vector{String}`: names of the state components. For example:
-```julia
-:state_components => ["x₁", "x₂"],
-```
-- `costate_components::Vector{String}`: names of the differential constraints to obtain the costate (dual variables associated with the differential constraints). For example:
-```julia
-:costate_components => ["∂x₁", "∂x₂"],
-```
-- `control_components::Vector{String}`: names of the control components. For example:
-```julia
-:control_components => ["u"],
-```
-- `variable_components::Union{Vector{String},Nothing}`: names of the optimisation variables, or `nothing` if no such variable exists. For example:
-```julia
-:variable_components => nothing,
-:variable_components => ["tf"],
-```
-- `time_grid_names::Dict`: names of the initial time, the final time and the grid size parameter. For example:
-```julia
-:time_grid_names => Dict(
-    :initial_time => "t0", 
-    :final_time => "tf", 
-    :grid_size => "N",
-),
-```
 - `parameters::Union{Nothing,NamedTuple}`: the list of parameters. For example:
 ```julia
 :parameters => (
@@ -207,8 +184,8 @@ To get specific data, the following keys are valid:
 
 ```julia-repl
 julia> data = metadata(:beam)
-julia> data[:control_components]
-"u"
+julia> data[:grid_size]
+500
 ```
 """
 function metadata(problem::Symbol)
@@ -252,97 +229,6 @@ function problems()::Vector{Symbol}
     # list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
     return list_of_problems
-end
-
-"""
-$(TYPEDSIGNATURES)
-
-This method throws an `ExtensionError` and is called if the JuMP backend is not available. To get the JuMP backend, make:
-
-```julia
-using JuMP
-```
-"""
-function time_grid(::Symbol, model)
-    throw(CTBase.ExtensionError(:JuMP))
-end
-
-"""
-$(TYPEDSIGNATURES)
-
-This method throws an `ExtensionError` and is called if the JuMP backend is not available. To get the JuMP backend, make:
-
-```julia
-using JuMP
-```
-"""
-function state(::Symbol, model)
-    throw(CTBase.ExtensionError(:JuMP))
-end
-
-"""
-$(TYPEDSIGNATURES)
-
-This method throws an `ExtensionError` and is called if the JuMP backend is not available. To get the JuMP backend, make:
-
-```julia
-using JuMP
-```
-"""
-function costate(::Symbol, model)
-    throw(CTBase.ExtensionError(:JuMP))
-end
-
-"""
-$(TYPEDSIGNATURES)
-
-This method throws an `ExtensionError` and is called if the JuMP backend is not available. To get the JuMP backend, make:
-
-```julia
-using JuMP
-```
-"""
-function control(::Symbol, model)
-    throw(CTBase.ExtensionError(:JuMP))
-end
-
-"""
-$(TYPEDSIGNATURES)
-
-This method throws an `ExtensionError` and is called if the JuMP backend is not available. To get the JuMP backend, make:
-
-```julia
-using JuMP
-```
-"""
-function variable(::Symbol, model)
-    throw(CTBase.ExtensionError(:JuMP))
-end
-
-"""
-$(TYPEDSIGNATURES)
-
-This method throws an `ExtensionError` and is called if the JuMP backend is not available. To get the JuMP backend, make:
-
-```julia
-using JuMP
-```
-"""
-function objective(::Symbol, model)
-    throw(CTBase.ExtensionError(:JuMP))
-end
-
-"""
-$(TYPEDSIGNATURES)
-
-This method throws an `ExtensionError` and is called if the JuMP backend is not available. To get the JuMP backend, make:
-
-```julia
-using JuMP
-```
-"""
-function iterations(::Symbol, model)
-    throw(CTBase.ExtensionError(:JuMP))
 end
 
 """
@@ -525,6 +411,7 @@ end
 
 export JuMPBackend, OptimalControlBackend, problems
 export time_grid, state, costate, control, variable, iterations, objective
+export control_components, control_dimension, state_components, state_dimension, variable_components, variable_dimension
 export metadata, grid_size_data, parameters_data
 
 end

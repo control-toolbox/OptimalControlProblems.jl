@@ -1,14 +1,5 @@
 bioreactor_meta = OrderedDict(
     :grid_size => 600,
-    :state_components => ["y", "s", "b"],
-    :costate_components => ["∂y", "∂s", "∂b"],
-    :control_components => ["u"],
-    :variable_components => nothing,
-    :time_grid_names => Dict(
-        :initial_time => "t0", 
-        :final_time => "tf", 
-        :grid_size => "N",
-    ),
     :parameters => (
         t0 = 0,
         tf = 200, # the final time is 10N where N = 20 by default

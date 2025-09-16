@@ -1,14 +1,5 @@
 cart_pendulum_meta = OrderedDict(
     :grid_size => 500,
-    :state_components => ["x", "v", "θ", "ω"],
-    :costate_components => ["∂x", "∂v", "∂θ", "∂ω"],
-    :control_components => ["Fex"],
-    :variable_components => ["tf", "ddx"],
-    :time_grid_names => Dict(
-        :initial_time => "t0", 
-        :final_time => "tf", 
-        :grid_size => "N",
-    ),
     :parameters => (
         t0 = 0,
         g = 9.81,            # gravitation [m/s^2]

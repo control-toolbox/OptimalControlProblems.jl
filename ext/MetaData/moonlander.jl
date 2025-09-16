@@ -1,14 +1,5 @@
 moonlander_meta = OrderedDict(
     :grid_size => 500,
-    :state_components => ["p₁", "p₂", "dp₁", "dp₂", "θ", "dθ"],
-    :costate_components => ["∂p₁", "∂p₂", "∂dp₁", "∂dp₂", "∂θ", "∂dθ"],
-    :control_components => ["F₁", "F₂"],
-    :variable_components => ["tf"],
-    :time_grid_names => Dict(
-        :initial_time => "t0", 
-        :final_time => "tf", 
-        :grid_size => "N",
-    ),
     :parameters => (
         t0 = 0,
         m = 1,

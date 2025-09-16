@@ -49,16 +49,15 @@ function OptimalControlProblems.dielectrophoretic_particle(
     # model
     model = JuMP.Model(args...; kwargs...)
 
-    # ------------------------------------------------
-    # expressions to get grid time infos
-    @expressions(
-        model,
-        begin
-            t0, t0  # (required if the initial time is fixed)
-            N, grid_size    # (required)
-        end
-    )
-    # ------------------------------------------------
+    # metadata: required
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
+    model[:state_components] = ["x", "y"]
+    model[:costate_components] = ["∂x", "∂y"]
+    model[:control_components] = ["u"]
+    model[:variable_components] = ["tf"]
+
+    # N = grid_size
+    @expression(model, N, grid_size)
 
     # state, control and variable (final time)
     @variables(

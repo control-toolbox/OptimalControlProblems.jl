@@ -1,14 +1,5 @@
 steering_meta = OrderedDict(
     :grid_size => 500,
-    :state_components => ["x₁", "x₂", "x₃", "x₄"],
-    :costate_components => ["∂x₁", "∂x₂", "∂x₃", "∂x₄"],
-    :control_components => ["u"],
-    :variable_components => ["tf"],
-    :time_grid_names => Dict(
-        :initial_time => "t0", 
-        :final_time => "tf", 
-        :grid_size => "N",
-    ),
     :parameters => (
         t0 = 0,
         a = 100,

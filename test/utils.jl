@@ -184,6 +184,24 @@ function comparison(; max_iter, test_name)
     end
 
     #
+    function test_components(A, B, A_name, B_name)
+        res = @my_test_broken A == B
+        DEBUG && @printf("│      → %s vs %s  %s -- ", A_name, B_name, test_tag(res))
+        DEBUG && println(A, " vs ", B)
+        return res
+    end
+
+    function test_components(A, B, A_name, B_name, keep_problem)
+        res = test_components(A, B, A_name, B_name)
+        return res && keep_problem
+    end
+
+    function test_components(A, B, A_name, B_name, keep_problem, test_grid_ok)
+        res = test_components(A, B, A_name, B_name)
+        return res && keep_problem, res && test_grid_ok
+    end
+
+    #
     function test_length(A, B, A_name, B_name)
         return test_int(length(A), length(B), A_name, B_name)
     end
@@ -214,11 +232,8 @@ function comparison(; max_iter, test_name)
 
     # we loop over the problems
     for f in LIST_OF_PROBLEMS
+
         grid_size = metadata(f)[:grid_size] # get default number of steps
-        x_vars = metadata(f)[:state_components]
-        p_vars = metadata(f)[:costate_components]
-        u_vars = metadata(f)[:control_components]
-        v_vars = metadata(f)[:variable_components]
 
         @testset "$(string(f)) ($(string(test_name)))" verbose=VERBOSE begin
             DEBUG && println("\n┌─ ", string(f), " (", string(test_name), ")")
@@ -236,19 +251,27 @@ function comparison(; max_iter, test_name)
             set_optimizer_attribute(nlp_jp, "sb", options_ipopt[:sb])
             optimize!(nlp_jp)
 
-            t_jp = time_grid(f, nlp_jp)
-            x_jp = state(f, nlp_jp).(t_jp)
-            u_jp = control(f, nlp_jp).(t_jp)
-            o_jp = objective(f, nlp_jp)
-            i_jp = iterations(f, nlp_jp)
-            v_jp = variable(f, nlp_jp)
-            p_jp = costate(f, nlp_jp).(t_jp)
+            t_jp = time_grid(nlp_jp)
+            x_jp = state(nlp_jp).(t_jp)
+            u_jp = control(nlp_jp).(t_jp)
+            o_jp = objective(nlp_jp)
+            i_jp = iterations(nlp_jp)
+            v_jp = variable(nlp_jp)
+            p_jp = costate(nlp_jp).(t_jp)
             nb_var_jp = num_variables(nlp_jp)
             nb_con_jp = num_constraints(nlp_jp; count_variable_in_set_constraints=false)
+            x_vars_jp = state_components(nlp_jp)
+            u_vars_jp = control_components(nlp_jp)
+            v_vars_jp = variable_components(nlp_jp)
+            #
+            x_vars = x_vars_jp
+            u_vars = u_vars_jp
+            v_vars = v_vars_jp
 
             ########## OptimalControl ##########
             docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); grid_size=grid_size)
             nlp_oc = nlp_model(docp)
+            ocp_oc = ocp_model(docp)
             nlp_sol = NLPModelsIpopt.ipopt(nlp_oc; options_ipopt...)
             sol_oc = build_ocp_solution(docp, nlp_sol)
 
@@ -260,11 +283,15 @@ function comparison(; max_iter, test_name)
             v_oc = variable(sol_oc)
             nb_var_oc = get_nvar(nlp_oc)
             nb_con_oc = get_ncon(nlp_oc)
+            x_vars_oc = state_components(ocp_oc)
+            u_vars_oc = control_components(ocp_oc)
+            v_vars_oc = variable_components(ocp_oc)
 
             ########## OptimalControl_s ##########
             model_backend = :exa # :adnlp
             docp = OptimalControlProblems.eval(Symbol(f, :_s))(OptimalControlBackend(), :madnlp, model_backend; grid_size=grid_size)
             nlp_os = nlp_model(docp)
+            ocp_os = ocp_model(docp)
             nlp_sol = madnlp(nlp_os; options_madnlp...)
             sol_os = build_ocp_solution(docp, nlp_sol)
 
@@ -276,12 +303,29 @@ function comparison(; max_iter, test_name)
             v_os = variable(sol_os)
             nb_var_os = get_nvar(nlp_os)
             nb_con_os = get_ncon(nlp_os)
+            x_vars_os = state_components(ocp_os)
+            u_vars_os = control_components(ocp_os)
+            v_vars_os = variable_components(ocp_os)
 
             ########## Iterations ##########
             DEBUG && @printf("├─ Iterations\n")
             DEBUG && @printf("│      → JP: %d  OC: %d  OS: %d\n", i_jp, i_oc, i_os)
 
+            #
             keep_problem = true
+
+            ########## Components Names ##########
+            if test_name == :init
+                @testset "nlp" verbose=VERBOSE begin
+                    DEBUG && @printf("├─ Components names\n")
+                    keep_problem = test_components(x_vars_jp, x_vars_oc, "state   : JP", "OC", keep_problem)
+                    keep_problem = test_components(x_vars_jp, x_vars_os, "state   : JP", "OS", keep_problem)
+                    keep_problem = test_components(u_vars_jp, u_vars_oc, "control : JP", "OC", keep_problem)
+                    keep_problem = test_components(u_vars_jp, u_vars_os, "control : JP", "OS", keep_problem)
+                    keep_problem = test_components(v_vars_jp, v_vars_oc, "variable: JP", "OC", keep_problem)
+                    keep_problem = test_components(v_vars_jp, v_vars_os, "variable: JP", "OS", keep_problem)
+                end
+            end
 
             ########## Variables / Constraints ##########
             @testset "nlp" verbose=VERBOSE begin
@@ -383,7 +427,6 @@ function comparison(; max_iter, test_name)
 
             n = length(x_vars)
             m = length(u_vars)
-            @assert(length(p_vars)==n)
 
             # OptimalControl
             color = 1
@@ -438,7 +481,7 @@ function comparison(; max_iter, test_name)
                 plot!(plt[i], t_jp, xi_jp; color=color, linestyle=:dash, label=label)
             end
 
-            for i in eachindex(p_vars) # costate
+            for i in eachindex(x_vars) # costate
                 pi_jp = [p_jp[k][i] for k in eachindex(t_jp)]
                 plot!(plt[n + i], t_jp, -pi_jp; color=color, linestyle=:dash, label=:none)
             end

@@ -1,14 +1,5 @@
 ducted_fan_meta = OrderedDict(
     :grid_size => 250,
-    :state_components => ["x₁", "v₁", "x₂", "v₂", "α", "vα"],
-    :costate_components => ["∂x₁", "∂v₁", "∂x₂", "∂v₂", "∂α", "∂vα"],
-    :control_components => ["u₁", "u₂"],
-    :variable_components => ["tf"],
-    :time_grid_names => Dict(
-        :initial_time => "t0", 
-        :final_time => "tf", 
-        :grid_size => "N",
-    ),
     :parameters => (
         t0 = 0,
         r = 0.2,         # [m]

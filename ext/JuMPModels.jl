@@ -2,7 +2,19 @@ module JuMPModels
 
 using OptimalControlProblems
 using JuMP
-import CTModels: CTModels, time_grid, state, control, costate, iterations
+import CTModels: 
+    CTModels, 
+    time_grid, 
+    state, 
+    control, 
+    costate, 
+    iterations, 
+    control_components, 
+    control_dimension,
+    state_components,
+    state_dimension,
+    variable_components,
+    variable_dimension
 import ExaModels: ExaModels, variable, objective
 using DocStringExtensions
 using OrderedCollections: OrderedDict
@@ -20,11 +32,176 @@ end
 """
 $(TYPEDSIGNATURES)
 
+Return the list of costate component names stored in a JuMP model.
+
+# Arguments
+
+- `model::JuMP.GenericModel`: A JuMP model that contains the key `:costate_components`.
+
+# Returns
+
+- `Vector{String}`: The names of the costate components.
+
+# Example
+
+```julia-repl
+julia> costate_components(model)
+["∂x", "∂v", "∂θ", "∂ω"]
+```
+"""
+costate_components(model::JuMP.GenericModel) = model[:costate_components]
+
+
+"""
+$(TYPEDSIGNATURES)
+
+Return the list of state component names stored in a JuMP model.
+
+# Arguments
+
+- `model::JuMP.GenericModel`: A JuMP model that contains the key `:state_components`.
+
+# Returns
+
+- `Vector{String}`: The names of the state components.
+
+# Example
+
+```julia-repl
+julia> OptimalControlProblems.state_components(model)
+["x", "v", "θ", "ω"]
+```
+"""
+OptimalControlProblems.state_components(model::JuMP.GenericModel) = model[:state_components]
+
+
+"""
+$(TYPEDSIGNATURES)
+
+Return the list of control component names stored in a JuMP model.
+
+# Arguments
+
+- `model::JuMP.GenericModel`: A JuMP model that contains the key `:control_components`.
+
+# Returns
+
+- `Vector{String}`: The names of the control components.
+
+# Example
+
+```julia-repl
+julia> OptimalControlProblems.control_components(model)
+["Fex"]
+```
+"""
+OptimalControlProblems.control_components(model::JuMP.GenericModel) = model[:control_components]
+
+
+"""
+$(TYPEDSIGNATURES)
+
+Return the list of additional variable component names stored in a JuMP model.
+
+# Arguments
+
+- `model::JuMP.GenericModel`: A JuMP model that contains the key `:variable_components`.
+
+# Returns
+
+- `Vector{String}`: The names of the additional variable components.
+
+# Example
+
+```julia-repl
+julia> OptimalControlProblems.variable_components(model)
+["tf", "ddx"]
+```
+"""
+OptimalControlProblems.variable_components(model::JuMP.GenericModel) = model[:variable_components]
+
+
+"""
+$(TYPEDSIGNATURES)
+
+Return the number of state components in a JuMP model.
+
+# Arguments
+
+- `model::JuMP.GenericModel`: A JuMP model that contains the key `:state_components`.
+
+# Returns
+
+- `Int`: The number of state components.
+
+# Example
+
+```julia-repl
+julia> OptimalControlProblems.state_dimension(model)
+4
+```
+"""
+function OptimalControlProblems.state_dimension(model::JuMP.GenericModel) 
+    return length(model[:state_components])
+end
+
+
+"""
+$(TYPEDSIGNATURES)
+
+Return the number of control components in a JuMP model.
+
+# Arguments
+
+- `model::JuMP.GenericModel`: A JuMP model that contains the key `:control_components`.
+
+# Returns
+
+- `Int`: The number of control components.
+
+# Example
+
+```julia-repl
+julia> OptimalControlProblems.control_dimension(model)
+1
+```
+"""
+function OptimalControlProblems.control_dimension(model::JuMP.GenericModel) 
+    return length(model[:control_components])
+end
+
+
+"""
+$(TYPEDSIGNATURES)
+
+Return the number of additional variable components in a JuMP model.
+
+# Arguments
+
+- `model::JuMP.GenericModel`: A JuMP model that contains the key `:variable_components`.
+
+# Returns
+
+- `Int`: The number of additional variable components.
+
+# Example
+
+```julia-repl
+julia> OptimalControlProblems.variable_dimension(model)
+2
+```
+"""
+function OptimalControlProblems.variable_dimension(model::JuMP.GenericModel) 
+    return length(model[:variable_components])
+end
+
+"""
+$(TYPEDSIGNATURES)
+
 Compute the discretised time grid for a given optimal control problem solved with JuMP.
 
 # Arguments
 
-- `problem::Symbol`: The name of the problem as defined in `metadata`.
 - `model::JuMP.GenericModel`: The JuMP model containing the problem solution.
 
 # Returns
@@ -34,18 +211,11 @@ Compute the discretised time grid for a given optimal control problem solved wit
 # Example
 
 ```julia-repl
-julia> tgrid = OptimalControlProblems.time_grid(:my_problem, model)
+julia> tgrid = OptimalControlProblems.time_grid(model)
 0.0:0.1:1.0
 ```
 """
-function OptimalControlProblems.time_grid(problem::Symbol, model::JuMP.GenericModel)
-    t_grid_vars = metadata(problem)[:time_grid_names]
-    t0 = value.(model[Symbol(t_grid_vars[:initial_time])])
-    tf = value.(model[Symbol(t_grid_vars[:final_time])])
-    N  = value.(model[Symbol(t_grid_vars[:grid_size])])
-    t_jp = range(t0, tf, N+1)
-    return t_jp
-end
+OptimalControlProblems.time_grid(model::JuMP.GenericModel) = model[:time_grid]()
 
 """
 $(TYPEDSIGNATURES)
@@ -54,7 +224,6 @@ Extract and interpolate the state trajectory from a JuMP model of an optimal con
 
 # Arguments
 
-- `problem::Symbol`: The name of the problem as defined in `metadata`.
 - `model::JuMP.GenericModel`: The JuMP model containing the problem solution.
 
 # Returns
@@ -65,26 +234,25 @@ Extract and interpolate the state trajectory from a JuMP model of an optimal con
 # Example
 
 ```julia-repl
-julia> x = OptimalControlProblems.state(:my_problem, model)
+julia> x = OptimalControlProblems.state(model)
 julia> x(0.5)
 [0.23, 0.71]
 ```
 """
-function OptimalControlProblems.state(problem::Symbol, model::JuMP.GenericModel)
+function OptimalControlProblems.state(model::JuMP.GenericModel)
 
     # time grid
-    T = CTModels.time_grid(problem, model)
+    T = CTModels.time_grid(model)
     N = length(T) - 1
 
-    # get dimension
-    state_components = metadata(problem)[:state_components]
-    dim_x = length(state_components)
+    # get components and dimension
+    x_vars = state_components(model)
+    dim_x = state_dimension(model)
 
     # get state from the model
     X = zeros(N + 1, dim_x)
     for i in 1:dim_x
-        x_name = state_components[i]
-        X[:, i] = JuMP.value.(model[Symbol(x_name)])
+        X[:, i] = JuMP.value.(model[Symbol(x_vars[i])])
     end
 
     # interpolate
@@ -105,7 +273,6 @@ Extract and interpolate the control trajectory from a JuMP model of an optimal c
 
 # Arguments
 
-- `problem::Symbol`: The name of the problem as defined in `metadata`.
 - `model::JuMP.GenericModel`: The JuMP model containing the problem solution.
 
 # Returns
@@ -116,26 +283,25 @@ Extract and interpolate the control trajectory from a JuMP model of an optimal c
 # Example
 
 ```julia-repl
-julia> u = OptimalControlProblems.control(:my_problem, model)
+julia> u = OptimalControlProblems.control(model)
 julia> u(0.25)
 0.42
 ```
 """
-function OptimalControlProblems.control(problem::Symbol, model::JuMP.GenericModel)
+function OptimalControlProblems.control(model::JuMP.GenericModel)
 
     # time grid
-    T = CTModels.time_grid(problem, model)
+    T = CTModels.time_grid(model)
     N = length(T) - 1
 
-    # get dimension
-    control_components = metadata(problem)[:control_components]
-    dim_u = length(control_components)
+    # get components and dimension
+    u_vars = control_components(model)
+    dim_u = control_dimension(model)
 
     # get control from the model
     U = zeros(N + 1, dim_u)
     for i in 1:dim_u
-        u_name = control_components[i]
-        U[:, i] = JuMP.value.(model[Symbol(u_name)])
+        U[:, i] = JuMP.value.(model[Symbol(u_vars[i])])
     end
 
     # interpolate
@@ -156,7 +322,6 @@ Extract and interpolate the costate trajectory (dual variables associated with s
 
 # Arguments
 
-- `problem::Symbol`: The name of the problem as defined in `metadata`.
 - `model::JuMP.GenericModel`: The JuMP model containing the problem solution.
 
 # Returns
@@ -167,26 +332,25 @@ Extract and interpolate the costate trajectory (dual variables associated with s
 # Example
 
 ```julia-repl
-julia> p = OptimalControlProblems.costate(:my_problem, model)
+julia> p = OptimalControlProblems.costate(model)
 julia> p(0.75)
 [-0.12, 0.05]
 ```
 """
-function OptimalControlProblems.costate(problem::Symbol, model::JuMP.GenericModel)
+function OptimalControlProblems.costate(model::JuMP.GenericModel)
 
     # time grid
-    T = CTModels.time_grid(problem, model)
+    T = CTModels.time_grid( model)
     N = length(T) - 1
 
     # get dimension
-    costate_components = metadata(problem)[:costate_components]
-    dim_x = length(costate_components)
+    p_vars = costate_components(model)
+    dim_x = state_dimension(model)
 
     # get costate from the model
     P = zeros(N, dim_x)
     for i in 1:dim_x
-        p_name = costate_components[i]
-        P[:, i] = JuMP.dual.(model[Symbol(p_name)])
+        P[:, i] = JuMP.dual.(model[Symbol(p_vars[i])])
     end
 
     # interpolate
@@ -211,37 +375,35 @@ Extract scalar or vector decision variables (such as final time when free) from 
 
 # Arguments
 
-- `problem::Symbol`: The name of the problem as defined in `metadata`.
 - `model::JuMP.GenericModel`: The JuMP model containing the problem solution.
 
 # Returns
 
-- `var::Union{Nothing,Float64,Vector{Float64}}`:  
-  - `nothing` if the problem defines no additional variables.  
+- `var::Union{Float64,Vector{Float64}}`:  
+  - `Float64[]` if the problem defines no additional variables.  
   - A scalar if there is one variable.  
   - A vector if multiple variables exist.
 
 # Example
 
 ```julia-repl
-julia> v = OptimalControlProblems.variable(:my_problem, model)
+julia> v = OptimalControlProblems.variable(model)
 1.5
 ```
 """
-function OptimalControlProblems.variable(problem::Symbol, model::JuMP.GenericModel)
-    variable_components = metadata(problem)[:variable_components]
+function OptimalControlProblems.variable(model::JuMP.GenericModel)
 
-    if isnothing(variable_components)
-        return nothing
+    # get components and dimension
+    v_vars = variable_components(model)
+    dim_v = variable_dimension(model)
+    if dim_v == 0
+        return Float64[]
     end
-
-    dim_v = length(variable_components)
 
     # get variable from the model
     v = zeros(dim_v)
     for i in 1:dim_v
-        v_name = variable_components[i]
-        v[i] = JuMP.value.(model[Symbol(v_name)])
+        v[i] = JuMP.value.(model[Symbol(v_vars[i])])
     end
 
     # force scalar output when dimension is 1
@@ -257,17 +419,16 @@ Get the objective value from a JuMP model.
 
 # Arguments
 
-- `problem::Symbol`: The name of the problem as defined in `metadata`.
 - `model::JuMP.GenericModel`: The JuMP model containing the problem solution.
 
 # Example
 
 ```julia-repl
-julia> OptimalControlProblems.objective(:my_problem, model)
+julia> OptimalControlProblems.objective(model)
 1.5
 ```
 """
-function OptimalControlProblems.objective(::Symbol, model::JuMP.GenericModel)
+function OptimalControlProblems.objective(model::JuMP.GenericModel)
     return objective_value(model)
 end
 
@@ -278,17 +439,16 @@ Get the number of iterations from a JuMP model.
 
 # Arguments
 
-- `problem::Symbol`: The name of the problem as defined in `metadata`.
 - `model::JuMP.GenericModel`: The JuMP model containing the problem solution.
 
 # Example
 
 ```julia-repl
-julia> OptimalControlProblems.iterations(:my_problem, model)
+julia> OptimalControlProblems.iterations(model)
 20
 ```
 """
-function OptimalControlProblems.iterations(::Symbol, model::JuMP.GenericModel)
+function OptimalControlProblems.iterations(model::JuMP.GenericModel)
     return barrier_iterations(model)
 end
 

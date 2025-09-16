@@ -1,14 +1,5 @@
 double_oscillator_meta = OrderedDict(
     :grid_size => 500,
-    :state_components => ["x₁", "x₂", "x₃", "x₄"],
-    :costate_components => ["∂x₁", "∂x₂", "∂x₃", "∂x₄"],
-    :control_components => ["u"],
-    :variable_components => nothing,
-    :time_grid_names => Dict(
-        :initial_time => "t0", 
-        :final_time => "tf", 
-        :grid_size => "N",
-    ),
     :parameters => (
         t0 = 0,
         tf = 2π, 

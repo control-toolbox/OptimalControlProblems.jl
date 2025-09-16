@@ -63,26 +63,24 @@ function OptimalControlProblems.insurance(
     # model
     model = JuMP.Model(args...; kwargs...)
 
-    # ------------------------------------------------
-    # expressions to get grid time infos
-    @expressions(
-        model,
-        begin
-            t0, t0  # (required if the initial time is fixed)
-            tf, tf  # (required if the final time is fixed)
-            N, grid_size    # (required)
-        end
-    )
-    # ------------------------------------------------
+    # metadata: required
+    model[:time_grid] = () -> range(t0, tf, grid_size+1) # tf is a fixed
+    model[:state_components] =["I", "m", "x₃"]
+    model[:costate_components] = ["∂I", "∂m", "∂x₃"]
+    model[:control_components] = ["h", "R", "H", "U", "dUdR"]
+    model[:variable_components] = ["P"]
+
+    # N = grid_size
+    @expression(model, N, grid_size)
 
     # state, control and initial guess
     @variables(
         model,
         begin
-            I_l ≤ I[0:N] ≤ I_u,     (start = 0.1)
-            m_l ≤ m[0:N] ≤ m_u,     (start = 0.1)
-            x₃[0:N],                  (start = 0.1)
-            h_l ≤ h[0:N] ≤ h_u,     (start = 0.1)
+            I_l ≤ I[0:N] ≤ I_u,      (start = 0.1)
+            m_l ≤ m[0:N] ≤ m_u,      (start = 0.1)
+            x₃[0:N],                 (start = 0.1)
+            h_l ≤ h[0:N] ≤ h_u,      (start = 0.1)
             R[0:N] ≥ R_l,            (start = 0.1)
             H[0:N] ≥ H_l,            (start = 0.1)
             U[0:N] ≥ U_l,            (start = 0.1)
