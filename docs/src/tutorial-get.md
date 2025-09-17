@@ -39,7 +39,7 @@ The `nlp` model represents the nonlinear programming problem (NLP) obtained afte
 You can pass any `description` and `kwargs` of [`CTDirect.direct_transcription`](@extref) to the `beam` problem or any other.
 
 ```@example main_oc
-docp = beam(OptimalControlBackend(), :madnlp; grid_size=100, disc_method=:euler)
+docp = beam(OptimalControlBackend(), :adnlp; grid_size=100, disc_method=:euler)
 nothing # hide
 ```
 
