@@ -8,7 +8,7 @@ The objective is to transfer the particle from an initial position to a target p
 The problem can be written as
 
 ```math
-\min_{x,\,y,\,u,\,t_f} t_tf
+\min_{x,\,y,\,u,\,t_f} t_f
 ```
 
 subject to the dynamics
