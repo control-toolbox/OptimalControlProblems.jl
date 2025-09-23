@@ -163,15 +163,23 @@ function comparison(; max_iter, test_name)
                 nb_var_oc, nb_var_jp = get_nvar(nlp_oc), num_variables(nlp_jp)
                 res = @my_test_broken nb_var_oc == nb_var_jp
                 keep_problem = keep_problem && res
-                DEBUG && @printf("├─ Variables      → OC: %d  JP: %d  %s\n", nb_var_oc, nb_var_jp,
-                                res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m")
+                DEBUG && @printf(
+                    "├─ Variables      → OC: %d  JP: %d  %s\n",
+                    nb_var_oc,
+                    nb_var_jp,
+                    res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m"
+                )
 
                 nb_con_oc = get_ncon(nlp_oc)
                 nb_con_jp = num_constraints(nlp_jp; count_variable_in_set_constraints=false)
                 res = @my_test_broken nb_con_oc == nb_con_jp
                 keep_problem = keep_problem && res
-                DEBUG && @printf("├─ Constraints    → OC: %d  JP: %d  %s\n", nb_con_oc, nb_con_jp,
-                                res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m")
+                DEBUG && @printf(
+                    "├─ Constraints    → OC: %d  JP: %d  %s\n",
+                    nb_con_oc,
+                    nb_con_jp,
+                    res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m"
+                )
             end
 
             ########## Time Grid ##########
@@ -182,17 +190,27 @@ function comparison(; max_iter, test_name)
                 tf_bd = max(0.5*(t_oc[end]+t_jp[end])*ε_rel_grid, ε_abs_grid)
                 res = @my_test_broken tf_di < tf_bd
                 r_err = tf_di / (0.5*(t_oc[end]+t_jp[end]))
-                DEBUG && @printf("├─ Final time     → OC: %.3e  JP: %.3e\n", t_oc[end], t_jp[end])
-                DEBUG && @printf("│          r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
-                            r_err, tf_di, tf_bd,
-                            res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m")
+                DEBUG && @printf(
+                    "├─ Final time     → OC: %.3e  JP: %.3e\n", t_oc[end], t_jp[end]
+                )
+                DEBUG && @printf(
+                    "│          r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
+                    r_err,
+                    tf_di,
+                    tf_bd,
+                    res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m"
+                )
 
                 # length of the grids
                 res = @my_test_broken length(t_oc) == length(t_jp)
                 keep_problem = keep_problem && res
                 test_grid_ok = test_grid_ok && res
-                DEBUG && @printf("├─ Grid length    → OC: %d  JP: %d  %s\n", length(t_oc), length(t_jp),
-                                res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m")
+                DEBUG && @printf(
+                    "├─ Grid length    → OC: %d  JP: %d  %s\n",
+                    length(t_oc),
+                    length(t_jp),
+                    res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m"
+                )
 
                 # max error
                 if test_grid_ok
@@ -208,9 +226,14 @@ function comparison(; max_iter, test_name)
                         end
                     end
                     r_err = abs(ti_di_max)/(0.5*(abs(t_oc[itera_max])+abs(t_jp[itera_max])))
-                    DEBUG && @printf("├─ Grid max error → iter=%d  r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
-                                itera_max, r_err, abs(ti_di_max), ti_bd_max,
-                                r_err<1.0 ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m")
+                    DEBUG && @printf(
+                        "├─ Grid max error → iter=%d  r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
+                        itera_max,
+                        r_err,
+                        abs(ti_di_max),
+                        ti_bd_max,
+                        r_err<1.0 ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m"
+                    )
                 end
             end
 
@@ -220,15 +243,25 @@ function comparison(; max_iter, test_name)
                     DEBUG && println("├─ States")
                     for i in eachindex(x_vars)
                         @testset "$(x_vars[i])" verbose=VERBOSE begin
-                            xi_oc, xi_jp = [x_oc[k][i] for k in eachindex(t_oc)], [x_jp[k][i] for k in eachindex(t_jp)]
+                            xi_oc, xi_jp = [x_oc[k][i] for k in eachindex(t_oc)],
+                            [x_jp[k][i] for k in eachindex(t_jp)]
                             L2_di = L2_norm(t_oc, xi_oc - xi_jp)
-                            L2_bd = max(0.5*(L2_norm(t_oc, xi_oc)+L2_norm(t_oc, xi_jp))*ε_rel_state, ε_abs_state)
+                            L2_bd = max(
+                                0.5*(L2_norm(t_oc, xi_oc)+L2_norm(t_oc, xi_jp))*ε_rel_state,
+                                ε_abs_state,
+                            )
                             res = @my_test_broken L2_di < L2_bd
                             keep_problem = keep_problem && res
-                            r_err = L2_di / (0.5*(L2_norm(t_oc, xi_oc)+L2_norm(t_oc, xi_jp)))
-                            DEBUG && @printf("│   %-6s r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
-                                        x_vars[i], r_err, L2_di, L2_bd,
-                                        res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m")
+                            r_err =
+                                L2_di / (0.5*(L2_norm(t_oc, xi_oc)+L2_norm(t_oc, xi_jp)))
+                            DEBUG && @printf(
+                                "│   %-6s r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
+                                x_vars[i],
+                                r_err,
+                                L2_di,
+                                L2_bd,
+                                res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m"
+                            )
                         end
                     end
                 end
@@ -240,15 +273,25 @@ function comparison(; max_iter, test_name)
                     DEBUG && println("├─ Controls")
                     for i in eachindex(u_vars)
                         @testset "$(u_vars[i])" verbose=VERBOSE begin
-                            ui_oc, ui_jp = [u_oc[k][i] for k in eachindex(t_oc)], [u_jp[k][i] for k in eachindex(t_jp)]
+                            ui_oc, ui_jp = [u_oc[k][i] for k in eachindex(t_oc)],
+                            [u_jp[k][i] for k in eachindex(t_jp)]
                             L2_di = L2_norm(t_oc, ui_oc - ui_jp)
-                            L2_bd = max(0.5*(L2_norm(t_oc, ui_oc)+L2_norm(t_oc, ui_jp))*ε_rel_control, ε_abs_control)
+                            L2_bd = max(
+                                0.5*(L2_norm(t_oc, ui_oc)+L2_norm(t_oc, ui_jp))*ε_rel_control,
+                                ε_abs_control,
+                            )
                             res = @my_test_broken L2_di < L2_bd
                             keep_problem = keep_problem && res
-                            r_err = L2_di / (0.5*(L2_norm(t_oc, ui_oc)+L2_norm(t_oc, ui_jp)))
-                            DEBUG && @printf("│   %-6s r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
-                                        u_vars[i], r_err, L2_di, L2_bd,
-                                        res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m")
+                            r_err =
+                                L2_di / (0.5*(L2_norm(t_oc, ui_oc)+L2_norm(t_oc, ui_jp)))
+                            DEBUG && @printf(
+                                "│   %-6s r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
+                                u_vars[i],
+                                r_err,
+                                L2_di,
+                                L2_bd,
+                                res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m"
+                            )
                         end
                     end
                 end
@@ -262,13 +305,20 @@ function comparison(; max_iter, test_name)
                         @testset "$(v_vars[i])" verbose=VERBOSE begin
                             vi_oc, vi_jp = v_oc[i], v_jp[i]
                             vi_di = abs(vi_oc-vi_jp)
-                            vi_bd = max(0.5*(abs(vi_oc)+abs(vi_jp))*ε_rel_control, ε_abs_control)
+                            vi_bd = max(
+                                0.5*(abs(vi_oc)+abs(vi_jp))*ε_rel_control, ε_abs_control
+                            )
                             res = @my_test_broken vi_di < vi_bd
                             keep_problem = keep_problem && res
                             r_err = vi_di / (0.5*(abs(vi_oc)+abs(vi_jp)))
-                            DEBUG && @printf("│   %-6s r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
-                                        v_vars[i], r_err, vi_di, vi_bd,
-                                        res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m")
+                            DEBUG && @printf(
+                                "│   %-6s r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
+                                v_vars[i],
+                                r_err,
+                                vi_di,
+                                vi_bd,
+                                res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m"
+                            )
                         end
                     end
                 end
@@ -282,9 +332,13 @@ function comparison(; max_iter, test_name)
                 keep_problem = keep_problem && res
                 r_err = o_di / (0.5*(abs(o_oc)+abs(o_jp)))
                 DEBUG && println("├─ Objective")
-                DEBUG && @printf("│          r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
-                            r_err, o_di, o_bd,
-                            res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m")
+                DEBUG && @printf(
+                    "│          r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
+                    r_err,
+                    o_di,
+                    o_bd,
+                    res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m"
+                )
             end
 
             DEBUG && println("└─")
@@ -343,7 +397,6 @@ function comparison(; max_iter, test_name)
 
             # save figure
             savefig(plt, joinpath(figdir, "$f" * ".pdf"))
-
         end# end testset
     end # end for
 end

@@ -60,7 +60,7 @@ function test_quick()
 
             res = @my_test_broken o_di < o_bd
 
-            DEBUG &&  res && println("│     \033[1;32mTest Passed\033[0m")
+            DEBUG && res && println("│     \033[1;32mTest Passed\033[0m")
             DEBUG && !res && println("│     \033[1;31mTest Failed\033[0m")
             DEBUG && println("│")
 

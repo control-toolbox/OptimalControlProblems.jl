@@ -42,7 +42,7 @@ function test_JuMP()
             # Test
             res = @my_test_broken termination_status(nlp) == MOI.LOCALLY_SOLVED
             keep_problem = keep_problem && res
-            DEBUG &&  res && println("│     \033[1;32mTest Passed\033[0m")
+            DEBUG && res && println("│     \033[1;32mTest Passed\033[0m")
             DEBUG && !res && println("│     \033[1;31mTest Failed\033[0m")
             DEBUG && println("│")
             DEBUG && println("└─")

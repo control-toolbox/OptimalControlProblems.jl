@@ -5,7 +5,6 @@ using NLPModelsIpopt
 using Plots
 
 function Beam(a)
-
     tf = 1
 
     ocp = @def begin
@@ -20,7 +19,6 @@ function Beam(a)
     end
 
     return ocp
-
 end
 
 plot(solve(Beam(1/2))) # state constraint inactive
