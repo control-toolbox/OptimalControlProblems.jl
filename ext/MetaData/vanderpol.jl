@@ -1,10 +1,11 @@
 vanderpol_meta = OrderedDict(
-    :name => "vanderpol",
-    :N => 500,
-    :minimise => true,
-    :state_name => ["x1", "x2"],
-    :costate_name => ["∂x1", "∂x2"],
-    :control_name => ["u"],
-    :variable_name => nothing,
-    :final_time => (:fixed, 2),
+    :grid_size => 500,
+    :parameters => (
+        t0 = 0,
+        tf = 2,
+        ω = 1,
+        ε = 1,
+        x₁_t0 = 1,
+        x₂_t0 = 0,
+    ),
 )

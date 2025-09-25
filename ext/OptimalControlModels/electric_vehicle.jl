@@ -8,7 +8,7 @@ It returns both a discretised direct optimal control problem (DOCP) and the corr
 # Arguments
 
 - `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
 
 # Returns
 
@@ -31,30 +31,39 @@ julia> docp = OptimalControlProblems.electric_vehicle(OptimalControlBackend(); N
 function OptimalControlProblems.electric_vehicle(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:electric_vehicle),
+    grid_size::Int=grid_size_data(:electric_vehicle),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    tf = final_time_data(:electric_vehicle)
-    D = 10
-    b1 = 1e0
-    b2 = 1e0
-    h0 = 0.1
-    h1 = 1
-    h2 = 1e-3
-    α0, α1, α2, α3 = (3, 0.4, -1, 0.1)
+    params = parameters_data(:electric_vehicle, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    b1 = params[:b1]
+    b2 = params[:b2]
+    h0 = params[:h0]
+    h1 = params[:h1]
+    h2 = params[:h2]
+    α0 = params[:α0]
+    α1 = params[:α1]
+    α2 = params[:α2]
+    α3 = params[:α3]
+    x_t0 = params[:x_t0]
+    v_t0 = params[:v_t0]
+    x_tf = params[:x_tf]
+    v_tf = params[:v_tf]
 
     # model
     ocp = @def begin
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         y = (x, v) ∈ R², state
         u ∈ R, control
 
-        x(0) == 0, (x_i)
-        v(0) == 0, (v_i)
-        x(tf) == D, (x_f)
-        v(tf) == 0, (v_f)
+        x(t0) == x_t0, (x_t0)
+        v(t0) == v_t0, (v_t0)
+        x(tf) == x_tf, (x_tf)
+        v(tf) == v_tf, (v_tf)
 
         ẏ(t) == dynamics(x(t), v(t), u(t))
 
@@ -75,7 +84,7 @@ function OptimalControlProblems.electric_vehicle(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

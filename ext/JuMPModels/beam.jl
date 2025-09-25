@@ -8,7 +8,7 @@ The problem is formulated as in the BOCOP repository.
 # Arguments
 
 - `::JuMPBackend`: Placeholder type to specify the JuMP backend or solver interface.
-- `N::Int=500`: (Keyword) Number of discretisation steps for the time grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation steps for the time grid.
 
 # Returns
 
@@ -28,23 +28,43 @@ julia> model = OptimalControlProblems.beam(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.beam(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:beam), kwargs...
+    ::JuMPBackend, args...; 
+    grid_size::Int=grid_size_data(:beam), 
+    parameters::Union{Nothing, NamedTuple}=nothing, 
+    kwargs...
 )
 
     # parameters
-    tf = final_time_data(:beam)
-    step = tf / N # t0 = 0
+    params = parameters_data(:beam, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    x₁_l = params[:x₁_l]
+    x₁_u = params[:x₁_u]
+    x₁_t0 = params[:x₁_t0]
+    x₂_t0 = params[:x₂_t0]
+    x₁_tf = params[:x₁_tf]
+    x₂_tf = params[:x₂_tf]
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # metadata: required
+    model[:time_grid] = () -> range(t0, tf, grid_size+1) # tf is a fixed
+    model[:state_components] = ["x₁", "x₂"]
+    model[:costate_components] = ["∂x₁", "∂x₂"]
+    model[:control_components] = ["u"]
+    model[:variable_components] = String[]
+
+    # N = grid_size
+    @expression(model, N, grid_size)
 
     # variables and initial guess
     @variables(
         model,
         begin
-            0.0 <= x1[0:N] <= 0.1, (start = 0.05)
-            x2[0:N], (start = 0.1)
-            u[0:N], (start = 0.1)
+            x₁_l ≤ x₁[0:N] ≤ x₁_u,    (start = 0.05)
+            x₂[0:N],                  (start = 0.1)
+            u[0:N],                   (start = 0.1)
         end
     )
 
@@ -52,24 +72,38 @@ function OptimalControlProblems.beam(
     @constraints(
         model,
         begin
-            x1[0] == 0
-            x2[0] == 1
-            x1[N] == 0
-            x2[N] == -1
+            x₁[0] == x₁_t0
+            x₂[0] == x₂_t0
+            x₁[N] == x₁_tf
+            x₂[N] == x₂_tf
         end
     )
 
     # dynamics
+    @expressions(
+        model,
+        begin
+            #
+            Δt, (tf - t0) / N
+
+            # dynamics
+            dx₁[i = 0:N], x₂[i]
+            dx₂[i = 0:N], u[i]
+
+            # objective
+            dc[i = 0:N], u[i]^2
+        end
+    )
     @constraints(
         model,
         begin
-            ∂x1[i = 1:N], x1[i] == x1[i - 1] + 0.5 * step * (x2[i] + x2[i - 1])
-            ∂x2[i = 1:N], x2[i] == x2[i - 1] + 0.5 * step * (u[i] + u[i - 1])
+            ∂x₁[i = 1:N], x₁[i] == x₁[i - 1] + 0.5 * Δt * (dx₁[i] + dx₁[i - 1])
+            ∂x₂[i = 1:N], x₂[i] == x₂[i - 1] + 0.5 * Δt * (dx₂[i] + dx₂[i - 1])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(u[i]^2 + u[i - 1]^2 for i in 1:N))
+    @objective(model, Min, 0.5 * Δt * sum(dc[i] + dc[i - 1] for i in 1:N))
 
     return model
 end

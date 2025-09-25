@@ -5,9 +5,9 @@ function draft_meta(draft::Union{Bool,Nothing})
     if isnothing(draft)
         return ""
     elseif draft
-        return """```@meta\nDraft = true\n```"""
+        return """```@meta\nDraft = true\n```\n"""
     else
-        return """```@meta\nDraft = false\n```"""
+        return """```@meta\nDraft = false\n```\n"""
     end
 end
 
@@ -24,7 +24,7 @@ end
 # -----------------------------------
 function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Union{Bool,Nothing})
 
-    TITLE = uppercasefirst(replace(PROBLEM, "_" => " "))
+    TITLE = "[" * uppercasefirst(replace(PROBLEM, "_" => " ")) * "](@id description-$PROBLEM)"
     DRAFT = draft_meta(draft)
     LEFT_MARGIN = get_left_margin(Symbol(PROBLEM))
 
@@ -67,6 +67,27 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     nothing # hide
     ```
 
+    ## Metadata
+
+    The default number of time steps is:
+
+    ```@example main
+    metadata(:$PROBLEM)[:grid_size]
+    ```
+
+    The default values of the parameters are:
+
+    ```@example main
+    metadata(:$PROBLEM)[:parameters]
+    using Printf # hide
+    println("Parameter = Value") # hide
+    println("------------------") # hide
+    for e ∈ pairs(metadata(:$PROBLEM)[:parameters]) # hide
+        @printf("%6s = ", string(e.first)) # hide
+        @printf("%11.4e\\n", e.second) # hide
+    end # hide
+    ```
+
     ## Initial guess
 
     Before solving the problem, it is often useful to inspect the initial guess (sometimes called the first iterate). This guess is obtained by running the NLP solver with `max_iter = 0`, which evaluates the problem formulation without performing any optimisation steps.  
@@ -83,24 +104,21 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
         function plot_initial_guess(problem)
 
             # -----------------------------
-            # Extract dimensions from metadata
-            # -----------------------------
-            x_vars = metadata[problem][:state_name]
-            u_vars = metadata[problem][:control_name]
-            n_states = length(x_vars)
-            n_controls = length(u_vars)
-
-            # -----------------------------
             # Build OptimalControl problem
             # -----------------------------
-            ocp_model = eval(problem)(OptimalControlBackend())
-            nlp_oc = nlp_model(ocp_model)
+            docp = eval(problem)(OptimalControlBackend())
+            nlp_oc = nlp_model(docp)
+            ocp_oc = ocp_model(docp)
 
             # Solve NLP with zero iterations (initial guess)
             nlp_oc_sol = NLPModelsIpopt.ipopt(nlp_oc; max_iter=0)
 
             # Build OptimalControl solution
-            ocp_sol = build_ocp_solution(ocp_model, nlp_oc_sol)
+            ocp_sol = build_ocp_solution(docp, nlp_oc_sol)
+
+            # get dimensions
+            n = state_dimension(ocp_oc)
+            m = control_dimension(ocp_oc)
 
             # -----------------------------
             # Plot OptimalControl solution
@@ -112,13 +130,13 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
                 control_style=(color=1, legend=:none),
                 path_style=(color=1, legend=:none),
                 dual_style=(color=1, legend=:none),
-                size=(816, 220*(n_states+n_controls)),
+                size=(816, 220*(n+m)),
                 label="OptimalControl",
                 leftmargin=$LEFT_MARGIN,
             )
 
             # Hide legend for additional state plots
-            for i in 2:n_states
+            for i in 2:n
                 plot!(plt[i]; legend=:none)
             end
 
@@ -133,28 +151,28 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
             optimize!(nlp_jp)
 
             # Extract trajectories
-            t_grid = time_grid(problem, nlp_jp)
-            x_fun = state(problem, nlp_jp)
-            u_fun = control(problem, nlp_jp)
-            p_fun = costate(problem, nlp_jp)
+            t_grid = time_grid(nlp_jp)
+            x_fun = state(nlp_jp)
+            u_fun = control(nlp_jp)
+            p_fun = costate(nlp_jp)
 
             # -----------------------------
             # Plot JuMP solution on top
             # -----------------------------
             # States
-            for i in 1:n_states
+            for i in 1:n
                 label = i == 1 ? "JuMP" : :none
                 plot!(plt[i], t_grid, t -> x_fun(t)[i]; color=2, linestyle=:dash, label=label)
             end
 
             # Costates
-            for i in 1:n_states
-                plot!(plt[n_states+i], t_grid, t -> -p_fun(t)[i]; color=2, linestyle=:dash, label=:none)
+            for i in 1:n
+                plot!(plt[n+i], t_grid, t -> -p_fun(t)[i]; color=2, linestyle=:dash, label=:none)
             end
 
             # Controls
-            for i in 1:n_controls
-                plot!(plt[2*n_states+i], t_grid, t -> u_fun(t)[i]; color=2, linestyle=:dash, label=:none)
+            for i in 1:m
+                plot!(plt[2*n+i], t_grid, t -> u_fun(t)[i]; color=2, linestyle=:dash, label=:none)
             end
 
             return plt
@@ -179,14 +197,12 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     Before solving, we can inspect the discretisation details of the problem. The table below reports the number of grid points, decision variables, and constraints associated with the chosen formulation.  
 
     ```@example main
-    push!(data_pb,
-        (
-            Problem=:$PROBLEM,
-            Grid_Size=metadata[:$PROBLEM][:N],
-            Variables=get_nvar(nlp_model($PROBLEM(OptimalControlBackend()))),
-            Constraints=get_ncon(nlp_model($PROBLEM(OptimalControlBackend()))),
-        )
-    )
+    push!(data_pb,(
+        Problem=:$PROBLEM,
+        Grid_Size=metadata(:$PROBLEM)[:grid_size],
+        Variables=get_nvar(nlp_model($PROBLEM(OptimalControlBackend()))),
+        Constraints=get_ncon(nlp_model($PROBLEM(OptimalControlBackend()))),
+    ))
     data_pb # hide
     ```
 
@@ -236,24 +252,20 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
 
     ```@example main
     # from OptimalControl model
-    push!(data_re,
-        (
-            Model=:OptimalControl,
-            Flag=nlp_oc_sol.status,
-            Iterations=nlp_oc_sol.iter,
-            Objective=nlp_oc_sol.objective,
-        )
-    )
+    push!(data_re,(
+        Model=:OptimalControl,
+        Flag=nlp_oc_sol.status,
+        Iterations=nlp_oc_sol.iter,
+        Objective=nlp_oc_sol.objective,
+    ))
 
     # from JuMP model
-    push!(data_re,
-        (
-            Model=:JuMP,
-            Flag=termination_status(nlp_jp),
-            Iterations=barrier_iterations(nlp_jp),
-            Objective=objective_value(nlp_jp),
-        )
-    )
+    push!(data_re,(
+        Model=:JuMP,
+        Flag=termination_status(nlp_jp),
+        Iterations=barrier_iterations(nlp_jp),
+        Objective=objective_value(nlp_jp),
+    ))
     data_re # hide
     ```    
 
@@ -287,16 +299,16 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
             i_oc = iterations(ocp_sol)
 
             # get relevant data from JuMP model
-            t_jp = time_grid(problem, nlp_jp)
-            x_jp = state(problem, nlp_jp).(t_jp)
-            u_jp = control(problem, nlp_jp).(t_jp)
-            o_jp = objective(problem, nlp_jp)
-            v_jp = variable(problem, nlp_jp)
-            i_jp = iterations(problem, nlp_jp)
+            t_jp = time_grid(nlp_jp)
+            x_jp = state(nlp_jp).(t_jp)
+            u_jp = control(nlp_jp).(t_jp)
+            o_jp = objective(nlp_jp)
+            v_jp = variable(nlp_jp)
+            i_jp = iterations(nlp_jp)
 
-            x_vars = metadata[problem][:state_name]
-            u_vars = metadata[problem][:control_name]
-            v_vars = metadata[problem][:variable_name]
+            x_vars = state_components(nlp_jp)
+            u_vars = control_components(nlp_jp)
+            v_vars = variable_components(nlp_jp)
 
             println("┌─ ", string(problem))
             println("│")
@@ -365,8 +377,8 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     ocp_sol = build_ocp_solution(docp, nlp_oc_sol)
 
     # dimensions
-    n = state_dimension(ocp_sol)   # or length(metadata[:$PROBLEM][:state_name])
-    m = control_dimension(ocp_sol) # or length(metadata[:$PROBLEM][:control_name])
+    n = state_dimension(ocp_sol)
+    m = control_dimension(ocp_sol)
 
     # from OptimalControl solution
     plt = plot(
@@ -381,10 +393,10 @@ function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Uni
     end
 
     # from JuMP solution
-    t = time_grid(:$PROBLEM, nlp_jp)     # t0, ..., tN = tf
-    x = state(:$PROBLEM, nlp_jp)         # function of time
-    u = control(:$PROBLEM, nlp_jp)       # function of time
-    p = costate(:$PROBLEM, nlp_jp)       # function of time
+    t = time_grid(nlp_jp)     # t0, ..., tN = tf
+    x = state(nlp_jp)         # function of time
+    u = control(nlp_jp)       # function of time
+    p = costate(nlp_jp)       # function of time
 
     for i in 1:n # state
         label = i == 1 ? "JuMP" : :none

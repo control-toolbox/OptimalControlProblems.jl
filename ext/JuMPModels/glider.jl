@@ -8,7 +8,7 @@ The system dynamics are discretised over `N` steps, and collocation constraints 
 # Arguments
 
 - `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `N::Int=500`: (Keyword) Number of discretisation steps in the time grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation steps in the time grid.
 
 # Returns
 
@@ -28,41 +28,58 @@ julia> model = OptimalControlProblems.glider(JuMPBackend(); N=100)
 - Hang Glider Problem formulation as in: https://www.mcs.anl.gov/~more/cops/
 """
 function OptimalControlProblems.glider(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:glider), kwargs...
+    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:glider), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    x_0 = 0
-    y_0 = 1000
-    y_f = 900
-    vx_0 = 13.23
-    vx_f = 13.23
-    vy_0 = -1.288
-    vy_f = -1.288
-    u_c = 2.5
-    r_0 = 100
-    m = 100
-    g = 9.81
-    c0 = 0.034
-    c1 = 0.069662
-    S = 14
-    ρ = 1.13
-    cL_min = 0
-    cL_max = 1.4
+    params = parameters_data(:glider, parameters)
+    t0 = params[:t0]
+    x_t0 = params[:x_t0]
+    y_t0 = params[:y_t0]
+    y_tf = params[:y_tf]
+    vx_t0 = params[:vx_t0]
+    vx_tf = params[:vx_tf]
+    vy_t0 = params[:vy_t0]
+    vy_tf = params[:vy_tf]
+    u_c = params[:u_c]
+    r_t0 = params[:r_t0]
+    m = params[:m]
+    g = params[:g]
+    c0 = params[:c0]
+    c1 = params[:c1]
+    S = params[:S]
+    ρ = params[:ρ]
+    cL_min = params[:cL_min]
+    cL_max = params[:cL_max]
+    tf_l = params[:tf_l]
+    x_l = params[:x_l]
+    vx_l = params[:vx_l]
 
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # metadata: required
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
+    model[:state_components] = ["x", "y", "vx", "vy"]
+    model[:costate_components] = ["∂x", "∂y", "∂vx", "∂vy"]
+    model[:control_components] = ["cL"]
+    model[:variable_components] = ["tf"]
+
+    # N = grid_size
+    @expression(model, N, grid_size)
 
     # state, control, variable (final time) and initial guess
     @variables(
         model,
         begin
-            0 <= tf, (start = 1)
-            0 <= x[k = 0:N], (start = x_0 + vx_0 * k / N)
-            y[k = 0:N], (start = y_0 + (k / N) * (y_f - y_0))
-            0 <= vx[k = 0:N], (start = vx_0)
-            vy[k = 0:N], (start = vy_0)
-            cL_min <= cL[k = 0:N] <= cL_max, (start = cL_max / 2)
+            tf ≥ tf_l,                         (start = 1)
+            x[k = 0:N] ≥ x_l,                  (start = x_t0 + vx_t0 * k / N)
+            y[k = 0:N],                         (start = y_t0 + (k / N) * (y_tf - y_t0))
+            vx[k = 0:N] ≥ vx_l,                (start = vx_t0)
+            vy[k = 0:N],                        (start = vy_t0)
+            cL_min ≤ cL[k = 0:N] ≤ cL_max,    (start = cL_max / 2)
         end
     )
 
@@ -70,13 +87,13 @@ function OptimalControlProblems.glider(
     @constraints(
         model,
         begin
-            x[0] == x_0
-            y[0] == y_0
-            vx[0] == vx_0
-            vy[0] == vy_0
-            y[N] == y_f
-            vx[N] == vx_f
-            vy[N] == vy_f
+            x[0]  == x_t0
+            y[0]  == y_t0
+            vx[0] == vx_t0
+            vy[0] == vy_t0
+            y[N]  == y_tf
+            vx[N] == vx_tf
+            vy[N] == vy_tf
         end
     )
 
@@ -84,12 +101,11 @@ function OptimalControlProblems.glider(
     @expressions(
         model,
         begin
+            #
+            Δt, (tf - t0) / N
 
             #
-            step, tf / N
-
-            #
-            r[k = 0:N], (x[k] / r_0 - 2.5)^2
+            r[k = 0:N], (x[k] / r_t0 - 2.5)^2
             u[k = 0:N], u_c * (1 - r[k]) * exp(-r[k])
             w[k = 0:N], vy[k] - u[k]
             v[k = 0:N], √(vx[k]^2 + w[k]^2)
@@ -105,15 +121,15 @@ function OptimalControlProblems.glider(
     @constraints(
         model,
         begin
-            ∂x[k = 1:N], x[k] == x[k - 1] + 0.5 * step * (vx[k] + vx[k - 1])
-            ∂y[k = 1:N], y[k] == y[k - 1] + 0.5 * step * (vy[k] + vy[k - 1])
-            ∂vx[k = 1:N], vx[k] == vx[k - 1] + 0.5 * step * (dvx[k] + dvx[k - 1])
-            ∂vy[k = 1:N], vy[k] == vy[k - 1] + 0.5 * step * (dvy[k] + dvy[k - 1])
+            ∂x[k = 1:N], x[k] == x[k - 1] + 0.5 * Δt * (vx[k] + vx[k - 1])
+            ∂y[k = 1:N], y[k] == y[k - 1] + 0.5 * Δt * (vy[k] + vy[k - 1])
+            ∂vx[k = 1:N], vx[k] == vx[k - 1] + 0.5 * Δt * (dvx[k] + dvx[k - 1])
+            ∂vy[k = 1:N], vy[k] == vy[k - 1] + 0.5 * Δt * (dvy[k] + dvy[k - 1])
         end
     )
 
     # objective
-    @objective(model, Min, -x[N])
+    @objective(model, Max, x[N])
 
     return model
 end

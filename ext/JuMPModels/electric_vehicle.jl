@@ -8,7 +8,7 @@ The system dynamics are discretised over `N` steps, and collocation constraints 
 # Arguments
 
 - `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `N::Int=500`: (Keyword) Number of discretisation steps in the time grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation steps in the time grid.
 
 # Returns
 
@@ -28,35 +28,60 @@ julia> model = OptimalControlProblems.electric_vehicle(JuMPBackend(); N=100)
 - Petit, N., & Sciarretta, A. (2011). *Optimal drive of electric vehicles using an inversion-based trajectory generation approach.* IFAC Proceedings Volumes, 44(1), 14519–14526. [PS2011]
 """
 function OptimalControlProblems.electric_vehicle(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:electric_vehicle), kwargs...
+    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:electric_vehicle), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    tf = final_time_data(:electric_vehicle)
-    D = 10
-    b1 = 1e0
-    b2 = 1e0
-    h0 = 0.1
-    h1 = 1
-    h2 = 1e-3
-    α0, α1, α2, α3 = (3, 0.4, -1, 0.1)
+    params = parameters_data(:electric_vehicle, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    b1 = params[:b1]
+    b2 = params[:b2]
+    h0 = params[:h0]
+    h1 = params[:h1]
+    h2 = params[:h2]
+    α0 = params[:α0]
+    α1 = params[:α1]
+    α2 = params[:α2]
+    α3 = params[:α3]
+    x_t0 = params[:x_t0]
+    v_t0 = params[:v_t0]
+    x_tf = params[:x_tf]
+    v_tf = params[:v_tf]
 
     # model
     model = JuMP.Model(args...; kwargs...)
 
+    # metadata: required
+    model[:time_grid] = () -> range(t0, tf, grid_size+1) # tf is a fixed
+    model[:state_components] = ["x", "v"]
+    model[:costate_components] = ["∂x", "∂v"]
+    model[:control_components] = ["u"]
+    model[:variable_components] = String[]
+
+    # N = grid_size
+    @expression(model, N, grid_size)
+
     # state, control and initial guess
-    @variable(model, x[0:N], start = 0.1)
-    @variable(model, v[0:N], start = 0.1)
-    @variable(model, u[0:N], start = 0.1)
+    @variables(
+        model,
+        begin
+            x[0:N],                    (start = 0.1)
+            v[0:N],                    (start = 0.1)
+            u[0:N],                    (start = 0.1)
+        end
+    )
 
     # boundary constraints
     @constraints(
         model,
         begin
-            x[0] == 0
-            v[0] == 0
-            x[N] == D
-            v[N] == 0
+            x[0] == x_t0
+            v[0] == v_t0
+            x[N] == x_tf
+            v[N] == v_tf
         end
     )
 
@@ -64,9 +89,8 @@ function OptimalControlProblems.electric_vehicle(
     @expressions(
         model,
         begin
-
             #
-            step, tf / N
+            Δt, (tf - t0) / N
             road[k = 0:N], α0 + α1 * x[k] + α2 * x[k]^2 + α3 * x[k]^3
 
             # dynamics
@@ -81,13 +105,13 @@ function OptimalControlProblems.electric_vehicle(
     @constraints(
         model,
         begin
-            ∂x[k = 1:N], x[k] == x[k - 1] + 0.5 * step * (dx[k - 1] + dx[k])
-            ∂v[k = 1:N], v[k] == v[k - 1] + 0.5 * step * (dv[k - 1] + dv[k])
+            ∂x[k = 1:N], x[k] == x[k - 1] + 0.5 * Δt * (dx[k - 1] + dx[k])
+            ∂v[k = 1:N], v[k] == v[k - 1] + 0.5 * Δt * (dv[k - 1] + dv[k])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(dc[k] + dc[k - 1] for k in 1:N))
+    @objective(model, Min, 0.5 * Δt * sum(dc[k] + dc[k - 1] for k in 1:N))
 
     return model
 end

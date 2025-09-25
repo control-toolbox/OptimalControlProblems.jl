@@ -7,7 +7,7 @@ The model represents the dynamics of the Van der Pol oscillator with control inp
 # Arguments
 
 - `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `N::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
+- `grid_size::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
 
 # Returns
 
@@ -27,23 +27,39 @@ julia> model = OptimalControlProblems.vanderpol(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.vanderpol(
-    ::JuMPBackend, args...; N::Int=steps_number_data(:vanderpol), kwargs...
+    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:vanderpol), 
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
-    tf = final_time_data(:vanderpol)
-    ω = 1
-    ε = 1
-
+    params = parameters_data(:vanderpol, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    ω = params[:ω]
+    ε = params[:ε]
+    x₁_t0 = params[:x₁_t0]
+    x₂_t0 = params[:x₂_t0]
+    
     # model
     model = JuMP.Model(args...; kwargs...)
+
+    # metadata: required
+    model[:time_grid] = () -> range(t0, tf, grid_size+1) # tf is a fixed
+    model[:state_components] = ["x₁", "x₂"]
+    model[:costate_components] = ["∂x₁", "∂x₂"]
+    model[:control_components] = ["u"]
+    model[:variable_components] = String[]
+
+    # N = grid_size
+    @expression(model, N, grid_size)
 
     # state, control and initial guess
     @variables(
         model,
         begin
-            x1[0:N], (start = 0.1)
-            x2[0:N], (start = 0.1)
+            x₁[0:N], (start = 0.1)
+            x₂[0:N], (start = 0.1)
             u[0:N], (start = 0.1)
         end
     )
@@ -52,8 +68,8 @@ function OptimalControlProblems.vanderpol(
     @constraints(
         model,
         begin
-            x1[0] == 1
-            x2[0] == 0
+            x₁[0] == x₁_t0
+            x₂[0] == x₂_t0
         end
     )
 
@@ -61,29 +77,28 @@ function OptimalControlProblems.vanderpol(
     @expressions(
         model,
         begin
-
             #
-            step, tf / N
+            Δt, (tf - t0) / N
 
             # dynamics
-            dx1[i = 0:N], x2[i]
-            dx2[i = 0:N], ε * ω * (1 - x1[i]^2) * x2[i] - ω^2 * x1[i] + u[i]
+            dx₁[i = 0:N], x₂[i]
+            dx₂[i = 0:N], ε * ω * (1 - x₁[i]^2) * x₂[i] - ω^2 * x₁[i] + u[i]
 
             # objective
-            dc[i = 0:N], 0.5 * (x1[i]^2 + x2[i]^2 + u[i]^2)
+            dc[i = 0:N], 0.5 * (x₁[i]^2 + x₂[i]^2 + u[i]^2)
         end
     )
 
     @constraints(
         model,
         begin
-            ∂x1[i = 1:N], x1[i] == x1[i - 1] + 0.5 * step * (dx1[i] + dx1[i - 1])
-            ∂x2[i = 1:N], x2[i] == x2[i - 1] + 0.5 * step * (dx2[i] + dx2[i - 1])
+            ∂x₁[i = 1:N], x₁[i] == x₁[i - 1] + 0.5 * Δt * (dx₁[i] + dx₁[i - 1])
+            ∂x₂[i = 1:N], x₂[i] == x₂[i - 1] + 0.5 * Δt * (dx₂[i] + dx₂[i - 1])
         end
     )
 
     # objective
-    @objective(model, Min, 0.5 * step * sum(dc[i] + dc[i - 1] for i in 1:N))
+    @objective(model, Min, 0.5 * Δt * sum(dc[i] + dc[i - 1] for i in 1:N))
 
     return model
 end

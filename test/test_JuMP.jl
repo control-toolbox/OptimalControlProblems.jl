@@ -2,7 +2,7 @@
 function test_JuMP()
     for f in LIST_OF_PROBLEMS
         @testset "$(f)" verbose=VERBOSE begin
-            N = metadata[f][:N]
+            grid_size = metadata(f)[:grid_size]
 
             # do we keep or remove the problem from the list
             keep_problem = true
@@ -12,7 +12,7 @@ function test_JuMP()
             DEBUG && println("│")
 
             # Set up the model
-            nlp = OptimalControlProblems.eval(f)(JuMPBackend(); N=N)
+            nlp = OptimalControlProblems.eval(f)(JuMPBackend(); grid_size=grid_size)
             set_optimizer(nlp, Ipopt.Optimizer)
             set_silent(nlp)
             set_optimizer_attribute(nlp, "tol", TOL)
@@ -22,28 +22,43 @@ function test_JuMP()
             set_optimizer_attribute(nlp, "max_wall_time", MAX_WALL_TIME)
             set_optimizer_attribute(nlp, "sb", SB)
 
+            # check existence of required metadata
+            nlp_keys = keys(object_dictionary(nlp))
+            @test :time_grid ∈ nlp_keys
+            @test :state_components ∈ nlp_keys
+            @test :costate_components ∈ nlp_keys
+            @test :control_components ∈ nlp_keys
+            @test :variable_components ∈ nlp_keys
+
+            # check if the keys from the components names exists
+            components = [:state_components, :costate_components, :control_components, :variable_components]
+            for c ∈ components
+                if !(isnothing(nlp[c]))
+                    for e ∈ nlp[c]
+                        @test Symbol(e) ∈ nlp_keys
+                    end
+                end
+            end
+
             # Solve the model
-            DEBUG && println("├─  Solve")
-            DEBUG && println("│")
             print("  First solve:  ");
             @time optimize!(nlp)
             print("  Second solve: ");
             @time optimize!(nlp)
-            DEBUG && println("│")
 
             # Infos
-            DEBUG && println("├─  Infos")
             DEBUG && println("│")
-            DEBUG && println("│     termination_status: ", termination_status(nlp))
-            DEBUG && println("│     objective: ", objective_value(nlp))
-            DEBUG && println("│     iterations: ", barrier_iterations(nlp))
-            DEBUG && println("│")
+            DEBUG && print(  
+                "│ termination_status: ", termination_status(nlp), 
+                ", objective: ", objective_value(nlp), 
+                ", iterations: ", barrier_iterations(nlp)
+            )
 
             # Test
             res = @my_test_broken termination_status(nlp) == MOI.LOCALLY_SOLVED
             keep_problem = keep_problem && res
-            DEBUG &&  res && println("│     \033[1;32mTest Passed\033[0m")
-            DEBUG && !res && println("│     \033[1;31mTest Failed\033[0m")
+            DEBUG &&  res && println(", \033[1;32mPass\033[0m")
+            DEBUG && !res && println(", \033[1;31mFail\033[0m")
             DEBUG && println("│")
             DEBUG && println("└─")
 

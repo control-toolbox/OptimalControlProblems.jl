@@ -8,7 +8,7 @@ It returns both a discretised direct optimal control problem (DOCP) and the corr
 # Arguments
 
 - `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
 
 # Returns
 
@@ -31,64 +31,70 @@ julia> docp = OptimalControlProblems.glider(OptimalControlBackend(); N=500);
 function OptimalControlProblems.glider(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:glider),
+    grid_size::Int=grid_size_data(:glider),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    x_0 = 0
-    y_0 = 1000
-    y_f = 900
-    vx_0 = 13.23
-    vx_f = 13.23
-    vy_0 = -1.288
-    vy_f = -1.288
-    u_c = 2.5
-    r_0 = 100
-    m = 100
-    g = 9.81
-    c0 = 0.034
-    c1 = 0.069662
-    S = 14
-    ρ = 1.13
-    cL_min = 0
-    cL_max = 1.4
+    params = parameters_data(:glider, parameters)
+    t0 = params[:t0]
+    x_t0 = params[:x_t0]
+    y_t0 = params[:y_t0]
+    y_tf = params[:y_tf]
+    vx_t0 = params[:vx_t0]
+    vx_tf = params[:vx_tf]
+    vy_t0 = params[:vy_t0]
+    vy_tf = params[:vy_tf]
+    u_c = params[:u_c]
+    r_t0 = params[:r_t0]
+    m = params[:m]
+    g = params[:g]
+    c0 = params[:c0]
+    c1 = params[:c1]
+    S = params[:S]
+    ρ = params[:ρ]
+    cL_min = params[:cL_min]
+    cL_max = params[:cL_max]
+    tf_l = params[:tf_l]
+    x_l = params[:x_l]
+    vx_l = params[:vx_l]
 
     # model
     ocp = @def begin
         tf ∈ R, variable
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         z = (x, y, vx, vy) ∈ R⁴, state
         cL ∈ R, control
 
         # state constraints
-        x(t) ≥ 0, (x_con)
-        vx(t) ≥ 0, (vx_con)
+        x(t) ≥ x_l, (x_c)
+        vx(t) ≥ vx_l, (vx_c)
 
         # control constraints
-        cL_min ≤ cL(t) ≤ cL_max, (cL_con)
+        cL_min ≤ cL(t) ≤ cL_max, (cL_c)
 
         # initial conditions
-        x(0) == x_0, (x0_con)
-        y(0) == y_0, (y0_con)
-        vx(0) == vx_0, (vx0_con)
-        vy(0) == vy_0, (vy0_con)
+        x(t0) == x_t0, (x0_t0)
+        y(t0) == y_t0, (y0_t0)
+        vx(t0) == vx_t0, (vx0_t0)
+        vy(t0) == vy_t0, (vy0_t0)
 
         # final conditions
-        tf ≥ 0
-        y(tf) == y_f, (yf_con)
-        vx(tf) == vx_f, (vxf_con)
-        vy(tf) == vy_f, (vyf_con)
+        tf ≥ tf_l
+        y(tf) == y_tf, (yf_tf)
+        vx(tf) == vx_tf, (vxf_tf)
+        vy(tf) == vy_tf, (vyf_tf)
 
         # dynamics
         ż(t) == dynamics(x(t), vx(t), vy(t), cL(t))
 
         # objective
-        -x(tf) → min
+        x(tf) → max
     end
 
     function dynamics(x, vx, vy, cL)
-        r = (x / r_0 - 2.5)^2
+        r = (x / r_t0 - 2.5)^2
         UpD = u_c * (1 - r) * exp(-r)
         w = vy - UpD
         v = √(vx^2 + w^2)
@@ -105,7 +111,7 @@ function OptimalControlProblems.glider(
 
     # initial guess
     tfinit = 1
-    xinit = t -> [x_0 + vx_0 * t / tfinit, y_0 + t / tfinit * (y_f - y_0), vx_0, vy_0]
+    xinit = t -> [x_t0 + vx_t0 * t / tfinit, y_t0 + t / tfinit * (y_tf - y_t0), vx_t0, vy_t0]
     uinit = cL_max / 2
     init = (state=xinit, control=uinit, variable=tfinit)
 
@@ -115,7 +121,7 @@ function OptimalControlProblems.glider(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

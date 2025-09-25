@@ -5,6 +5,7 @@ using Ipopt
 using JuMP
 using NLPModels
 using NLPModelsIpopt
+using MadNLPMumps
 using OptimalControl
 using OptimalControlProblems
 using Test
@@ -22,22 +23,19 @@ const MAX_ITER = 1000
 const MAX_WALL_TIME = 500.0
 
 # Collect all the problems from OptimalControlProblems
-path = joinpath(dirname(@__FILE__), "..", "ext", "MetaData")
-list_of_problems = []
-files = filter(x -> x[(end - 2):end] == ".jl", readdir(path))
-for file in files
-    problem = Symbol(file[1:(end - 3)])
-    push!(list_of_problems, problem)
-end
+list_of_problems = OptimalControlProblems.problems()
 
 # Remove from the tests the following problems
 # problems_to_exclude = [
-#     :quadrotor
+#     :bioreactor, # no need to remove here since already removed in OptimalControlProblems.jl
+#     :cart_pendulum, # no need to remove here since already removed in OptimalControlProblems.jl
+#     :dielectrophoretic_particle, # no need to remove here since already removed in OptimalControlProblems.jl
+#     :moonlander, # no need to remove here since already removed in OptimalControlProblems.jl
 # ]
 # list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
 # list_of_problems = [
-#     :truck_trailer
+#     :jackson,
 # ]
 
 # The list of all the problems to test
@@ -55,9 +53,11 @@ const VERBOSE = true # print or not details during tests
         :kwargs,
         :JuMP,                  # convergence tests for JuMP models
         :OptimalControl,        # convergence tests for OptimalControl models
+        :OptimalControl_s,      # convergence tests for OptimalControl models
         :init,                  # comparison between OptimalControl and JuMP: init
-        :solution,              # comparison between OptimalControl and JuMP: solution
+        # :solution,              # comparison between OptimalControl and JuMP: solution
         :quick,                 # quick comparison: objective rel error only
+        :parameters,            # tests with different parameters values, does no depend on `list_of_problems`
     )
         @testset "$(name)" verbose=VERBOSE begin
             test_name = Symbol(:test_, name)

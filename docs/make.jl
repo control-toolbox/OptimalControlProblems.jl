@@ -135,7 +135,10 @@ with_problems_browser() do browser_file # generates the problems browser and rem
                 "Get a problem" => "tutorial-get.md",
                 "Solve a problem" => "tutorial-solve.md",
             ],
-            "Developers" => ["Add a problem" => "dev-add.md", "API" => "dev-api.md"],
+            "Developers" => [
+                "Add a problem" => "dev-add.md", 
+                "API" => "dev-api.md",
+            ],
         ],
         plugins=[links],
     )
