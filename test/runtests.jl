@@ -32,13 +32,13 @@ for file in files
 end
 
 # Remove from the tests the following problems
-problems_to_exclude = [
-    :bioreactor,
-    :cart_pendulum,
-    :dielectrophoretic_particle,
-    :moonlander,
-]
-list_of_problems = setdiff(list_of_problems, problems_to_exclude)
+# problems_to_exclude = [
+#     :bioreactor,
+#     :cart_pendulum,
+#     :dielectrophoretic_particle,
+#     :moonlander,
+# ]
+# list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
 # list_of_problems = [
 #     :beam,

@@ -23,14 +23,14 @@ import ADNLPModels: ADNLPModels, ADNLPModel
 
 # -----------------
 # SHOULD NO BE HERE ("triiiiiiiiiiiiiiit !!!" - bruit de sifflet)
-nlp_model(docp::CTDirect.DOCP) = docp.nlp
-ocp_model(docp::CTDirect.DOCP) = docp.ocp
+#nlp_model(docp::CTDirect.DOCP) = docp.nlp
+#ocp_model(docp::CTDirect.DOCP) = docp.ocp
 function build_ocp_solution(
     docp::CTDirect.DOCP, nlp_solution::SolverCore.AbstractExecutionStats
 )
-    nlp_model_backend = if nlp_model(docp) isa ADNLPModel
+    nlp_model_backend = if docp.nlp isa ADNLPModel
         CTDirect.ADNLPBackend()
-    elseif nlp_model(docp) isa ExaModel
+    elseif docp.nlp isa ExaModel
         CTDirect.ExaBackend()
     else
         throw(CTBase.IncorrectArgument("The NLP model is of unknown type."))
@@ -38,7 +38,7 @@ function build_ocp_solution(
     return CTDirect.build_OCP_solution(docp, nlp_solution; nlp_model=nlp_model_backend)
 end
 
-export nlp_model, ocp_model, build_ocp_solution
+export build_ocp_solution
 #
 
 """
@@ -223,10 +223,13 @@ function problems()::Vector{Symbol}
     end
 
     # # exclude the following problems
-    # problems_to_exclude = [
-
-    # ]
-    # list_of_problems = setdiff(list_of_problems, problems_to_exclude)
+    problems_to_exclude = [
+        :bioreactor,
+        :cart_pendulum,
+        :dielectrophoretic_particle,
+        :moonlander,
+    ]
+    list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
     return list_of_problems
 end
