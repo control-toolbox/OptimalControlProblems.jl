@@ -41,27 +41,24 @@ function test_JuMP()
             end
 
             # Solve the model
-            DEBUG && println("├─  Solve")
-            DEBUG && println("│")
             print("  First solve:  ");
             @time optimize!(nlp)
             print("  Second solve: ");
             @time optimize!(nlp)
-            DEBUG && println("│")
 
             # Infos
-            DEBUG && println("├─  Infos")
             DEBUG && println("│")
-            DEBUG && println("│     termination_status: ", termination_status(nlp))
-            DEBUG && println("│     objective: ", objective_value(nlp))
-            DEBUG && println("│     iterations: ", barrier_iterations(nlp))
-            DEBUG && println("│")
+            DEBUG && print(  
+                "│ termination_status: ", termination_status(nlp), 
+                ", objective: ", objective_value(nlp), 
+                ", iterations: ", barrier_iterations(nlp)
+            )
 
             # Test
             res = @my_test_broken termination_status(nlp) == MOI.LOCALLY_SOLVED
             keep_problem = keep_problem && res
-            DEBUG &&  res && println("│     \033[1;32mTest Passed\033[0m")
-            DEBUG && !res && println("│     \033[1;31mTest Failed\033[0m")
+            DEBUG &&  res && println(", \033[1;32mPass\033[0m")
+            DEBUG && !res && println(", \033[1;31mFail\033[0m")
             DEBUG && println("│")
             DEBUG && println("└─")
 
