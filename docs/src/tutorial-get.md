@@ -57,7 +57,7 @@ metadata(:beam)[:parameters]
 nothing # hide
 ```
 
-To have a description of the parameters, either check the Beam [page](@ref description-beam) or the [code](https://github.com/control-toolbox/OptimalControlProblems.jl/blob/main/ext/OptimalControlModels/beam.jl).
+To have the description of the Beam problem parameters, either check the Beam [page](@ref description-beam) or the [code](https://github.com/control-toolbox/OptimalControlProblems.jl/blob/main/ext/OptimalControlModels/beam.jl).
 
 ### Number of variables, constraints, and nonzeros
 

@@ -35,7 +35,7 @@ list_of_problems = OptimalControlProblems.problems()
 # list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
 # list_of_problems = [
-#     :beam,
+#     :jackson,
 # ]
 
 # The list of all the problems to test
