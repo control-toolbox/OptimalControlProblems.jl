@@ -23,8 +23,6 @@ import ADNLPModels: ADNLPModels, ADNLPModel
 
 # -----------------
 # SHOULD NO BE HERE ("triiiiiiiiiiiiiiit !!!" - bruit de sifflet)
-#nlp_model(docp::CTDirect.DOCP) = docp.nlp
-#ocp_model(docp::CTDirect.DOCP) = docp.ocp
 function build_ocp_solution(
     docp::CTDirect.DOCP, nlp_solution::SolverCore.AbstractExecutionStats
 )
@@ -65,13 +63,38 @@ struct OptimalControlBackend <: AbstractModelBackend end
 # weak dependencies
 weakdeps = Dict(OptimalControlBackend => :OptimalControl, JuMPBackend => :JuMP)
 
-# path to problems
-path = joinpath(dirname(@__FILE__), "..", "ext", "MetaData")
+# Create the list of problems
+function make_list_of_problems()
 
-# ------- Problem Definitions -------
-files = filter(x -> x[(end - 2):end] == ".jl", readdir(path))
-for file in files
-    problem = Symbol(file[1:(end - 3)])
+    # path to problems
+    path = joinpath(dirname(@__FILE__), "..", "ext", "MetaData")
+
+    # ------- Problem Definitions -------
+    files = filter(x -> x[(end - 2):end] == ".jl", readdir(path))
+
+    # collect all the problems
+    list_of_problems = Symbol[]
+    for file in files
+        problem = Symbol(file[1:(end - 3)])
+        push!(list_of_problems, problem)
+    end
+
+    # exclude the following problems
+    problems_to_exclude = [
+        :bioreactor,
+        :cart_pendulum,
+        :dielectrophoretic_particle,
+        :moonlander,
+    ]
+    list_of_problems = setdiff(list_of_problems, problems_to_exclude)
+
+    return tuple(list_of_problems...), path
+
+end
+
+const LIST_OF_PROBLEMS, METADATA_PATH = make_list_of_problems()
+
+for problem in LIST_OF_PROBLEMS
     problem_s = Symbol(problem, :_s)
 
     # Build the docstring string explicitly here
@@ -113,32 +136,30 @@ for file in files
 end
 
 # ------- Problem Metadata -------
-for file in files
-    include(joinpath(path, file))
+for problem in LIST_OF_PROBLEMS
+    include(joinpath(METADATA_PATH, "$problem.jl"))
 end
-const number_of_problems = length(files)
 
-const infos = [
+const METADATA_INFOS = [
     :grid_size
     :parameters
 ]
 
-const types = [
+const METADATA_TYPES = [
     Int,
     Union{Nothing,NamedTuple},
 ]
 
-const metadata_storage = OrderedDict()
+const METADATA_STORAGE = OrderedDict()
 
-for i in 1:number_of_problems
-    file_key = Symbol(split(files[i], ".")[1])
-    metadata_storage[file_key] = OrderedDict()
-    for (data, T) in zip(infos, types)
-        value = eval(Meta.parse("$(file_key)_meta"))[data]
+for problem in LIST_OF_PROBLEMS
+    METADATA_STORAGE[problem] = OrderedDict()
+    for (data, T) in zip(METADATA_INFOS, METADATA_TYPES)
+        value = eval(Meta.parse("$(problem)_meta"))[data]
         if !(value isa T)
             error("Type mismatch: Expected $(T) for $(data), but got $(typeof(value))")
         end
-        metadata_storage[file_key][data] = value
+        METADATA_STORAGE[problem][data] = value
     end
 end
 
@@ -153,7 +174,7 @@ Return the dictionary containing the metadata of all available optimal control p
 julia> metadata()
 ```
 """
-metadata() = metadata_storage
+metadata() = METADATA_STORAGE
 
 """
 $(TYPEDSIGNATURES)
@@ -189,8 +210,8 @@ julia> data[:grid_size]
 ```
 """
 function metadata(problem::Symbol)
-    !(problem ∈ keys(metadata_storage)) && throw(CTBase.IncorrectArgument("There is no problem named $problem in metadata. To get the list of available problems, make julia> metadata()"))
-    return metadata_storage[problem]
+    !(problem ∈ keys(METADATA_STORAGE)) && throw(CTBase.IncorrectArgument("There is no problem named $problem in metadata. To get the list of available problems, make julia> metadata()"))
+    return METADATA_STORAGE[problem]
 end
 
 # ------- Available Problems Function -------
@@ -211,27 +232,7 @@ julia> OptimalControlProblems.problems()
 ```
 """
 function problems()::Vector{Symbol}
-
-    #
-    list_of_problems = Symbol[]
-
-    # collect all the problems
-    files = filter(x -> x[(end - 2):end] == ".jl", readdir(path))
-    for file in files
-        problem = Symbol(file[1:(end - 3)])
-        push!(list_of_problems, problem)
-    end
-
-    # # exclude the following problems
-    problems_to_exclude = [
-        :bioreactor,
-        :cart_pendulum,
-        :dielectrophoretic_particle,
-        :moonlander,
-    ]
-    list_of_problems = setdiff(list_of_problems, problems_to_exclude)
-
-    return list_of_problems
+    return Symbol[LIST_OF_PROBLEMS...]
 end
 
 """
