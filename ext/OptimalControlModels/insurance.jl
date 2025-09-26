@@ -31,7 +31,7 @@ function OptimalControlProblems.insurance(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:insurance),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 

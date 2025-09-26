@@ -31,10 +31,15 @@ function test_JuMP()
             @test :variable_components ∈ nlp_keys
 
             # check if the keys from the components names exists
-            components = [:state_components, :costate_components, :control_components, :variable_components]
-            for c ∈ components
+            components = [
+                :state_components,
+                :costate_components,
+                :control_components,
+                :variable_components,
+            ]
+            for c in components
                 if !(isnothing(nlp[c]))
-                    for e ∈ nlp[c]
+                    for e in nlp[c]
                         @test Symbol(e) ∈ nlp_keys
                     end
                 end
@@ -48,16 +53,19 @@ function test_JuMP()
 
             # Infos
             DEBUG && println("│")
-            DEBUG && print(  
-                "│ termination_status: ", termination_status(nlp), 
-                ", objective: ", objective_value(nlp), 
-                ", iterations: ", barrier_iterations(nlp)
+            DEBUG && print(
+                "│ termination_status: ",
+                termination_status(nlp),
+                ", objective: ",
+                objective_value(nlp),
+                ", iterations: ",
+                barrier_iterations(nlp),
             )
 
             # Test
             res = @my_test_broken termination_status(nlp) == MOI.LOCALLY_SOLVED
             keep_problem = keep_problem && res
-            DEBUG &&  res && println(", \033[1;32mPass\033[0m")
+            DEBUG && res && println(", \033[1;32mPass\033[0m")
             DEBUG && !res && println(", \033[1;31mFail\033[0m")
             DEBUG && println("│")
             DEBUG && println("└─")

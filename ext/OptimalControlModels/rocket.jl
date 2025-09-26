@@ -27,7 +27,7 @@ function OptimalControlProblems.rocket(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:rocket),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 

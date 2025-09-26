@@ -28,7 +28,7 @@ function OptimalControlProblems.robbins(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:robbins),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 

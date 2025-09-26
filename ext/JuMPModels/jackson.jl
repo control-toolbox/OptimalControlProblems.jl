@@ -29,9 +29,11 @@ julia> model = OptimalControlProblems.jackson(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.jackson(
-    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:jackson), 
-    parameters::Union{Nothing, NamedTuple}=nothing,
-    kwargs...
+    ::JuMPBackend,
+    args...;
+    grid_size::Int=grid_size_data(:jackson),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
 
     # parameters
@@ -69,10 +71,10 @@ function OptimalControlProblems.jackson(
     @variables(
         model,
         begin
-            a_l ≤ a[0:N] ≤ a_u,       (start = 0.1)
-            b_l ≤ b[0:N] ≤ b_u,       (start = 0.1)
-            x₃_l ≤ x₃[0:N] ≤ x₃_u,    (start = 0.1)
-            u_l ≤ u[0:N] ≤ u_u,       (start = 0.1)
+            a_l ≤ a[0:N] ≤ a_u, (start = 0.1)
+            b_l ≤ b[0:N] ≤ b_u, (start = 0.1)
+            x₃_l ≤ x₃[0:N] ≤ x₃_u, (start = 0.1)
+            u_l ≤ u[0:N] ≤ u_u, (start = 0.1)
         end
     )
 

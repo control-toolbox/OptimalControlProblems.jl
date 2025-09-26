@@ -2,14 +2,14 @@ module OptimalControlProblems
 
 using CTBase
 using CTDirect
-import CTModels: 
-    CTModels, 
-    time_grid, 
-    state, 
-    control, 
-    costate, 
-    iterations, 
-    control_components, 
+import CTModels:
+    CTModels,
+    time_grid,
+    state,
+    control,
+    costate,
+    iterations,
+    control_components,
     control_dimension,
     state_components,
     state_dimension,
@@ -81,15 +81,11 @@ function make_list_of_problems()
 
     # exclude the following problems
     problems_to_exclude = [
-        :bioreactor,
-        :cart_pendulum,
-        :dielectrophoretic_particle,
-        :moonlander,
+        :bioreactor, :cart_pendulum, :dielectrophoretic_particle, :moonlander
     ]
     list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
     return tuple(list_of_problems...), path
-
 end
 
 const LIST_OF_PROBLEMS, METADATA_PATH = make_list_of_problems()
@@ -145,10 +141,7 @@ const METADATA_INFOS = [
     :parameters
 ]
 
-const METADATA_TYPES = [
-    Int,
-    Union{Nothing,NamedTuple},
-]
+const METADATA_TYPES = [Int, Union{Nothing,NamedTuple}]
 
 const METADATA_STORAGE = OrderedDict()
 
@@ -210,7 +203,11 @@ julia> data[:grid_size]
 ```
 """
 function metadata(problem::Symbol)
-    !(problem ∈ keys(METADATA_STORAGE)) && throw(CTBase.IncorrectArgument("There is no problem named $problem in metadata. To get the list of available problems, make julia> metadata()"))
+    !(problem ∈ keys(METADATA_STORAGE)) && throw(
+        CTBase.IncorrectArgument(
+            "There is no problem named $problem in metadata. To get the list of available problems, make julia> metadata()",
+        ),
+    )
     return METADATA_STORAGE[problem]
 end
 
@@ -326,7 +323,9 @@ julia> merge(nothing, (a=1,))
 ERROR: CTBase.UnauthorizedCall("There is nothing to merge.")
 ```
 """
-merge(::Nothing, ::NamedTuple) = throw(CTBase.UnauthorizedCall("There is nothing to merge."))
+function merge(::Nothing, ::NamedTuple)
+    throw(CTBase.UnauthorizedCall("There is nothing to merge."))
+end
 
 """
 $(TYPEDSIGNATURES)
@@ -350,7 +349,7 @@ julia> merge((a=1, b=2), (b=3, c=4))
 ```
 """
 function merge(A::NamedTuple, B::NamedTuple)
-    f(;kwargs...) = kwargs
+    f(; kwargs...) = kwargs
     return NamedTuple(f(; A..., B...))
 end
 
@@ -401,12 +400,16 @@ julia> parameters_data(:beam, (tf = 2,))
 (t0 = 0, tf = 2, ...)
 ```
 """
-function parameters_data(problem::Symbol, parameters::Union{Nothing, NamedTuple})
+function parameters_data(problem::Symbol, parameters::Union{Nothing,NamedTuple})
     try
         return merge(parameters_data(problem), parameters)
     catch e
         if e isa CTBase.UnauthorizedCall
-            throw(CTBase.UnauthorizedCall("There is no parameters to merge in problem: $problem."))
+            throw(
+                CTBase.UnauthorizedCall(
+                    "There is no parameters to merge in problem: $problem."
+                ),
+            )
         else
             rethrow(e)
         end
@@ -415,7 +418,12 @@ end
 
 export JuMPBackend, OptimalControlBackend, problems
 export time_grid, state, costate, control, variable, iterations, objective
-export control_components, control_dimension, state_components, state_dimension, variable_components, variable_dimension
+export control_components,
+    control_dimension,
+    state_components,
+    state_dimension,
+    variable_components,
+    variable_dimension
 export metadata, grid_size_data, parameters_data
 
 end

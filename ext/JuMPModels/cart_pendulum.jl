@@ -28,9 +28,11 @@ julia> model = OptimalControlProblems.cart_pendulum(JuMPBackend(); N=200)
 - [Cart–Pendulum Optimal Control Problem](https://arxiv.org/pdf/2303.16746)
 """
 function OptimalControlProblems.cart_pendulum(
-    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:cart_pendulum), 
-    parameters::Union{Nothing, NamedTuple}=nothing,
-    kwargs...
+    ::JuMPBackend,
+    args...;
+    grid_size::Int=grid_size_data(:cart_pendulum),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
 
     # parameters
@@ -47,13 +49,13 @@ function OptimalControlProblems.cart_pendulum(
     x_u = params[:x_u]
     v_l = params[:v_l]
     v_u = params[:v_u]
-    tf_l  = params[:tf_l]
+    tf_l = params[:tf_l]
     x_t0 = params[:x_t0]
     θ_t0 = params[:θ_t0]
     ω_t0 = params[:ω_t0]
     θ_tf = params[:θ_tf]
     ω_tf = params[:ω_tf]
-    
+
     # model
     model = JuMP.Model(args...; kwargs...)
 
@@ -71,13 +73,13 @@ function OptimalControlProblems.cart_pendulum(
     @variables(
         model,
         begin
-            tf ≥ tf_l,                      (start = 1.0)
-            ddx,                            (start = 0.1)
-            x_l ≤ x[0:N] ≤ x_u,             (start = 0.1)
-            v_l ≤ v[0:N] ≤ v_u,             (start = 0.1)
-            θ[0:N],                         (start = 0.1)
-            ω[0:N],                         (start = 0.1)
-            Fex_l ≤ Fex[0:N] ≤ Fex_u,       (start = 0.1)
+            tf ≥ tf_l, (start = 1.0)
+            ddx, (start = 0.1)
+            x_l ≤ x[0:N] ≤ x_u, (start = 0.1)
+            v_l ≤ v[0:N] ≤ v_u, (start = 0.1)
+            θ[0:N], (start = 0.1)
+            ω[0:N], (start = 0.1)
+            Fex_l ≤ Fex[0:N] ≤ Fex_u, (start = 0.1)
         end
     )
 
@@ -116,7 +118,8 @@ function OptimalControlProblems.cart_pendulum(
             dx[i = 0:N], v[i]
             dv[i = 0:N], -1 / J * c[i]
             dθ[i = 0:N], ω[i]
-            dω[i = 0:N], 1 / (I + 0.25 * m * L^2) * 0.5 * L * m * (-dv[i] * cos(θ[i]) - g * sin(θ[i]))
+            dω[i = 0:N],
+            1 / (I + 0.25 * m * L^2) * 0.5 * L * m * (-dv[i] * cos(θ[i]) - g * sin(θ[i]))
         end
     )
 

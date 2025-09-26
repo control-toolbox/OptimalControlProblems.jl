@@ -22,9 +22,11 @@ end
 # -----------------------------------
 # Generate documentation for a problem
 # -----------------------------------
-function generate_documentation(PROBLEM::String, DESCRIPTION::String; draft::Union{Bool,Nothing})
-
-    TITLE = "[" * uppercasefirst(replace(PROBLEM, "_" => " ")) * "](@id description-$PROBLEM)"
+function generate_documentation(
+    PROBLEM::String, DESCRIPTION::String; draft::Union{Bool,Nothing}
+)
+    TITLE =
+        "[" * uppercasefirst(replace(PROBLEM, "_" => " ")) * "](@id description-$PROBLEM)"
     DRAFT = draft_meta(draft)
     LEFT_MARGIN = get_left_margin(Symbol(PROBLEM))
 
@@ -420,9 +422,9 @@ end
 # -----------------------------------
 # Generate documentation for all problems
 # -----------------------------------
-function generate_documentation_problems(; draft::Union{Bool,Nothing}=nothing,
-                                         exclude_from_draft::Vector{Symbol}=Symbol[])
-
+function generate_documentation_problems(;
+    draft::Union{Bool,Nothing}=nothing, exclude_from_draft::Vector{Symbol}=Symbol[]
+)
     problems_list = problems()
     problems_pages = map(p -> joinpath("problems", string(p) * ".md"), problems_list)
 
@@ -433,7 +435,9 @@ function generate_documentation_problems(; draft::Union{Bool,Nothing}=nothing,
     mkpath(joinpath(problems_dir, "assets"))
 
     for problem in problems_list
-        description = read(joinpath(@__DIR__, "..", "ext", "Descriptions", string(problem) * ".md"), String)
+        description = read(
+            joinpath(@__DIR__, "..", "ext", "Descriptions", string(problem) * ".md"), String
+        )
         draft_problem = problem ∈ exclude_from_draft ? false : draft
         contents = generate_documentation(string(problem), description; draft=draft_problem)
 

@@ -27,7 +27,7 @@ function OptimalControlProblems.robot_s(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:robot),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 
@@ -123,7 +123,15 @@ function OptimalControlProblems.robot_s(
 
     # initial guess
     tf = 1
-    xinit = t -> [ρ_t0, 0, 2π/3 * ((t - t0) / (tf - t0))^2, 4π/3 * ((t - t0) / (tf - t0)), ϕ_t0, 0]
+    xinit =
+        t -> [
+            ρ_t0,
+            0,
+            2π/3 * ((t - t0) / (tf - t0))^2,
+            4π/3 * ((t - t0) / (tf - t0)),
+            ϕ_t0,
+            0,
+        ]
     uinit = [0, 0, 0]
     init = (state=xinit, control=uinit, variable=tf)
 

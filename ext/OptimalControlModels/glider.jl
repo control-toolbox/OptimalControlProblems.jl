@@ -32,7 +32,7 @@ function OptimalControlProblems.glider(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:glider),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 
@@ -111,7 +111,8 @@ function OptimalControlProblems.glider(
 
     # initial guess
     tfinit = 1
-    xinit = t -> [x_t0 + vx_t0 * t / tfinit, y_t0 + t / tfinit * (y_tf - y_t0), vx_t0, vy_t0]
+    xinit =
+        t -> [x_t0 + vx_t0 * t / tfinit, y_t0 + t / tfinit * (y_tf - y_t0), vx_t0, vy_t0]
     uinit = cL_max / 2
     init = (state=xinit, control=uinit, variable=tfinit)
 

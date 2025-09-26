@@ -29,9 +29,11 @@ julia> model = OptimalControlProblems.moonlander(JuMPBackend(); N=100)
 - Problem formulation available at: https://arxiv.org/pdf/2303.16746
 """
 function OptimalControlProblems.moonlander(
-    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:moonlander), 
-    parameters::Union{Nothing, NamedTuple}=nothing,
-    kwargs...
+    ::JuMPBackend,
+    args...;
+    grid_size::Int=grid_size_data(:moonlander),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
 
     # parameters
@@ -62,7 +64,7 @@ function OptimalControlProblems.moonlander(
     p₂_tf = params[:p₂_tf]
     dp₁_tf = params[:dp₁_tf]
     dp₂_tf = params[:dp₂_tf]
-        
+
     # define the problem
     model = JuMP.Model(args...; kwargs...)
 

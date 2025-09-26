@@ -2,14 +2,14 @@ module JuMPModels
 
 using OptimalControlProblems
 using JuMP
-import CTModels: 
-    CTModels, 
-    time_grid, 
-    state, 
-    control, 
-    costate, 
-    iterations, 
-    control_components, 
+import CTModels:
+    CTModels,
+    time_grid,
+    state,
+    control,
+    costate,
+    iterations,
+    control_components,
     control_dimension,
     state_components,
     state_dimension,
@@ -49,7 +49,6 @@ julia> costate_components(model)
 """
 costate_components(model::JuMP.GenericModel) = model[:costate_components]
 
-
 """
 $(TYPEDSIGNATURES)
 
@@ -72,7 +71,6 @@ julia> OptimalControlProblems.state_components(model)
 """
 OptimalControlProblems.state_components(model::JuMP.GenericModel) = model[:state_components]
 
-
 """
 $(TYPEDSIGNATURES)
 
@@ -93,8 +91,9 @@ julia> OptimalControlProblems.control_components(model)
 ["Fex"]
 ```
 """
-OptimalControlProblems.control_components(model::JuMP.GenericModel) = model[:control_components]
-
+function OptimalControlProblems.control_components(model::JuMP.GenericModel)
+    model[:control_components]
+end
 
 """
 $(TYPEDSIGNATURES)
@@ -116,8 +115,9 @@ julia> OptimalControlProblems.variable_components(model)
 ["tf", "ddx"]
 ```
 """
-OptimalControlProblems.variable_components(model::JuMP.GenericModel) = model[:variable_components]
-
+function OptimalControlProblems.variable_components(model::JuMP.GenericModel)
+    model[:variable_components]
+end
 
 """
 $(TYPEDSIGNATURES)
@@ -139,10 +139,9 @@ julia> OptimalControlProblems.state_dimension(model)
 4
 ```
 """
-function OptimalControlProblems.state_dimension(model::JuMP.GenericModel) 
+function OptimalControlProblems.state_dimension(model::JuMP.GenericModel)
     return length(model[:state_components])
 end
-
 
 """
 $(TYPEDSIGNATURES)
@@ -164,10 +163,9 @@ julia> OptimalControlProblems.control_dimension(model)
 1
 ```
 """
-function OptimalControlProblems.control_dimension(model::JuMP.GenericModel) 
+function OptimalControlProblems.control_dimension(model::JuMP.GenericModel)
     return length(model[:control_components])
 end
-
 
 """
 $(TYPEDSIGNATURES)
@@ -189,7 +187,7 @@ julia> OptimalControlProblems.variable_dimension(model)
 2
 ```
 """
-function OptimalControlProblems.variable_dimension(model::JuMP.GenericModel) 
+function OptimalControlProblems.variable_dimension(model::JuMP.GenericModel)
     return length(model[:variable_components])
 end
 
@@ -338,7 +336,7 @@ julia> p(0.75)
 function OptimalControlProblems.costate(model::JuMP.GenericModel)
 
     # time grid
-    T = CTModels.time_grid( model)
+    T = CTModels.time_grid(model)
     N = length(T) - 1
 
     # get dimension

@@ -28,9 +28,11 @@ julia> model = OptimalControlProblems.chain(JuMPBackend(); N=300)
 - [COPS Benchmark Problems – Hanging Chain](https://www.mcs.anl.gov/~more/cops/)
 """
 function OptimalControlProblems.chain(
-    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:chain), 
-    parameters::Union{Nothing, NamedTuple}=nothing,
-    kwargs...
+    ::JuMPBackend,
+    args...;
+    grid_size::Int=grid_size_data(:chain),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
 
     # parameters
@@ -74,15 +76,22 @@ function OptimalControlProblems.chain(
     @variables(
         model,
         begin
-            u[k = 0:N],     (start = 4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
-            x₁[k = 0:N],    (start = 4 * abs(b - a) * (t[k] - t0) / (tf - t0) * (0.5 * (t[k] - t0) / (tf - t0) - tmin) + a)
+            u[k = 0:N], (start = 4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
+            x₁[k = 0:N],
+            (
+                start =
+                    4 * abs(b - a) * (t[k] - t0) / (tf - t0) *
+                    (0.5 * (t[k] - t0) / (tf - t0) - tmin) + a
+            )
             x₂[k = 0:N],
             (
                 start =
-                    (4 * abs(b - a) * (t[k] - t0) / (tf - t0) * (0.5 * (t[k] - t0) / (tf - t0) - tmin) + a) *
-                    (4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
+                    (
+                        4 * abs(b - a) * (t[k] - t0) / (tf - t0) *
+                        (0.5 * (t[k] - t0) / (tf - t0) - tmin) + a
+                    ) * (4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
             )
-            x₃[k = 0:N],    (start = 4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
+            x₃[k = 0:N], (start = 4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
         end
     )
 

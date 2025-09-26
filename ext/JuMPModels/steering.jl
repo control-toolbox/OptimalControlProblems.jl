@@ -28,9 +28,11 @@ julia> model = OptimalControlProblems.steering(JuMPBackend(); N=200)
 - Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/steering.jl
 """
 function OptimalControlProblems.steering(
-    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:steering), 
-    parameters::Union{Nothing, NamedTuple}=nothing,
-    kwargs...
+    ::JuMPBackend,
+    args...;
+    grid_size::Int=grid_size_data(:steering),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
 
     # parameters
@@ -77,12 +79,12 @@ function OptimalControlProblems.steering(
     @variables(
         model,
         begin
-            u_min ≤ u[i = 0:N] ≤ u_max,     (start = 0)
-            x₁[i = 0:N],                    (start = gen_x0(i, 1))
-            x₂[i = 0:N],                    (start = gen_x0(i, 2))
-            x₃[i = 0:N],                    (start = gen_x0(i, 3))
-            x₄[i = 0:N],                    (start = gen_x0(i, 4))
-            tf ≥ tf_l,                      (start = tf_start)
+            u_min ≤ u[i = 0:N] ≤ u_max, (start = 0)
+            x₁[i = 0:N], (start = gen_x0(i, 1))
+            x₂[i = 0:N], (start = gen_x0(i, 2))
+            x₃[i = 0:N], (start = gen_x0(i, 3))
+            x₄[i = 0:N], (start = gen_x0(i, 4))
+            tf ≥ tf_l, (start = tf_start)
         end
     )
 
@@ -107,8 +109,10 @@ function OptimalControlProblems.steering(
         begin
             ∂x₁[i = 1:N], x₁[i] == x₁[i - 1] + 0.5 * Δt * (x₃[i - 1] + x₃[i])
             ∂x₂[i = 1:N], x₂[i] == x₂[i - 1] + 0.5 * Δt * (x₄[i - 1] + x₄[i])
-            ∂x₃[i = 1:N], x₃[i] == x₃[i - 1] + 0.5 * Δt * (a * cos(u[i - 1]) + a * cos(u[i]))
-            ∂x₄[i = 1:N], x₄[i] == x₄[i - 1] + 0.5 * Δt * (a * sin(u[i - 1]) + a * sin(u[i]))
+            ∂x₃[i = 1:N],
+            x₃[i] == x₃[i - 1] + 0.5 * Δt * (a * cos(u[i - 1]) + a * cos(u[i]))
+            ∂x₄[i = 1:N],
+            x₄[i] == x₄[i - 1] + 0.5 * Δt * (a * sin(u[i - 1]) + a * sin(u[i]))
         end
     )
 

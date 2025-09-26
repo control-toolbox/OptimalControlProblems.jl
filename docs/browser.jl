@@ -669,11 +669,7 @@ function initProblemsTable() {
 </script>
 """
 
-const TABLE = (
-    presentation = TABLE_PRESENTATION,
-    style = TABLE_STYLE,
-    logic = TABLE_LOGIC,
-)
+const TABLE = (presentation=TABLE_PRESENTATION, style=TABLE_STYLE, logic=TABLE_LOGIC)
 
 # -------------------------------
 # Helpers
@@ -746,35 +742,40 @@ end
 function collect_problem_data(problem_sym::Symbol)
     ocp = ocp_model(eval(problem_sym)(OptimalControlBackend()))
 
-    cost = has_mayer_cost(ocp) && has_lagrange_cost(ocp) ? "Bolza" :
-           has_mayer_cost(ocp) ? "Mayer" : "Lagrange"
+    cost = if has_mayer_cost(ocp) && has_lagrange_cost(ocp)
+        "Bolza"
+    elseif has_mayer_cost(ocp)
+        "Mayer"
+    else
+        "Lagrange"
+    end
 
     final_time = has_fixed_final_time(ocp) ? "fixed" : "free"
 
     dims = (
-        x = CTModels.dim_state_constraints_box(ocp),
-        u = CTModels.dim_control_constraints_box(ocp),
-        v = CTModels.dim_variable_constraints_box(ocp),
-        c = CTModels.dim_path_constraints_nl(ocp),
-        b = CTModels.dim_boundary_constraints_nl(ocp),
+        x=CTModels.dim_state_constraints_box(ocp),
+        u=CTModels.dim_control_constraints_box(ocp),
+        v=CTModels.dim_variable_constraints_box(ocp),
+        c=CTModels.dim_path_constraints_nl(ocp),
+        b=CTModels.dim_boundary_constraints_nl(ocp),
     )
 
     total = sum_namedtuple(dims)
 
     return (
-        Problem = string(problem_sym),
-        State   = state_dimension(ocp),
-        Control = control_dimension(ocp),
-        Variable = variable_dimension(ocp),
-        Cost = cost,
-        FinalTime = final_time,
-        DimStateConstraint = dims.x,
-        DimControlConstraint = dims.u,
-        DimVariableConstraint = dims.v,
-        DimPathConstraint = dims.c,
-        DimBoundaryConstraint = dims.b,
-        TotalConstraints = total,
-        ConstraintButtonsHtml = generate_constraint_buttons_html(dims)
+        Problem=string(problem_sym),
+        State=state_dimension(ocp),
+        Control=control_dimension(ocp),
+        Variable=variable_dimension(ocp),
+        Cost=cost,
+        FinalTime=final_time,
+        DimStateConstraint=dims.x,
+        DimControlConstraint=dims.u,
+        DimVariableConstraint=dims.v,
+        DimPathConstraint=dims.c,
+        DimBoundaryConstraint=dims.b,
+        TotalConstraints=total,
+        ConstraintButtonsHtml=generate_constraint_buttons_html(dims),
     )
 end
 
