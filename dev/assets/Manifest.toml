@@ -105,21 +105,21 @@ weakdeps = ["HTTP", "JSON"]
 
 [[deps.CTDirect]]
 deps = ["CTBase", "CTModels", "DocStringExtensions", "HSL", "MKL", "SparseArrays"]
-git-tree-sha1 = "5f7bd0cc0a2b4ff09a6621071bdc07aa121349a2"
+git-tree-sha1 = "a3e796c81478034446feb316816ccfe1f250f211"
 uuid = "790bbbee-bee9-49ee-8912-a9de031322d5"
-version = "0.17.2"
+version = "0.17.3"
 
     [deps.CTDirect.extensions]
     CTDirectExtADNLP = ["ADNLPModels"]
     CTDirectExtExa = ["ExaModels"]
     CTDirectExtIpopt = ["NLPModelsIpopt"]
     CTDirectExtKnitro = ["NLPModelsKnitro"]
-    CTDirectExtMadNLP = ["MadNLPMumps"]
+    CTDirectExtMadNLP = ["MadNLP"]
 
     [deps.CTDirect.weakdeps]
     ADNLPModels = "54578032-b7ea-4c30-94aa-7cbd1cce6c9a"
     ExaModels = "1037b233-b668-4ce9-9b63-f9f681f55dd2"
-    MadNLPMumps = "3b83494e-c0a4-4895-918b-9157a7a085a1"
+    MadNLP = "2621e9c9-9eb4-46b1-8089-e8c72242dfb6"
     NLPModelsIpopt = "f4238b75-b362-5c4c-b852-0801c9a21d71"
     NLPModelsKnitro = "bec4dd0d-7755-52d5-9a02-22f0ffc7efcb"
 
@@ -137,9 +137,9 @@ version = "0.8.8"
 
 [[deps.CTModels]]
 deps = ["CTBase", "DocStringExtensions", "Interpolations", "LinearAlgebra", "MLStyle", "MacroTools", "OrderedCollections", "Parameters", "RecipesBase"]
-git-tree-sha1 = "5dd30f45b055084374b2613cb4c79e73420962f0"
+git-tree-sha1 = "f5e80274149d9910656b0c94c378cdead3f689ad"
 uuid = "34c4fa32-2049-4079-8329-de33c2a22e2d"
-version = "0.6.7"
+version = "0.6.8"
 
     [deps.CTModels.extensions]
     CTModelsJLD = "JLD2"
@@ -824,9 +824,9 @@ version = "1.18.0+0"
 
 [[deps.Libmount_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "706dfd3c0dd56ca090e86884db6eda70fa7dd4af"
+git-tree-sha1 = "3acf07f130a76f87c041cfb2ff7d7284ca67b072"
 uuid = "4b2f31a3-9ecc-558c-b454-b3730dcb73e9"
-version = "2.41.1+0"
+version = "2.41.2+0"
 
 [[deps.Libtiff_jll]]
 deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "LERC_jll", "Libdl", "XZ_jll", "Zlib_jll", "Zstd_jll"]
@@ -836,9 +836,9 @@ version = "4.7.2+0"
 
 [[deps.Libuuid_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "d3c8af829abaeba27181db4acb485b18d15d89c6"
+git-tree-sha1 = "2a7a12fc0a4e7fb773450d17975322aa77142106"
 uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
-version = "2.41.1+0"
+version = "2.41.2+0"
 
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
@@ -1059,9 +1059,9 @@ version = "0.5.6+0"
 
 [[deps.OptimalControl]]
 deps = ["ADNLPModels", "CTBase", "CTDirect", "CTFlows", "CTModels", "CTParser", "CommonSolve", "DocStringExtensions", "ExaModels"]
-git-tree-sha1 = "5aa867a566d505a9ad0802a1a26384ad95427b71"
+git-tree-sha1 = "26fa08ea1f9ce6242d19a637ea7390288f242029"
 uuid = "5f98b655-cc9a-415a-b60e-744165666948"
-version = "1.1.2"
+version = "1.1.3"
 
 [[deps.OptimalControlProblems]]
 deps = ["ADNLPModels", "CTBase", "CTDirect", "CTModels", "DocStringExtensions", "ExaModels", "OrderedCollections", "SolverCore"]

@@ -7,7 +7,7 @@ license = {[&quot;MIT&quot;]},
 title = {{OptimalControlProblems.jl: a collection of optimal control problems with ODE&#39;s in Julia}},
 url = {https://control-toolbox.org/OptimalControlProblems.jl}
 }</code></pre><h2 id="Contributing"><a class="docs-heading-anchor" href="#Contributing">Contributing</a><a id="Contributing-1"></a><a class="docs-heading-anchor-permalink" href="#Contributing" title="Permalink"></a></h2><p>If you think you found a bug or if you have a feature request / suggestion, feel free to open an <a href="https://github.com/control-toolbox/OptimalControlProblems.jl/issues">issue</a>. Before opening a pull request, please start an issue or a discussion on the topic. </p><p>Contributions are welcomed, check out <a href="https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project">how to contribute to a Github project</a>. If it is your first contribution, you can also check <a href="https://github.com/firstcontributions/first-contributions">this first contribution tutorial</a>. You can find first good issues (if any 🙂) <a href="https://github.com/control-toolbox/OptimalControlProblems.jl/contribute">here</a>. You may find other packages to contribute to at the <a href="https://github.com/control-toolbox">control-toolbox organization</a>.</p><p>If you want to ask a question, feel free to start a discussion <a href="https://github.com/orgs/control-toolbox/discussions">here</a>. This forum is for general discussion about this repository and the <a href="https://github.com/control-toolbox">control-toolbox organization</a>.</p><div class="admonition is-info" id="Note-302f80baba1692c6"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-302f80baba1692c6" title="Permalink"></a></header><div class="admonition-body"><p>If you want to add an application or a package to the control-toolbox ecosystem, please follow this <a href="https://github.com/orgs/control-toolbox/discussions/65">set up tutorial</a>.</p></div></div><h2 id="Credits-(not-exhaustive!)"><a class="docs-heading-anchor" href="#Credits-(not-exhaustive!)">Credits (not exhaustive!)</a><a id="Credits-(not-exhaustive!)-1"></a><a class="docs-heading-anchor-permalink" href="#Credits-(not-exhaustive!)" title="Permalink"></a></h2><ul><li><a href="https://github.com/BaptisteCbl">BaptisteCbl</a></li><li><a href="https://github.com/0Yassine0">0Yassine0</a></li><li><a href="https://github.com/Nico77310">Nico77310</a></li><li><a href="https://github.com/frapac">frapac</a></li><li><a href="https://project.inria.fr/bocop/files/2017/05/Examples-BOCOP.pdf">BOCOP - A collection of examples</a></li><li><a href="https://www.mcs.anl.gov/~more/cops">COPS: Large-Scale Optimization Problems</a> and <a href="https://github.com/MadNLP/COPSBenchmark.jl">COPSBenchmark.jl</a></li></ul><h2 id="Reproducibility"><a class="docs-heading-anchor" href="#Reproducibility">Reproducibility</a><a id="Reproducibility-1"></a><a class="docs-heading-anchor-permalink" href="#Reproducibility" title="Permalink"></a></h2><details><summary>The documentation of this package was built using these direct dependencies,</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Status `~/work/OptimalControlProblems.jl/OptimalControlProblems.jl/docs/Project.toml`
-  [34c4fa32] CTModels v0.6.7
+  [34c4fa32] CTModels v0.6.8
   [a93c6f00] DataFrames v1.8.0
   [e30172f5] Documenter v1.14.1
   [d12716ef] DocumenterInterLinks v1.1.0
@@ -19,7 +19,7 @@ url = {https://control-toolbox.org/OptimalControlProblems.jl}
   [4076af6c] JuMP v1.29.1
   [a4795742] NLPModels v0.21.5
 ⌅ [f4238b75] NLPModelsIpopt v0.10.4
-  [5f98b655] OptimalControl v1.1.2
+  [5f98b655] OptimalControl v1.1.3
   [59046045] OptimalControlProblems v0.3.0 `~/work/OptimalControlProblems.jl/OptimalControlProblems.jl`
   [91a5bcdd] Plots v1.41.1
   [bd369af6] Tables v1.12.1
@@ -48,9 +48,9 @@ Environment:
   [6e4b80f9] BenchmarkTools v1.6.0
   [d1d4a3ce] BitFlags v0.1.9
   [54762871] CTBase v0.16.4
-  [790bbbee] CTDirect v0.17.2
+  [790bbbee] CTDirect v0.17.3
   [1c39547c] CTFlows v0.8.8
-  [34c4fa32] CTModels v0.6.7
+  [34c4fa32] CTModels v0.6.8
   [32681960] CTParser v0.7.0
   [d360d2e6] ChainRulesCore v1.26.0
   [523fee87] CodecBzip2 v0.8.5
@@ -125,7 +125,7 @@ Environment:
   [77ba4419] NaNMath v1.1.3
   [6fe1bfb0] OffsetArrays v1.17.0
   [4d8831e6] OpenSSL v1.5.0
-  [5f98b655] OptimalControl v1.1.2
+  [5f98b655] OptimalControl v1.1.3
   [59046045] OptimalControlProblems v0.3.0 `~/work/OptimalControlProblems.jl/OptimalControlProblems.jl`
   [bac558e1] OrderedCollections v1.8.1
   [d96e819e] Parameters v0.12.3
@@ -205,9 +205,9 @@ Environment:
   [e9f186c6] Libffi_jll v3.4.7+0
   [7e76a0d4] Libglvnd_jll v1.7.1+1
   [94ce4f54] Libiconv_jll v1.18.0+0
-  [4b2f31a3] Libmount_jll v2.41.1+0
+  [4b2f31a3] Libmount_jll v2.41.2+0
   [89763e89] Libtiff_jll v4.7.2+0
-  [38a345b3] Libuuid_jll v2.41.1+0
+  [38a345b3] Libuuid_jll v2.41.2+0
   [d00139f3] METIS_jll v5.1.3+0
   [856f044c] MKL_jll v2025.2.0+0
   [d7ed1dd3] MUMPS_seq_jll v500.800.100+0
@@ -321,4 +321,4 @@ mermaid.initialize({
     startOnLoad: true,
     theme: "neutral"
 });
-</script></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="problems-introduction.html">Introduction »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 25 September 2025 13:18">Thursday 25 September 2025</span>. Using Julia version 1.11.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</script></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="problems-introduction.html">Introduction »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Friday 26 September 2025 08:42">Friday 26 September 2025</span>. Using Julia version 1.11.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
