@@ -21,7 +21,9 @@ function test_OptimalControl()
             DEBUG && println("│")
 
             # Set up the model
-            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); grid_size=grid_size)
+            docp = OptimalControlProblems.eval(f)(
+                OptimalControlBackend(); grid_size=grid_size
+            )
             nlp = nlp_model(docp)
 
             # Solve the model
@@ -32,12 +34,19 @@ function test_OptimalControl()
 
             # Infos
             DEBUG && println("│")
-            DEBUG && print(  "│ sol.status: ", sol.status, ", objective: ", sol.objective, ", iterations: ", sol.iter)
-            
+            DEBUG && print(
+                "│ sol.status: ",
+                sol.status,
+                ", objective: ",
+                sol.objective,
+                ", iterations: ",
+                sol.iter,
+            )
+
             # Test
             res = @my_test_broken (sol.status == :first_order || sol.status == :acceptable)
             keep_problem = keep_problem && res
-            DEBUG &&  res && println(", \033[1;32mPass\033[0m")
+            DEBUG && res && println(", \033[1;32mPass\033[0m")
             DEBUG && !res && println(", \033[1;31mFail\033[0m")
             DEBUG && println("│")
             DEBUG && println("└─")

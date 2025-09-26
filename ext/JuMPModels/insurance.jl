@@ -28,9 +28,11 @@ julia> model = OptimalControlProblems.insurance(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.insurance(
-    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:insurance), 
-    parameters::Union{Nothing, NamedTuple}=nothing,
-    kwargs...
+    ::JuMPBackend,
+    args...;
+    grid_size::Int=grid_size_data(:insurance),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
 
     # parameters
@@ -59,13 +61,13 @@ function OptimalControlProblems.insurance(
     I_t0 = params[:I_t0]
     m_t0 = params[:m_t0]
     x₃_t0 = params[:x₃_t0]
-    
+
     # model
     model = JuMP.Model(args...; kwargs...)
 
     # metadata: required
     model[:time_grid] = () -> range(t0, tf, grid_size+1) # tf is a fixed
-    model[:state_components] =["I", "m", "x₃"]
+    model[:state_components] = ["I", "m", "x₃"]
     model[:costate_components] = ["∂I", "∂m", "∂x₃"]
     model[:control_components] = ["h", "R", "H", "U", "dUdR"]
     model[:variable_components] = ["P"]
@@ -77,15 +79,15 @@ function OptimalControlProblems.insurance(
     @variables(
         model,
         begin
-            I_l ≤ I[0:N] ≤ I_u,      (start = 0.1)
-            m_l ≤ m[0:N] ≤ m_u,      (start = 0.1)
-            x₃[0:N],                 (start = 0.1)
-            h_l ≤ h[0:N] ≤ h_u,      (start = 0.1)
-            R[0:N] ≥ R_l,            (start = 0.1)
-            H[0:N] ≥ H_l,            (start = 0.1)
-            U[0:N] ≥ U_l,            (start = 0.1)
-            dUdR[0:N] ≥ dUdR_l,      (start = 0.1)
-            P ≥ P_l,                 (start = 0.1)
+            I_l ≤ I[0:N] ≤ I_u, (start = 0.1)
+            m_l ≤ m[0:N] ≤ m_u, (start = 0.1)
+            x₃[0:N], (start = 0.1)
+            h_l ≤ h[0:N] ≤ h_u, (start = 0.1)
+            R[0:N] ≥ R_l, (start = 0.1)
+            H[0:N] ≥ H_l, (start = 0.1)
+            U[0:N] ≥ U_l, (start = 0.1)
+            dUdR[0:N] ≥ dUdR_l, (start = 0.1)
+            P ≥ P_l, (start = 0.1)
         end
     )
 

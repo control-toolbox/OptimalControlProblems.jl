@@ -31,7 +31,7 @@ function OptimalControlProblems.bioreactor(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:bioreactor),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 

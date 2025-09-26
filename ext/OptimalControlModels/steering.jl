@@ -27,7 +27,7 @@ function OptimalControlProblems.steering(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:steering),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 
@@ -63,7 +63,7 @@ function OptimalControlProblems.steering(
 
         tf ≥ tf_l, (tf_c)
         u_min ≤ u(t) ≤ u_max, (u_c)
-        
+
         ẋ(t) == dynamics(x(t), u(t))
 
         tf → min

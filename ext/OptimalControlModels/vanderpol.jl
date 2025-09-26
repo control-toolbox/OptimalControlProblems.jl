@@ -27,7 +27,7 @@ function OptimalControlProblems.vanderpol(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:vanderpol),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 
@@ -49,7 +49,7 @@ function OptimalControlProblems.vanderpol(
         x(t0) == [x₁_t0, x₂_t0]
 
         ẋ(t) == [x[2](t), ε * ω * (1 - x[1](t)^2) * x[2](t) - ω^2 * x[1](t) + u(t)]
-        
+
         0.5∫(x[1](t)^2 + x[2](t)^2 + u(t)^2) → min
     end
 

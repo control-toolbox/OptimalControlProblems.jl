@@ -28,9 +28,11 @@ julia> model = OptimalControlProblems.glider(JuMPBackend(); N=100)
 - Hang Glider Problem formulation as in: https://www.mcs.anl.gov/~more/cops/
 """
 function OptimalControlProblems.glider(
-    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:glider), 
-    parameters::Union{Nothing, NamedTuple}=nothing,
-    kwargs...
+    ::JuMPBackend,
+    args...;
+    grid_size::Int=grid_size_data(:glider),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
 
     # parameters
@@ -74,12 +76,12 @@ function OptimalControlProblems.glider(
     @variables(
         model,
         begin
-            tf ≥ tf_l,                         (start = 1)
-            x[k = 0:N] ≥ x_l,                  (start = x_t0 + vx_t0 * k / N)
-            y[k = 0:N],                         (start = y_t0 + (k / N) * (y_tf - y_t0))
-            vx[k = 0:N] ≥ vx_l,                (start = vx_t0)
-            vy[k = 0:N],                        (start = vy_t0)
-            cL_min ≤ cL[k = 0:N] ≤ cL_max,    (start = cL_max / 2)
+            tf ≥ tf_l, (start = 1)
+            x[k = 0:N] ≥ x_l, (start = x_t0 + vx_t0 * k / N)
+            y[k = 0:N], (start = y_t0 + (k / N) * (y_tf - y_t0))
+            vx[k = 0:N] ≥ vx_l, (start = vx_t0)
+            vy[k = 0:N], (start = vy_t0)
+            cL_min ≤ cL[k = 0:N] ≤ cL_max, (start = cL_max / 2)
         end
     )
 
@@ -87,11 +89,11 @@ function OptimalControlProblems.glider(
     @constraints(
         model,
         begin
-            x[0]  == x_t0
-            y[0]  == y_t0
+            x[0] == x_t0
+            y[0] == y_t0
             vx[0] == vx_t0
             vy[0] == vy_t0
-            y[N]  == y_tf
+            y[N] == y_tf
             vx[N] == vx_tf
             vy[N] == vy_tf
         end

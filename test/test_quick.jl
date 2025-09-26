@@ -49,14 +49,18 @@ function test_quick()
             o_jp = objective_value(nlp)
 
             ########## OptimalControl ##########
-            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); grid_size=grid_size)
+            docp = OptimalControlProblems.eval(f)(
+                OptimalControlBackend(); grid_size=grid_size
+            )
             nlp = nlp_model(docp)
             nlp_sol = NLPModelsIpopt.ipopt(nlp; kwargs_ipopt...)
             sol = build_ocp_solution(docp, nlp_sol)
             o_oc = objective(sol)
 
             ########## OptimalControl_s ##########
-            docp = OptimalControlProblems.eval(Symbol(f, :_s))(OptimalControlBackend(), :madnlp, :exa; grid_size=grid_size)
+            docp = OptimalControlProblems.eval(Symbol(f, :_s))(
+                OptimalControlBackend(), :madnlp, :exa; grid_size=grid_size
+            )
             nlp = nlp_model(docp)
             ocp = ocp_model(docp)
             nlp_sol = madnlp(nlp; kwargs_madnlp...)
@@ -87,7 +91,7 @@ function test_quick()
 
             res = @my_test_broken o_di < o_bd
 
-            DEBUG &&  res && println("│          \033[1;32mTest Passed\033[0m")
+            DEBUG && res && println("│          \033[1;32mTest Passed\033[0m")
             DEBUG && !res && println("│          \033[1;31mTest Failed\033[0m")
             DEBUG && println("│")
 
@@ -107,7 +111,7 @@ function test_quick()
 
             res = @my_test_broken o_di < o_bd
 
-            DEBUG &&  res && println("│          \033[1;32mTest Passed\033[0m")
+            DEBUG && res && println("│          \033[1;32mTest Passed\033[0m")
             DEBUG && !res && println("│          \033[1;31mTest Failed\033[0m")
             DEBUG && println("│")
 

@@ -28,7 +28,7 @@ function OptimalControlProblems.space_shuttle(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:space_shuttle),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 

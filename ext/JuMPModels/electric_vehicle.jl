@@ -28,9 +28,11 @@ julia> model = OptimalControlProblems.electric_vehicle(JuMPBackend(); N=100)
 - Petit, N., & Sciarretta, A. (2011). *Optimal drive of electric vehicles using an inversion-based trajectory generation approach.* IFAC Proceedings Volumes, 44(1), 14519–14526. [PS2011]
 """
 function OptimalControlProblems.electric_vehicle(
-    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:electric_vehicle), 
-    parameters::Union{Nothing, NamedTuple}=nothing,
-    kwargs...
+    ::JuMPBackend,
+    args...;
+    grid_size::Int=grid_size_data(:electric_vehicle),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
 
     # parameters
@@ -68,9 +70,9 @@ function OptimalControlProblems.electric_vehicle(
     @variables(
         model,
         begin
-            x[0:N],                    (start = 0.1)
-            v[0:N],                    (start = 0.1)
-            u[0:N],                    (start = 0.1)
+            x[0:N], (start = 0.1)
+            v[0:N], (start = 0.1)
+            u[0:N], (start = 0.1)
         end
     )
 

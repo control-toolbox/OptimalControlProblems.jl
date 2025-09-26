@@ -32,7 +32,7 @@ function OptimalControlProblems.dielectrophoretic_particle_s(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:dielectrophoretic_particle),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 

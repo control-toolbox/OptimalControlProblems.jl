@@ -32,7 +32,7 @@ function OptimalControlProblems.ducted_fan(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:ducted_fan),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 
@@ -85,7 +85,7 @@ function OptimalControlProblems.ducted_fan(
         v₁(t0) == v₁_t0, (v₁_t0)
         x₂(t0) == x₂_t0, (x₂_t0)
         v₂(t0) == v₂_t0, (v₂_t0)
-        α(t0)  == α_t0, (α_t0)
+        α(t0) == α_t0, (α_t0)
         vα(t0) == vα_t0, (vα_t0)
 
         # final constraints
@@ -93,7 +93,7 @@ function OptimalControlProblems.ducted_fan(
         v₁(tf) == v₁_tf, (v₁_tf)
         x₂(tf) == x₂_tf, (x₂_tf)
         v₂(tf) == v₂_tf, (v₂_tf)
-        α(tf)  == α_tf , (α_tf )
+        α(tf) == α_tf, (α_tf)
         vα(tf) == vα_tf, (vα_tf)
 
         # dynamics

@@ -29,9 +29,11 @@ julia> model = OptimalControlProblems.double_oscillator(JuMPBackend(); N=200)
   IFAC-PapersOnLine, 51(2), 49–54.
 """
 function OptimalControlProblems.double_oscillator(
-    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:double_oscillator), 
-    parameters::Union{Nothing, NamedTuple}=nothing,
-    kwargs...
+    ::JuMPBackend,
+    args...;
+    grid_size::Int=grid_size_data(:double_oscillator),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
 
     # parameters
@@ -60,7 +62,7 @@ function OptimalControlProblems.double_oscillator(
 
     # N = grid_size
     @expression(model, N, grid_size)
-    
+
     # state, control and initial guess
     @variables(
         model,

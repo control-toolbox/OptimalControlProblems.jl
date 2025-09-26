@@ -31,7 +31,7 @@ function OptimalControlProblems.beam_s(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:beam),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 
@@ -58,7 +58,7 @@ function OptimalControlProblems.beam_s(
 
         ∂(x₁)(t) == x₂(t)
         ∂(x₂)(t) == u(t)
-        
+
         ∫(u(t)^2) → min
     end
 

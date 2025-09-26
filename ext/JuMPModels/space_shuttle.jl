@@ -29,9 +29,11 @@ julia> model = OptimalControlProblems.space_shuttle(JuMPBackend(); N=200)
 - Problem formulation and tutorial available at: https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/
 """
 function OptimalControlProblems.space_shuttle(
-    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:space_shuttle), 
-    parameters::Union{Nothing, NamedTuple}=nothing,
-    kwargs...
+    ::JuMPBackend,
+    args...;
+    grid_size::Int=grid_size_data(:space_shuttle),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
 
     # Parameters
@@ -168,16 +170,8 @@ function OptimalControlProblems.space_shuttle(
 
     ## Combine all interpolated parameters into an array of arrays
     interpolated_values = [
-        transpose([h, ϕ, θ, v, γ, ψ, α, β]) for (h, ϕ, θ, v, γ, ψ, α, β) in zip(
-            h_interp,
-            ϕ_interp,
-            θ_interp,
-            v_interp,
-            γ_interp,
-            ψ_interp,
-            α_interp,
-            β_interp,
-        )
+        transpose([h, ϕ, θ, v, γ, ψ, α, β]) for (h, ϕ, θ, v, γ, ψ, α, β) in
+        zip(h_interp, ϕ_interp, θ_interp, v_interp, γ_interp, ψ_interp, α_interp, β_interp)
     ]
 
     ## Create the initial guess by summing the interpolated values

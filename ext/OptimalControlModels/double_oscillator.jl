@@ -32,7 +32,7 @@ function OptimalControlProblems.double_oscillator(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:double_oscillator),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 
@@ -55,7 +55,7 @@ function OptimalControlProblems.double_oscillator(
         t ∈ [t0, tf], time
         x ∈ R⁴, state
         u ∈ R, control
-        
+
         u_l ≤ u(t) ≤ u_u, (u_c)
         x₁(t0) == x₁_t0, (x₁_t0)
         x₂(t0) == x₂_t0, (x₂_t0)

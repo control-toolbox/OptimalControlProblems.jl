@@ -28,9 +28,11 @@ julia> model = OptimalControlProblems.robot(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/robot.jl
 """
 function OptimalControlProblems.robot(
-    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:robot), 
-    parameters::Union{Nothing, NamedTuple}=nothing,
-    kwargs...
+    ::JuMPBackend,
+    args...;
+    grid_size::Int=grid_size_data(:robot),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
 
     # parameters
@@ -90,19 +92,19 @@ function OptimalControlProblems.robot(
     @variables(
         model,
         begin
-            ρ_l ≤ ρ[k = 0:N] ≤ ρ_u,         (start = ρ_t0)
-            θ_l ≤ θ[k = 0:N] ≤ θ_u,         (start = 2π/3 * (k / N)^2)
-            ϕ_l ≤ ϕ[k = 0:N] ≤ ϕ_u,         (start = ϕ_t0)
+            ρ_l ≤ ρ[k = 0:N] ≤ ρ_u, (start = ρ_t0)
+            θ_l ≤ θ[k = 0:N] ≤ θ_u, (start = 2π/3 * (k / N)^2)
+            ϕ_l ≤ ϕ[k = 0:N] ≤ ϕ_u, (start = ϕ_t0)
 
-            dρ[k = 0:N],                    (start = 0)
-            dθ[k = 0:N],                    (start = 4π/3 * (k / N))
-            dϕ[k = 0:N],                    (start = 0)
+            dρ[k = 0:N], (start = 0)
+            dθ[k = 0:N], (start = 4π/3 * (k / N))
+            dϕ[k = 0:N], (start = 0)
 
-            uρ_l ≤ uρ[0:N] ≤ uρ_u,          (start = 0)
-            uθ_l ≤ uθ[0:N] ≤ uθ_u,          (start = 0)
-            uϕ_l ≤ uϕ[0:N] ≤ uϕ_u,          (start = 0)
+            uρ_l ≤ uρ[0:N] ≤ uρ_u, (start = 0)
+            uθ_l ≤ uθ[0:N] ≤ uθ_u, (start = 0)
+            uϕ_l ≤ uϕ[0:N] ≤ uϕ_u, (start = 0)
 
-            tf ≥ tf_l,                      (start = 1)
+            tf ≥ tf_l, (start = 1)
         end
     )
 
