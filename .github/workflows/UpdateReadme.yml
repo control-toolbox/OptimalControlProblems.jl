@@ -35,6 +35,6 @@ jobs:
       package_name: OptimalControlProblems        # package for INSTALL.md
       repo_name: control-toolbox/OptimalControlProblems.jl        # repository for CONTRIBUTING.md links
       doc_url: https://control-toolbox.org/OptimalControlProblems.jl
-      citation_badge: "[![DOI](https://zenodo.org/badge/848989278.svg)](https://zenodo.org/doi/10.5281/zenodo.17013180)" # example, can be empty
+      citation_badge: "[![DOI](https://zenodo.org/badge/848989278.svg)](https://zenodo.org/doi/10.5281/zenodo.17013179)" # example, can be empty
       assignee: "ocots"
     secrets: inherit
