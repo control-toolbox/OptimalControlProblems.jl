@@ -28,10 +28,11 @@ julia> model = OptimalControlProblems.beam(JuMPBackend(); N=100)
 - Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 function OptimalControlProblems.beam(
-    ::JuMPBackend, args...; 
-    grid_size::Int=grid_size_data(:beam), 
-    parameters::Union{Nothing, NamedTuple}=nothing,
-    kwargs...
+    ::JuMPBackend,
+    args...;
+    grid_size::Int=grid_size_data(:beam),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
 
     # parameters
@@ -62,9 +63,9 @@ function OptimalControlProblems.beam(
     @variables(
         model,
         begin
-            x₁_l ≤ x₁[0:N] ≤ x₁_u,    (start = 0.05)
-            x₂[0:N],                  (start = 0.1)
-            u[0:N],                   (start = 0.1)
+            x₁_l ≤ x₁[0:N] ≤ x₁_u, (start = 0.05)
+            x₂[0:N], (start = 0.1)
+            u[0:N], (start = 0.1)
         end
     )
 

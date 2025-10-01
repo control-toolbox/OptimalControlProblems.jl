@@ -31,7 +31,7 @@ function OptimalControlProblems.beam(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:beam),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 

@@ -32,7 +32,7 @@ function OptimalControlProblems.electric_vehicle_s(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:electric_vehicle),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 

@@ -29,9 +29,11 @@ julia> model = OptimalControlProblems.dielectrophoretic_particle(JuMPBackend(); 
   IEEE Transactions on Automatic Control, 51(7), 1100–1114.
 """
 function OptimalControlProblems.dielectrophoretic_particle(
-    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:dielectrophoretic_particle), 
-    parameters::Union{Nothing, NamedTuple}=nothing,
-    kwargs...
+    ::JuMPBackend,
+    args...;
+    grid_size::Int=grid_size_data(:dielectrophoretic_particle),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
 
     # parameters
@@ -45,7 +47,7 @@ function OptimalControlProblems.dielectrophoretic_particle(
     u_l = params[:u_l]
     u_u = params[:u_u]
     tf_l = params[:tf_l]
-    
+
     # model
     model = JuMP.Model(args...; kwargs...)
 
@@ -63,10 +65,10 @@ function OptimalControlProblems.dielectrophoretic_particle(
     @variables(
         model,
         begin
-            x[0:N],                 (start = 1)
-            y[0:N],                 (start = 1)
-            u_l ≤ u[0:N] ≤ u_u,     (start = 0.1)
-            tf ≥ tf_l,              (start = 5)
+            x[0:N], (start = 1)
+            y[0:N], (start = 1)
+            u_l ≤ u[0:N] ≤ u_u, (start = 0.1)
+            tf ≥ tf_l, (start = 5)
         end
     )
 

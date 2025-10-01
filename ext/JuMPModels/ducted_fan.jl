@@ -29,9 +29,11 @@ julia> model = OptimalControlProblems.ducted_fan(JuMPBackend(); N=100)
   Optimal Control Applications and Methods, 30(6), 537–561. [GP2009]
 """
 function OptimalControlProblems.ducted_fan(
-    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:ducted_fan), 
-    parameters::Union{Nothing, NamedTuple}=nothing,
-    kwargs...
+    ::JuMPBackend,
+    args...;
+    grid_size::Int=grid_size_data(:ducted_fan),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
 
     # parameters
@@ -79,15 +81,15 @@ function OptimalControlProblems.ducted_fan(
     @variables(
         model,
         begin
-            x₁[0:N],                    (start = 0.1)
-            v₁[0:N],                    (start = 0.1)
-            x₂[0:N],                    (start = -0.1)
-            v₂[0:N],                    (start = 0.1)
-            α_l ≤ α[0:N] ≤ α_u,         (start = 0.1)     # radian
-            vα[0:N],                    (start = 0.1)
-            u₁_l ≤ u₁[0:N] ≤ u₁_u,      (start = 0.1)     # [N]
-            u₂_l ≤ u₂[0:N] ≤ u₂_u,      (start = 1)       # [N]
-            tf ≥ tf_l,                  (start = 1.5)
+            x₁[0:N], (start = 0.1)
+            v₁[0:N], (start = 0.1)
+            x₂[0:N], (start = -0.1)
+            v₂[0:N], (start = 0.1)
+            α_l ≤ α[0:N] ≤ α_u, (start = 0.1)     # radian
+            vα[0:N], (start = 0.1)
+            u₁_l ≤ u₁[0:N] ≤ u₁_u, (start = 0.1)     # [N]
+            u₂_l ≤ u₂[0:N] ≤ u₂_u, (start = 1)       # [N]
+            tf ≥ tf_l, (start = 1.5)
         end
     )
 
@@ -100,7 +102,7 @@ function OptimalControlProblems.ducted_fan(
             v₁[0] == v₁_t0
             x₂[0] == x₂_t0
             v₂[0] == v₂_t0
-            α[0]  == α_t0
+            α[0] == α_t0
             vα[0] == vα_t0
 
             # final
@@ -108,7 +110,7 @@ function OptimalControlProblems.ducted_fan(
             v₁[N] == v₁_tf
             x₂[N] == x₂_tf
             v₂[N] == v₂_tf
-            α[N]  == α_tf
+            α[N] == α_tf
             vα[N] == vα_tf
         end
     )
@@ -140,7 +142,7 @@ function OptimalControlProblems.ducted_fan(
             ∂v₁[k = 1:N], v₁[k] == v₁[k - 1] + 0.5 * Δt * (dv₁[k] + dv₁[k - 1])
             ∂x₂[k = 1:N], x₂[k] == x₂[k - 1] + 0.5 * Δt * (dx₂[k] + dx₂[k - 1])
             ∂v₂[k = 1:N], v₂[k] == v₂[k - 1] + 0.5 * Δt * (dv₂[k] + dv₂[k - 1])
-            ∂α[k = 1:N],   α[k] ==  α[k - 1] + 0.5 * Δt * (dα[k]  + dα[k - 1])
+            ∂α[k = 1:N], α[k] == α[k - 1] + 0.5 * Δt * (dα[k] + dα[k - 1])
             ∂vα[k = 1:N], vα[k] == vα[k - 1] + 0.5 * Δt * (dvα[k] + dvα[k - 1])
         end
     )

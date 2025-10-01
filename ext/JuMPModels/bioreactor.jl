@@ -31,10 +31,11 @@ julia> model = OptimalControlProblems.bioreactor(JuMPBackend(); N=100)
 - [control-toolbox/bocop](https://github.com/control-toolbox/bocop/tree/main/bocop)
 """
 function OptimalControlProblems.bioreactor(
-    ::JuMPBackend, args...; 
-    grid_size::Int=grid_size_data(:bioreactor), 
-    parameters::Union{Nothing, NamedTuple}=nothing, 
-    kwargs...
+    ::JuMPBackend,
+    args...;
+    grid_size::Int=grid_size_data(:bioreactor),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
 
     # parameters

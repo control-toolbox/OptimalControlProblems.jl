@@ -31,7 +31,7 @@ function OptimalControlProblems.cart_pendulum(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:cart_pendulum),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 
@@ -49,7 +49,7 @@ function OptimalControlProblems.cart_pendulum(
     x_u = params[:x_u]
     v_l = params[:v_l]
     v_u = params[:v_u]
-    tf_l  = params[:tf_l]
+    tf_l = params[:tf_l]
     x_t0 = params[:x_t0]
     θ_t0 = params[:θ_t0]
     ω_t0 = params[:ω_t0]

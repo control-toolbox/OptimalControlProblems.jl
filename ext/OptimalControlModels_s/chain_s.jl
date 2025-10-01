@@ -32,7 +32,7 @@ function OptimalControlProblems.chain_s(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:chain),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 
@@ -78,8 +78,10 @@ function OptimalControlProblems.chain_s(
     xinit =
         t -> [
             4 * abs(b - a) * (t - t0) / (tf - t0) * (0.5 * (t - t0) / (tf - t0) - tmin) + a,
-            (4 * abs(b - a) * (t - t0) / (tf - t0) * (0.5 * (t - t0) / (tf - t0) - tmin) + a) *
-            (4 * abs(b - a) * ((t - t0) / (tf - t0) - tmin)),
+            (
+                4 * abs(b - a) * (t - t0) / (tf - t0) *
+                (0.5 * (t - t0) / (tf - t0) - tmin) + a
+            ) * (4 * abs(b - a) * ((t - t0) / (tf - t0) - tmin)),
             4 * abs(b - a) * ((t - t0) / (tf - t0) - tmin),
         ]
     uinit = t -> 4 * abs(b - a) * (t / tf - tmin)

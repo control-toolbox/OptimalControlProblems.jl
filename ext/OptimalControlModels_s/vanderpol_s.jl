@@ -27,7 +27,7 @@ function OptimalControlProblems.vanderpol_s(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:vanderpol),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 

@@ -28,7 +28,7 @@ function OptimalControlProblems.space_shuttle_s(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:space_shuttle),
-    parameters::Union{Nothing, NamedTuple}=nothing,
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 
@@ -153,7 +153,9 @@ function OptimalControlProblems.space_shuttle_s(
         ∂(θ)(t) == (v / r) * cos(γ(t)) * cos(ψ(t))
         ∂(scaled_v)(t) == (-(D / m) - g * sin(γ(t))) / scaling_v
         ∂(γ)(t) == (L / (m * v)) * cos(β(t)) + cos(γ(t)) * ((v / r) - (g / v))
-        ∂(ψ)(t) == (1 / (m * v * cos(γ(t)))) * L * sin(β(t)) + (v / (r * cos(θ(t)))) * cos(γ(t)) * sin(ψ(t)) * sin(θ(t))
+        ∂(ψ)(t) ==
+        (1 / (m * v * cos(γ(t)))) * L * sin(β(t)) +
+        (v / (r * cos(θ(t)))) * cos(γ(t)) * sin(ψ(t)) * sin(θ(t))
 
         # objective
         θ(tf) → max

@@ -10,7 +10,10 @@ function test_kwargs()
 
             # OptimalControl model
             docp = OptimalControlProblems.eval(f)(
-                OptimalControlBackend(), solver_backend; grid_size=grid_size, disc_method=scheme
+                OptimalControlBackend(),
+                solver_backend;
+                grid_size=grid_size,
+                disc_method=scheme,
             )
             @test docp isa CTDirect.DOCP
             @test docp.time.steps == grid_size
@@ -18,7 +21,11 @@ function test_kwargs()
 
             # OptimalControl_s model
             docp = OptimalControlProblems.eval(Symbol(f, :_s))(
-                OptimalControlBackend(), :madnlp, :exa; grid_size=grid_size, disc_method=scheme
+                OptimalControlBackend(),
+                :madnlp,
+                :exa;
+                grid_size=grid_size,
+                disc_method=scheme,
             )
             @test docp isa CTDirect.DOCP
             @test docp.time.steps == grid_size

@@ -78,7 +78,6 @@ julia> comparison(max_iter=100, test_name=:solution)
 ```
 """
 function comparison(; max_iter, test_name)
-
     test_tag(res) = res ? "\033[1;32mPASS\033[0m" : "\033[1;31mFAIL\033[0m"
 
     #
@@ -124,12 +123,21 @@ function comparison(; max_iter, test_name)
 
     #
     function test_L2_i(i, times, A, B, A_name, B_name; ε_abs, ε_rel)
-        yi_oc, yi_jp = [B[k][i] for k in eachindex(times)], [A[k][i] for k in eachindex(times)]
+        yi_oc, yi_jp = [B[k][i] for k in eachindex(times)],
+        [A[k][i] for k in eachindex(times)]
         L2_di = L2_norm(times, yi_oc - yi_jp)
         L2_bd = max(0.5*(L2_norm(times, yi_oc)+L2_norm(times, yi_jp))*ε_rel, ε_abs)
         res = @my_test_broken L2_di < L2_bd
         r_err = L2_di / (0.5*(L2_norm(times, yi_oc)+L2_norm(times, yi_jp)))
-        DEBUG && @printf("│      → %s vs %s: r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n", A_name, B_name, r_err, L2_di, L2_bd, test_tag(res))
+        DEBUG && @printf(
+            "│      → %s vs %s: r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
+            A_name,
+            B_name,
+            r_err,
+            L2_di,
+            L2_bd,
+            test_tag(res)
+        )
         return res
     end
 
@@ -144,7 +152,17 @@ function comparison(; max_iter, test_name)
         tf_bd = max(0.5*(A+B)*ε_rel, ε_abs)
         res = @my_test_broken tf_di < tf_bd
         r_err = tf_di / (0.5*(A+B))
-        DEBUG && @printf("│      → %s: %.3e  %s: %.3e  r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n", A_name, A, B_name, B, r_err, tf_di, tf_bd, test_tag(res))
+        DEBUG && @printf(
+            "│      → %s: %.3e  %s: %.3e  r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
+            A_name,
+            A,
+            B_name,
+            B,
+            r_err,
+            tf_di,
+            tf_bd,
+            test_tag(res)
+        )
         return res
     end
 
@@ -161,7 +179,7 @@ function comparison(; max_iter, test_name)
     function test_abs_i(i, A, B, A_name, B_name; ε_abs, ε_rel)
         return test_abs(A[i], B[i], A_name, B_name; ε_abs, ε_rel)
     end
-     
+
     function test_abs_i(i, A, B, A_name, B_name, keep_problem; ε_abs, ε_rel)
         return test_abs(A[i], B[i], A_name, B_name, keep_problem; ε_abs, ε_rel)
     end
@@ -169,7 +187,8 @@ function comparison(; max_iter, test_name)
     #
     function test_int(A, B, A_name, B_name)
         res = @my_test_broken A == B
-        DEBUG && @printf("│      → %s: %d  %s: %d  %s\n", A_name, A, B_name, B, test_tag(res))
+        DEBUG &&
+            @printf("│      → %s: %d  %s: %d  %s\n", A_name, A, B_name, B, test_tag(res))
         return res
     end
 
@@ -210,7 +229,7 @@ function comparison(; max_iter, test_name)
         res = test_length(A, B, A_name, B_name)
         return res && keep_problem, res && test_grid_ok
     end
-    
+
     #
     function test_grid_max_error(A, B, A_name, B_name, keep_problem, test_grid_ok)
         ti_di_max, ti_bd_max, itera_max = 0, NaN, 0
@@ -226,13 +245,21 @@ function comparison(; max_iter, test_name)
         end
         r_err = abs(ti_di_max)/(0.5*(abs(B[itera_max])+abs(A[itera_max])))
         res = r_err<1.0
-        DEBUG && @printf("│      → %s vs %s: iter=%d  r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n", A_name, B_name, itera_max, r_err, abs(ti_di_max), ti_bd_max, test_tag(res))
+        DEBUG && @printf(
+            "│      → %s vs %s: iter=%d  r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
+            A_name,
+            B_name,
+            itera_max,
+            r_err,
+            abs(ti_di_max),
+            ti_bd_max,
+            test_tag(res)
+        )
         return keep_problem && res, test_grid_ok && res
     end
 
     # we loop over the problems
     for f in LIST_OF_PROBLEMS
-
         grid_size = metadata(f)[:grid_size] # get default number of steps
 
         @testset "$(string(f)) ($(string(test_name)))" verbose=VERBOSE begin
@@ -269,7 +296,9 @@ function comparison(; max_iter, test_name)
             v_vars = v_vars_jp
 
             ########## OptimalControl ##########
-            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); grid_size=grid_size)
+            docp = OptimalControlProblems.eval(f)(
+                OptimalControlBackend(); grid_size=grid_size
+            )
             nlp_oc = nlp_model(docp)
             ocp_oc = ocp_model(docp)
             nlp_sol = NLPModelsIpopt.ipopt(nlp_oc; options_ipopt...)
@@ -289,7 +318,9 @@ function comparison(; max_iter, test_name)
 
             ########## OptimalControl_s ##########
             model_backend = :exa # :adnlp
-            docp = OptimalControlProblems.eval(Symbol(f, :_s))(OptimalControlBackend(), :madnlp, model_backend; grid_size=grid_size)
+            docp = OptimalControlProblems.eval(Symbol(f, :_s))(
+                OptimalControlBackend(), :madnlp, model_backend; grid_size=grid_size
+            )
             nlp_os = nlp_model(docp)
             ocp_os = ocp_model(docp)
             nlp_sol = madnlp(nlp_os; options_madnlp...)
@@ -318,12 +349,24 @@ function comparison(; max_iter, test_name)
             if test_name == :init
                 @testset "nlp" verbose=VERBOSE begin
                     DEBUG && @printf("├─ Components names\n")
-                    keep_problem = test_components(x_vars_jp, x_vars_oc, "state   : JP", "OC", keep_problem)
-                    keep_problem = test_components(x_vars_jp, x_vars_os, "state   : JP", "OS", keep_problem)
-                    keep_problem = test_components(u_vars_jp, u_vars_oc, "control : JP", "OC", keep_problem)
-                    keep_problem = test_components(u_vars_jp, u_vars_os, "control : JP", "OS", keep_problem)
-                    keep_problem = test_components(v_vars_jp, v_vars_oc, "variable: JP", "OC", keep_problem)
-                    keep_problem = test_components(v_vars_jp, v_vars_os, "variable: JP", "OS", keep_problem)
+                    keep_problem = test_components(
+                        x_vars_jp, x_vars_oc, "state   : JP", "OC", keep_problem
+                    )
+                    keep_problem = test_components(
+                        x_vars_jp, x_vars_os, "state   : JP", "OS", keep_problem
+                    )
+                    keep_problem = test_components(
+                        u_vars_jp, u_vars_oc, "control : JP", "OC", keep_problem
+                    )
+                    keep_problem = test_components(
+                        u_vars_jp, u_vars_os, "control : JP", "OS", keep_problem
+                    )
+                    keep_problem = test_components(
+                        v_vars_jp, v_vars_oc, "variable: JP", "OC", keep_problem
+                    )
+                    keep_problem = test_components(
+                        v_vars_jp, v_vars_os, "variable: JP", "OS", keep_problem
+                    )
                 end
             end
 
@@ -341,25 +384,51 @@ function comparison(; max_iter, test_name)
             ########## Time Grid ##########
             test_grid_ok = true
             @testset "grid" verbose=VERBOSE begin
-                
+
                 # ----------------------------
                 # final time
                 DEBUG && @printf("├─ Final time\n")
-                keep_problem, test_grid_ok = test_abs(t_jp[end], t_oc[end], "JP", "OC", keep_problem, test_grid_ok; ε_abs=ε_abs_grid, ε_rel=ε_rel_grid)
-                keep_problem, test_grid_ok = test_abs(t_jp[end], t_os[end], "JP", "OS", keep_problem, test_grid_ok; ε_abs=ε_abs_grid, ε_rel=ε_rel_grid)
+                keep_problem, test_grid_ok = test_abs(
+                    t_jp[end],
+                    t_oc[end],
+                    "JP",
+                    "OC",
+                    keep_problem,
+                    test_grid_ok;
+                    ε_abs=ε_abs_grid,
+                    ε_rel=ε_rel_grid,
+                )
+                keep_problem, test_grid_ok = test_abs(
+                    t_jp[end],
+                    t_os[end],
+                    "JP",
+                    "OS",
+                    keep_problem,
+                    test_grid_ok;
+                    ε_abs=ε_abs_grid,
+                    ε_rel=ε_rel_grid,
+                )
 
                 # ----------------------------
                 # length of the grids
                 DEBUG && @printf("├─ Grid length\n")
-                keep_problem, test_grid_ok = test_length(t_jp, t_oc, "JP", "OC", keep_problem, test_grid_ok)
-                keep_problem, test_grid_ok = test_length(t_jp, t_os, "JP", "OS", keep_problem, test_grid_ok)
+                keep_problem, test_grid_ok = test_length(
+                    t_jp, t_oc, "JP", "OC", keep_problem, test_grid_ok
+                )
+                keep_problem, test_grid_ok = test_length(
+                    t_jp, t_os, "JP", "OS", keep_problem, test_grid_ok
+                )
 
                 # ----------------------------
                 # max error
                 if test_grid_ok
                     DEBUG && @printf("├─ Grid max error\n")
-                    keep_problem, test_grid_ok = test_grid_max_error(t_jp, t_oc, "JP", "OC", keep_problem, test_grid_ok)
-                    keep_problem, test_grid_ok = test_grid_max_error(t_jp, t_os, "JP", "OS", keep_problem, test_grid_ok)
+                    keep_problem, test_grid_ok = test_grid_max_error(
+                        t_jp, t_oc, "JP", "OC", keep_problem, test_grid_ok
+                    )
+                    keep_problem, test_grid_ok = test_grid_max_error(
+                        t_jp, t_os, "JP", "OS", keep_problem, test_grid_ok
+                    )
                 end
             end
 
@@ -370,8 +439,28 @@ function comparison(; max_iter, test_name)
                     for i in eachindex(x_vars)
                         DEBUG && @printf("│   %-6s\n", x_vars[i])
                         @testset "$(x_vars[i])" verbose=VERBOSE begin
-                            keep_problem = test_L2_i(i, t_jp, x_jp, x_oc, "JP", "OC", keep_problem; ε_abs=ε_abs_state, ε_rel=ε_rel_state)
-                            keep_problem = test_L2_i(i, t_jp, x_jp, x_os, "JP", "OS", keep_problem; ε_abs=ε_abs_state, ε_rel=ε_rel_state)
+                            keep_problem = test_L2_i(
+                                i,
+                                t_jp,
+                                x_jp,
+                                x_oc,
+                                "JP",
+                                "OC",
+                                keep_problem;
+                                ε_abs=ε_abs_state,
+                                ε_rel=ε_rel_state,
+                            )
+                            keep_problem = test_L2_i(
+                                i,
+                                t_jp,
+                                x_jp,
+                                x_os,
+                                "JP",
+                                "OS",
+                                keep_problem;
+                                ε_abs=ε_abs_state,
+                                ε_rel=ε_rel_state,
+                            )
                         end
                     end
                 end
@@ -385,8 +474,28 @@ function comparison(; max_iter, test_name)
                         DEBUG && @printf("│   %-6s\n", u_vars[i])
                         @testset "$(u_vars[i])" verbose=VERBOSE begin
                             if !(test_name == :solution && f == :jackson)
-                                keep_problem = test_L2_i(i, t_jp, u_jp, u_oc, "JP", "OC", keep_problem; ε_abs=ε_abs_control, ε_rel=ε_rel_control)
-                                keep_problem = test_L2_i(i, t_jp, u_jp, u_os, "JP", "OS", keep_problem; ε_abs=ε_abs_control, ε_rel=ε_rel_control)
+                                keep_problem = test_L2_i(
+                                    i,
+                                    t_jp,
+                                    u_jp,
+                                    u_oc,
+                                    "JP",
+                                    "OC",
+                                    keep_problem;
+                                    ε_abs=ε_abs_control,
+                                    ε_rel=ε_rel_control,
+                                )
+                                keep_problem = test_L2_i(
+                                    i,
+                                    t_jp,
+                                    u_jp,
+                                    u_os,
+                                    "JP",
+                                    "OS",
+                                    keep_problem;
+                                    ε_abs=ε_abs_control,
+                                    ε_rel=ε_rel_control,
+                                )
                             end
                         end
                     end
@@ -400,8 +509,26 @@ function comparison(; max_iter, test_name)
                     for i in eachindex(v_vars)
                         DEBUG && @printf("│   %-6s\n", v_vars[i])
                         @testset "$(v_vars[i])" verbose=VERBOSE begin
-                            keep_problem = test_abs_i(i, v_jp, v_oc, "JP", "OC", keep_problem; ε_abs=ε_abs_variable, ε_rel=ε_rel_variable)
-                            keep_problem = test_abs_i(i, v_jp, v_os, "JP", "OS", keep_problem; ε_abs=ε_abs_variable, ε_rel=ε_rel_variable)
+                            keep_problem = test_abs_i(
+                                i,
+                                v_jp,
+                                v_oc,
+                                "JP",
+                                "OC",
+                                keep_problem;
+                                ε_abs=ε_abs_variable,
+                                ε_rel=ε_rel_variable,
+                            )
+                            keep_problem = test_abs_i(
+                                i,
+                                v_jp,
+                                v_os,
+                                "JP",
+                                "OS",
+                                keep_problem;
+                                ε_abs=ε_abs_variable,
+                                ε_rel=ε_rel_variable,
+                            )
                         end
                     end
                 end
@@ -410,8 +537,24 @@ function comparison(; max_iter, test_name)
             ########## Objective ##########
             DEBUG && println("├─ Objective")
             @testset "objective" verbose=VERBOSE begin
-                keep_problem = test_abs(o_jp, o_oc, "JP", "OC", keep_problem; ε_abs=ε_abs_objective, ε_rel=ε_rel_objective)
-                keep_problem = test_abs(o_jp, o_os, "JP", "OS", keep_problem; ε_abs=ε_abs_objective, ε_rel=ε_rel_objective)
+                keep_problem = test_abs(
+                    o_jp,
+                    o_oc,
+                    "JP",
+                    "OC",
+                    keep_problem;
+                    ε_abs=ε_abs_objective,
+                    ε_rel=ε_rel_objective,
+                )
+                keep_problem = test_abs(
+                    o_jp,
+                    o_os,
+                    "JP",
+                    "OS",
+                    keep_problem;
+                    ε_abs=ε_abs_objective,
+                    ε_rel=ε_rel_objective,
+                )
             end
 
             DEBUG && println("└─")
@@ -493,7 +636,6 @@ function comparison(; max_iter, test_name)
 
             # save figure
             savefig(plt, joinpath(figdir, "$f" * ".pdf"))
-
         end# end testset
     end # end for
 end
