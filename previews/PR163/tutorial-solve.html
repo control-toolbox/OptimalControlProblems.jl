@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Solve a problem · OptimalControlProblems.jl</title><meta name="title" content="Solve a problem · OptimalControlProblems.jl"/><meta property="og:title" content="Solve a problem · OptimalControlProblems.jl"/><meta property="twitter:title" content="Solve a problem · OptimalControlProblems.jl"/><meta name="description" content="Documentation for OptimalControlProblems.jl."/><meta property="og:description" content="Documentation for OptimalControlProblems.jl."/><meta property="twitter:description" content="Documentation for OptimalControlProblems.jl."/><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="search_index.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script><link href="https://control-toolbox.org/assets/css/documentation.css" rel="stylesheet" type="text/css"/><script src="https://control-toolbox.org/assets/js/documentation.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="index.html">OptimalControlProblems.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="index.html">Getting Started</a></li><li><span class="tocitem">Problems</span><ul><li><a class="tocitem" href="problems-introduction.html">Introduction</a></li><li><a class="tocitem" href="problems_browser.html">Problems browser</a></li><li><input class="collapse-toggle" id="menuitem-2-3" type="checkbox"/><label class="tocitem" for="menuitem-2-3"><span class="docs-label">List of the problems</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="problems/beam.html">Beam</a></li><li><a class="tocitem" href="problems/chain.html">Chain</a></li><li><a class="tocitem" href="problems/double_oscillator.html">Double oscillator</a></li><li><a class="tocitem" href="problems/ducted_fan.html">Ducted fan</a></li><li><a class="tocitem" href="problems/electric_vehicle.html">Electric vehicle</a></li><li><a class="tocitem" href="problems/glider.html">Glider</a></li><li><a class="tocitem" href="problems/insurance.html">Insurance</a></li><li><a class="tocitem" href="problems/jackson.html">Jackson</a></li><li><a class="tocitem" href="problems/robbins.html">Robbins</a></li><li><a class="tocitem" href="problems/robot.html">Robot</a></li><li><a class="tocitem" href="problems/rocket.html">Rocket</a></li><li><a class="tocitem" href="problems/space_shuttle.html">Space shuttle</a></li><li><a class="tocitem" href="problems/steering.html">Steering</a></li><li><a class="tocitem" href="problems/vanderpol.html">Vanderpol</a></li></ul></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="tutorial-get.html">Get a problem</a></li><li class="is-active"><a class="tocitem" href="tutorial-solve.html">Solve a problem</a><ul class="internal"><li><a class="tocitem" href="#Solving-from-an-OptimalControl-model"><span>Solving from an OptimalControl model</span></a></li><li><a class="tocitem" href="#Solving-from-a-JuMP-model"><span>Solving from a JuMP model</span></a></li></ul></li></ul></li><li><span class="tocitem">Developers</span><ul><li><a class="tocitem" href="dev-add.html">Add a problem</a></li><li><a class="tocitem" href="dev-api.html">API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href="tutorial-solve.html">Solve a problem</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="tutorial-solve.html">Solve a problem</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/control-toolbox/OptimalControlProblems.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/control-toolbox/OptimalControlProblems.jl/blob/main/docs/src/tutorial-solve.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="solve-problem"><a class="docs-heading-anchor" href="#solve-problem">Solve a problem</a><a id="solve-problem-1"></a><a class="docs-heading-anchor-permalink" href="#solve-problem" title="Permalink"></a></h1><p>In this tutorial, we consider the Beam problem. First, import the OptimalControlProblems package to access the problem:</p><pre><code class="language-julia hljs">using OptimalControlProblems</code></pre><h2 id="Solving-from-an-OptimalControl-model"><a class="docs-heading-anchor" href="#Solving-from-an-OptimalControl-model">Solving from an OptimalControl model</a><a id="Solving-from-an-OptimalControl-model-1"></a><a class="docs-heading-anchor-permalink" href="#Solving-from-an-OptimalControl-model" title="Permalink"></a></h2><p>First, import the problem:</p><pre><code class="language-julia hljs">using OptimalControl
+docp = beam(OptimalControlBackend())
+nlp = nlp_model(docp)</code></pre><p>The <code>nlp</code> model represents the nonlinear programming problem (NLP) obtained after discretising the optimal control problem (OCP). See the <a href="problems-introduction.html#problems-introduction">Introduction</a> page for details. The model is an <a href="https://jso.dev/ADNLPModels.jl/stable/reference/#ADNLPModels.ADNLPModel-Union%7BTuple%7BS%7D%2C%20Tuple%7BAny%2C%20S%7D%7D%20where%20S"><code>ADNLPModels.ADNLPModel</code></a>, which provides automatic differentiation (AD)-based models that follow the <a href="https://github.com/JuliaSmoothOptimizers/NLPModels.jl">NLPModels.jl</a> API. </p><p>We can then solve the problem using, for instance, <a href="https://jso.dev/NLPModelsIpopt.jl/stable/tutorial/#NLPModelsIpopt.ipopt"><code>NLPModelsIpopt.ipopt</code></a>:</p><pre><code class="language-julia hljs">using NLPModelsIpopt
+
+# Solve the model
+nlp_sol = NLPModelsIpopt.ipopt(
+    nlp;
+    print_level=5,
+    tol=1e-8,
+    mu_strategy=&quot;adaptive&quot;,
+)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">This is Ipopt version 3.14.19, running with linear solver MUMPS 5.8.1.
+
+Number of nonzeros in equality constraint Jacobian...:     4004
+Number of nonzeros in inequality constraint Jacobian.:        0
+Number of nonzeros in Lagrangian Hessian.............:      501
+
+Total number of variables............................:     1503
+                     variables with only lower bounds:        0
+                variables with lower and upper bounds:      501
+                     variables with only upper bounds:        0
+Total number of equality constraints.................:     1004
+Total number of inequality constraints...............:        0
+        inequality constraints with only lower bounds:        0
+   inequality constraints with lower and upper bounds:        0
+        inequality constraints with only upper bounds:        0
+
+iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
+   0  1.0000000e-02 1.10e+00 2.70e-13   0.0 0.00e+00    -  0.00e+00 0.00e+00   0
+   1  1.2826978e+01 1.10e-02 9.90e-01  -7.3 9.23e+00    -  4.95e-01 9.90e-01h  1
+   2  1.1464100e+01 1.10e-04 6.29e-02  -2.2 1.05e+00    -  9.96e-01 9.90e-01f  1
+   3  9.2731943e+00 8.80e-07 5.90e-01  -3.4 1.07e+00    -  9.85e-01 9.92e-01f  1
+   4  8.9483271e+00 2.39e-07 1.49e+02  -4.5 3.22e-01    -  1.00e+00 7.28e-01f  1
+   5  8.9058663e+00 1.11e-16 3.41e-13  -4.2 2.36e-01    -  1.00e+00 1.00e+00f  1
+   6  8.8943940e+00 1.11e-16 5.15e+02  -4.8 1.48e-01    -  6.92e-01 9.74e-01f  1
+   7  8.8942278e+00 1.11e-16 2.36e+02 -10.5 1.10e-01    -  1.61e-01 3.75e-02f  1
+   8  8.8920655e+00 1.11e-16 2.87e+02  -5.0 5.93e-02    -  3.84e-01 6.54e-01f  1
+   9  8.8909518e+00 1.11e-16 1.74e+02  -5.0 4.20e-02    -  5.76e-01 1.00e+00f  1
+iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
+  10  8.8901643e+00 1.11e-16 3.27e+02  -5.6 3.50e-02    -  1.00e+00 6.06e-01f  1
+  11  8.8900465e+00 2.22e-16 3.70e+02 -11.0 6.40e-02    -  4.92e-01 1.31e-01f  1
+  12  8.8896174e+00 1.11e-16 1.43e+02  -6.9 5.24e-02    -  3.55e-01 5.55e-01f  1
+  13  8.8895818e+00 1.11e-16 1.93e+02 -11.0 4.26e-02    -  8.94e-01 1.04e-01f  1
+  14  8.8894085e+00 2.22e-16 8.61e+01  -6.8 3.88e-02    -  1.00e+00 5.36e-01f  1
+  15  8.8893017e+00 1.11e-16 1.57e-14  -7.2 2.91e-02    -  1.00e+00 1.00e+00f  1
+  16  8.8892865e+00 1.11e-16 6.61e-15  -8.2 1.09e-02    -  1.00e+00 1.00e+00f  1
+  17  8.8892827e+00 1.11e-16 6.96e-15  -9.9 5.64e-03    -  1.00e+00 1.00e+00f  1
+  18  8.8892818e+00 1.11e-16 7.11e-15 -11.0 2.66e-03    -  1.00e+00 1.00e+00f  1
+
+Number of Iterations....: 18
+
+                                   (scaled)                 (unscaled)
+Objective...............:   8.8892818085812557e+00    8.8892818085812557e+00
+Dual infeasibility......:   7.1054273576010019e-15    7.1054273576010019e-15
+Constraint violation....:   1.1102230246251565e-16    1.1102230246251565e-16
+Variable bound violation:   9.9998418573443715e-09    9.9998418573443715e-09
+Complementarity.........:   3.8120412953646565e-09    3.8120412953646565e-09
+Overall NLP error.......:   3.8120412953646565e-09    3.8120412953646565e-09
+
+
+Number of objective function evaluations             = 19
+Number of objective gradient evaluations             = 19
+Number of equality constraint evaluations            = 19
+Number of inequality constraint evaluations          = 0
+Number of equality constraint Jacobian evaluations   = 19
+Number of inequality constraint Jacobian evaluations = 0
+Number of Lagrangian Hessian evaluations             = 18
+Total seconds in IPOPT                               = 0.052
+
+EXIT: Optimal Solution Found.</code></pre><p>To get the number of iterations from the NLP solution:</p><pre><code class="language-julia hljs">nlp_sol.iter</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">18</code></pre><p>and the objective value:</p><pre><code class="language-julia hljs">nlp_sol.objective</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">8.889281808581256</code></pre><p>To recover the state, control, and costate, we recommend building an optimal control solution and using the associated getters (you can also retrieve the number of iterations and the objective value from the OCP solution):</p><pre><code class="language-julia hljs">ocp_sol = build_ocp_solution(docp, nlp_sol)
+
+t = time_grid(ocp_sol)  # t0, ..., tN = tf
+x = state(ocp_sol)      # function of time
+u = control(ocp_sol)    # function of time
+p = costate(ocp_sol)    # function of time
+o = objective(ocp_sol)  # scalar objective value
+i = iterations(ocp_sol) # number of iterations
+
+tf = t[end]
+println(&quot;tf = &quot;, tf)
+println(&quot;x(tf) = &quot;, x(tf))
+println(&quot;u(tf) = &quot;, u(tf))
+println(&quot;p(tf) = &quot;, p(tf))
+println(&quot;objective:  &quot;, o)
+println(&quot;iterations: &quot;, i)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">tf = 1.0
+x(tf) = [-2.5376062445932543e-35, -1.0]
+u(tf) = -6.644784581336816
+p(tf) = [44.44734595440535, -13.378463854597236]
+objective:  8.889281808581256
+iterations: 18</code></pre><div class="admonition is-info" id="Note-4152055e792f31f7"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-4152055e792f31f7" title="Permalink"></a></header><div class="admonition-body"><p>If the problem includes additional optimisation variables, such as the final time, you can retrieve them with:</p><pre><code class="language-julia hljs">v = variable(ocp_sol)</code></pre></div></div><p>From <code>ocp_sol</code> you can also plot the state, control, and costate trajectories. For more details about plotting optimal control problems, see the <a href="https://control-toolbox.org/OptimalControl.jl/stable/manual-plot.html">Plot Manual</a>.</p><pre><code class="language-julia hljs">using Plots
+plt = plot(ocp_sol; color=1, size=(700, 600), control_style=(label=&quot;OptimalControl&quot;, ))</code></pre><img src="tutorial-solve-61982941.svg" alt="Example block output"/><h2 id="Solving-from-a-JuMP-model"><a class="docs-heading-anchor" href="#Solving-from-a-JuMP-model">Solving from a JuMP model</a><a id="Solving-from-a-JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#Solving-from-a-JuMP-model" title="Permalink"></a></h2><p>First, import the JuMP model:</p><pre><code class="language-julia hljs">using JuMP
+nlp = beam(JuMPBackend())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">A JuMP Model
+├ solver: none
+├ objective_sense: MIN_SENSE
+│ └ objective_function_type: QuadExpr
+├ num_variables: 1503
+├ num_constraints: 2006
+│ ├ AffExpr in MOI.EqualTo{Float64}: 1004
+│ ├ VariableRef in MOI.GreaterThan{Float64}: 501
+│ └ VariableRef in MOI.LessThan{Float64}: 501
+└ Names registered in the model
+  └ :N, :control_components, :costate_components, :dc, :dx₁, :dx₂, :state_components, :time_grid, :u, :variable_components, :x₁, :x₂, :Δt, :∂x₁, :∂x₂</code></pre><p>We can then solve the problem using the <a href="https://jump.dev/JuMP.jl/stable/api/JuMP/#JuMP.optimize%21"><code>JuMP.optimize!</code></a> function:</p><pre><code class="language-julia hljs">using Ipopt
+
+# Set the optimiser
+set_optimizer(nlp, Ipopt.Optimizer)
+
+# Set optimiser attributes
+set_optimizer_attribute(nlp, &quot;tol&quot;, 1e-8)
+set_optimizer_attribute(nlp, &quot;mu_strategy&quot;, &quot;adaptive&quot;)
+set_optimizer_attribute(nlp, &quot;linear_solver&quot;, &quot;mumps&quot;)
+
+# Solve the model
+optimize!(nlp)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">This is Ipopt version 3.14.19, running with linear solver MUMPS 5.8.1.
+
+Number of nonzeros in equality constraint Jacobian...:     4004
+Number of nonzeros in inequality constraint Jacobian.:        0
+Number of nonzeros in Lagrangian Hessian.............:      501
+
+Total number of variables............................:     1503
+                     variables with only lower bounds:        0
+                variables with lower and upper bounds:      501
+                     variables with only upper bounds:        0
+Total number of equality constraints.................:     1004
+Total number of inequality constraints...............:        0
+        inequality constraints with only lower bounds:        0
+   inequality constraints with lower and upper bounds:        0
+        inequality constraints with only upper bounds:        0
+
+iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
+   0  1.0000000e-02 1.10e+00 3.36e-13   0.0 0.00e+00    -  0.00e+00 0.00e+00   0
+   1  1.2826978e+01 1.10e-02 9.90e-01  -7.3 9.23e+00    -  4.95e-01 9.90e-01h  1
+   2  1.1464100e+01 1.10e-04 6.29e-02  -2.2 1.05e+00    -  9.96e-01 9.90e-01f  1
+   3  9.2731943e+00 8.80e-07 5.90e-01  -3.4 1.07e+00    -  9.85e-01 9.92e-01f  1
+   4  8.9483271e+00 2.39e-07 1.49e+02  -4.5 3.22e-01    -  1.00e+00 7.28e-01f  1
+   5  8.9058663e+00 9.97e-17 7.96e-13  -4.2 2.36e-01    -  1.00e+00 1.00e+00f  1
+   6  8.8943940e+00 9.19e-17 5.15e+02  -4.8 1.48e-01    -  6.92e-01 9.74e-01f  1
+   7  8.8942278e+00 1.59e-16 2.36e+02 -10.5 1.10e-01    -  1.61e-01 3.75e-02f  1
+   8  8.8920655e+00 1.25e-16 2.87e+02  -5.0 5.93e-02    -  3.84e-01 6.54e-01f  1
+   9  8.8909518e+00 9.97e-17 1.74e+02  -5.0 4.20e-02    -  5.76e-01 1.00e+00f  1
+iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
+  10  8.8901643e+00 1.05e-16 3.27e+02  -5.6 3.50e-02    -  1.00e+00 6.06e-01f  1
+  11  8.8900465e+00 1.47e-16 3.70e+02 -11.0 6.40e-02    -  4.92e-01 1.31e-01f  1
+  12  8.8896174e+00 1.06e-16 1.43e+02  -6.9 5.24e-02    -  3.55e-01 5.55e-01f  1
+  13  8.8895818e+00 1.27e-16 1.93e+02 -11.0 4.26e-02    -  8.94e-01 1.04e-01f  1
+  14  8.8894085e+00 9.89e-17 8.61e+01  -6.8 3.88e-02    -  1.00e+00 5.36e-01f  1
+  15  8.8893017e+00 1.01e-16 2.83e-14  -7.2 2.91e-02    -  1.00e+00 1.00e+00f  1
+  16  8.8892865e+00 9.02e-17 7.11e-15  -8.2 1.09e-02    -  1.00e+00 1.00e+00f  1
+  17  8.8892827e+00 1.03e-16 7.11e-15  -9.9 5.64e-03    -  1.00e+00 1.00e+00f  1
+  18  8.8892818e+00 8.85e-17 7.08e-15 -11.0 2.66e-03    -  1.00e+00 1.00e+00f  1
+
+Number of Iterations....: 18
+
+                                   (scaled)                 (unscaled)
+Objective...............:   8.8892818085807725e+00    8.8892818085807725e+00
+Dual infeasibility......:   7.0754510535035743e-15    7.0754510535035743e-15
+Constraint violation....:   8.8470897274817162e-17    8.8470897274817162e-17
+Variable bound violation:   9.9998418573443715e-09    9.9998418573443715e-09
+Complementarity.........:   3.8120416028947852e-09    3.8120416028947852e-09
+Overall NLP error.......:   3.8120416028947852e-09    3.8120416028947852e-09
+
+
+Number of objective function evaluations             = 19
+Number of objective gradient evaluations             = 19
+Number of equality constraint evaluations            = 19
+Number of inequality constraint evaluations          = 0
+Number of equality constraint Jacobian evaluations   = 1
+Number of inequality constraint Jacobian evaluations = 0
+Number of Lagrangian Hessian evaluations             = 1
+Total seconds in IPOPT                               = 0.035
+
+EXIT: Optimal Solution Found.</code></pre><p>To get the number of iterations:</p><pre><code class="language-julia hljs">barrier_iterations(nlp)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">18</code></pre><p>To get the objective value:</p><pre><code class="language-julia hljs">objective_value(nlp)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">8.889281808580773</code></pre><p>To get the time grid, state, control, and costate, but also to retrieve the number of iterations and the objective value, OptimalControlProblems provides the following getters:</p><pre><code class="language-julia hljs">t = time_grid(nlp)    # t0, ..., tN = tf
+x = state(nlp)        # function of time
+u = control(nlp)      # function of time
+p = costate(nlp)      # function of time
+o = objective(nlp)    # scalar objective value
+i = iterations(nlp)   # number of iteration
+
+tf = t[end]
+println(&quot;tf = &quot;, tf)
+println(&quot;x(tf) = &quot;, x(tf))
+println(&quot;u(tf) = &quot;, u(tf))
+println(&quot;p(tf) = &quot;, p(tf))
+println(&quot;objective:  &quot;, o)
+println(&quot;iterations: &quot;, i)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">tf = 1.0
+x(tf) = [7.346845952328637e-34, -1.0]
+u(tf) = -6.644784581337187
+p(tf) = [-44.44734595441291, 13.378463854597992]
+objective:  8.889281808580773
+iterations: 18</code></pre><div class="admonition is-info" id="Note-65951aa840e74bc0"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-65951aa840e74bc0" title="Permalink"></a></header><div class="admonition-body"><p>If the <code>problem</code> includes additional optimisation variables, such as the final time, you can retrieve them with:</p><pre><code class="language-julia hljs">v = variable(nlp)</code></pre></div></div><p>Now, we can add the state, costate, and control to the plot:</p><pre><code class="language-julia hljs">n = state_dimension(nlp)
+m = control_dimension(nlp)
+
+for i in 1:n # state
+    plot!(plt[i], t, t -&gt; x(t)[i]; color=2, linestyle=:dash, label=:none)
+end
+
+for i in 1:n # costate
+    plot!(plt[n+i], t, t -&gt; -p(t)[i]; color=2, linestyle=:dash, label=:none)
+end
+
+for i in 1:m # control
+    plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=&quot;JuMP&quot;)
+end</code></pre><img src="tutorial-solve-e30895ed.svg" alt="Example block output"/><div class="admonition is-info" id="Note-d9f164446a4c7bd3"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-d9f164446a4c7bd3" title="Permalink"></a></header><div class="admonition-body"><p>The costate from JuMP is the opposite of the costate from OptimalControl, that is why we plot <span>$-p(t)$</span>.</p></div></div><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+mermaid.initialize({
+    startOnLoad: true,
+    theme: "neutral"
+});
+</script></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="tutorial-get.html">« Get a problem</a><a class="docs-footer-nextpage" href="dev-add.html">Add a problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Wednesday 1 October 2025 20:47">Wednesday 1 October 2025</span>. Using Julia version 1.11.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
