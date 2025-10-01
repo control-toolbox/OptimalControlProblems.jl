@@ -30,7 +30,7 @@ julia> model = OptimalControlProblems.beam(JuMPBackend(); N=100)
 function OptimalControlProblems.beam(
     ::JuMPBackend, args...; 
     grid_size::Int=grid_size_data(:beam), 
-    parameters::Union{Nothing, NamedTuple}=nothing, 
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
 
