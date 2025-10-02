@@ -56,7 +56,7 @@ x = state(ocp_sol)      # function of time
 u = control(ocp_sol)    # function of time
 p = costate(ocp_sol)    # function of time
 o = objective(ocp_sol)  # scalar objective value
-i = iterations(ocp_sol) # number of iteration
+i = iterations(ocp_sol) # number of iterations
 
 tf = t[end]
 println("tf = ", tf)

@@ -32,6 +32,7 @@ function OptimalControlProblems.new_problem(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:new_problem),
+    parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...,
 )
 
@@ -80,7 +81,7 @@ by
 
 !!! warning
 
-    The dynamics and the nonlinear constraints must be in scalar form. See the section [Dynamics (coordinatewise)](@ref OptimalControl manual-abstract-dynamics-coord) and the following section for more details.
+    The dynamics and the nonlinear constraints must be in scalar form. See the section [Dynamics (coordinatewise)](@extref OptimalControl manual-abstract-dynamics-coord) and the following section for more details.
 
 **4.** Define the **JuMP** model of the problem in a file named `new_problem.jl` in the `ext/JuMPModels` directory, following the template:
 
@@ -89,7 +90,10 @@ by
     Documentation of the method
 """
 function OptimalControlProblems.new_problem(
-    ::JuMPBackend, args...; grid_size::Int=grid_size_data(:new_problem), kwargs...
+    ::JuMPBackend, args...; 
+    grid_size::Int=grid_size_data(:new_problem),
+    parameters::Union{Nothing, NamedTuple}=nothing,
+    kwargs...
 )
 
     # parameters
