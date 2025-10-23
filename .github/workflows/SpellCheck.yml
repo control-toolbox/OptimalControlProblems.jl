@@ -7,3 +7,6 @@ on:
 jobs:
   call:
     uses: control-toolbox/CTActions/.github/workflows/spell-check.yml@main
+    with:
+      extend-identifiers: |
+        PROPT = "PROPT"
