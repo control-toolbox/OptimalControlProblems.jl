@@ -56,7 +56,7 @@ The control $u(t)$ typically exhibits a **bang–bang structure** with possible 
 - Robbins, H. M. (1980). *Junction phenomena for optimal control with state-variable inequality constraints of third order*. Journal of Optimization Theory and Applications, 31, 85–99.  
   This is the original paper introducing the Robbins problem. It formulates the third-order state-constrained optimal control problem, describes the accumulation of contact points, and provides theoretical analysis of the junction phenomena.
 
-- Hermant, A. (2008). *Sur l'algorithme de tir pour les problèmes de commande optimale avec contraintes sur l'état* (PhD thesis, École Polytechnique X).  
+- Hermant, A. (2008). *On the shooting algorithm for optimal control problems with state constraints* (PhD thesis, École Polytechnique X).  
   This thesis discusses numerical shooting methods for state-constrained optimal control problems, including the Robbins problem. It provides practical insights into solving problems with multiple contact points and complex singular arcs.
 
 - Jacobson, D. H., Lele, M. M., & Speyer, J. L. (1971). *New necessary conditions of optimality for control problems with state-variable inequality constraints*. Journal of Mathematical Analysis and Applications, 35, 255–284.  
