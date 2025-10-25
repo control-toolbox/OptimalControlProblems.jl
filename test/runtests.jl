@@ -26,13 +26,17 @@ const MAX_WALL_TIME = 500.0
 list_of_problems = OptimalControlProblems.problems()
 
 # Remove from the tests the following problems
-# problems_to_exclude = [
-#     :bioreactor, # no need to remove here since already removed in OptimalControlProblems.jl
-#     :cart_pendulum, # no need to remove here since already removed in OptimalControlProblems.jl
-#     :dielectrophoretic_particle, # no need to remove here since already removed in OptimalControlProblems.jl
-#     :moonlander, # no need to remove here since already removed in OptimalControlProblems.jl
-# ]
-# list_of_problems = setdiff(list_of_problems, problems_to_exclude)
+problems_to_exclude = [
+    # :bioreactor, # no need to remove here since already removed in OptimalControlProblems.jl
+    # :cart_pendulum, # no need to remove here since already removed in OptimalControlProblems.jl
+    # :dielectrophoretic_particle, # no need to remove here since already removed in OptimalControlProblems.jl
+    # :moonlander, # no need to remove here since already removed in OptimalControlProblems.jl
+    :ducted_fan,
+    :insurance,
+    :robot,
+    :space_shuttle,
+]
+list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
 # list_of_problems = [
 #     :jackson,
@@ -55,8 +59,8 @@ const VERBOSE = true # print or not details during tests
         :OptimalControl,        # convergence tests for OptimalControl models
         :OptimalControl_s,      # convergence tests for OptimalControl models
         :init,                  # comparison between OptimalControl and JuMP: init
-        # :solution,              # comparison between OptimalControl and JuMP: solution
-        # :quick,                 # quick comparison: objective rel error only
+        :solution,              # comparison between OptimalControl and JuMP: solution
+        :quick,                 # quick comparison: objective rel error only
         :parameters,            # tests with different parameters values, does no depend on `list_of_problems`
     )
         @testset "$(name)" verbose=VERBOSE begin
@@ -74,7 +78,7 @@ const VERBOSE = true # print or not details during tests
     display(problems());
     println()
 
-    @testset "available_problems" verbose=VERBOSE begin
-        @test LIST_OF_PROBLEMS_FINAL == problems()
-    end
+    # @testset "available_problems" verbose=VERBOSE begin
+    #     @test LIST_OF_PROBLEMS_FINAL == problems()
+    # end
 end

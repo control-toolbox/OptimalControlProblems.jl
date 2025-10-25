@@ -49,7 +49,7 @@ nlp_sol.objective
 To recover the state, control, and costate, we recommend building an optimal control solution and using the associated getters (you can also retrieve the number of iterations and the objective value from the OCP solution):
 
 ```@example main
-ocp_sol = build_ocp_solution(docp, nlp_sol)
+ocp_sol = build_OCP_solution(docp, nlp_sol)
 
 t = time_grid(ocp_sol)  # t0, ..., tN = tf
 x = state(ocp_sol)      # function of time

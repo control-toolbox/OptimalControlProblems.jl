@@ -21,24 +21,6 @@ using OrderedCollections: OrderedDict
 using SolverCore
 import ADNLPModels: ADNLPModels, ADNLPModel
 
-# -----------------
-# SHOULD NO BE HERE ("triiiiiiiiiiiiiiit !!!" - bruit de sifflet)
-function build_ocp_solution(
-    docp::CTDirect.DOCP, nlp_solution::SolverCore.AbstractExecutionStats
-)
-    nlp_model_backend = if docp.nlp isa ADNLPModel
-        CTDirect.ADNLPBackend()
-    elseif docp.nlp isa ExaModel
-        CTDirect.ExaBackend()
-    else
-        throw(CTBase.IncorrectArgument("The NLP model is of unknown type."))
-    end
-    return CTDirect.build_OCP_solution(docp, nlp_solution; nlp_model=nlp_model_backend)
-end
-
-export build_ocp_solution
-#
-
 """
 $(TYPEDEF)
 
