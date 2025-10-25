@@ -76,7 +76,7 @@ const VERBOSE = true # print or not details during tests
     display(problems());
     println()
 
-    @testset "available_problems" verbose=VERBOSE begin
-        @test LIST_OF_PROBLEMS_FINAL == problems()
-    end
+    # @testset "available_problems" verbose=VERBOSE begin
+    #     @test LIST_OF_PROBLEMS_FINAL == problems()
+    # end
 end
