@@ -56,25 +56,32 @@ If you want to ask a question, feel free to start a discussion [here](https://gi
 
 ## Reproducibility
 
+```@setup main
+using Pkg
+using InteractiveUtils
+using Markdown
+
+# Download links for the benchmark environment
+function _downloads_toml(DIR)
+    link_manifest = joinpath("assets", DIR, "Manifest.toml")
+    link_project = joinpath("assets", DIR, "Project.toml")
+    return Markdown.parse("""
+    You can download the exact environment used to build this documentation:
+    - 📦 [Project.toml]($link_project) - Package dependencies
+    - 📋 [Manifest.toml]($link_manifest) - Complete dependency tree with versions
+    """)
+end
+```
+
+```@example main
+_downloads_toml(".") # hide
+```
+
 ```@raw html
-<details><summary>The documentation of this package was built using these direct dependencies,</summary>
+<details style="margin-bottom: 0.5em; margin-top: 1em;"><summary>ℹ️ Version info</summary>
 ```
 
-```@example
-using Pkg # hide
-Pkg.status() # hide
-```
-
-```@raw html
-</details>
-```
-
-```@raw html
-<details><summary>and using this machine and Julia version.</summary>
-```
-
-```@example
-using InteractiveUtils # hide
+```@example main
 versioninfo() # hide
 ```
 
@@ -83,37 +90,25 @@ versioninfo() # hide
 ```
 
 ```@raw html
-<details><summary>A more complete overview of all dependencies and their versions is also provided.</summary>
+<details style="margin-bottom: 0.5em;"><summary>📦 Package status</summary>
 ```
 
-```@example
-using Pkg # hide
-Pkg.status(; mode = PKGMODE_MANIFEST) # hide
+```@example main
+Pkg.status() # hide
 ```
 
 ```@raw html
 </details>
 ```
 
-```@eval
-using TOML
-using Markdown
-version = TOML.parse(read("../../Project.toml", String))["version"]
-name = TOML.parse(read("../../Project.toml", String))["name"]
-link_manifest = "https://github.com/control-toolbox/" *
-                name *
-                ".jl/tree/gh-pages/v" *
-                version *
-                "/assets/Manifest.toml"
-link_project = "https://github.com/control-toolbox/" *
-               name *
-               ".jl/tree/gh-pages/v" *
-               version *
-               "/assets/Project.toml"
-Markdown.parse("""You can also download the
-[manifest]($link_manifest)
-file and the
-[project]($link_project)
-file.
-""")
+```@raw html
+<details style="margin-bottom: 0.5em;"><summary>📚 Complete manifest</summary>
+```
+
+```@example main
+Pkg.status(; mode = PKGMODE_MANIFEST) # hide
+```
+
+```@raw html
+</details>
 ```
