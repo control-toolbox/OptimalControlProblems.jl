@@ -65,7 +65,8 @@ function test_quick()
             ocp = ocp_model(docp)
             nlp_sol = madnlp(nlp; kwargs_madnlp...)
             sol = build_ocp_solution(docp, nlp_sol)
-            o_os = criterion(ocp) == :min ? objective(sol) : -objective(sol)
+            #o_os = criterion(ocp) == :min ? objective(sol) : -objective(sol)
+            o_os = objective(sol)
 
             ############### TEST ###############
             DEBUG && println("├─  objective")
