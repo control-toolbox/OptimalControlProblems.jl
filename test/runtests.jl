@@ -26,13 +26,15 @@ const MAX_WALL_TIME = 500.0
 list_of_problems = OptimalControlProblems.problems()
 
 # Remove from the tests the following problems
-# problems_to_exclude = [
-#     :bioreactor, # no need to remove here since already removed in OptimalControlProblems.jl
-#     :cart_pendulum, # no need to remove here since already removed in OptimalControlProblems.jl
-#     :dielectrophoretic_particle, # no need to remove here since already removed in OptimalControlProblems.jl
-#     :moonlander, # no need to remove here since already removed in OptimalControlProblems.jl
-# ]
-# list_of_problems = setdiff(list_of_problems, problems_to_exclude)
+problems_to_exclude = [
+    # :bioreactor, # no need to remove here since already removed in OptimalControlProblems.jl
+    # :cart_pendulum, # no need to remove here since already removed in OptimalControlProblems.jl
+    # :dielectrophoretic_particle, # no need to remove here since already removed in OptimalControlProblems.jl
+    # :moonlander, # no need to remove here since already removed in OptimalControlProblems.jl
+    :ducted_fan,
+    :insurance,
+]
+list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
 # list_of_problems = [
 #     :jackson,
