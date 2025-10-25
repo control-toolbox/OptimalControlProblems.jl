@@ -116,7 +116,7 @@ function generate_documentation(
             nlp_oc_sol = NLPModelsIpopt.ipopt(nlp_oc; max_iter=0)
 
             # Build OptimalControl solution
-            ocp_sol = build_ocp_solution(docp, nlp_oc_sol)
+            ocp_sol = build_OCP_solution(docp, nlp_oc_sol)
 
             # get dimensions
             n = state_dimension(ocp_oc)
@@ -292,7 +292,7 @@ function generate_documentation(
         function print_numerical_comparisons(problem, docp, nlp_oc_sol, nlp_jp)
 
             # get relevant data from OptimalControl model
-            ocp_sol = build_ocp_solution(docp, nlp_oc_sol)
+            ocp_sol = build_OCP_solution(docp, nlp_oc_sol)
             t_oc = time_grid(ocp_sol)
             x_oc = state(ocp_sol).(t_oc)
             u_oc = control(ocp_sol).(t_oc)
@@ -376,7 +376,7 @@ function generate_documentation(
 
     ```@example main
     # build an ocp solution to use the plot from OptimalControl package
-    ocp_sol = build_ocp_solution(docp, nlp_oc_sol)
+    ocp_sol = build_OCP_solution(docp, nlp_oc_sol)
 
     # dimensions
     n = state_dimension(ocp_sol)

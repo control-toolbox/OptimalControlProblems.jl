@@ -54,7 +54,7 @@ function test_quick()
             )
             nlp = nlp_model(docp)
             nlp_sol = NLPModelsIpopt.ipopt(nlp; kwargs_ipopt...)
-            sol = build_ocp_solution(docp, nlp_sol)
+            sol = build_OCP_solution(docp, nlp_sol)
             o_oc = objective(sol)
 
             ########## OptimalControl_s ##########
@@ -64,7 +64,7 @@ function test_quick()
             nlp = nlp_model(docp)
             ocp = ocp_model(docp)
             nlp_sol = madnlp(nlp; kwargs_madnlp...)
-            sol = build_ocp_solution(docp, nlp_sol)
+            sol = build_OCP_solution(docp, nlp_sol)
             o_os = objective(sol)
 
             ############### TEST ###############
