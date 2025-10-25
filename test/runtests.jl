@@ -33,6 +33,8 @@ problems_to_exclude = [
     # :moonlander, # no need to remove here since already removed in OptimalControlProblems.jl
     :ducted_fan,
     :insurance,
+    :robot,
+    :space_shuttle,
 ]
 list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
