@@ -120,7 +120,7 @@ data_re = DataFrame(            # to store data about the resolutions
     end
 
     return plt
-end</code></pre></details></div></div><pre><code class="language-julia hljs">plot_initial_guess(:steering)</code></pre><img src="steering-91c15a59.svg" alt="Example block output"/><h2 id="Solving-the-problem"><a class="docs-heading-anchor" href="#Solving-the-problem">Solving the problem</a><a id="Solving-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Solving-the-problem" title="Permalink"></a></h2><p>To solve an optimal control problem, we can rely on two complementary formulations: the <code>OptimalControl</code> backend, which works directly with the discretised control problem, and the <code>JuMP</code> backend, which leverages JuMP’s flexible modelling framework.  </p><p>Both approaches generate equivalent NLPs that can be solved with Ipopt, and comparing them ensures consistency between the two formulations.</p><p>Before solving, we can inspect the discretisation details of the problem. The table below reports the number of grid points, decision variables, and constraints associated with the chosen formulation.  </p><pre><code class="language-julia hljs">push!(data_pb,(
+end</code></pre></details></div></div><pre><code class="language-julia hljs">plot_initial_guess(:steering)</code></pre><img src="steering-7dc1b740.svg" alt="Example block output"/><h2 id="Solving-the-problem"><a class="docs-heading-anchor" href="#Solving-the-problem">Solving the problem</a><a id="Solving-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Solving-the-problem" title="Permalink"></a></h2><p>To solve an optimal control problem, we can rely on two complementary formulations: the <code>OptimalControl</code> backend, which works directly with the discretised control problem, and the <code>JuMP</code> backend, which leverages JuMP’s flexible modelling framework.  </p><p>Both approaches generate equivalent NLPs that can be solved with Ipopt, and comparing them ensures consistency between the two formulations.</p><p>Before solving, we can inspect the discretisation details of the problem. The table below reports the number of grid points, decision variables, and constraints associated with the chosen formulation.  </p><pre><code class="language-julia hljs">push!(data_pb,(
     Problem=:steering,
     Grid_Size=metadata(:steering)[:grid_size],
     Variables=get_nvar(nlp_model(steering(OptimalControlBackend()))),
@@ -152,12 +152,12 @@ Total number of inequality constraints...............:        0
 Number of Iterations....: 17
 
                                    (scaled)                 (unscaled)
-Objective...............:   5.5457186103692224e-01    5.5457186103692224e-01
-Dual infeasibility......:   7.5784997368786306e-11    7.5784997368786306e-11
-Constraint violation....:   3.5834613193452824e-09    3.5834613193452824e-09
+Objective...............:   5.5457186103692258e-01    5.5457186103692258e-01
+Dual infeasibility......:   7.5783776123564270e-11    7.5783776123564270e-11
+Constraint violation....:   3.5834615552676752e-09    3.5834615552676752e-09
 Variable bound violation:   0.0000000000000000e+00    0.0000000000000000e+00
-Complementarity.........:   1.0238142261644498e-11    1.0238142261644498e-11
-Overall NLP error.......:   3.5834613193452824e-09    3.5834613193452824e-09
+Complementarity.........:   1.0238142265526410e-11    1.0238142265526410e-11
+Overall NLP error.......:   3.5834615552676752e-09    3.5834615552676752e-09
 
 
 Number of objective function evaluations             = 19
@@ -167,7 +167,7 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 18
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 17
-Total seconds in IPOPT                               = 1.365
+Total seconds in IPOPT                               = 1.534
 
 EXIT: Optimal Solution Found.</code></pre><h3 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h3><p>We now repeat the procedure using the <code>JuMP</code> backend. Here, the problem is reformulated as a JuMP model, which offers a flexible and widely used framework for nonlinear optimisation in Julia. The solver settings are chosen to mirror those used previously, so that the results can be compared on an equal footing. </p><pre><code class="language-julia hljs"># import model
 nlp_jp = steering(JuMPBackend())
@@ -194,11 +194,11 @@ Number of Iterations....: 17
 
                                    (scaled)                 (unscaled)
 Objective...............:   5.5457186103692246e-01    5.5457186103692246e-01
-Dual infeasibility......:   7.5782332833575182e-11    7.5782332833575182e-11
-Constraint violation....:   3.5834614164897971e-09    3.5834614164897971e-09
+Dual infeasibility......:   7.5782110788969843e-11    7.5782110788969843e-11
+Constraint violation....:   3.5834614303675849e-09    3.5834614303675849e-09
 Variable bound violation:   0.0000000000000000e+00    0.0000000000000000e+00
-Complementarity.........:   1.0238142263371651e-11    1.0238142263371651e-11
-Overall NLP error.......:   3.5834614164897971e-09    3.5834614164897971e-09
+Complementarity.........:   1.0238142263459319e-11    1.0238142263459319e-11
+Overall NLP error.......:   3.5834614303675849e-09    3.5834614303675849e-09
 
 
 Number of objective function evaluations             = 19
@@ -208,7 +208,7 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 18
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 17
-Total seconds in IPOPT                               = 0.141
+Total seconds in IPOPT                               = 0.135
 
 EXIT: Optimal Solution Found.</code></pre><h2 id="Numerical-comparisons"><a class="docs-heading-anchor" href="#Numerical-comparisons">Numerical comparisons</a><a id="Numerical-comparisons-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparisons" title="Permalink"></a></h2><p>In this section, we examine the results of the problem resolutions. We extract the solver status (flag), the number of iterations, and the objective value for each model. This provides a first overview of how each approach performs and sets the stage for a more detailed comparison of the solution trajectories.</p><pre><code class="language-julia hljs"># from OptimalControl model
 push!(data_re,(
@@ -305,16 +305,16 @@ end</code></pre></details></div></div><pre><code class="language-julia hljs">pri
 ├─  Number of Iterations
 │     OptimalControl : 17   JuMP : 17
 ├─  States (L2 Norms)
-│     x₁     Abs: 1.718e-15   Rel: 4.206e-16
-│     x₂     Abs: 1.538e-15   Rel: 6.741e-16
-│     x₃     Abs: 8.285e-15   Rel: 4.201e-16
-│     x₄     Abs: 7.092e-15   Rel: 9.494e-16
+│     x₁     Abs: 5.328e-15   Rel: 1.304e-15
+│     x₂     Abs: 1.525e-15   Rel: 6.685e-16
+│     x₃     Abs: 1.621e-14   Rel: 8.221e-16
+│     x₄     Abs: 7.546e-15   Rel: 1.010e-15
 ├─  Controls (L2 Norms)
-│     u      Abs: 7.419e-16   Rel: 1.581e-15
+│     u      Abs: 1.262e-15   Rel: 2.691e-15
 ├─  Variables
-│     tf     Abs: 2.220e-16   Rel: 4.004e-16
+│     tf     Abs: 1.110e-16   Rel: 2.002e-16
 ├─  Objective
-│            Abs: 2.220e-16   Rel: 4.004e-16
+│            Abs: 1.110e-16   Rel: 2.002e-16
 └─</code></pre><h2 id="Plotting-the-solutions"><a class="docs-heading-anchor" href="#Plotting-the-solutions">Plotting the solutions</a><a id="Plotting-the-solutions-1"></a><a class="docs-heading-anchor-permalink" href="#Plotting-the-solutions" title="Permalink"></a></h2><p>In this section, we visualise the trajectories of the states, costates, and controls obtained from both the OptimalControl and JuMP solutions. The plots provide an intuitive way to compare the two approaches and to observe how the constraints and the optimal control influence the system dynamics.  </p><p>For each variable, the OptimalControl solution is shown in solid lines, while the JuMP solution is overlaid using dashed lines. Since both models represent the same mathematical problem, their trajectories should closely coincide, highlighting the consistency between the two formulations.</p><pre><code class="language-julia hljs"># build an ocp solution to use the plot from OptimalControl package
 ocp_sol = build_ocp_solution(docp, nlp_oc_sol)
 
@@ -351,9 +351,9 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
-end</code></pre><img src="steering-21178847.svg" alt="Example block output"/><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+end</code></pre><img src="steering-06120482.svg" alt="Example block output"/><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
 mermaid.initialize({
     startOnLoad: true,
     theme: "neutral"
 });
-</script></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="space_shuttle.html">« Space shuttle</a><a class="docs-footer-nextpage" href="vanderpol.html">Vanderpol »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.15.0 on <span class="colophon-date" title="Saturday 25 October 2025 07:56">Saturday 25 October 2025</span>. Using Julia version 1.12.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</script></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="space_shuttle.html">« Space shuttle</a><a class="docs-footer-nextpage" href="vanderpol.html">Vanderpol »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.15.0 on <span class="colophon-date" title="Saturday 25 October 2025 07:59">Saturday 25 October 2025</span>. Using Julia version 1.12.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
