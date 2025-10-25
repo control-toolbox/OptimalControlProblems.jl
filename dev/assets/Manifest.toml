@@ -1072,7 +1072,7 @@ version = "1.1.5"
 deps = ["ADNLPModels", "CTBase", "CTDirect", "CTModels", "DocStringExtensions", "ExaModels", "OrderedCollections", "SolverCore"]
 path = "/home/runner/work/OptimalControlProblems.jl/OptimalControlProblems.jl"
 uuid = "59046045-fb9c-4c23-964f-ff0a25704f96"
-version = "0.3.1"
+version = "0.3.2"
 weakdeps = ["JuMP", "OptimalControl"]
 
     [deps.OptimalControlProblems.extensions]
