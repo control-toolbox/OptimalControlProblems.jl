@@ -9,7 +9,7 @@ Reference: [Robbins Problem on BOCOP](https://github.com/control-toolbox/bocop/t
 # Arguments
 
 - `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
 
 # Returns
 
@@ -27,26 +27,36 @@ julia> docp = OptimalControlProblems.robbins(OptimalControlBackend(); N=500);
 function OptimalControlProblems.robbins(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:robbins),
+    grid_size::Int=grid_size_data(:robbins),
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    tf = final_time_data(:robbins)
-    α = 3
-    β = 0
-    γ = 0.5
+    params = parameters_data(:robbins, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    α = params[:α]
+    β = params[:β]
+    γ = params[:γ]
+    x₁_l = params[:x₁_l]
+    x₁_t0 = params[:x₁_t0]
+    x₂_t0 = params[:x₂_t0]
+    x₃_t0 = params[:x₃_t0]
+    x₁_tf = params[:x₁_tf]
+    x₂_tf = params[:x₂_tf]
+    x₃_tf = params[:x₃_tf]
 
     # model
     ocp = @def begin
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         x ∈ R³, state
         u ∈ R, control
 
-        0 ≤ x[1](t) ≤ Inf
+        x[1](t) ≥ x₁_l
 
-        x(0) == [1, -2, 0]
-        x(tf) == [0, 0, 0]
+        x(t0) == [x₁_t0, x₂_t0, x₃_t0]
+        x(tf) == [x₁_tf, x₂_tf, x₃_tf]
 
         ẋ(t) == [x[2](t), x[3](t), u(t)]
 
@@ -54,7 +64,7 @@ function OptimalControlProblems.robbins(
     end
 
     # initial guess
-    xinit = [0.1, 0.1, 0.1]  # [x1, x2, x3]
+    xinit = [0.1, 0.1, 0.1]  # [x₁, x₂, x₃]
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 
@@ -64,7 +74,7 @@ function OptimalControlProblems.robbins(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

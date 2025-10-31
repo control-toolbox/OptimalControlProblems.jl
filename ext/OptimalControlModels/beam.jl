@@ -8,7 +8,7 @@ It then performs direct transcription to generate a discrete optimal control pro
 # Arguments
 
 - `::OptimalControlBackend`: Placeholder type to specify the OptimalControl backend or solver interface.
-- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
 
 # Returns
 
@@ -30,22 +30,34 @@ julia> docp = OptimalControlProblems.beam(OptimalControlBackend(); N=100);
 function OptimalControlProblems.beam(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:beam),
+    grid_size::Int=grid_size_data(:beam),
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 
-    #
-    tf = final_time_data(:beam)
+    # parameters
+    params = parameters_data(:beam, parameters)
+    t0 = params[:t0]
+    tf = params[:tf]
+    x₁_l = params[:x₁_l]
+    x₁_u = params[:x₁_u]
+    x₁_t0 = params[:x₁_t0]
+    x₂_t0 = params[:x₂_t0]
+    x₁_tf = params[:x₁_tf]
+    x₂_tf = params[:x₂_tf]
 
     # model
     ocp = @def begin
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         x ∈ R², state
         u ∈ R, control
-        x(0) == [0, 1]
-        x(tf) == [0, -1]
+
+        x(t0) == [x₁_t0, x₂_t0]
+        x(tf) == [x₁_tf, x₂_tf]
+        x₁_l ≤ x₁(t) ≤ x₁_u
+
         ẋ(t) == [x₂(t), u(t)]
-        0 ≤ x₁(t) ≤ 0.1
+
         ∫(u(t)^2) → min
     end
 
@@ -58,7 +70,7 @@ function OptimalControlProblems.beam(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

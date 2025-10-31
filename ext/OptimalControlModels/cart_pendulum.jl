@@ -8,7 +8,7 @@ It performs direct transcription to produce a discretised optimal control proble
 # Arguments
 
 - `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `N::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
+- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
 
 # Returns
 
@@ -30,46 +30,57 @@ julia> docp = OptimalControlProblems.cart_pendulum(OptimalControlBackend(); N=10
 function OptimalControlProblems.cart_pendulum(
     ::OptimalControlBackend,
     description::Symbol...;
-    N::Int=steps_number_data(:cart_pendulum),
+    grid_size::Int=grid_size_data(:cart_pendulum),
+    parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
 
     # parameters
-    g = 9.81            # gravitation [m/s^2]
-    L = 1               # pendulum length [m]
-    m = 1               # pendulum mass [kg]
+    params = parameters_data(:cart_pendulum, parameters)
+    t0 = params[:t0]
+    g = params[:g]
+    L = params[:L]
+    m = params[:m]
     I = m * L^2 / 12    # pendulum moment of inertia
-    mcart = 0.5        # cart mass [kg]
-    max_f = 5
-    max_x = 1
-    max_v = 2
+    mcart = params[:mcart]
+    Fex_l = params[:Fex_l]
+    Fex_u = params[:Fex_u]
+    x_l = params[:x_l]
+    x_u = params[:x_u]
+    v_l = params[:v_l]
+    v_u = params[:v_u]
+    tf_l = params[:tf_l]
+    x_t0 = params[:x_t0]
+    θ_t0 = params[:θ_t0]
+    ω_t0 = params[:ω_t0]
+    θ_tf = params[:θ_tf]
+    ω_tf = params[:ω_tf]
 
     ocp = @def begin
-
         # time, variable, state and control
         w = (tf, ddx) ∈ R², variable
-        t ∈ [0, tf], time
+        t ∈ [t0, tf], time
         y = (x, v, θ, ω) ∈ R⁴, state
         Fex ∈ R, control
 
         # state constraints
-        -max_x ≤ x(t) ≤ max_x, (x_con)
-        -max_v ≤ v(t) ≤ max_v, (v_con)
+        x_l ≤ x(t) ≤ x_u, (x_c)
+        v_l ≤ v(t) ≤ v_u, (v_c)
 
         # control constraints
-        -max_f ≤ Fex(t) ≤ max_f, (Fex_con)
+        Fex_l ≤ Fex(t) ≤ Fex_u, (Fex_c)
 
         # variables constraints
-        tf ≥ 0.1, (tf_con)
+        tf ≥ tf_l, (tf_c)
 
         # initial conditions
-        x(0) == 0, (x_ic)
-        θ(0) == 0, (θ_ic)
-        ω(0) == 0, (ω_ic)
+        x(t0) == x_t0, (x_t0)
+        θ(t0) == θ_t0, (θ_t0)
+        ω(t0) == ω_t0, (ω_t0)
 
         # final conditions
-        θ(tf) == π, (θ_fc)
-        ω(tf) == 0, (ω_fc)
+        θ(tf) == θ_tf, (θ_tf)
+        ω(tf) == ω_tf, (ω_tf)
 
         # dynamics
         ẏ(t) == dynamics(v(t), θ(t), ω(t), Fex(t), ddx)
@@ -110,7 +121,7 @@ function OptimalControlProblems.cart_pendulum(
         description...;
         lagrange_to_mayer=false,
         init=init,
-        grid_size=N,
+        grid_size=grid_size,
         disc_method=:trapeze,
         kwargs...,
     )

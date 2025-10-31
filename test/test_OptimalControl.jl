@@ -1,6 +1,6 @@
 # test_OptimalControl_optimality
 function test_OptimalControl()
-    kwargs = Dict(
+    options_ipopt = Dict(
         :print_level => 0,
         :tol => TOL,
         :mu_strategy => MU_STRATEGY,
@@ -11,7 +11,7 @@ function test_OptimalControl()
 
     for f in LIST_OF_PROBLEMS
         @testset "$(f)" verbose=VERBOSE begin
-            N = metadata[f][:N]
+            grid_size = metadata(f)[:grid_size]
 
             # do we keep or remove the problem from the list
             keep_problem = true
@@ -21,31 +21,33 @@ function test_OptimalControl()
             DEBUG && println("│")
 
             # Set up the model
-            docp = OptimalControlProblems.eval(f)(OptimalControlBackend(); N=N)
+            docp = OptimalControlProblems.eval(f)(
+                OptimalControlBackend(); grid_size=grid_size
+            )
             nlp = nlp_model(docp)
 
             # Solve the model
-            DEBUG && println("├─  Solve")
-            DEBUG && println("│")
             print("  First solve:  ");
-            @time sol = NLPModelsIpopt.ipopt(nlp; kwargs...)
+            @time sol = NLPModelsIpopt.ipopt(nlp; options_ipopt...)
             print("  Second solve: ");
-            @time sol = NLPModelsIpopt.ipopt(nlp; kwargs...)
-            DEBUG && println("│")
+            @time sol = NLPModelsIpopt.ipopt(nlp; options_ipopt...)
 
             # Infos
-            DEBUG && println("├─  Infos")
             DEBUG && println("│")
-            DEBUG && println("│     sol.status: ", sol.status)
-            DEBUG && println("│     objective: ", sol.objective)
-            DEBUG && println("│     iterations: ", sol.iter)
-            DEBUG && println("│")
+            DEBUG && print(
+                "│ sol.status: ",
+                sol.status,
+                ", objective: ",
+                sol.objective,
+                ", iterations: ",
+                sol.iter,
+            )
 
             # Test
             res = @my_test_broken (sol.status == :first_order || sol.status == :acceptable)
             keep_problem = keep_problem && res
-            DEBUG &&  res && println("│     \033[1;32mTest Passed\033[0m")
-            DEBUG && !res && println("│     \033[1;31mTest Failed\033[0m")
+            DEBUG && res && println(", \033[1;32mPass\033[0m")
+            DEBUG && !res && println(", \033[1;31mFail\033[0m")
             DEBUG && println("│")
             DEBUG && println("└─")
 
