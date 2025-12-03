@@ -148,7 +148,7 @@ function OptimalControlProblems.insurance(
     )
 
     # objective
-    @objective(model, Max, 0.5 * Δt * sum(dc[i] + dc[i - 1] for i in 1:N))
+    @objective(model, Min, -0.5 * Δt * sum(dc[i] + dc[i - 1] for i in 1:N))
 
     return model
 end

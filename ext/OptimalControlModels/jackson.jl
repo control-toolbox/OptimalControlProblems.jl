@@ -71,7 +71,7 @@ function OptimalControlProblems.jackson(
             (1 - u(t)) * k3 * b(t),
         ]
 
-        x[3](tf) → max
+        x[3](tf) → min
     end
 
     # initial guess

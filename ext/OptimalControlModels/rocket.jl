@@ -81,7 +81,7 @@ function OptimalControlProblems.rocket(
         ẋ(t) == dynamics(h(t), v(t), m(t), T(t))
 
         # objective
-        h(tf) → max
+        h(tf) → min
     end
 
     # dynamics

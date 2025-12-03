@@ -230,7 +230,7 @@ function OptimalControlProblems.space_shuttle(
         end
     )
 
-    @objective(model, Max, θ[N])
+    @objective(model, Min, -θ[N])
 
     return model
 end

@@ -139,7 +139,7 @@ function OptimalControlProblems.space_shuttle(
         ẋ(t) == dynamics(x(t), u(t))
 
         # objective
-        θ(tf) → max
+        θ(tf) → min
     end
 
     # dynamics

@@ -131,7 +131,7 @@ function OptimalControlProblems.glider(
     )
 
     # objective
-    @objective(model, Max, x[N])
+    @objective(model, Min, -x[N])
 
     return model
 end

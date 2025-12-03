@@ -132,7 +132,7 @@ function OptimalControlProblems.bioreactor(
     )
 
     # objective
-    @objective(model, Max, 0.5 * Δt * sum(dc[k] + dc[k - 1] for k in 1:N))
+    @objective(model, Min, -0.5 * Δt * sum(dc[k] + dc[k - 1] for k in 1:N))
 
     return model
 end
