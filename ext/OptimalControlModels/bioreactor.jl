@@ -78,7 +78,7 @@ function OptimalControlProblems.bioreactor(
             (μ2 - u(t) * β) * b(t),
         ]
 
-        ∫(μ2 * b(t) / (β + c)) → min
+        -∫(μ2 * b(t) / (β + c)) → min
     end
 
     # METHANE PROBLEM

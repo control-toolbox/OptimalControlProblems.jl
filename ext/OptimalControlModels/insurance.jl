@@ -108,7 +108,7 @@ function OptimalControlProblems.insurance(
         ẋ(t) == [(1 - γ * (t - t0) * vprime / dUdR(t)) * h(t), h(t), (1 + σ) * I(t) * fx]
 
         # objective
-        ∫(U(t) * fx) → min
+        -∫(U(t) * fx) → min
     end
 
     # initial guess

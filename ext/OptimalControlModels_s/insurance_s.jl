@@ -110,7 +110,7 @@ function OptimalControlProblems.insurance_s(
         ∂(x₃)(t) == (1 + σ) * I(t) * fx
 
         # objective
-        ∫(U(t) * fx) → min
+        -∫(U(t) * fx) → min
     end
 
     # initial guess

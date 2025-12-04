@@ -158,7 +158,7 @@ function OptimalControlProblems.space_shuttle_s(
         (v / (r * cos(θ(t)))) * cos(γ(t)) * sin(ψ(t)) * sin(θ(t))
 
         # objective
-        θ(tf) → min
+        -θ(tf) → min
     end
 
     # initial guess: linear interpolation for h, v, gamma (NB. t0 = 0), constant for the rest

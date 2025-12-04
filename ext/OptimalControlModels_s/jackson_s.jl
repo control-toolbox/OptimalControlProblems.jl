@@ -69,7 +69,7 @@ function OptimalControlProblems.jackson_s(
         ∂(x₂)(t) == u(t) * (k1 * a(t) - k2 * b(t)) - (1 - u(t)) * k3 * b(t)
         ∂(x₃)(t) == (1 - u(t)) * k3 * b(t)
 
-        x₃(tf) → min
+        -x₃(tf) → min
     end
 
     # initial guess
