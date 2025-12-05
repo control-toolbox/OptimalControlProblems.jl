@@ -109,7 +109,7 @@ function OptimalControlProblems.jackson(
     )
 
     # objective
-    @objective(model, Max, x₃[N])
+    @objective(model, Min, -x₃[N])
 
     return model
 end

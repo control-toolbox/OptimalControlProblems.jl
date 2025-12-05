@@ -100,7 +100,7 @@ function OptimalControlProblems.glider_s(
         ∂(vy)(t) == (L * vx(t) - D * w) / (m * v) - g
 
         # objective
-        x(tf) → max
+        -x(tf) → min
     end
 
     # initial guess

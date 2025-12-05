@@ -119,7 +119,7 @@ function OptimalControlProblems.rocket(
     )
 
     # objective
-    @objective(model, Max, h[N])
+    @objective(model, Min, -h[N])
 
     return model
 end

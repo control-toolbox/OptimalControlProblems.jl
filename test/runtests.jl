@@ -35,6 +35,7 @@ problems_to_exclude = [
     :insurance,
     :robot,
     :space_shuttle,
+    :steering,
 ]
 list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 

@@ -85,7 +85,7 @@ function OptimalControlProblems.rocket_s(
         ∂(m)(t) == -T(t) / c
 
         # objective
-        h(tf) → max
+        -h(tf) → min
     end
 
     # initial guess

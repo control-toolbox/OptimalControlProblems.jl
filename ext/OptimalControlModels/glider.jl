@@ -90,7 +90,7 @@ function OptimalControlProblems.glider(
         ż(t) == dynamics(x(t), vx(t), vy(t), cL(t))
 
         # objective
-        x(tf) → max
+        -x(tf) → min
     end
 
     function dynamics(x, vx, vy, cL)
