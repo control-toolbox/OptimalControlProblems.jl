@@ -22,7 +22,7 @@ julia> using OptimalControlProblems
 
 julia> docp = OptimalControlProblems.steering(OptimalControlBackend(); N=500);
 ```
-
+"""
 function OptimalControlProblems.steering_s(
     ::OptimalControlBackend,
     description::Symbol...;
@@ -100,4 +100,3 @@ function OptimalControlProblems.steering_s(
 
     return docp
 end
-"""

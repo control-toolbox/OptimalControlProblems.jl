@@ -26,7 +26,7 @@ julia> model = OptimalControlProblems.steering(JuMPBackend(); N=200)
 # References
 
 - Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/steering.jl
-
+"""
 function OptimalControlProblems.steering(
     ::JuMPBackend,
     args...;
@@ -121,4 +121,3 @@ function OptimalControlProblems.steering(
 
     return model
 end
-"""
