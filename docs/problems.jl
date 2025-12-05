@@ -425,7 +425,7 @@ end
 function generate_documentation_problems(;
     draft::Union{Bool,Nothing}=nothing, exclude_from_draft::Vector{Symbol}=Symbol[]
 )
-    problems_list = problems()
+    problems_list = filter(p -> p != :steering, problems())
     problems_pages = map(p -> joinpath("problems", string(p) * ".md"), problems_list)
 
     # reset problems directory
