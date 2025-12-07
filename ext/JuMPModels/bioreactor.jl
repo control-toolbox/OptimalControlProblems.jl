@@ -136,5 +136,3 @@ function OptimalControlProblems.bioreactor(
 
     return model
 end
-
-
