@@ -63,10 +63,10 @@ function make_list_of_problems()
 
     # exclude the following problems
     problems_to_exclude = [
-        :bioreactor, 
-        :cart_pendulum, 
-        :dielectrophoretic_particle, 
-        :moonlander, 
+        :bioreactor,
+        :cart_pendulum,
+        :dielectrophoretic_particle,
+        :moonlander,
         :ducted_fan,
         :insurance,
         :robot,
