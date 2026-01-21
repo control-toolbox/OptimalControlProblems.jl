@@ -151,7 +151,7 @@ function comparison(; max_iter, test_name)
         tf_di = abs(A - B)
         tf_bd = max(0.5*(A+B)*ε_rel, ε_abs)
         res = @my_test_broken tf_di < tf_bd
-        r_err = tf_di / (0.5*(abs(A)+abs(B))
+        r_err = tf_di / (0.5*(abs(A)+abs(B)))
         DEBUG && @printf(
             "│      → %s: %.3e  %s: %.3e  r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
             A_name,
