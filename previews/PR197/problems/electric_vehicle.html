@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Electric vehicle · OptimalControlProblems.jl</title><meta name="title" content="Electric vehicle · OptimalControlProblems.jl"/><meta property="og:title" content="Electric vehicle · OptimalControlProblems.jl"/><meta property="twitter:title" content="Electric vehicle · OptimalControlProblems.jl"/><meta name="description" content="Documentation for OptimalControlProblems.jl."/><meta property="og:description" content="Documentation for OptimalControlProblems.jl."/><meta property="twitter:description" content="Documentation for OptimalControlProblems.jl."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script><link href="https://control-toolbox.org/assets/css/documentation.css" rel="stylesheet" type="text/css"/><script src="https://control-toolbox.org/assets/js/documentation.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../index.html">OptimalControlProblems.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../index.html">Getting Started</a></li><li><span class="tocitem">Problems</span><ul><li><a class="tocitem" href="../problems-introduction.html">Introduction</a></li><li><a class="tocitem" href="../problems_browser.html">Problems browser</a></li><li><input class="collapse-toggle" id="menuitem-2-3" type="checkbox" checked/><label class="tocitem" for="menuitem-2-3"><span class="docs-label">List of the problems</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="beam.html">Beam</a></li><li><a class="tocitem" href="chain.html">Chain</a></li><li><a class="tocitem" href="double_oscillator.html">Double oscillator</a></li><li class="is-active"><a class="tocitem" href="electric_vehicle.html">Electric vehicle</a><ul class="internal"><li><a class="tocitem" href="#Description-of-the-problem"><span>Description of the problem</span></a></li><li><a class="tocitem" href="#Numerical-set-up"><span>Numerical set-up</span></a></li><li><a class="tocitem" href="#Metadata"><span>Metadata</span></a></li><li><a class="tocitem" href="#Initial-guess"><span>Initial guess</span></a></li><li><a class="tocitem" href="#Solving-the-problem"><span>Solving the problem</span></a></li><li><a class="tocitem" href="#Numerical-comparisons"><span>Numerical comparisons</span></a></li><li><a class="tocitem" href="#Plotting-the-solutions"><span>Plotting the solutions</span></a></li></ul></li><li><a class="tocitem" href="glider.html">Glider</a></li><li><a class="tocitem" href="jackson.html">Jackson</a></li><li><a class="tocitem" href="robbins.html">Robbins</a></li><li><a class="tocitem" href="rocket.html">Rocket</a></li><li><a class="tocitem" href="vanderpol.html">Vanderpol</a></li></ul></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../tutorial-get.html">Get a problem</a></li><li><a class="tocitem" href="../tutorial-solve.html">Solve a problem</a></li></ul></li><li><span class="tocitem">Developers</span><ul><li><a class="tocitem" href="../dev-add.html">Add a problem</a></li><li><a class="tocitem" href="../dev-api.html">API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Problems</a></li><li><a class="is-disabled">List of the problems</a></li><li class="is-active"><a href="electric_vehicle.html">Electric vehicle</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="electric_vehicle.html">Electric vehicle</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/control-toolbox/OptimalControlProblems.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/control-toolbox/OptimalControlProblems.jl/blob/main/docs/src/problems/electric_vehicle.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="description-electric_vehicle"><a class="docs-heading-anchor" href="#description-electric_vehicle">Electric vehicle</a><a id="description-electric_vehicle-1"></a><a class="docs-heading-anchor-permalink" href="#description-electric_vehicle" title="Permalink"></a></h1><h2 id="Description-of-the-problem"><a class="docs-heading-anchor" href="#Description-of-the-problem">Description of the problem</a><a id="Description-of-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Description-of-the-problem" title="Permalink"></a></h2><p>The <strong>Electric Vehicle (EV) trajectory problem</strong> is a benchmark in optimal control for energy-efficient driving.   It was introduced by Petit &amp; Sciarretta (2011) as a simplified longitudinal model of an electric vehicle moving along a road with varying slope.   The state variables are the vehicle position <span>$x(t)$</span> and velocity <span>$v(t)$</span>, and the control <span>$u(t)$</span> represents the traction/braking command.   The objective is to <strong>minimise a combination of mechanical energy consumption and control effort</strong>, subject to boundary conditions on the trip distance and vehicle velocity over a fixed horizon.  </p><p>Here, we denote the final time as <span>$t_f$</span>, with <span>$t_f = 1$</span> s.</p><hr/><h3 id="Mathematical-formulation"><a class="docs-heading-anchor" href="#Mathematical-formulation">Mathematical formulation</a><a id="Mathematical-formulation-1"></a><a class="docs-heading-anchor-permalink" href="#Mathematical-formulation" title="Permalink"></a></h3><p class="math-container">\[\begin{aligned}
+\min_{x, v, u} \quad &amp; J(x, v, u) = \int_0^{t_f} \big( b_1 \, u(t) \, v(t) + b_2 \, u(t)^2 \big) \, \mathrm{d}t \\[0.5em]
+\text{s.t.} \quad &amp;
+\dot{x}(t) = v(t), \quad
+\dot{v}(t) = h_1 \, u(t) - h_2 \, v(t)^2 - h_0 - r(x(t)), \\[0.5em]
+&amp; x(0) = 0, \quad v(0) = 0, \quad x(t_f) = D, \quad v(t_f) = 0,
+\end{aligned}\]</p><p>where the road slope is modelled as a cubic polynomial</p><p class="math-container">\[r(x) = \alpha_0 + \alpha_1 x + \alpha_2 x^2 + \alpha_3 x^3,\]</p><p>and the parameters <span>$h_0$</span>, <span>$h_1$</span>, <span>$h_2$</span>, <span>$b_1$</span>, <span>$b_2$</span>, and <span>$\alpha_i$</span> define vehicle dynamics, drag, and slope effects.</p><hr/><h3 id="System-parameters"><a class="docs-heading-anchor" href="#System-parameters">System parameters</a><a id="System-parameters-1"></a><a class="docs-heading-anchor-permalink" href="#System-parameters" title="Permalink"></a></h3><table><tr><th style="text-align: right">Parameter</th><th style="text-align: right">Symbol</th><th style="text-align: right">Value</th><th style="text-align: right">Description</th></tr><tr><td style="text-align: right">Trip distance</td><td style="text-align: right"><span>$D$</span></td><td style="text-align: right">10 m</td><td style="text-align: right">Total length of the trajectory</td></tr><tr><td style="text-align: right">Friction term</td><td style="text-align: right"><span>$h_0$</span></td><td style="text-align: right">0.1</td><td style="text-align: right">Constant resistance</td></tr><tr><td style="text-align: right">Acceleration gain</td><td style="text-align: right"><span>$h_1$</span></td><td style="text-align: right">1</td><td style="text-align: right">Input scaling for acceleration</td></tr><tr><td style="text-align: right">Quadratic velocity damping</td><td style="text-align: right"><span>$h_2$</span></td><td style="text-align: right">1e-3</td><td style="text-align: right">Air drag effect</td></tr><tr><td style="text-align: right">Energy weight</td><td style="text-align: right"><span>$b_1$</span></td><td style="text-align: right">1</td><td style="text-align: right">Linear contribution of input power</td></tr><tr><td style="text-align: right">Control weight</td><td style="text-align: right"><span>$b_2$</span></td><td style="text-align: right">1</td><td style="text-align: right">Quadratic penalty on control effort</td></tr><tr><td style="text-align: right">Road profile</td><td style="text-align: right"><span>$\alpha_0,\dots,\alpha_3$</span></td><td style="text-align: right">3, 0.4, -1, 0.1</td><td style="text-align: right">Cubic coefficients modelling road slope</td></tr><tr><td style="text-align: right">Final time</td><td style="text-align: right"><span>$t_f$</span></td><td style="text-align: right">1 s</td><td style="text-align: right">Duration of the trajectory</td></tr></table><hr/><h3 id="Qualitative-behaviour"><a class="docs-heading-anchor" href="#Qualitative-behaviour">Qualitative behaviour</a><a id="Qualitative-behaviour-1"></a><a class="docs-heading-anchor-permalink" href="#Qualitative-behaviour" title="Permalink"></a></h3><ul><li>The optimal solution balances <strong>traction and braking</strong> to respect the velocity boundary conditions while minimising energy consumption.  </li><li>Road slope variations <span>$r(x)$</span> introduce nonlinearities, strongly influencing the structure of the optimal control.  </li><li>For flat roads, the solution often exhibits a <strong>bang–singular–bang profile</strong>, while slopes lead to asymmetric trajectories.  </li></ul><hr/><h3 id="Characteristics"><a class="docs-heading-anchor" href="#Characteristics">Characteristics</a><a id="Characteristics-1"></a><a class="docs-heading-anchor-permalink" href="#Characteristics" title="Permalink"></a></h3><ul><li>Nonlinear second-order dynamics including drag, gravity, and slope effects.  </li><li>Mixed linear–quadratic cost reflecting energy and smoothness trade-offs.  </li><li>Fixed-time (<span>$t_f = 1$</span> s), fixed-distance trip with zero final velocity.  </li><li>Benchmark for testing energy-optimal trajectory generation and direct transcription methods in electric vehicles.</li></ul><hr/><h3 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h3><ul><li><p><strong>Petit, N., &amp; Sciarretta, A. (2011).</strong> <em>Optimal drive of electric vehicles using an inversion-based trajectory generation approach</em>. IFAC Proceedings Volumes, 44(1), 14519–14526.   Introduces the EV optimal control formulation, including energy-efficient trajectory generation and numerical solution methods.</p></li><li><p><strong>Sciarretta, A., &amp; Guzzella, L. (2007).</strong> <em>Control of Hybrid Electric Vehicles</em>. IEEE Control Systems Magazine, 27(2), 60–70.   Provides context for energy-optimal vehicle control and modelling of longitudinal dynamics.</p></li><li><p><strong>Feng, X., &amp; Petrovic, D. (2010).</strong> <em>Energy-optimal control of electric vehicles: A review of recent advances</em>. IEEE Transactions on Intelligent Transportation Systems, 11(3), 678–689.   Surveys numerical methods for EV trajectory optimisation, including handling of road slopes and energy costs.</p></li></ul><h2 id="Numerical-set-up"><a class="docs-heading-anchor" href="#Numerical-set-up">Numerical set-up</a><a id="Numerical-set-up-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-set-up" title="Permalink"></a></h2><p>In this section, we prepare the numerical environment required to study the problem. We begin by importing the relevant Julia packages and then initialise the data frames   that will store the results of our simulations and computations. These structures provide the foundation for solving the problem and for comparing the different solution strategies in a consistent way.</p><pre><code class="language-julia hljs">using OptimalControlProblems    # to access the Beam model
+using OptimalControl            # to import the OptimalControl model
+using NLPModelsIpopt            # to solve the model with Ipopt
+import DataFrames: DataFrame    # to store data
+using NLPModels                 # to retrieve data from the NLP solution
+using Plots                     # to plot the trajectories
+using Plots.PlotMeasures        # for leftmargin, bottommargin
+using JuMP                      # to import the JuMP model
+using Ipopt                     # to solve the JuMP model with Ipopt
+using Printf                    # to print
+
+data_pb = DataFrame(            # to store data about the problem
+    Problem=Symbol[],
+    Grid_Size=Int[],
+    Variables=Int[],
+    Constraints=Int[],
+)
+
+data_re = DataFrame(            # to store data about the resolutions
+    Model=Symbol[],
+    Flag=Any[],
+    Iterations=Int[],
+    Objective=Float64[],
+)</code></pre><h2 id="Metadata"><a class="docs-heading-anchor" href="#Metadata">Metadata</a><a id="Metadata-1"></a><a class="docs-heading-anchor-permalink" href="#Metadata" title="Permalink"></a></h2><p>The default number of time steps is:</p><pre><code class="language-julia hljs">metadata(:electric_vehicle)[:grid_size]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">500</code></pre><p>The default values of the parameters are:</p><pre><code class="language-julia hljs">metadata(:electric_vehicle)[:parameters]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Parameter = Value
+------------------
+    t0 =  0.0000e+00
+    tf =  1.0000e+00
+    b1 =  1.0000e+00
+    b2 =  1.0000e+00
+    h0 =  1.0000e-01
+    h1 =  1.0000e+00
+    h2 =  1.0000e-03
+    α0 =  3.0000e+00
+    α1 =  4.0000e-01
+    α2 = -1.0000e+00
+    α3 =  1.0000e-01
+  x_t0 =  0.0000e+00
+  v_t0 =  0.0000e+00
+  x_tf =  1.0000e+01
+  v_tf =  0.0000e+00</code></pre><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>Before solving the problem, it is often useful to inspect the initial guess (sometimes called the first iterate). This guess is obtained by running the NLP solver with <code>max_iter = 0</code>, which evaluates the problem formulation without performing any optimisation steps.  </p><p>We plot the resulting trajectories for both the OptimalControl and JuMP models. Since both backends represent the same mathematical problem, their initial guesses should coincide, providing a useful consistency check before moving on to the optimised solution.</p><div class="admonition is-info" id="Code-to-plot-the-initial-guess-a0d28846e3d31f70"><header class="admonition-header">Code to plot the initial guess<a class="admonition-anchor" href="#Code-to-plot-the-initial-guess-a0d28846e3d31f70" title="Permalink"></a></header><div class="admonition-body"><details><summary>Click to unfold and see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess(problem)
+
+    # -----------------------------
+    # Build OptimalControl problem
+    # -----------------------------
+    docp = eval(problem)(OptimalControlBackend())
+    nlp_oc = nlp_model(docp)
+    ocp_oc = ocp_model(docp)
+
+    # Solve NLP with zero iterations (initial guess)
+    nlp_oc_sol = NLPModelsIpopt.ipopt(nlp_oc; max_iter=0)
+
+    # Build OptimalControl solution
+    ocp_sol = build_OCP_solution(docp, nlp_oc_sol)
+
+    # get dimensions
+    n = state_dimension(ocp_oc)
+    m = control_dimension(ocp_oc)
+
+    # -----------------------------
+    # Plot OptimalControl solution
+    # -----------------------------
+    plt = plot(
+        ocp_sol;
+        state_style=(color=1,),
+        costate_style=(color=1, legend=:none),
+        control_style=(color=1, legend=:none),
+        path_style=(color=1, legend=:none),
+        dual_style=(color=1, legend=:none),
+        size=(816, 220*(n+m)),
+        label=&quot;OptimalControl&quot;,
+        leftmargin=20mm,
+    )
+
+    # Hide legend for additional state plots
+    for i in 2:n
+        plot!(plt[i]; legend=:none)
+    end
+
+    # -----------------------------
+    # Build JuMP model
+    # -----------------------------
+    nlp_jp = eval(problem)(JuMPBackend())
+
+    # Solve NLP with zero iterations (initial guess)
+    set_optimizer(nlp_jp, Ipopt.Optimizer)
+    set_optimizer_attribute(nlp_jp, &quot;max_iter&quot;, 0)
+    optimize!(nlp_jp)
+
+    # Extract trajectories
+    t_grid = time_grid(nlp_jp)
+    x_fun = state(nlp_jp)
+    u_fun = control(nlp_jp)
+    p_fun = costate(nlp_jp)
+
+    # -----------------------------
+    # Plot JuMP solution on top
+    # -----------------------------
+    # States
+    for i in 1:n
+        label = i == 1 ? &quot;JuMP&quot; : :none
+        plot!(plt[i], t_grid, t -&gt; x_fun(t)[i]; color=2, linestyle=:dash, label=label)
+    end
+
+    # Costates
+    for i in 1:n
+        plot!(plt[n+i], t_grid, t -&gt; -p_fun(t)[i]; color=2, linestyle=:dash, label=:none)
+    end
+
+    # Controls
+    for i in 1:m
+        plot!(plt[2*n+i], t_grid, t -&gt; u_fun(t)[i]; color=2, linestyle=:dash, label=:none)
+    end
+
+    return plt
+end</code></pre></details></div></div><pre><code class="language-julia hljs">plot_initial_guess(:electric_vehicle)</code></pre><img src="electric_vehicle-ff44a845.svg" alt="Example block output"/><h2 id="Solving-the-problem"><a class="docs-heading-anchor" href="#Solving-the-problem">Solving the problem</a><a id="Solving-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Solving-the-problem" title="Permalink"></a></h2><p>To solve an optimal control problem, we can rely on two complementary formulations: the <code>OptimalControl</code> backend, which works directly with the discretised control problem, and the <code>JuMP</code> backend, which leverages JuMP’s flexible modelling framework.  </p><p>Both approaches generate equivalent NLPs that can be solved with Ipopt, and comparing them ensures consistency between the two formulations.</p><p>Before solving, we can inspect the discretisation details of the problem. The table below reports the number of grid points, decision variables, and constraints associated with the chosen formulation.  </p><pre><code class="language-julia hljs">push!(data_pb,(
+    Problem=:electric_vehicle,
+    Grid_Size=metadata(:electric_vehicle)[:grid_size],
+    Variables=get_nvar(nlp_model(electric_vehicle(OptimalControlBackend()))),
+    Constraints=get_ncon(nlp_model(electric_vehicle(OptimalControlBackend()))),
+))</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Problem</th><th style = "text-align: left;">Grid_Size</th><th style = "text-align: left;">Variables</th><th style = "text-align: left;">Constraints</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">electric_vehicle</td><td style = "text-align: right;">500</td><td style = "text-align: right;">1503</td><td style = "text-align: right;">1004</td></tr></tbody></table></div><h3 id="OptimalControl-model"><a class="docs-heading-anchor" href="#OptimalControl-model">OptimalControl model</a><a id="OptimalControl-model-1"></a><a class="docs-heading-anchor-permalink" href="#OptimalControl-model" title="Permalink"></a></h3><p>We first solve the problem using the <code>OptimalControl</code> backend. The process begins by importing the problem definition and constructing the associated nonlinear programming (NLP) model. This NLP is then passed to the Ipopt solver, with standard options for tolerance and barrier parameter strategy.  </p><pre><code class="language-julia hljs"># import DOCP model
+docp = electric_vehicle(OptimalControlBackend())
+
+# get NLP model
+nlp_oc = nlp_model(docp)
+
+# solve
+nlp_oc_sol = NLPModelsIpopt.ipopt(
+    nlp_oc;
+    print_level=4,
+    tol=1e-8,
+    mu_strategy=&quot;adaptive&quot;,
+    sb=&quot;yes&quot;,
+)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:     1503
+                     variables with only lower bounds:        0
+                variables with lower and upper bounds:        0
+                     variables with only upper bounds:        0
+Total number of equality constraints.................:     1004
+Total number of inequality constraints...............:        0
+        inequality constraints with only lower bounds:        0
+   inequality constraints with lower and upper bounds:        0
+        inequality constraints with only upper bounds:        0
+
+
+Number of Iterations....: 4
+
+                                   (scaled)                 (unscaled)
+Objective...............:   1.2285992844813131e+03    1.2285992844813131e+03
+Dual infeasibility......:   9.1343599351034754e-14    9.1343599351034754e-14
+Constraint violation....:   1.7763568394002505e-15    1.7763568394002505e-15
+Variable bound violation:   0.0000000000000000e+00    0.0000000000000000e+00
+Complementarity.........:   0.0000000000000000e+00    0.0000000000000000e+00
+Overall NLP error.......:   6.2020560366924764e-14    9.1343599351034754e-14
+
+
+Number of objective function evaluations             = 5
+Number of objective gradient evaluations             = 5
+Number of equality constraint evaluations            = 5
+Number of inequality constraint evaluations          = 0
+Number of equality constraint Jacobian evaluations   = 5
+Number of inequality constraint Jacobian evaluations = 0
+Number of Lagrangian Hessian evaluations             = 4
+Total seconds in IPOPT                               = 1.311
+
+EXIT: Optimal Solution Found.</code></pre><h3 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h3><p>We now repeat the procedure using the <code>JuMP</code> backend. Here, the problem is reformulated as a JuMP model, which offers a flexible and widely used framework for nonlinear optimisation in Julia. The solver settings are chosen to mirror those used previously, so that the results can be compared on an equal footing. </p><pre><code class="language-julia hljs"># import model
+nlp_jp = electric_vehicle(JuMPBackend())
+
+# solve with Ipopt
+set_optimizer(nlp_jp, Ipopt.Optimizer)
+set_optimizer_attribute(nlp_jp, &quot;print_level&quot;, 4)
+set_optimizer_attribute(nlp_jp, &quot;tol&quot;, 1e-8)
+set_optimizer_attribute(nlp_jp, &quot;mu_strategy&quot;, &quot;adaptive&quot;)
+set_optimizer_attribute(nlp_jp, &quot;linear_solver&quot;, &quot;mumps&quot;)
+set_optimizer_attribute(nlp_jp, &quot;sb&quot;, &quot;yes&quot;)
+optimize!(nlp_jp)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:     1503
+                     variables with only lower bounds:        0
+                variables with lower and upper bounds:        0
+                     variables with only upper bounds:        0
+Total number of equality constraints.................:     1004
+Total number of inequality constraints...............:        0
+        inequality constraints with only lower bounds:        0
+   inequality constraints with lower and upper bounds:        0
+        inequality constraints with only upper bounds:        0
+
+
+Number of Iterations....: 4
+
+                                   (scaled)                 (unscaled)
+Objective...............:   1.2285992844813138e+03    1.2285992844813138e+03
+Dual infeasibility......:   5.6288307348495437e-14    5.6288307348495437e-14
+Constraint violation....:   1.7763568394002505e-15    1.7763568394002505e-15
+Variable bound violation:   0.0000000000000000e+00    0.0000000000000000e+00
+Complementarity.........:   0.0000000000000000e+00    0.0000000000000000e+00
+Overall NLP error.......:   3.8218686242516974e-14    5.6288307348495437e-14
+
+
+Number of objective function evaluations             = 5
+Number of objective gradient evaluations             = 5
+Number of equality constraint evaluations            = 5
+Number of inequality constraint evaluations          = 0
+Number of equality constraint Jacobian evaluations   = 5
+Number of inequality constraint Jacobian evaluations = 0
+Number of Lagrangian Hessian evaluations             = 4
+Total seconds in IPOPT                               = 0.013
+
+EXIT: Optimal Solution Found.</code></pre><h2 id="Numerical-comparisons"><a class="docs-heading-anchor" href="#Numerical-comparisons">Numerical comparisons</a><a id="Numerical-comparisons-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparisons" title="Permalink"></a></h2><p>In this section, we examine the results of the problem resolutions. We extract the solver status (flag), the number of iterations, and the objective value for each model. This provides a first overview of how each approach performs and sets the stage for a more detailed comparison of the solution trajectories.</p><pre><code class="language-julia hljs"># from OptimalControl model
+push!(data_re,(
+    Model=:OptimalControl,
+    Flag=nlp_oc_sol.status,
+    Iterations=nlp_oc_sol.iter,
+    Objective=nlp_oc_sol.objective,
+))
+
+# from JuMP model
+push!(data_re,(
+    Model=:JuMP,
+    Flag=termination_status(nlp_jp),
+    Iterations=barrier_iterations(nlp_jp),
+    Objective=objective_value(nlp_jp),
+))</code></pre><div><div style = "float: left;"><span>2×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">4</td><td style = "text-align: right;">1228.6</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">JuMP</td><td style = "text-align: left;">LOCALLY_SOLVED</td><td style = "text-align: right;">4</td><td style = "text-align: right;">1228.6</td></tr></tbody></table></div><p>We compare the solutions obtained from the OptimalControl and JuMP models by examining the number of iterations required for convergence, the <span>$L^2$</span>-norms of the differences in states, controls, and additional variables, and the corresponding objective values. Both absolute and relative errors are reported, providing a clear quantitative measure of the agreement between the two approaches.</p><div class="admonition is-info" id="Code-to-print-the-numerical-comparisons-d89e78bf09ff5175"><header class="admonition-header">Code to print the numerical comparisons<a class="admonition-anchor" href="#Code-to-print-the-numerical-comparisons-d89e78bf09ff5175" title="Permalink"></a></header><div class="admonition-body"><details><summary>Click to unfold and get the code of the numerical comparisons.</summary><pre><code class="language-julia hljs">function L2_norm(T, X)
+    # T and X are supposed to be one dimensional
+    s = 0.0
+    for i in 1:(length(T) - 1)
+        s += 0.5 * (X[i]^2 + X[i + 1]^2) * (T[i + 1]-T[i])
+    end
+    return √(s)
+end
+
+function print_numerical_comparisons(problem, docp, nlp_oc_sol, nlp_jp)
+
+    # get relevant data from OptimalControl model
+    ocp_sol = build_OCP_solution(docp, nlp_oc_sol)
+    t_oc = time_grid(ocp_sol)
+    x_oc = state(ocp_sol).(t_oc)
+    u_oc = control(ocp_sol).(t_oc)
+    v_oc = variable(ocp_sol)
+    o_oc = objective(ocp_sol)
+    i_oc = iterations(ocp_sol)
+
+    # get relevant data from JuMP model
+    t_jp = time_grid(nlp_jp)
+    x_jp = state(nlp_jp).(t_jp)
+    u_jp = control(nlp_jp).(t_jp)
+    o_jp = objective(nlp_jp)
+    v_jp = variable(nlp_jp)
+    i_jp = iterations(nlp_jp)
+
+    x_vars = state_components(nlp_jp)
+    u_vars = control_components(nlp_jp)
+    v_vars = variable_components(nlp_jp)
+
+    println(&quot;┌─ &quot;, string(problem))
+    println(&quot;│&quot;)
+    println(&quot;├─  Number of Iterations&quot;)
+    @printf(&quot;│     OptimalControl : %d   JuMP : %d\n&quot;, i_oc, i_jp)
+
+    # States
+    println(&quot;├─  States (L2 Norms)&quot;)
+    for i in eachindex(x_vars)
+        xi_oc = [x_oc[k][i] for k in eachindex(t_oc)]
+        xi_jp = [x_jp[k][i] for k in eachindex(t_jp)]
+        L2_ae = L2_norm(t_oc, xi_oc - xi_jp)
+        L2_re = L2_ae / (0.5 * (L2_norm(t_oc, xi_oc) + L2_norm(t_oc, xi_jp)))
+        @printf(&quot;│     %-6s Abs: %.3e   Rel: %.3e\n&quot;, x_vars[i], L2_ae, L2_re)
+    end
+
+    # Controls
+    println(&quot;├─  Controls (L2 Norms)&quot;)
+    for i in eachindex(u_vars)
+        ui_oc = [u_oc[k][i] for k in eachindex(t_oc)]
+        ui_jp = [u_jp[k][i] for k in eachindex(t_jp)]
+        L2_ae = L2_norm(t_oc, ui_oc - ui_jp)
+        L2_re = L2_ae / (0.5 * (L2_norm(t_oc, ui_oc) + L2_norm(t_oc, ui_jp)))
+        @printf(&quot;│     %-6s Abs: %.3e   Rel: %.3e\n&quot;, u_vars[i], L2_ae, L2_re)
+    end
+
+    # Variables
+    if !isnothing(v_vars)
+        println(&quot;├─  Variables&quot;)
+        for i in eachindex(v_vars)
+            vi_oc = v_oc[i]
+            vi_jp = v_jp[i]
+            vi_ae = abs(vi_oc - vi_jp)
+            vi_re = vi_ae / (0.5 * (abs(vi_oc) + abs(vi_jp)))
+            @printf(&quot;│     %-6s Abs: %.3e   Rel: %.3e\n&quot;, v_vars[i], vi_ae, vi_re)
+        end
+    end
+
+    # Objective
+    o_ae = abs(o_oc - o_jp)
+    o_re = o_ae / (0.5 * (abs(o_oc) + abs(o_jp)))
+    println(&quot;├─  Objective&quot;)
+    @printf(&quot;│            Abs: %.3e   Rel: %.3e\n&quot;, o_ae, o_re)
+    println(&quot;└─&quot;)
+    return nothing
+end</code></pre></details></div></div><pre><code class="language-julia hljs">print_numerical_comparisons(:electric_vehicle, docp, nlp_oc_sol, nlp_jp)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">┌─ electric_vehicle
+│
+├─  Number of Iterations
+│     OptimalControl : 4   JuMP : 4
+├─  States (L2 Norms)
+│     x      Abs: 4.401e-15   Rel: 7.312e-16
+│     v      Abs: 5.710e-15   Rel: 5.232e-16
+├─  Controls (L2 Norms)
+│     u      Abs: 1.430e-14   Rel: 4.028e-16
+├─  Variables
+├─  Objective
+│            Abs: 6.821e-13   Rel: 5.552e-16
+└─</code></pre><h2 id="Plotting-the-solutions"><a class="docs-heading-anchor" href="#Plotting-the-solutions">Plotting the solutions</a><a id="Plotting-the-solutions-1"></a><a class="docs-heading-anchor-permalink" href="#Plotting-the-solutions" title="Permalink"></a></h2><p>In this section, we visualise the trajectories of the states, costates, and controls obtained from both the OptimalControl and JuMP solutions. The plots provide an intuitive way to compare the two approaches and to observe how the constraints and the optimal control influence the system dynamics.  </p><p>For each variable, the OptimalControl solution is shown in solid lines, while the JuMP solution is overlaid using dashed lines. Since both models represent the same mathematical problem, their trajectories should closely coincide, highlighting the consistency between the two formulations.</p><pre><code class="language-julia hljs"># build an ocp solution to use the plot from OptimalControl package
+ocp_sol = build_OCP_solution(docp, nlp_oc_sol)
+
+# dimensions
+n = state_dimension(ocp_sol)
+m = control_dimension(ocp_sol)
+
+# from OptimalControl solution
+plt = plot(
+    ocp_sol;
+    color=1,
+    size=(816, 240*(n+m)),
+    label=&quot;OptimalControl&quot;,
+    leftmargin=20mm,
+)
+for i in 2:length(plt)
+    plot!(plt[i]; legend=:none)
+end
+
+# from JuMP solution
+t = time_grid(nlp_jp)     # t0, ..., tN = tf
+x = state(nlp_jp)         # function of time
+u = control(nlp_jp)       # function of time
+p = costate(nlp_jp)       # function of time
+
+for i in 1:n # state
+    label = i == 1 ? &quot;JuMP&quot; : :none
+    plot!(plt[i], t, t -&gt; x(t)[i]; color=2, linestyle=:dash, label=label)
+end
+
+for i in 1:n # costate
+    plot!(plt[n+i], t, t -&gt; -p(t)[i]; color=2, linestyle=:dash, label=:none)
+end
+
+for i in 1:m # control
+    plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
+end</code></pre><img src="electric_vehicle-17ad64e9.svg" alt="Example block output"/><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+mermaid.initialize({
+    startOnLoad: true,
+    theme: "neutral"
+});
+</script></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="double_oscillator.html">« Double oscillator</a><a class="docs-footer-nextpage" href="glider.html">Glider »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Wednesday 21 January 2026 22:00">Wednesday 21 January 2026</span>. Using Julia version 1.12.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
