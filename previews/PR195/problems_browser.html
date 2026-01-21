@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Problems browser · OptimalControlProblems.jl</title><meta name="title" content="Problems browser · OptimalControlProblems.jl"/><meta property="og:title" content="Problems browser · OptimalControlProblems.jl"/><meta property="twitter:title" content="Problems browser · OptimalControlProblems.jl"/><meta name="description" content="Documentation for OptimalControlProblems.jl."/><meta property="og:description" content="Documentation for OptimalControlProblems.jl."/><meta property="twitter:description" content="Documentation for OptimalControlProblems.jl."/><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="search_index.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script><link href="https://control-toolbox.org/assets/css/documentation.css" rel="stylesheet" type="text/css"/><script src="https://control-toolbox.org/assets/js/documentation.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="index.html">OptimalControlProblems.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="index.html">Getting Started</a></li><li><span class="tocitem">Problems</span><ul><li><a class="tocitem" href="problems-introduction.html">Introduction</a></li><li class="is-active"><a class="tocitem" href="problems_browser.html">Problems browser</a></li><li><input class="collapse-toggle" id="menuitem-2-3" type="checkbox"/><label class="tocitem" for="menuitem-2-3"><span class="docs-label">List of the problems</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="problems/beam.html">Beam</a></li><li><a class="tocitem" href="problems/chain.html">Chain</a></li><li><a class="tocitem" href="problems/double_oscillator.html">Double oscillator</a></li><li><a class="tocitem" href="problems/electric_vehicle.html">Electric vehicle</a></li><li><a class="tocitem" href="problems/glider.html">Glider</a></li><li><a class="tocitem" href="problems/jackson.html">Jackson</a></li><li><a class="tocitem" href="problems/robbins.html">Robbins</a></li><li><a class="tocitem" href="problems/rocket.html">Rocket</a></li><li><a class="tocitem" href="problems/vanderpol.html">Vanderpol</a></li></ul></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="tutorial-get.html">Get a problem</a></li><li><a class="tocitem" href="tutorial-solve.html">Solve a problem</a></li></ul></li><li><span class="tocitem">Developers</span><ul><li><a class="tocitem" href="dev-add.html">Add a problem</a></li><li><a class="tocitem" href="dev-api.html">API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Problems</a></li><li class="is-active"><a href="problems_browser.html">Problems browser</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="problems_browser.html">Problems browser</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/control-toolbox/OptimalControlProblems.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/control-toolbox/OptimalControlProblems.jl/blob/main/docs/src/problems_browser.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="problems-browser"><a class="docs-heading-anchor" href="#problems-browser">Problems browser</a><a id="problems-browser-1"></a><a class="docs-heading-anchor-permalink" href="#problems-browser" title="Permalink"></a></h1><p>The table below provides an overview of all <strong>optimal control problems</strong> and allows interactive exploration, filtering, and export.  </p><div class="admonition is-success" id="Quick-guide-to-the-problems-table-63bac6f8b32d3b35"><header class="admonition-header">Quick guide to the problems table<a class="admonition-anchor" href="#Quick-guide-to-the-problems-table-63bac6f8b32d3b35" title="Permalink"></a></header><div class="admonition-body"><details><summary>Click to unfold and see the quick guide for the table.</summary><h2>Table Overview</h2><ul><li><strong>Problem:</strong> The name of the optimal control problem.  </li><li><strong>State:</strong> Number of state variables in the system.  </li><li><strong>Control:</strong> Number of control inputs.  </li><li><strong>Variable:</strong> Number of additional optimisation variables (if any).  </li><li><strong>Cost:</strong> Type of cost functional:  <ul><li><strong>Mayer:</strong> a <strong>point cost</strong> depending on the initial and final states and optional variables.</li><li><strong>Lagrange:</strong> integral over time  </li><li><strong>Bolza:</strong> combination of Mayer + Lagrange  </li></ul></li><li><strong>FinalTime:</strong> Whether the final time is <strong>fixed</strong> or <strong>free</strong>.  </li><li><strong>Constraints:</strong> Buttons representing each constraint type:  <ul><li><strong>x:</strong> state box constraints  </li><li><strong>u:</strong> control box constraints  </li><li><strong>v:</strong> variable box constraints  </li><li><strong>c:</strong> nonlinear path constraints  </li><li><strong>b:</strong> nonlinear boundary constraints  </li></ul></li></ul><p>The number next to the buttons shows the <strong>total number of constraints</strong>. Hover over buttons to see the exact count. Click a row to see a detailed list of constraints.</p><h2>Interactivity &amp; Filters</h2><ul><li><strong>Sorting &amp; Search:</strong> Click column headers to sort. Use the search box to filter by text.  </li><li><strong>Numeric Filters:</strong> Enter <code>min-max</code> ranges in numeric columns to filter values.  </li><li><strong>Cost &amp; FinalTime Filters:</strong> Use dropdown menus to filter by cost type or whether the final time is fixed/free.  </li><li><strong>Constraint Filtering:</strong> Use the buttons above the Constraints column to filter problems by constraint type. Choose <strong>AND/OR logic</strong> to combine multiple constraint types.  </li><li><strong>Export Buttons:</strong> Use the top buttons to copy the table or export it to CSV, Excel, PDF, or print. Hover over each button to see its function.  </li></ul></details></div></div><hr/><p>Scroll through the table or use filters to quickly find problems of interest, inspect their constraints, and export data for further analysis.</p><style>
+:root {
+    /* ==============================
+       Base Palette
+       ============================== */
+    --color-dark-blue:  #003d4d;
+    --color-deep-blue:  #005f73;
+    --color-bright-blue:#0096a0;
+    --color-orange:     #f18f01;
+    --color-soft-red:   #d72638;
+    --color-deep-violet:#6a0572;
+    --color-bootstrap-blue: #007BFF;
+    --color-light-gray: #ddd;
+    --color-gray-text:  #666;
+    --color-table-bg:   #f0f4f8;
+    --color-table-bg-alt:#e6f2ff;
+    --color-soft-green: #2F8F3F;
+    --color-soft-green-lighter: #246B32;
+
+    /* ==============================
+       Semantic Colors
+       ============================== */
+    --color-problem: var(--color-dark-blue);
+    --color-state:   var(--color-dark-blue);
+    --color-control: var(--color-dark-blue);
+    --color-variable:var(--color-dark-blue);
+    --color-cost:    var(--color-dark-blue);
+    --color-final:   var(--color-dark-blue);
+    --color-constraints: var(--color-dark-blue);
+
+    /* Buttons */
+    --btn-filters-active: var(--color-soft-green);
+    --btn-filters-disabled: var(--color-light-gray);
+    --btn-filters-enabled: var(--color-bootstrap-blue);
+    --btn-filters-hover: var(--color-soft-green-lighter);
+
+    --btn-constraints-disabled: var(--color-light-gray);
+}
+
+/* ==============================
+   Table Styles
+   ============================== */
+#problems-table {
+    width: 100%;
+    border-collapse: collapse;
+    opacity: 0; /* fade-in on load */
+    transition: opacity 0.5s ease;
+}
+#problems-table.visible { opacity: 1; }
+
+#problems-table thead th {
+    background: linear-gradient(to bottom, var(--color-table-bg), var(--color-table-bg-alt));
+    text-align: center;
+    padding: 6px 8px;
+    border-bottom: 2px solid var(--color-light-gray);
+}
+#problems-table thead th:nth-child(1) { color: var(--color-problem); }
+#problems-table thead th:nth-child(2) { color: var(--color-state); }
+#problems-table thead th:nth-child(3) { color: var(--color-control); }
+#problems-table thead th:nth-child(4) { color: var(--color-variable); }
+#problems-table thead th:nth-child(5) { color: var(--color-cost); }
+#problems-table thead th:nth-child(6) { color: var(--color-final); }
+#problems-table thead th:nth-child(7) { color: var(--color-constraints); }
+
+#problems-table tbody td {
+    padding: 6px 8px;
+    text-align: left;
+}
+#problems-table tbody tr:nth-child(even) {
+    background-color: var(--color-table-bg-alt);
+}
+#problems-table tbody tr:hover {
+    background-color: var(--color-table-bg-alt);
+    cursor: pointer;
+}
+
+/* ==============================
+   DataTables Controls
+   ============================== */
+.dt-top-buttons {
+    margin-bottom: 6px;
+}
+.dt-top-buttons .dt-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.dt-top-buttons .dt-buttons button {
+    padding: 4px 8px!important;
+}
+.dt-buttons button i { font-size: 1.2em; vertical-align: middle; }
+.dt-buttons button:hover {
+    opacity: 0.85;
+    transform: scale(1.03);
+}
+
+/* Export buttons (semantic classes) */
+.dt-buttons .buttons-copy  { color: var(--color-bright-blue) !important; }
+.dt-buttons .buttons-csv   { color: var(--color-orange) !important; }
+.dt-buttons .buttons-excel { color: var(--color-soft-green) !important; }
+.dt-buttons .buttons-pdf   { color: var(--color-soft-red) !important; }
+.dt-buttons .buttons-print { color: var(--color-deep-violet) !important; }
+
+/* Also target icons inside buttons, in case <i> inherits default color */
+.dt-buttons button i {
+    color: inherit !important;
+}
+
+.dt-top-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    width: 100%;
+}
+.dt-top-controls .dataTables_length,
+.dt-top-controls .dataTables_filter { margin: 0; }
+.dt-top-controls .dataTables_length label,
+.dt-top-controls .dataTables_filter label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+}
+.dt-top-controls .dataTables_length select { min-width: 70px; }
+.dt-top-controls .dataTables_filter input {
+    width: 220px;
+    max-width: 40vw;
+    padding: 6px 8px;
+    box-sizing: border-box;
+}
+@media (max-width: 680px) {
+    .dt-top-controls { flex-direction: column; align-items: stretch; }
+    .dt-top-controls .dataTables_filter input { width: 100%; }
+}
+
+/* ==============================
+   Constraint Buttons
+   ============================== */
+.constraint-btn {
+    border: none;
+    border-radius: 12px;
+    padding: 4px 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.constraint-btn.small { font-size: 0.75em; }
+.constraint-btn.normal { font-size: 0.85em; }
+
+/* State (zero vs nonzero) */
+.constraint-btn.dim-zero {
+    background-color: var(--btn-constraints-disabled);
+    color: var(--color-gray-text);
+}
+.constraint-btn.dim-nonzero { color: white; }
+
+/* Type-specific (nonzero only) */
+.constraint-btn.constraint-x.dim-nonzero { background-color: var(--color-dark-blue); }
+.constraint-btn.constraint-u.dim-nonzero { background-color: var(--color-deep-blue); }
+.constraint-btn.constraint-v.dim-nonzero { background-color: var(--color-bright-blue); }
+.constraint-btn.constraint-c.dim-nonzero { background-color: var(--color-orange); }
+.constraint-btn.constraint-b.dim-nonzero { background-color: var(--color-soft-red); }
+
+.constraints-wrapper strong {
+    font-size: 0.95em;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+/* ==============================
+   Constraint Filter Buttons (Header)
+   ============================== */
+.constraint-filter-btn {
+    border-radius: 6px;
+    padding: 3px 7px;
+    margin: 1px;
+    font-size: 0.85em;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    background-color: var(--btn-filters-disabled);
+    color: #333;
+    transition: background-color 0.2s, transform 0.1s;
+}
+.constraint-filter-btn:hover {
+    background-color: var(--btn-filters-hover);
+    color: white;
+    transform: scale(1.05);
+}
+.constraint-filter-btn.active {
+    background-color: var(--btn-filters-active);
+    color: white;
+}
+
+.constraint-filter-btn { background: #ccc; color: #333; } /* default gray */
+.constraint-filter-btn.positive { background: #4caf50; color: white; } /* green */
+.constraint-filter-btn.negative { background: #f44336; color: white; } /* red */
+
+/* ==============================
+   Filters (Inputs / Selects)
+   ============================== */
+#problems-table thead input[type="text"] {
+    width: 90%!important;
+    max-width: 55px;
+    padding: 2px 4px;
+    font-size: 0.85em;
+    border: 1px solid var(--color-light-gray);
+    border-radius: 4px;
+    text-align: center;
+}
+#problems-table thead select {
+    width: 95%;
+    max-width: 80px;
+    padding: 2px 2px;
+    font-size: 0.85em;
+    border: 1px solid var(--color-light-gray);
+    border-radius: 4px;
+    background: #fff;
+    text-align: center;
+}
+#constraints-filter {
+    text-align: center;
+}
+#constraints-filter > div:first-child {
+    display: flex!important;
+    flex-direction: column;
+    align-items: center;
+    padding: 2px;
+}
+#constraints-filter select {
+    margin-left: 4px;
+    padding: 2px 5px;
+    font-size: 0.85em;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+#constraints-filter > div > div {
+    display: flex!important;
+    justify-content: left!important;
+}
+#constraints-filter .btn-label {
+    font-size: 0.75em;
+    margin-top: 2px;
+    color: #333;
+}
+
+/* ==============================
+   Sorting arrows spacing
+   ============================== */
+table.dataTable thead .sorting::before,
+table.dataTable thead .sorting::after,
+table.dataTable thead .sorting_asc::before,
+table.dataTable thead .sorting_asc::after,
+table.dataTable thead .sorting_desc::before,
+table.dataTable thead .sorting_desc::after,
+table.dataTable thead .sorting_asc_disabled::before,
+table.dataTable thead .sorting_asc_disabled::after,
+table.dataTable thead .sorting_desc_disabled::before,
+table.dataTable thead .sorting_desc_disabled::after {
+    right: 2px !important;
+}
+
+/* ==============================
+   Loading Overlay
+   ============================== */
+#loading-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(255,255,255,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease;
+}
+#loading-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid var(--color-deep-blue);
+  border-radius: 50%;
+  width: 50px; height: 50px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+
+<div>
+    <table id="problems-table" class="display nowrap" style="width:100%">
+        <thead>
+            <tr>
+                <th>Problem</th>
+                <th>State</th>
+                <th>Control</th>
+                <th>Variable</th>
+                <th>Cost</th>
+                <th>FinalTime</th>
+                <th>Constraints</th>
+            </tr>
+            <tr id="filters">
+                <th></th><th></th><th></th><th></th>
+                <th></th><th></th>
+                <th id="constraints-filter"></th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>var define=undefined;</script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+<script id="problems-json" type="application/json">
+{"Problem":["beam","chain","double_oscillator","electric_vehicle","glider","jackson","robbins","rocket","vanderpol"],"State":[2,3,4,2,4,3,3,3,2],"Control":[1,1,1,1,1,1,1,1,1],"Variable":[0,0,0,0,1,0,0,1,0],"Cost":["Lagrange","Mayer","Lagrange","Lagrange","Mayer","Mayer","Lagrange","Mayer","Lagrange"],"FinalTime":["fixed","fixed","fixed","fixed","free","fixed","fixed","free","fixed"],"DimStateConstraint":[1,0,0,0,2,3,1,3,0],"DimControlConstraint":[0,0,1,0,1,1,0,1,0],"DimVariableConstraint":[0,0,0,0,1,0,0,1,0],"DimPathConstraint":[0,0,0,0,0,0,0,0,0],"DimBoundaryConstraint":[4,5,2,4,7,3,6,4,2],"TotalConstraints":[5,5,3,4,11,7,7,9,2],"ConstraintButtonsHtml":[{"x":1,"u":0,"v":0,"c":0,"b":4},{"x":0,"u":0,"v":0,"c":0,"b":5},{"x":0,"u":1,"v":0,"c":0,"b":2},{"x":0,"u":0,"v":0,"c":0,"b":4},{"x":2,"u":1,"v":1,"c":0,"b":7},{"x":3,"u":1,"v":0,"c":0,"b":3},{"x":1,"u":0,"v":0,"c":0,"b":6},{"x":3,"u":1,"v":1,"c":0,"b":4},{"x":0,"u":0,"v":0,"c":0,"b":2}]}
+</script>
+
+<div id="loading-overlay"><div class="spinner"></div></div>
+<script>
+// ==============================
+// Constraint Helper Functions (CSS class-based)
+// ==============================
+const ConstraintHelpers = (() => {
+
+    const constraintMap = {
+        x: 'DimStateConstraint',
+        u: 'DimControlConstraint',
+        v: 'DimVariableConstraint',
+        c: 'DimPathConstraint',
+        b: 'DimBoundaryConstraint'
+    };
+
+    function getConstraintParts(rowData) {
+        return Object.entries(constraintMap)
+            .filter(([letter, col]) => rowData[col] && Number(rowData[col]) > 0)
+            .map(([letter]) => letter);
+    }
+
+    function summary(rowData) {
+        return getConstraintParts(rowData).join(' ') + ` (${rowData.TotalConstraints})`;
+    }
+
+    function buttonHTML(type, dim, small = false, print_val = true) {
+        const classes = [
+            "constraint-btn",
+            `constraint-${type}`,
+            small ? "small" : "normal",
+            dim === 0 ? "dim-zero" : "dim-nonzero"
+        ].join(" ");
+        const text = print_val ? `${type}: ${dim}` : type;
+        return `<button class="${classes}">${text}</button>`;
+    }
+
+    function rowSummaryHTML(rowData, print_val=false) {
+        return Object.keys(constraintMap)
+            .map(k => buttonHTML(k, rowData[constraintMap[k]], true, print_val))
+            .join(' ') + ` <strong style="margin-left:5px;">(${rowData.TotalConstraints})</strong>`;
+    }
+
+    function detailHTML(rowData) {
+        return `<div style="display:flex; gap:4px; align-items:center;">${rowSummaryHTML(rowData, true)}</div>`;
+    }
+
+    return {summary, rowSummaryHTML, detailHTML};
+})();
+
+// ==============================
+// Table Initialization
+// ==============================
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(initProblemsTable, 0);
+});
+
+function initProblemsTable() {
+    const data = JSON.parse(document.getElementById("problems-json").textContent);
+    let constraintFilter = null; // placeholder for constraint filter
+
+    const table = $('#problems-table').DataTable({
+        deferRender: true,
+        orderCellsTop: true,
+        fixedHeader: true,
+        responsive: false,
+        pageLength: 25,
+        lengthMenu: [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
+        dom: '<"dt-top-buttons"B><"dt-top-controls"lf>rt<"bottom"ip><"clear">',
+        autoWidth: false,
+        columns: [
+            { data: 'Problem', width: '20%' },
+            { data: 'State', width: '10%' },
+            { data: 'Control', width: '12%' },
+            { data: 'Variable', width: '12%' },
+            { data: 'Cost', width: '10%' },
+            { data: 'FinalTime', width: '14%' },
+            {
+                data: 'ConstraintButtonsHtml',
+                render: function(data, type, row) {
+                    if (type === 'sort' || type === 'type') return Number(row.TotalConstraints);
+                    return ConstraintHelpers.rowSummaryHTML(row);
+                }
+            }
+        ],
+        buttons: ['copy','csv','excel','pdf','print'].map(ext => ({
+            extend: ext,
+            text: {
+                copy:  '<i class="fas fa-copy"></i>',
+                csv:   '<i class="fas fa-file-csv"></i>',
+                excel: '<i class="fas fa-file-excel"></i>',
+                pdf:   '<i class="fas fa-file-pdf"></i>',
+                print: '<i class="fas fa-print"></i>'
+            }[ext],
+            titleAttr: {
+                copy:  'Copy to clipboard',
+                csv:   'Download CSV',
+                excel: 'Download Excel',
+                pdf:   'Download PDF',
+                print: 'Print table'
+            }[ext],
+            exportOptions: {
+                columns: [0,1,2,3,4,5,6],
+                format: {
+                    body: function(data, rowIdx, colIdx, node) {
+                        if(colIdx === 6) {
+                            const rowData = table.row(rowIdx).data();
+                            return ConstraintHelpers.summary(rowData);
+                        }
+                        return data;
+                    }
+                }
+            }
+        })),
+        initComplete: function() {
+            const topButtons = $('.dt-top-buttons').first();
+            const dtButtons = $('.dt-buttons').first();
+            if(topButtons.length && dtButtons.length && dtButtons.parent().get(0) !== topButtons.get(0)) topButtons.empty().append(dtButtons);
+
+            const topControls = $('.dt-top-controls').first();
+            if(topControls.length){
+                const length = $('.dataTables_length').first();
+                const filter = $('.dataTables_filter').first();
+                if(length.length && length.parent().get(0) !== topControls.get(0)) topControls.append(length);
+                if(filter.length && filter.parent().get(0) !== topControls.get(0)) topControls.append(filter);
+                const inp = topControls.find('.dataTables_filter input').first();
+                if(inp.length){
+                    inp.attr('placeholder', 'Search...');
+                    inp.css({ 'width': '220px', 'display': 'inline-block' });
+                }
+            }
+        }
+    });
+
+    // -------------------------
+    // Add rows
+    // -------------------------
+    const rows = [];
+    data.Problem.forEach((_, i) => {
+        rows.push({
+            Problem: `<a href="problems/${data.Problem[i]}.html" class="problem-link">${data.Problem[i]}</a>`,
+            State: data.State[i],
+            Control: data.Control[i],
+            Variable: data.Variable[i],
+            Cost: data.Cost[i],
+            FinalTime: data.FinalTime[i],
+            ConstraintButtonsHtml: data.ConstraintButtonsHtml[i],
+            TotalConstraints: data.TotalConstraints[i],
+            DimStateConstraint: data.DimStateConstraint[i],
+            DimControlConstraint: data.DimControlConstraint[i],
+            DimVariableConstraint: data.DimVariableConstraint[i],
+            DimPathConstraint: data.DimPathConstraint[i],
+            DimBoundaryConstraint: data.DimBoundaryConstraint[i]
+        });
+    });
+    table.rows.add(rows).draw();
+
+    $('#loading-overlay').addClass('hidden');
+    $('#problems-table').addClass('visible');
+
+    // -------------------------
+    // Hover tooltip
+    // -------------------------
+    $('#problems-table tbody').off('mouseenter', '.constraint-btn').on('mouseenter', '.constraint-btn', function(){
+        let type = Array.from(this.classList).find(c => c.startsWith('constraint-'))?.split('-')[1] || '?';
+        let dim = $(this).hasClass('dim-zero') ? 0 : '?';
+        $(this).attr('title', `${type.toUpperCase()}: ${dim} constraints`);
+    });
+
+    // Row click: toggle child detail
+    $('#problems-table tbody').off('click', 'tr').on('click', 'tr', function(e) {
+        if ($(e.target).closest('.problem-link').length) return;
+        const row = table.row(this);
+        if (row.child.isShown()) row.child.hide();
+        else row.child(ConstraintHelpers.detailHTML(row.data())).show();
+    });
+
+    $(document).on('click', '.problem-link', function(e) { e.stopPropagation(); });
+
+    // -------------------------
+    // Filters (numeric + dropdown)
+    // -------------------------
+    $('#problems-table thead tr#filters th').each(function(i){
+        if(i===4){
+            $(this).html('<select><option value="">All</option><option>Mayer</option><option>Lagrange</option><option>Bolza</option></select>');
+        } else if(i===5){
+            $(this).html('<select><option value="">All</option><option>fixed</option><option>free</option></select>');
+        } else if(i>0 && i<6){
+            $(this).html('<input type="text" placeholder="min-max" style="width:100%"/>');
+        }
+        $('input, select', this).on('keyup change', function(){ table.draw(); });
+    });
+
+    function combinedFilter(settings, data, dataIndex){
+        const rowData = table.row(dataIndex).data();
+        let pass = true;
+
+        $('#problems-table thead tr#filters th').each(function(i){
+            const input = $('input', this);
+            const select = $('select', this);
+
+            // Numeric input filter
+            if(input.length){
+                const val = input.val().trim();
+                if(val !== ''){
+                    const colName = ["Problem","State","Control","Variable","Cost","FinalTime","Constraints"][i];
+                    const v = Number(rowData[colName]) || 0;
+                    if(val.includes('-')){
+                        const [minStr,maxStr] = val.split('-').map(s=>s.trim());
+                        const min = minStr === '' ? -Infinity : Number(minStr);
+                        const max = maxStr === '' ? Infinity : Number(maxStr);
+                        if(v < min || v > max) pass = false;
+                    } else {
+                        const num = Number(val);
+                        if(v !== num) pass = false;
+                    }
+                }
+            }
+
+            // Dropdown selects filter
+            if(select.length){
+                const val = select.val();
+                if(val !== ''){
+                    const colName = i===4 ? "Cost" : i===5 ? "FinalTime" : null;
+                    if(colName && rowData[colName] !== val) pass = false;
+                }
+            }
+        });
+        return pass;
+    }
+
+    $.fn.dataTable.ext.search = [];
+    $.fn.dataTable.ext.search.push(combinedFilter);
+
+    // -------------------------
+    // Constraint filter buttons
+    // -------------------------
+    const filterContainer = $('#constraints-filter');
+    let html = `<div class="constraint-filter-wrapper">
+                    <div class="constraint-logic">
+                        Logic:
+                        <select id="constraints-logic">
+                            <option value="OR">OR</option>
+                            <option value="AND">AND</option>
+                        </select>
+                    </div>
+                    <div class="constraint-buttons-row">`;
+    ["x","u","v","c","b"].forEach(c => {
+        html += `<button class="constraint-filter-btn" data-type="${c}">${c}</button>`;
+    });
+    html += `</div></div>`;
+    filterContainer.append(html);
+
+    $(document).on('click', '.constraint-filter-btn', function() {
+        if ($(this).hasClass('positive')) {
+            $(this).removeClass('positive').addClass('negative'); // green → red
+        } else if ($(this).hasClass('negative')) {
+            $(this).removeClass('negative'); // red → gray
+        } else {
+            $(this).addClass('positive'); // gray → green
+        }
+        applyConstraintFilter();
+    });
+
+    function applyConstraintFilter() {
+        const activeConditions = [];
+
+        $('.constraint-filter-btn.positive').each(function(){
+            const c = $(this).data('type');
+            activeConditions.push({type: c, check: 'positive'});
+        });
+        $('.constraint-filter-btn.negative').each(function(){
+            const c = $(this).data('type');
+            activeConditions.push({type: c, check: 'negative'});
+        });
+
+        const logic = $('#constraints-logic').val();
+
+        // Remove old constraint filter
+        $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(f => f !== constraintFilter);
+
+        constraintFilter = function(settings, data, dataIndex){
+            const rowData = table.row(dataIndex).data();
+            const map = {
+                x:"StateConstraint", u:"ControlConstraint",
+                v:"VariableConstraint", c:"PathConstraint", b:"BoundaryConstraint"
+            };
+
+            // Build conditions
+            const results = activeConditions.map(cond => {
+                const val = rowData["Dim"+map[cond.type]];
+                return cond.check === 'positive' ? (val > 0) : (val === 0);
+            });
+
+            if (results.length === 0) return true;
+
+            return logic === "AND" ? results.every(v=>v) : results.some(v=>v);
+        };
+
+        $.fn.dataTable.ext.search.push(constraintFilter);
+        table.draw();
+    }
+
+
+    $(document).on('change', '#constraints-logic', applyConstraintFilter);
+}
+</script>
+<script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+mermaid.initialize({
+    startOnLoad: true,
+    theme: "neutral"
+});
+</script></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="problems-introduction.html">« Introduction</a><a class="docs-footer-nextpage" href="problems/beam.html">Beam »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Wednesday 21 January 2026 21:38">Wednesday 21 January 2026</span>. Using Julia version 1.12.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

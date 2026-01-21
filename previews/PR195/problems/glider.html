@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Glider · OptimalControlProblems.jl</title><meta name="title" content="Glider · OptimalControlProblems.jl"/><meta property="og:title" content="Glider · OptimalControlProblems.jl"/><meta property="twitter:title" content="Glider · OptimalControlProblems.jl"/><meta name="description" content="Documentation for OptimalControlProblems.jl."/><meta property="og:description" content="Documentation for OptimalControlProblems.jl."/><meta property="twitter:description" content="Documentation for OptimalControlProblems.jl."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script><link href="https://control-toolbox.org/assets/css/documentation.css" rel="stylesheet" type="text/css"/><script src="https://control-toolbox.org/assets/js/documentation.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../index.html">OptimalControlProblems.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../index.html">Getting Started</a></li><li><span class="tocitem">Problems</span><ul><li><a class="tocitem" href="../problems-introduction.html">Introduction</a></li><li><a class="tocitem" href="../problems_browser.html">Problems browser</a></li><li><input class="collapse-toggle" id="menuitem-2-3" type="checkbox" checked/><label class="tocitem" for="menuitem-2-3"><span class="docs-label">List of the problems</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="beam.html">Beam</a></li><li><a class="tocitem" href="chain.html">Chain</a></li><li><a class="tocitem" href="double_oscillator.html">Double oscillator</a></li><li><a class="tocitem" href="electric_vehicle.html">Electric vehicle</a></li><li class="is-active"><a class="tocitem" href="glider.html">Glider</a><ul class="internal"><li><a class="tocitem" href="#Description-of-the-problem"><span>Description of the problem</span></a></li><li><a class="tocitem" href="#Numerical-set-up"><span>Numerical set-up</span></a></li><li><a class="tocitem" href="#Metadata"><span>Metadata</span></a></li><li><a class="tocitem" href="#Initial-guess"><span>Initial guess</span></a></li><li><a class="tocitem" href="#Solving-the-problem"><span>Solving the problem</span></a></li><li><a class="tocitem" href="#Numerical-comparisons"><span>Numerical comparisons</span></a></li><li><a class="tocitem" href="#Plotting-the-solutions"><span>Plotting the solutions</span></a></li></ul></li><li><a class="tocitem" href="jackson.html">Jackson</a></li><li><a class="tocitem" href="robbins.html">Robbins</a></li><li><a class="tocitem" href="rocket.html">Rocket</a></li><li><a class="tocitem" href="vanderpol.html">Vanderpol</a></li></ul></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../tutorial-get.html">Get a problem</a></li><li><a class="tocitem" href="../tutorial-solve.html">Solve a problem</a></li></ul></li><li><span class="tocitem">Developers</span><ul><li><a class="tocitem" href="../dev-add.html">Add a problem</a></li><li><a class="tocitem" href="../dev-api.html">API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Problems</a></li><li><a class="is-disabled">List of the problems</a></li><li class="is-active"><a href="glider.html">Glider</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="glider.html">Glider</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/control-toolbox/OptimalControlProblems.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/control-toolbox/OptimalControlProblems.jl/blob/main/docs/src/problems/glider.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="description-glider"><a class="docs-heading-anchor" href="#description-glider">Glider</a><a id="description-glider-1"></a><a class="docs-heading-anchor-permalink" href="#description-glider" title="Permalink"></a></h1><h2 id="Description-of-the-problem"><a class="docs-heading-anchor" href="#Description-of-the-problem">Description of the problem</a><a id="Description-of-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Description-of-the-problem" title="Permalink"></a></h2><p>The <strong>hang glider problem</strong> is a classical benchmark in optimal control.   It consists of steering a hang glider from an initial horizontal position and altitude to a target altitude while maximising the <strong>horizontal distance travelled</strong>.   The glider dynamics incorporate lift, drag, gravity, and the effect of a thermal updraft.   The control variable is the lift coefficient <span>$c_L$</span>, which modulates the aerodynamic lift and influences the trajectory through the thermal region.</p><h3 id="Mathematical-formulation"><a class="docs-heading-anchor" href="#Mathematical-formulation">Mathematical formulation</a><a id="Mathematical-formulation-1"></a><a class="docs-heading-anchor-permalink" href="#Mathematical-formulation" title="Permalink"></a></h3><p class="math-container">\[\begin{aligned}
+\min_{x, y, v_x, v_y, c_L, t_f} \quad &amp; -x(t_f) \\[1em]
+\text{s.t.} \quad &amp;
+\dot{x} = v_x, \quad
+\dot{y} = v_y, \\[0.25em]
+&amp; \dot{v}_x = -\frac{L \, w + D \, v_x}{m \, v}, \quad
+\dot{v}_y = \frac{L \, v_x - D \, w}{m \, v} - g, \\[1em]
+&amp; c_L^{\min} \le c_L(t) \le c_L^{\max}, \quad x(t) \ge 0, \quad v_x(t) \ge 0, \\[1em]
+&amp; (x, y, v_x, v_y)|_{t=0} = (x_0, y_0, v_{x0}, v_{y0}), \quad
+(y, v_x, v_y)|_{t=t_f} = (y_f, v_{xf}, v_{yf}),
+\end{aligned}\]</p><p>with  </p><p class="math-container">\[v = \sqrt{v_x^2 + w^2}, \quad
+w = v_y - U_\text{updraft}(x), \quad
+L = \frac{1}{2} \rho S c_L v^2, \quad
+D = \frac{1}{2} \rho S (c_0 + c_1 c_L^2) v^2,\]</p><p>and  </p><p class="math-container">\[U_\text{updraft}(x) = u_c\, (1 - r) e^{-r}, \quad r = \left( \frac{x}{r_0} - 2.5 \right)^2,\]</p><p>where <span>$m, g, S, \rho, c_0, c_1, u_c, r_0$</span> are constants describing the glider and the thermal properties.</p><hr/><h3 id="System-parameters"><a class="docs-heading-anchor" href="#System-parameters">System parameters</a><a id="System-parameters-1"></a><a class="docs-heading-anchor-permalink" href="#System-parameters" title="Permalink"></a></h3><table><tr><th style="text-align: right">Parameter</th><th style="text-align: right">Symbol</th><th style="text-align: right">Value</th><th style="text-align: right">Description</th></tr><tr><td style="text-align: right">Initial horizontal position</td><td style="text-align: right"><span>$x_0$</span></td><td style="text-align: right">0</td><td style="text-align: right">m</td></tr><tr><td style="text-align: right">Initial altitude</td><td style="text-align: right"><span>$y_0$</span></td><td style="text-align: right">1000</td><td style="text-align: right">m</td></tr><tr><td style="text-align: right">Final altitude</td><td style="text-align: right"><span>$y_f$</span></td><td style="text-align: right">900</td><td style="text-align: right">m</td></tr><tr><td style="text-align: right">Initial horizontal velocity</td><td style="text-align: right"><span>$v_{x0}$</span></td><td style="text-align: right">13.23</td><td style="text-align: right">m/s</td></tr><tr><td style="text-align: right">Final horizontal velocity</td><td style="text-align: right"><span>$v_{xf}$</span></td><td style="text-align: right">13.23</td><td style="text-align: right">m/s</td></tr><tr><td style="text-align: right">Initial vertical velocity</td><td style="text-align: right"><span>$v_{y0}$</span></td><td style="text-align: right">-1.288</td><td style="text-align: right">m/s</td></tr><tr><td style="text-align: right">Final vertical velocity</td><td style="text-align: right"><span>$v_{yf}$</span></td><td style="text-align: right">-1.288</td><td style="text-align: right">m/s</td></tr><tr><td style="text-align: right">Lift coefficient bounds</td><td style="text-align: right"><span>$c_L$</span></td><td style="text-align: right">[0, 1.4]</td><td style="text-align: right">Control input</td></tr><tr><td style="text-align: right">Final time</td><td style="text-align: right"><span>$t_f$</span></td><td style="text-align: right">free</td><td style="text-align: right">s</td></tr></table><hr/><h3 id="Qualitative-behaviour"><a class="docs-heading-anchor" href="#Qualitative-behaviour">Qualitative behaviour</a><a id="Qualitative-behaviour-1"></a><a class="docs-heading-anchor-permalink" href="#Qualitative-behaviour" title="Permalink"></a></h3><ul><li>The optimal trajectory exploits the thermal updraft to maximise horizontal distance.  </li><li>The lift coefficient <span>$c_L$</span> balances altitude loss and horizontal progression.  </li><li>The dynamics are nonlinear due to the coupling of lift, drag, and relative velocity in the thermal.  </li><li>Horizontal velocity is maintained positive, and the trajectory respects the control and state constraints.</li></ul><hr/><h3 id="Characteristics"><a class="docs-heading-anchor" href="#Characteristics">Characteristics</a><a id="Characteristics-1"></a><a class="docs-heading-anchor-permalink" href="#Characteristics" title="Permalink"></a></h3><ul><li>Nonlinear four-dimensional dynamics with one control input.  </li><li>Free final time.  </li><li>Mixed state and control constraints.  </li><li>Widely used as a benchmark for trajectory optimisation and direct transcription methods in nonlinear optimal control.</li></ul><hr/><h3 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h3><ul><li><p><strong>Dolan, E. D., &amp; More, J. J. (2004).</strong> <em>Benchmarking Optimization Software with COPS 3.0</em>. Argonne National Laboratory.   <a href="https://www.mcs.anl.gov/~more/cops/cops3.pdf">PDF</a>   Includes the hang glider problem in the COPS 3.0 benchmark collection with problem formulation and solver comparisons.</p></li><li><p><strong>PSOPT Example: Hang Glider Problem.</strong> <a href="https://www.psopt.net/list-of-examples">psopt.net/list-of-examples</a>   Demonstrates a practical implementation of the hang glider optimal control problem in PSOPT.</p></li><li><p><strong>PSOPT GitHub Repository: Hang Glider Example.</strong> <a href="https://github.com/PSOPT/psopt/blob/master/examples/glider/glider.cxx">github.com/PSOPT/psopt/blob/master/examples/glider/glider.cxx</a>   Source code example for testing direct transcription and NLP solvers with the hang glider problem.</p></li></ul><h2 id="Numerical-set-up"><a class="docs-heading-anchor" href="#Numerical-set-up">Numerical set-up</a><a id="Numerical-set-up-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-set-up" title="Permalink"></a></h2><p>In this section, we prepare the numerical environment required to study the problem. We begin by importing the relevant Julia packages and then initialise the data frames   that will store the results of our simulations and computations. These structures provide the foundation for solving the problem and for comparing the different solution strategies in a consistent way.</p><pre><code class="language-julia hljs">using OptimalControlProblems    # to access the Beam model
+using OptimalControl            # to import the OptimalControl model
+using NLPModelsIpopt            # to solve the model with Ipopt
+import DataFrames: DataFrame    # to store data
+using NLPModels                 # to retrieve data from the NLP solution
+using Plots                     # to plot the trajectories
+using Plots.PlotMeasures        # for leftmargin, bottommargin
+using JuMP                      # to import the JuMP model
+using Ipopt                     # to solve the JuMP model with Ipopt
+using Printf                    # to print
+
+data_pb = DataFrame(            # to store data about the problem
+    Problem=Symbol[],
+    Grid_Size=Int[],
+    Variables=Int[],
+    Constraints=Int[],
+)
+
+data_re = DataFrame(            # to store data about the resolutions
+    Model=Symbol[],
+    Flag=Any[],
+    Iterations=Int[],
+    Objective=Float64[],
+)</code></pre><h2 id="Metadata"><a class="docs-heading-anchor" href="#Metadata">Metadata</a><a id="Metadata-1"></a><a class="docs-heading-anchor-permalink" href="#Metadata" title="Permalink"></a></h2><p>The default number of time steps is:</p><pre><code class="language-julia hljs">metadata(:glider)[:grid_size]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">500</code></pre><p>The default values of the parameters are:</p><pre><code class="language-julia hljs">metadata(:glider)[:parameters]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Parameter = Value
+------------------
+    t0 =  0.0000e+00
+  x_t0 =  0.0000e+00
+  y_t0 =  1.0000e+03
+  y_tf =  9.0000e+02
+ vx_t0 =  1.3230e+01
+ vx_tf =  1.3230e+01
+ vy_t0 = -1.2880e+00
+ vy_tf = -1.2880e+00
+   u_c =  2.5000e+00
+  r_t0 =  1.0000e+02
+     m =  1.0000e+02
+     g =  9.8100e+00
+    c0 =  3.4000e-02
+    c1 =  6.9662e-02
+     S =  1.4000e+01
+     ρ =  1.1300e+00
+cL_min =  0.0000e+00
+cL_max =  1.4000e+00
+  tf_l =  0.0000e+00
+   x_l =  0.0000e+00
+  vx_l =  0.0000e+00</code></pre><h2 id="Initial-guess"><a class="docs-heading-anchor" href="#Initial-guess">Initial guess</a><a id="Initial-guess-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-guess" title="Permalink"></a></h2><p>Before solving the problem, it is often useful to inspect the initial guess (sometimes called the first iterate). This guess is obtained by running the NLP solver with <code>max_iter = 0</code>, which evaluates the problem formulation without performing any optimisation steps.  </p><p>We plot the resulting trajectories for both the OptimalControl and JuMP models. Since both backends represent the same mathematical problem, their initial guesses should coincide, providing a useful consistency check before moving on to the optimised solution.</p><div class="admonition is-info" id="Code-to-plot-the-initial-guess-a0d28846e3d31f70"><header class="admonition-header">Code to plot the initial guess<a class="admonition-anchor" href="#Code-to-plot-the-initial-guess-a0d28846e3d31f70" title="Permalink"></a></header><div class="admonition-body"><details><summary>Click to unfold and see the code for plotting the initial guess.</summary><pre><code class="language-julia hljs">function plot_initial_guess(problem)
+
+    # -----------------------------
+    # Build OptimalControl problem
+    # -----------------------------
+    docp = eval(problem)(OptimalControlBackend())
+    nlp_oc = nlp_model(docp)
+    ocp_oc = ocp_model(docp)
+
+    # Solve NLP with zero iterations (initial guess)
+    nlp_oc_sol = NLPModelsIpopt.ipopt(nlp_oc; max_iter=0)
+
+    # Build OptimalControl solution
+    ocp_sol = build_OCP_solution(docp, nlp_oc_sol)
+
+    # get dimensions
+    n = state_dimension(ocp_oc)
+    m = control_dimension(ocp_oc)
+
+    # -----------------------------
+    # Plot OptimalControl solution
+    # -----------------------------
+    plt = plot(
+        ocp_sol;
+        state_style=(color=1,),
+        costate_style=(color=1, legend=:none),
+        control_style=(color=1, legend=:none),
+        path_style=(color=1, legend=:none),
+        dual_style=(color=1, legend=:none),
+        size=(816, 220*(n+m)),
+        label=&quot;OptimalControl&quot;,
+        leftmargin=20mm,
+    )
+
+    # Hide legend for additional state plots
+    for i in 2:n
+        plot!(plt[i]; legend=:none)
+    end
+
+    # -----------------------------
+    # Build JuMP model
+    # -----------------------------
+    nlp_jp = eval(problem)(JuMPBackend())
+
+    # Solve NLP with zero iterations (initial guess)
+    set_optimizer(nlp_jp, Ipopt.Optimizer)
+    set_optimizer_attribute(nlp_jp, &quot;max_iter&quot;, 0)
+    optimize!(nlp_jp)
+
+    # Extract trajectories
+    t_grid = time_grid(nlp_jp)
+    x_fun = state(nlp_jp)
+    u_fun = control(nlp_jp)
+    p_fun = costate(nlp_jp)
+
+    # -----------------------------
+    # Plot JuMP solution on top
+    # -----------------------------
+    # States
+    for i in 1:n
+        label = i == 1 ? &quot;JuMP&quot; : :none
+        plot!(plt[i], t_grid, t -&gt; x_fun(t)[i]; color=2, linestyle=:dash, label=label)
+    end
+
+    # Costates
+    for i in 1:n
+        plot!(plt[n+i], t_grid, t -&gt; -p_fun(t)[i]; color=2, linestyle=:dash, label=:none)
+    end
+
+    # Controls
+    for i in 1:m
+        plot!(plt[2*n+i], t_grid, t -&gt; u_fun(t)[i]; color=2, linestyle=:dash, label=:none)
+    end
+
+    return plt
+end</code></pre></details></div></div><pre><code class="language-julia hljs">plot_initial_guess(:glider)</code></pre><img src="glider-73577ade.svg" alt="Example block output"/><h2 id="Solving-the-problem"><a class="docs-heading-anchor" href="#Solving-the-problem">Solving the problem</a><a id="Solving-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Solving-the-problem" title="Permalink"></a></h2><p>To solve an optimal control problem, we can rely on two complementary formulations: the <code>OptimalControl</code> backend, which works directly with the discretised control problem, and the <code>JuMP</code> backend, which leverages JuMP’s flexible modelling framework.  </p><p>Both approaches generate equivalent NLPs that can be solved with Ipopt, and comparing them ensures consistency between the two formulations.</p><p>Before solving, we can inspect the discretisation details of the problem. The table below reports the number of grid points, decision variables, and constraints associated with the chosen formulation.  </p><pre><code class="language-julia hljs">push!(data_pb,(
+    Problem=:glider,
+    Grid_Size=metadata(:glider)[:grid_size],
+    Variables=get_nvar(nlp_model(glider(OptimalControlBackend()))),
+    Constraints=get_ncon(nlp_model(glider(OptimalControlBackend()))),
+))</code></pre><div><div style = "float: left;"><span>1×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Problem</th><th style = "text-align: left;">Grid_Size</th><th style = "text-align: left;">Variables</th><th style = "text-align: left;">Constraints</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Int64" style = "text-align: left;">Int64</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">glider</td><td style = "text-align: right;">500</td><td style = "text-align: right;">2506</td><td style = "text-align: right;">2007</td></tr></tbody></table></div><h3 id="OptimalControl-model"><a class="docs-heading-anchor" href="#OptimalControl-model">OptimalControl model</a><a id="OptimalControl-model-1"></a><a class="docs-heading-anchor-permalink" href="#OptimalControl-model" title="Permalink"></a></h3><p>We first solve the problem using the <code>OptimalControl</code> backend. The process begins by importing the problem definition and constructing the associated nonlinear programming (NLP) model. This NLP is then passed to the Ipopt solver, with standard options for tolerance and barrier parameter strategy.  </p><pre><code class="language-julia hljs"># import DOCP model
+docp = glider(OptimalControlBackend())
+
+# get NLP model
+nlp_oc = nlp_model(docp)
+
+# solve
+nlp_oc_sol = NLPModelsIpopt.ipopt(
+    nlp_oc;
+    print_level=4,
+    tol=1e-8,
+    mu_strategy=&quot;adaptive&quot;,
+    sb=&quot;yes&quot;,
+)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:     2506
+                     variables with only lower bounds:     1003
+                variables with lower and upper bounds:      501
+                     variables with only upper bounds:        0
+Total number of equality constraints.................:     2007
+Total number of inequality constraints...............:        0
+        inequality constraints with only lower bounds:        0
+   inequality constraints with lower and upper bounds:        0
+        inequality constraints with only upper bounds:        0
+
+MUMPS returned INFO(1) = -9 and requires more memory, reallocating.  Attempt 1
+  Increasing icntl[13] from 1000 to 2000.
+MUMPS returned INFO(1) = -9 and requires more memory, reallocating.  Attempt 1
+  Increasing icntl[13] from 2000 to 4000.
+MUMPS returned INFO(1) = -9 and requires more memory, reallocating.  Attempt 1
+  Increasing icntl[13] from 4000 to 8000.
+MUMPS returned INFO(1) = -9 and requires more memory, reallocating.  Attempt 1
+  Increasing icntl[13] from 8000 to 16000.
+In iteration 18, 1 Slack too small, adjusting variable bound
+In iteration 19, 3 Slacks too small, adjusting variable bounds
+In iteration 20, 1 Slack too small, adjusting variable bound
+
+Number of Iterations....: 243
+
+                                   (scaled)                 (unscaled)
+Objective...............:  -1.2479784300210431e+03   -1.2479784300210431e+03
+Dual infeasibility......:   6.2121275907042736e-11    6.2121275907042736e-11
+Constraint violation....:   1.1375789199519204e-11    1.1375789199519204e-11
+Variable bound violation:   1.3987538460824567e-08    1.3987538460824567e-08
+Complementarity.........:   5.2623116599298645e-10    5.2623116599298645e-10
+Overall NLP error.......:   5.2623116599298645e-10    5.2623116599298645e-10
+
+
+Number of objective function evaluations             = 247
+Number of objective gradient evaluations             = 244
+Number of equality constraint evaluations            = 247
+Number of inequality constraint evaluations          = 0
+Number of equality constraint Jacobian evaluations   = 244
+Number of inequality constraint Jacobian evaluations = 0
+Number of Lagrangian Hessian evaluations             = 243
+Total seconds in IPOPT                               = 82.380
+
+EXIT: Optimal Solution Found.</code></pre><h3 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h3><p>We now repeat the procedure using the <code>JuMP</code> backend. Here, the problem is reformulated as a JuMP model, which offers a flexible and widely used framework for nonlinear optimisation in Julia. The solver settings are chosen to mirror those used previously, so that the results can be compared on an equal footing. </p><pre><code class="language-julia hljs"># import model
+nlp_jp = glider(JuMPBackend())
+
+# solve with Ipopt
+set_optimizer(nlp_jp, Ipopt.Optimizer)
+set_optimizer_attribute(nlp_jp, &quot;print_level&quot;, 4)
+set_optimizer_attribute(nlp_jp, &quot;tol&quot;, 1e-8)
+set_optimizer_attribute(nlp_jp, &quot;mu_strategy&quot;, &quot;adaptive&quot;)
+set_optimizer_attribute(nlp_jp, &quot;linear_solver&quot;, &quot;mumps&quot;)
+set_optimizer_attribute(nlp_jp, &quot;sb&quot;, &quot;yes&quot;)
+optimize!(nlp_jp)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total number of variables............................:     2506
+                     variables with only lower bounds:     1003
+                variables with lower and upper bounds:      501
+                     variables with only upper bounds:        0
+Total number of equality constraints.................:     2007
+Total number of inequality constraints...............:        0
+        inequality constraints with only lower bounds:        0
+   inequality constraints with lower and upper bounds:        0
+        inequality constraints with only upper bounds:        0
+
+MUMPS returned INFO(1) = -9 and requires more memory, reallocating.  Attempt 1
+  Increasing icntl[13] from 1000 to 2000.
+MUMPS returned INFO(1) = -9 and requires more memory, reallocating.  Attempt 1
+  Increasing icntl[13] from 2000 to 4000.
+MUMPS returned INFO(1) = -9 and requires more memory, reallocating.  Attempt 1
+  Increasing icntl[13] from 4000 to 8000.
+MUMPS returned INFO(1) = -9 and requires more memory, reallocating.  Attempt 1
+  Increasing icntl[13] from 8000 to 16000.
+
+Number of Iterations....: 232
+
+                                   (scaled)                 (unscaled)
+Objective...............:  -1.2479784300222339e+03   -1.2479784300222339e+03
+Dual infeasibility......:   3.4713309561782922e-10    3.4713309561782922e-10
+Constraint violation....:   6.3568705854777363e-11    6.3568705854777363e-11
+Variable bound violation:   1.3987538460824567e-08    1.3987538460824567e-08
+Complementarity.........:   2.8946083832893019e-09    2.8946083832893019e-09
+Overall NLP error.......:   2.8946083832893019e-09    2.8946083832893019e-09
+
+
+Number of objective function evaluations             = 261
+Number of objective gradient evaluations             = 230
+Number of equality constraint evaluations            = 261
+Number of inequality constraint evaluations          = 0
+Number of equality constraint Jacobian evaluations   = 239
+Number of inequality constraint Jacobian evaluations = 0
+Number of Lagrangian Hessian evaluations             = 232
+Total seconds in IPOPT                               = 197.012
+
+EXIT: Optimal Solution Found.</code></pre><h2 id="Numerical-comparisons"><a class="docs-heading-anchor" href="#Numerical-comparisons">Numerical comparisons</a><a id="Numerical-comparisons-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparisons" title="Permalink"></a></h2><p>In this section, we examine the results of the problem resolutions. We extract the solver status (flag), the number of iterations, and the objective value for each model. This provides a first overview of how each approach performs and sets the stage for a more detailed comparison of the solution trajectories.</p><pre><code class="language-julia hljs"># from OptimalControl model
+push!(data_re,(
+    Model=:OptimalControl,
+    Flag=nlp_oc_sol.status,
+    Iterations=nlp_oc_sol.iter,
+    Objective=nlp_oc_sol.objective,
+))
+
+# from JuMP model
+push!(data_re,(
+    Model=:JuMP,
+    Flag=termination_status(nlp_jp),
+    Iterations=barrier_iterations(nlp_jp),
+    Objective=objective_value(nlp_jp),
+))</code></pre><div><div style = "float: left;"><span>2×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Model</th><th style = "text-align: left;">Flag</th><th style = "text-align: left;">Iterations</th><th style = "text-align: left;">Objective</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Any" style = "text-align: left;">Any</th><th title = "Int64" style = "text-align: left;">Int64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">OptimalControl</td><td style = "text-align: left;">first_order</td><td style = "text-align: right;">243</td><td style = "text-align: right;">-1247.98</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">JuMP</td><td style = "text-align: left;">LOCALLY_SOLVED</td><td style = "text-align: right;">232</td><td style = "text-align: right;">-1247.98</td></tr></tbody></table></div><p>We compare the solutions obtained from the OptimalControl and JuMP models by examining the number of iterations required for convergence, the <span>$L^2$</span>-norms of the differences in states, controls, and additional variables, and the corresponding objective values. Both absolute and relative errors are reported, providing a clear quantitative measure of the agreement between the two approaches.</p><div class="admonition is-info" id="Code-to-print-the-numerical-comparisons-d89e78bf09ff5175"><header class="admonition-header">Code to print the numerical comparisons<a class="admonition-anchor" href="#Code-to-print-the-numerical-comparisons-d89e78bf09ff5175" title="Permalink"></a></header><div class="admonition-body"><details><summary>Click to unfold and get the code of the numerical comparisons.</summary><pre><code class="language-julia hljs">function L2_norm(T, X)
+    # T and X are supposed to be one dimensional
+    s = 0.0
+    for i in 1:(length(T) - 1)
+        s += 0.5 * (X[i]^2 + X[i + 1]^2) * (T[i + 1]-T[i])
+    end
+    return √(s)
+end
+
+function print_numerical_comparisons(problem, docp, nlp_oc_sol, nlp_jp)
+
+    # get relevant data from OptimalControl model
+    ocp_sol = build_OCP_solution(docp, nlp_oc_sol)
+    t_oc = time_grid(ocp_sol)
+    x_oc = state(ocp_sol).(t_oc)
+    u_oc = control(ocp_sol).(t_oc)
+    v_oc = variable(ocp_sol)
+    o_oc = objective(ocp_sol)
+    i_oc = iterations(ocp_sol)
+
+    # get relevant data from JuMP model
+    t_jp = time_grid(nlp_jp)
+    x_jp = state(nlp_jp).(t_jp)
+    u_jp = control(nlp_jp).(t_jp)
+    o_jp = objective(nlp_jp)
+    v_jp = variable(nlp_jp)
+    i_jp = iterations(nlp_jp)
+
+    x_vars = state_components(nlp_jp)
+    u_vars = control_components(nlp_jp)
+    v_vars = variable_components(nlp_jp)
+
+    println(&quot;┌─ &quot;, string(problem))
+    println(&quot;│&quot;)
+    println(&quot;├─  Number of Iterations&quot;)
+    @printf(&quot;│     OptimalControl : %d   JuMP : %d\n&quot;, i_oc, i_jp)
+
+    # States
+    println(&quot;├─  States (L2 Norms)&quot;)
+    for i in eachindex(x_vars)
+        xi_oc = [x_oc[k][i] for k in eachindex(t_oc)]
+        xi_jp = [x_jp[k][i] for k in eachindex(t_jp)]
+        L2_ae = L2_norm(t_oc, xi_oc - xi_jp)
+        L2_re = L2_ae / (0.5 * (L2_norm(t_oc, xi_oc) + L2_norm(t_oc, xi_jp)))
+        @printf(&quot;│     %-6s Abs: %.3e   Rel: %.3e\n&quot;, x_vars[i], L2_ae, L2_re)
+    end
+
+    # Controls
+    println(&quot;├─  Controls (L2 Norms)&quot;)
+    for i in eachindex(u_vars)
+        ui_oc = [u_oc[k][i] for k in eachindex(t_oc)]
+        ui_jp = [u_jp[k][i] for k in eachindex(t_jp)]
+        L2_ae = L2_norm(t_oc, ui_oc - ui_jp)
+        L2_re = L2_ae / (0.5 * (L2_norm(t_oc, ui_oc) + L2_norm(t_oc, ui_jp)))
+        @printf(&quot;│     %-6s Abs: %.3e   Rel: %.3e\n&quot;, u_vars[i], L2_ae, L2_re)
+    end
+
+    # Variables
+    if !isnothing(v_vars)
+        println(&quot;├─  Variables&quot;)
+        for i in eachindex(v_vars)
+            vi_oc = v_oc[i]
+            vi_jp = v_jp[i]
+            vi_ae = abs(vi_oc - vi_jp)
+            vi_re = vi_ae / (0.5 * (abs(vi_oc) + abs(vi_jp)))
+            @printf(&quot;│     %-6s Abs: %.3e   Rel: %.3e\n&quot;, v_vars[i], vi_ae, vi_re)
+        end
+    end
+
+    # Objective
+    o_ae = abs(o_oc - o_jp)
+    o_re = o_ae / (0.5 * (abs(o_oc) + abs(o_jp)))
+    println(&quot;├─  Objective&quot;)
+    @printf(&quot;│            Abs: %.3e   Rel: %.3e\n&quot;, o_ae, o_re)
+    println(&quot;└─&quot;)
+    return nothing
+end</code></pre></details></div></div><pre><code class="language-julia hljs">print_numerical_comparisons(:glider, docp, nlp_oc_sol, nlp_jp)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">┌─ glider
+│
+├─  Number of Iterations
+│     OptimalControl : 243   JuMP : 232
+├─  States (L2 Norms)
+│     x      Abs: 1.011e-06   Rel: 1.442e-10
+│     y      Abs: 3.765e-07   Rel: 3.958e-11
+│     vx     Abs: 3.362e-07   Rel: 2.656e-09
+│     vy     Abs: 3.499e-07   Rel: 2.672e-08
+├─  Controls (L2 Norms)
+│     cL     Abs: 1.645e-07   Rel: 1.997e-08
+├─  Variables
+│     tf     Abs: 4.790e-08   Rel: 4.867e-10
+├─  Objective
+│            Abs: 1.191e-09   Rel: 9.541e-13
+└─</code></pre><h2 id="Plotting-the-solutions"><a class="docs-heading-anchor" href="#Plotting-the-solutions">Plotting the solutions</a><a id="Plotting-the-solutions-1"></a><a class="docs-heading-anchor-permalink" href="#Plotting-the-solutions" title="Permalink"></a></h2><p>In this section, we visualise the trajectories of the states, costates, and controls obtained from both the OptimalControl and JuMP solutions. The plots provide an intuitive way to compare the two approaches and to observe how the constraints and the optimal control influence the system dynamics.  </p><p>For each variable, the OptimalControl solution is shown in solid lines, while the JuMP solution is overlaid using dashed lines. Since both models represent the same mathematical problem, their trajectories should closely coincide, highlighting the consistency between the two formulations.</p><pre><code class="language-julia hljs"># build an ocp solution to use the plot from OptimalControl package
+ocp_sol = build_OCP_solution(docp, nlp_oc_sol)
+
+# dimensions
+n = state_dimension(ocp_sol)
+m = control_dimension(ocp_sol)
+
+# from OptimalControl solution
+plt = plot(
+    ocp_sol;
+    color=1,
+    size=(816, 240*(n+m)),
+    label=&quot;OptimalControl&quot;,
+    leftmargin=20mm,
+)
+for i in 2:length(plt)
+    plot!(plt[i]; legend=:none)
+end
+
+# from JuMP solution
+t = time_grid(nlp_jp)     # t0, ..., tN = tf
+x = state(nlp_jp)         # function of time
+u = control(nlp_jp)       # function of time
+p = costate(nlp_jp)       # function of time
+
+for i in 1:n # state
+    label = i == 1 ? &quot;JuMP&quot; : :none
+    plot!(plt[i], t, t -&gt; x(t)[i]; color=2, linestyle=:dash, label=label)
+end
+
+for i in 1:n # costate
+    plot!(plt[n+i], t, t -&gt; -p(t)[i]; color=2, linestyle=:dash, label=:none)
+end
+
+for i in 1:m # control
+    plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
+end</code></pre><img src="glider-c86e2a60.svg" alt="Example block output"/><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+mermaid.initialize({
+    startOnLoad: true,
+    theme: "neutral"
+});
+</script></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="electric_vehicle.html">« Electric vehicle</a><a class="docs-footer-nextpage" href="jackson.html">Jackson »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Wednesday 21 January 2026 21:39">Wednesday 21 January 2026</span>. Using Julia version 1.12.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
