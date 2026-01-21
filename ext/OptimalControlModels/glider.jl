@@ -117,7 +117,8 @@ function OptimalControlProblems.glider(
         vx_t0 + (t / tfinit) * (vx_tf - vx_t0),       
         vy_t0 + (t / tfinit) * (vy_tf - vy_t0)        
     ]
-    uinit = (cL_min + cL_max) / 2  
+    uinit = (cL_min + cL_max) / 2
+    init = (state=xinit, control=uinit, variable=tfinit) 
 
     # discretise the optimal control problem
     docp = direct_transcription(
