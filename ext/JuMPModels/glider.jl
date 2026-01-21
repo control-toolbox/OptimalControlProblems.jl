@@ -76,7 +76,7 @@ function OptimalControlProblems.glider(
     @variables(
         model,
         begin
-            tf ≥ tf_l, (start = 1)
+            tf ≥ tf_l, (start = 60)
             x[k = 0:N] ≥ x_l, (start = x_t0 + vx_t0 * k / N)
             y[k = 0:N], (start = y_t0 + (k / N) * (y_tf - y_t0))
             vx[k = 0:N] ≥ vx_l, (start = vx_t0)

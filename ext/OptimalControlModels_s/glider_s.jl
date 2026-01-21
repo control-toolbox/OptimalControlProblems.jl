@@ -104,10 +104,14 @@ function OptimalControlProblems.glider_s(
     end
 
     # initial guess
-    tfinit = 1
-    xinit =
-        t -> [x_t0 + vx_t0 * t / tfinit, y_t0 + t / tfinit * (y_tf - y_t0), vx_t0, vy_t0]
-    uinit = cL_max / 2
+    tfinit = 60.0 
+    xinit = t -> [
+        x_t0 + vx_t0 * t,                          
+        y_t0 + (t / tfinit) * (y_tf - y_t0),         
+        vx_t0 + (t / tfinit) * (vx_tf - vx_t0),       
+        vy_t0 + (t / tfinit) * (vy_tf - vy_t0)        
+    ]
+    uinit = (cL_min + cL_max) / 2  
     init = (state=xinit, control=uinit, variable=tfinit)
 
     # discretise the optimal control problem

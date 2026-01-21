@@ -164,7 +164,7 @@ function OptimalControlProblems.space_shuttle_s(
     # initial guess: linear interpolation for h, v, gamma (NB. t0 = 0), constant for the rest
     # variable time step seems to be initialized at 1 in jump
     # note that ipopt will project the initial guess inside the bounds anyway.
-    tf_init = (tf_l+tf_u)/2
+    tf_init = 0.5
     x_init =
         t -> [
             h_t0 + (t - t0) / (tf_init - t0) * (h_tf - h_t0),

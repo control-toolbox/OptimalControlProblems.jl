@@ -104,7 +104,7 @@ function OptimalControlProblems.robot(
             uθ_l ≤ uθ[0:N] ≤ uθ_u, (start = 0)
             uϕ_l ≤ uϕ[0:N] ≤ uϕ_u, (start = 0)
 
-            tf ≥ tf_l, (start = 1)
+            tf ≥ tf_l, (start = 9.1)
         end
     )
 

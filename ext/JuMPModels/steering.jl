@@ -51,7 +51,7 @@ function OptimalControlProblems.steering(
     x₄_tf = params[:x₄_tf]
 
     #
-    tf_start = 1
+    tf_start = 0.6
     function gen_x0(k, i)
         if i == 1 || i == 4
             return 0.0

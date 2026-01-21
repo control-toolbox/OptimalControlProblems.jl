@@ -122,7 +122,7 @@ function OptimalControlProblems.robot_s(
     end
 
     # initial guess
-    tf = 1
+    tf = 9.1
     xinit =
         t -> [
             ρ_t0,
