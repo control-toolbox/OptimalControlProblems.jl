@@ -506,9 +506,9 @@ version = "3.4.1+0"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Preferences", "Printf", "Qt6Wayland_jll", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "p7zip_jll"]
-git-tree-sha1 = "6949039c4db076a5967228bf9d7b6f32f2324328"
+git-tree-sha1 = "ee0585b62671ce88e48d3409733230b401c9775c"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.73.20"
+version = "0.73.22"
 
     [deps.GR.extensions]
     IJuliaExt = "IJulia"
@@ -518,9 +518,9 @@ version = "0.73.20"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "FreeType2_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Qt6Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "04a6eb1e57dc3a6992b5af5aa753a2f8d3a1028e"
+git-tree-sha1 = "7dd7173f7129a1b6f84e0f03e0890cd1189b0659"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.73.20+0"
+version = "0.73.22+0"
 
 [[deps.GettextRuntime_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll"]
@@ -1010,9 +1010,9 @@ version = "0.11.1"
 
 [[deps.NLPModelsModifiers]]
 deps = ["FastClosures", "LinearAlgebra", "LinearOperators", "NLPModels", "Printf", "SparseArrays"]
-git-tree-sha1 = "a80505adbe42104cbbe9674591a5ccd9e9c2dfda"
+git-tree-sha1 = "ad20a2a41dac262ae0022ba8a961f5ed431c9c9a"
 uuid = "e01155f1-5c6f-4375-a9d8-616dd036575f"
-version = "0.7.2"
+version = "0.7.3"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -1041,9 +1041,9 @@ version = "1.3.6+0"
 
 [[deps.OpenBLAS32_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "ece4587683695fe4c5f20e990da0ed7e83c351e7"
+git-tree-sha1 = "46cce8b42186882811da4ce1f4c7208b02deb716"
 uuid = "656ef2d0-ae68-5445-9ca0-591084a874a2"
-version = "0.3.29+0"
+version = "0.3.30+0"
 
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
