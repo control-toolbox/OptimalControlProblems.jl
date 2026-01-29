@@ -92,21 +92,52 @@ function OptimalControlProblems.robot(
     @variables(
         model,
         begin
-            ρ_l ≤ ρ[k = 0:N] ≤ ρ_u, (start = ρ_t0)
-            θ_l ≤ θ[k = 0:N] ≤ θ_u, (start = 2π/3 * (k / N)^2)
-            ϕ_l ≤ ϕ[k = 0:N] ≤ ϕ_u, (start = ϕ_t0)
+            ρ_l ≤ ρ[k = 0:N] ≤ ρ_u
+            θ_l ≤ θ[k = 0:N] ≤ θ_u
+            ϕ_l ≤ ϕ[k = 0:N] ≤ ϕ_u
 
-            dρ[k = 0:N], (start = 0)
-            dθ[k = 0:N], (start = 4π/3 * (k / N))
-            dϕ[k = 0:N], (start = 0)
+            dρ[k = 0:N]
+            dθ[k = 0:N]
+            dϕ[k = 0:N]
 
-            uρ_l ≤ uρ[0:N] ≤ uρ_u, (start = 0)
-            uθ_l ≤ uθ[0:N] ≤ uθ_u, (start = 0)
-            uϕ_l ≤ uϕ[0:N] ≤ uϕ_u, (start = 0)
+            uρ_l ≤ uρ[0:N] ≤ uρ_u
+            uθ_l ≤ uθ[0:N] ≤ uθ_u
+            uϕ_l ≤ uϕ[0:N] ≤ uϕ_u
 
-            tf ≥ tf_l, (start = 9.1)
+            tf ≥ tf_l
         end
     )
+
+    #INITIAL GUESS
+    set_start_value(tf, 9.1)
+    for k in 0:grid_size
+        # Coefficient d'interpolation entre 0 et 1
+        alpha = k / grid_size
+
+        # Interpolation linéaire entre t0 et tf
+        ρ_val = ρ_t0 + alpha * (ρ_tf - ρ_t0)
+        θ_val = θ_t0 + alpha * (θ_tf - θ_t0)
+        ϕ_val = ϕ_t0 + alpha * (ϕ_tf - ϕ_t0)
+
+        # SECURITÉ ANTI-CRASH (Division par zéro)
+        if abs(ϕ_val) < 1e-6
+            ϕ_val = 1e-6
+        end
+
+        # Application des valeurs aux variables JuMP
+        set_start_value(ρ[k], ρ_val)
+        set_start_value(θ[k], θ_val)
+        set_start_value(ϕ[k], ϕ_val)
+
+        # Vitesses et contrôles à 0 par défaut
+        set_start_value(dρ[k], 0.0)
+        set_start_value(dθ[k], 0.0)
+        set_start_value(dϕ[k], 0.0)
+        
+        set_start_value(uρ[k], 0.0)
+        set_start_value(uθ[k], 0.0)
+        set_start_value(uϕ[k], 0.0)
+    end
 
     # Boundary condition
     @constraints(
