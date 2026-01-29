@@ -69,7 +69,7 @@ function make_list_of_problems()
         :moonlander,
         :ducted_fan,
         #:insurance,
-        #:robot,
+        :robot,
         #:space_shuttle,
         #:steering,
     ]
