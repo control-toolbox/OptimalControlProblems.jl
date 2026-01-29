@@ -70,7 +70,7 @@ function make_list_of_problems()
         :ducted_fan,
         #:insurance,
         :robot,
-        #:space_shuttle,
+        :space_shuttle,
         #:steering,
     ]
     list_of_problems = setdiff(list_of_problems, problems_to_exclude)
