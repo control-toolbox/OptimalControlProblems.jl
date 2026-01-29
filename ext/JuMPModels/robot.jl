@@ -168,8 +168,7 @@ function OptimalControlProblems.robot(
             #
             Δt, (tf - t0) / N
 
-            #
-            I_θ[i = 0:N], ((L - ρ[i])^3 + ρ[i]^3) * (sin(ϕ[i]))^2
+            I_θ[i = 0:N], ((L - ρ[i])^3 + ρ[i]^3) * ((sin(ϕ[i]))^2 + 1e-9)
             I_ϕ[i = 0:N], (L - ρ[i])^3 + ρ[i]^3
 
             #
