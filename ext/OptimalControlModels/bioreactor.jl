@@ -72,11 +72,9 @@ function OptimalControlProblems.bioreactor(
         μ = light(t, halfperiod) * μbar
         μ2 = growth(s(t), μ2m, Ks)
 
-        ẋ(t) == [
-            μ * y(t) / (1 + y(t)) - (r + u(t)) * y(t),
-            -μ2 * b(t) + u(t) * β * (γ * y(t) - s(t)),
-            (μ2 - u(t) * β) * b(t),
-        ]
+        ẋ[1](t) == μ * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
+        ẋ[2](t) == -μ2 * b(t) + u(t) * β * (γ * y(t) - s(t))
+        ẋ[3](t) == (μ2 - u(t) * β) * b(t)
 
         -∫(μ2 * b(t) / (β + c)) → min
     end
