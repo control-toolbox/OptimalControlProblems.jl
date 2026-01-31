@@ -65,7 +65,7 @@ function OptimalControlProblems.bioreactor(
         x = (y, s, b) ∈ R³, state
         u ∈ R, control
 
-        x(t) ≥ [y_l, s_l, b_l]
+        x(t) ≥ [0, 0, 1e-3]
         u_l ≤ u(t) ≤ u_u
         [y_t0_l, s_t0_l, b_t0_l] ≤ x(t0) ≤ [y_t0_u, s_t0_u, b_t0_u]
 
@@ -100,7 +100,7 @@ function OptimalControlProblems.bioreactor(
     end
 
     # initial guess
-    init = (state=[50, 50, 50], control=0.5)
+    init = (state=[0.15, 2.75, 1.75], control=0.5)
 
     # discretise the optimal control problem
     docp = direct_transcription(

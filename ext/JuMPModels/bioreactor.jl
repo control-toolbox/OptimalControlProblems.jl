@@ -79,10 +79,10 @@ function OptimalControlProblems.bioreactor(
     @variables(
         model,
         begin
-            y[0:N] ≥ y_l, (start = 50)
-            s[0:N] ≥ s_l, (start = 50)
-            b[0:N] ≥ b_l, (start = 50)
-            u_l ≤ u[0:N] ≤ u_u, (start = 0.5)
+            y[0:N] ≥ 0, (start = 0.15)     
+            s[0:N] ≥ 0, (start = 2.75)     
+            b[0:N] ≥ 0.001, (start = 1.75) 
+            0 ≤ u[0:N] ≤ 1, (start = 0.5)
         end
     )
 
@@ -90,9 +90,9 @@ function OptimalControlProblems.bioreactor(
     @constraints(
         model,
         begin
-            y_t0_l ≤ y[0] ≤ y_t0_u
-            s_t0_l ≤ s[0] ≤ s_t0_u
-            b_t0_l ≤ b[0] ≤ b_t0_u
+            y[0] == 0.05  
+            s[0] == 0.5   
+            b[0] == 0.5   
         end
     )
 
