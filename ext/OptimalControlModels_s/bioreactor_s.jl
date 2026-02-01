@@ -40,32 +40,34 @@ function OptimalControlProblems.bioreactor_s(
     halfperiod = params[:halfperiod]
     Ks, μ2m, μbar, r = params[:Ks], params[:μ2m], params[:μbar], params[:r]
 
+    w = π / halfperiod
+
     # --- 2. Model ---
     ocp = @def begin
         t ∈ [t0, tf], time
-        x = (y, s, b) ∈ R³, state
+        x = (y, s, b, k) ∈ R⁴, state
         u ∈ R, control
 
-        # Box constraints
-        x(t) ≥ [0, 0, 1e-3]
+        # Constraints
+        x(t) ≥ [0, 0, 1e-3, t0]
+        x(t) ≤ [Inf, Inf, Inf, tf]
         0 ≤ u(t) ≤ 1
 
-        # Initial conditions (FIXED Equality)
-        x(t0) == [0.05, 0.5, 0.5]
+        # Fixed Initial Conditions
+        x(t0) == [0.05, 0.5, 0.5, t0]
 
-        # Dynamics (Hard-coded formulas)
-        ẋ[1](t) == (μbar * max(0, sin(t * π / halfperiod))^2) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
-        
+        # Dynamics (Using k(t) instead of t for explicit time)
+        ẋ[1](t) == (μbar * max(0, sin(k(t) * w))^2) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
         ẋ[2](t) == -(μ2m * s(t) / (s(t) + Ks)) * b(t) + u(t) * β * (γ * y(t) - s(t))
-        
         ẋ[3](t) == ((μ2m * s(t) / (s(t) + Ks)) - u(t) * β) * b(t)
+        ẋ[4](t) == 1
 
         # Objective
         -∫((μ2m * s(t) / (s(t) + Ks)) * b(t) / (β + c)) → min
     end
 
     # --- 3. Transcription ---
-    init = (state=[0.05, 0.5, 0.5], control=0.5)
+    init = (state=[0.05, 0.5, 0.5, t0], control=0.5)
 
     docp = direct_transcription(
         ocp,
