@@ -27,6 +27,22 @@ julia> docp = OptimalControlProblems.bioreactor(OptimalControlBackend(); N=100);
 
 - BOCOP repository: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
+
+# --- HELPER FUNCTIONS (Must be defined outside the main function) ---
+
+# Growth model (Monod)
+function _bio_growth(s, μ2m, Ks)
+    return μ2m * s / (s + Ks)
+end
+
+# Light model
+function _bio_light(t, halfperiod, μbar)
+    # Explicit periodicity
+    w = π / halfperiod
+    return max(0, sin(w * t))^2 * μbar
+end
+
+
 function OptimalControlProblems.bioreactor(
     ::OptimalControlBackend,
     description::Symbol...;
@@ -34,7 +50,7 @@ function OptimalControlProblems.bioreactor(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-    # --- 1. Paramètres ---
+    # --- 1. Parameters ---
     params = parameters_data(:bioreactor, parameters)
     t0, tf = params[:t0], params[:tf]
     β, c, γ = params[:β], params[:c], params[:γ]
@@ -46,33 +62,32 @@ function OptimalControlProblems.bioreactor(
     s_t0_l, s_t0_u = params[:s_t0_l], params[:s_t0_u]
     b_t0_l, b_t0_u = params[:b_t0_l], params[:b_t0_u]
 
+    # --- 2. Model ---
     ocp = @def begin
         t ∈ [t0, tf], time
         x = (y, s, b) ∈ R³, state
         u ∈ R, control
 
-        # Contraintes bornes (Sécurité b >= 1e-3)
+        # Box constraints (including safety constraint b >= 1e-3)
         x(t) ≥ [0, 0, 1e-3]
         u_l ≤ u(t) ≤ u_u
         
-        # --- SPÉCIFIQUE CLASSIQUE : Inégalités ---
+        # Initial conditions (Inequalities)
         [y_t0_l, s_t0_l, b_t0_l] ≤ x(t0) ≤ [y_t0_u, s_t0_u, b_t0_u]
-        # -----------------------------------------
 
-        # Dynamique Inlined (Formules directes, pas de fonctions externes)
-        ẋ[1](t) == (max(0, sin(t * π / halfperiod))^2 * μbar) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
-        
-        ẋ[2](t) == -(μ2m * s(t) / (s(t) + Ks)) * b(t) + u(t) * β * (γ * y(t) - s(t))
-        
-        ẋ[3](t) == ((μ2m * s(t) / (s(t) + Ks)) - u(t) * β) * b(t)
+        # Dynamics
+        # Using external helper functions to avoid scope errors
+        ẋ[1](t) == _bio_light(t, halfperiod, μbar) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
+        ẋ[2](t) == -_bio_growth(s(t), μ2m, Ks) * b(t) + u(t) * β * (γ * y(t) - s(t))
+        ẋ[3](t) == (_bio_growth(s(t), μ2m, Ks) - u(t) * β) * b(t)
 
-        # Objectif
-        -∫((μ2m * s(t) / (s(t) + Ks)) * b(t) / (β + c)) → min
+        # Objective: Minimize negative integral (Maximize production)
+        -∫(_bio_growth(s(t), μ2m, Ks) * b(t) / (β + c)) → min
     end
 
-    # --- 4. Transcription ---
+    # --- 3. Transcription ---
     init = (state=[0.15, 2.75, 1.75], control=0.5)
-    
+
     docp = direct_transcription(
         ocp,
         description...;
