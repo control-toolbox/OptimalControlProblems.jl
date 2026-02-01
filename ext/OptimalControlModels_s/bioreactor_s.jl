@@ -40,37 +40,28 @@ function OptimalControlProblems.bioreactor_s(
     halfperiod = params[:halfperiod]
     Ks, μ2m, μbar, r = params[:Ks], params[:μ2m], params[:μbar], params[:r]
 
-    # --- 2. Fonctions Utilitaires (AVANT @def) ---
-    function growth(s, μ2m, Ks)
-        return μ2m * s / (s + Ks)
-    end
-
-    function light(time, halfperiod)
-        days = time / (halfperiod * 2)
-        tau = (days - floor(days)) * 2π
-        return max(0, sin(tau))^2
-    end
-
-    # --- 3. Modèle ---
     ocp = @def begin
         t ∈ [t0, tf], time
         x = (y, s, b) ∈ R³, state
         u ∈ R, control
 
-        # Contraintes bornes
+        # Contraintes bornes (Sécurité b >= 1e-3)
         x(t) ≥ [0, 0, 1e-3]
         0 ≤ u(t) ≤ 1
 
-        # Conditions initiales FIXES
+        # --- SPÉCIFIQUE _S : Égalité stricte ---
         x(t0) == [0.05, 0.5, 0.5]
+        # ---------------------------------------
 
-        # Dynamique (Calculs "inline")
-        ẋ[1](t) == (light(t, halfperiod) * μbar) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
-        ẋ[2](t) == -growth(s(t), μ2m, Ks) * b(t) + u(t) * β * (γ * y(t) - s(t))
-        ẋ[3](t) == (growth(s(t), μ2m, Ks) - u(t) * β) * b(t)
+        # Dynamique Inlined (Exactement la même qu'au-dessus)
+        ẋ[1](t) == (max(0, sin(t * π / halfperiod))^2 * μbar) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
+        
+        ẋ[2](t) == -(μ2m * s(t) / (s(t) + Ks)) * b(t) + u(t) * β * (γ * y(t) - s(t))
+        
+        ẋ[3](t) == ((μ2m * s(t) / (s(t) + Ks)) - u(t) * β) * b(t)
 
         # Objectif
-        -∫(growth(s(t), μ2m, Ks) * b(t) / (β + c)) → min
+        -∫((μ2m * s(t) / (s(t) + Ks)) * b(t) / (β + c)) → min
     end
 
     # --- 4. Transcription ---

@@ -46,35 +46,28 @@ function OptimalControlProblems.bioreactor(
     s_t0_l, s_t0_u = params[:s_t0_l], params[:s_t0_u]
     b_t0_l, b_t0_u = params[:b_t0_l], params[:b_t0_u]
 
-    # --- 2. Fonctions Utilitaires (AVANT @def) ---
-    function growth(s, μ2m, Ks)
-        return μ2m * s / (s + Ks)
-    end
-
-    function light(time, halfperiod)
-        days = time / (halfperiod * 2)
-        tau = (days - floor(days)) * 2π
-        return max(0, sin(tau))^2
-    end
-
-    # --- 3. Modèle ---
     ocp = @def begin
         t ∈ [t0, tf], time
         x = (y, s, b) ∈ R³, state
         u ∈ R, control
 
-        # Contraintes bornes
+        # Contraintes bornes (Sécurité b >= 1e-3)
         x(t) ≥ [0, 0, 1e-3]
         u_l ≤ u(t) ≤ u_u
+        
+        # --- SPÉCIFIQUE CLASSIQUE : Inégalités ---
         [y_t0_l, s_t0_l, b_t0_l] ≤ x(t0) ≤ [y_t0_u, s_t0_u, b_t0_u]
+        # -----------------------------------------
 
-        # Dynamique (Calculs "inline" sans variables intermédiaires)
-        ẋ[1](t) == (light(t, halfperiod) * μbar) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
-        ẋ[2](t) == -growth(s(t), μ2m, Ks) * b(t) + u(t) * β * (γ * y(t) - s(t))
-        ẋ[3](t) == (growth(s(t), μ2m, Ks) - u(t) * β) * b(t)
+        # Dynamique Inlined (Formules directes, pas de fonctions externes)
+        ẋ[1](t) == (max(0, sin(t * π / halfperiod))^2 * μbar) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
+        
+        ẋ[2](t) == -(μ2m * s(t) / (s(t) + Ks)) * b(t) + u(t) * β * (γ * y(t) - s(t))
+        
+        ẋ[3](t) == ((μ2m * s(t) / (s(t) + Ks)) - u(t) * β) * b(t)
 
         # Objectif
-        -∫(growth(s(t), μ2m, Ks) * b(t) / (β + c)) → min
+        -∫((μ2m * s(t) / (s(t) + Ks)) * b(t) / (β + c)) → min
     end
 
     # --- 4. Transcription ---
