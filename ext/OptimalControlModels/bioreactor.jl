@@ -59,6 +59,26 @@ function OptimalControlProblems.bioreactor(
     b_t0_l = params[:b_t0_l]
     b_t0_u = params[:b_t0_u]
 
+
+    # METHANE PROBLEM
+    # μ2 according to growth model
+    # μ according to light model
+    # time scale is [0,10] for 24h (day then night)
+
+    # growth model MONOD
+    function growth(s, μ2m, Ks)
+        return μ2m * s / (s + Ks)
+    end
+
+    # light model: max^2 (0,sin) * μbar
+    # DAY/NIGHT CYCLE: [0,2 halfperiod] rescaled to [0,2pi]
+    function light(time, halfperiod)
+        days = time / (halfperiod * 2)
+        tau = (days - floor(days)) * 2π
+        return max(0, sin(tau))^2
+    end
+
+    
     # Model
     ocp = @def begin
         t ∈ [t0, tf], time
@@ -79,23 +99,6 @@ function OptimalControlProblems.bioreactor(
         -∫(μ2 * b(t) / (β + c)) → min
     end
 
-    # METHANE PROBLEM
-    # μ2 according to growth model
-    # μ according to light model
-    # time scale is [0,10] for 24h (day then night)
-
-    # growth model MONOD
-    function growth(s, μ2m, Ks)
-        return μ2m * s / (s + Ks)
-    end
-
-    # light model: max^2 (0,sin) * μbar
-    # DAY/NIGHT CYCLE: [0,2 halfperiod] rescaled to [0,2pi]
-    function light(time, halfperiod)
-        days = time / (halfperiod * 2)
-        tau = (days - floor(days)) * 2π
-        return max(0, sin(tau))^2
-    end
 
     # initial guess
     init = (state=[0.15, 2.75, 1.75], control=0.5)

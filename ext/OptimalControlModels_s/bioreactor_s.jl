@@ -42,6 +42,17 @@ function OptimalControlProblems.bioreactor_s(
     halfperiod = params[:halfperiod]
     Ks, μ2m, μbar, r = params[:Ks], params[:μ2m], params[:μbar], params[:r]
 
+    # --- 3. Auxiliary functions ---
+    function growth(s, μ2m, Ks)
+        return μ2m * s / (s + Ks)
+    end
+
+    function light(time, halfperiod)
+        days = time / (halfperiod * 2)
+        tau = (days - floor(days)) * 2π
+        return max(0, sin(tau))^2
+    end
+
     # --- 2. The Model ---
     ocp = @def begin
         t ∈ [t0, tf], time
@@ -69,17 +80,6 @@ function OptimalControlProblems.bioreactor_s(
 
         # Objective: Maximize methane (Minimize the opposite)
         -∫(μ2 * b(t) / (β + c)) → min
-    end
-
-    # --- 3. Auxiliary functions ---
-    function growth(s, μ2m, Ks)
-        return μ2m * s / (s + Ks)
-    end
-
-    function light(time, halfperiod)
-        days = time / (halfperiod * 2)
-        tau = (days - floor(days)) * 2π
-        return max(0, sin(tau))^2
     end
 
     # --- 4. Initialization (CRITICAL) ---
