@@ -40,29 +40,38 @@ function OptimalControlProblems.bioreactor_s(
     halfperiod = params[:halfperiod]
     Ks, μ2m, μbar, r = params[:Ks], params[:μ2m], params[:μbar], params[:r]
 
-    w = π / halfperiod
-
     # --- 2. Model ---
     ocp = @def begin
         t ∈ [t0, tf], time
         x = (y, s, b, k) ∈ R⁴, state
         u ∈ R, control
 
-        # Constraints
-        x(t) ≥ [0, 0, 1e-3, t0]
-        x(t) ≤ [Inf, Inf, Inf, tf]
+       
+        y(t) ≥ 0
+        s(t) ≥ 0
+        b(t) ≥ 1e-3
+        k(t) ≥ t0
+        k(t) ≤ tf
+        
         0 ≤ u(t) ≤ 1
 
-        # Fixed Initial Conditions
-        x(t0) == [0.05, 0.5, 0.5, t0]
+       
+        y(t0) == 0.05
+        s(t0) == 0.5
+        b(t0) == 0.5
+        k(t0) == t0
 
-        # Dynamics (Using k(t) instead of t for explicit time)
-        ẋ[1](t) == (μbar * max(0, sin(k(t) * w))^2) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
+     
+        # dy/dt
+        ẋ[1](t) == (μbar * max(0, sin(k(t) * π / halfperiod))^2) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
+        # ds/dt
         ẋ[2](t) == -(μ2m * s(t) / (s(t) + Ks)) * b(t) + u(t) * β * (γ * y(t) - s(t))
+        # db/dt
         ẋ[3](t) == ((μ2m * s(t) / (s(t) + Ks)) - u(t) * β) * b(t)
+        # dk/dt
         ẋ[4](t) == 1
 
-        # Objective
+        # Objectif
         -∫((μ2m * s(t) / (s(t) + Ks)) * b(t) / (β + c)) → min
     end
 

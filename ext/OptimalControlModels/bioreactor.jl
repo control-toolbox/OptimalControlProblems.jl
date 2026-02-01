@@ -47,30 +47,32 @@ function OptimalControlProblems.bioreactor(
     s_t0_l, s_t0_u = params[:s_t0_l], params[:s_t0_u]
     b_t0_l, b_t0_u = params[:b_t0_l], params[:b_t0_u]
 
-    # Pre-calculate frequency to simplify the equation inside the macro
-    w = π / halfperiod
-
     # --- 2. Model ---
     ocp = @def begin
         t ∈ [t0, tf], time
-     
         x = (y, s, b, k) ∈ R⁴, state
         u ∈ R, control
 
-        # Constraints
-   
-        x(t) ≥ [0, 0, 1e-3, t0]
-        x(t) ≤ [Inf, Inf, Inf, tf] 
+    
+        y(t) ≥ 0
+        s(t) ≥ 0
+        b(t) ≥ 1e-3       
+        k(t) ≥ t0        
+        k(t) ≤ tf         
+
+       
         u_l ≤ u(t) ≤ u_u
         
        
-        [y_t0_l, s_t0_l, b_t0_l, t0] ≤ x(t0) ≤ [y_t0_u, s_t0_u, b_t0_u, t0]
+        y_t0_l ≤ y(t0) ≤ y_t0_u
+        s_t0_l ≤ s(t0) ≤ s_t0_u
+        b_t0_l ≤ b(t0) ≤ b_t0_u
+        k(t0) == t0       
 
-        # Dynamics
- 
+     
         
         # dy/dt
-        ẋ[1](t) == (μbar * max(0, sin(k(t) * w))^2) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
+        ẋ[1](t) == (μbar * max(0, sin(k(t) * π / halfperiod))^2) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
         
         # ds/dt
         ẋ[2](t) == -(μ2m * s(t) / (s(t) + Ks)) * b(t) + u(t) * β * (γ * y(t) - s(t))
@@ -78,13 +80,13 @@ function OptimalControlProblems.bioreactor(
         # db/dt
         ẋ[3](t) == ((μ2m * s(t) / (s(t) + Ks)) - u(t) * β) * b(t)
 
-       
         ẋ[4](t) == 1
 
-    
+        # Objectif
         -∫((μ2m * s(t) / (s(t) + Ks)) * b(t) / (β + c)) → min
     end
 
+    # --- 3. Transcription ---
     init = (state=[0.15, 2.75, 1.75, t0], control=0.5)
 
     docp = direct_transcription(
