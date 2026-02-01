@@ -34,76 +34,52 @@ function OptimalControlProblems.bioreactor(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
-    # parameters
+    # --- 1. Paramètres ---
     params = parameters_data(:bioreactor, parameters)
-    t0 = params[:t0]
-    tf = params[:tf]
-    β = params[:β]
-    c = params[:c]
-    γ = params[:γ]
+    t0, tf = params[:t0], params[:tf]
+    β, c, γ = params[:β], params[:c], params[:γ]
     halfperiod = params[:halfperiod]
-    Ks = params[:Ks]
-    μ2m = params[:μ2m]
-    μbar = params[:μbar]
-    r = params[:r]
-    y_l = params[:y_l]
-    s_l = params[:s_l]
-    b_l = params[:b_l]
-    u_l = params[:u_l]
-    u_u = params[:u_u]
-    y_t0_l = params[:y_t0_l]
-    y_t0_u = params[:y_t0_u]
-    s_t0_l = params[:s_t0_l]
-    s_t0_u = params[:s_t0_u]
-    b_t0_l = params[:b_t0_l]
-    b_t0_u = params[:b_t0_u]
+    Ks, μ2m, μbar, r = params[:Ks], params[:μ2m], params[:μbar], params[:r]
+    y_l, s_l, b_l = params[:y_l], params[:s_l], params[:b_l]
+    u_l, u_u = params[:u_l], params[:u_u]
+    y_t0_l, y_t0_u = params[:y_t0_l], params[:y_t0_u]
+    s_t0_l, s_t0_u = params[:s_t0_l], params[:s_t0_u]
+    b_t0_l, b_t0_u = params[:b_t0_l], params[:b_t0_u]
 
-
-    # METHANE PROBLEM
-    # μ2 according to growth model
-    # μ according to light model
-    # time scale is [0,10] for 24h (day then night)
-
-    # growth model MONOD
+    # --- 2. Fonctions Utilitaires (AVANT @def) ---
     function growth(s, μ2m, Ks)
         return μ2m * s / (s + Ks)
     end
 
-    # light model: max^2 (0,sin) * μbar
-    # DAY/NIGHT CYCLE: [0,2 halfperiod] rescaled to [0,2pi]
     function light(time, halfperiod)
         days = time / (halfperiod * 2)
         tau = (days - floor(days)) * 2π
         return max(0, sin(tau))^2
     end
 
-    
-    # Model
+    # --- 3. Modèle ---
     ocp = @def begin
         t ∈ [t0, tf], time
         x = (y, s, b) ∈ R³, state
         u ∈ R, control
 
+        # Contraintes bornes
         x(t) ≥ [0, 0, 1e-3]
         u_l ≤ u(t) ≤ u_u
         [y_t0_l, s_t0_l, b_t0_l] ≤ x(t0) ≤ [y_t0_u, s_t0_u, b_t0_u]
 
-        μ = light(t, halfperiod) * μbar
-        μ2 = growth(s(t), μ2m, Ks)
+        # Dynamique (Calculs "inline" sans variables intermédiaires)
+        ẋ[1](t) == (light(t, halfperiod) * μbar) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
+        ẋ[2](t) == -growth(s(t), μ2m, Ks) * b(t) + u(t) * β * (γ * y(t) - s(t))
+        ẋ[3](t) == (growth(s(t), μ2m, Ks) - u(t) * β) * b(t)
 
-        ẋ[1](t) == μ * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
-        ẋ[2](t) == -μ2 * b(t) + u(t) * β * (γ * y(t) - s(t))
-        ẋ[3](t) == (μ2 - u(t) * β) * b(t)
-
-        -∫(μ2 * b(t) / (β + c)) → min
+        # Objectif
+        -∫(growth(s(t), μ2m, Ks) * b(t) / (β + c)) → min
     end
 
-
-    # initial guess
+    # --- 4. Transcription ---
     init = (state=[0.15, 2.75, 1.75], control=0.5)
-
-    # discretise the optimal control problem
+    
     docp = direct_transcription(
         ocp,
         description...;
