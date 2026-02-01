@@ -25,20 +25,6 @@ julia> using OptimalControlProblems
 julia> docp = OptimalControlProblems.bioreactor(OptimalControlBackend(); N=100);
 ```
 """
-# --- HELPER FUNCTIONS (Must be defined outside the main function) ---
-
-# Growth model (Monod)
-function _bio_growth(s, μ2m, Ks)
-    return μ2m * s / (s + Ks)
-end
-
-# Light model
-function _bio_light(t, halfperiod, μbar)
-    # Explicit periodicity
-    w = π / halfperiod
-    return max(0, sin(w * t))^2 * μbar
-end
-
 
 function OptimalControlProblems.bioreactor_s(
     ::OptimalControlBackend,
@@ -60,21 +46,22 @@ function OptimalControlProblems.bioreactor_s(
         x = (y, s, b) ∈ R³, state
         u ∈ R, control
 
-        # Box constraints (including safety constraint b >= 1e-3)
+        # Box constraints
         x(t) ≥ [0, 0, 1e-3]
         0 ≤ u(t) ≤ 1
 
-        # Initial conditions (Fixed equality)
+        # Initial conditions (FIXED Equality)
         x(t0) == [0.05, 0.5, 0.5]
 
-        # Dynamics
-        # Using external helper functions to avoid scope errors
-        ẋ[1](t) == _bio_light(t, halfperiod, μbar) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
-        ẋ[2](t) == -_bio_growth(s(t), μ2m, Ks) * b(t) + u(t) * β * (γ * y(t) - s(t))
-        ẋ[3](t) == (_bio_growth(s(t), μ2m, Ks) - u(t) * β) * b(t)
+        # Dynamics (Hard-coded formulas)
+        ẋ[1](t) == (μbar * max(0, sin(t * π / halfperiod))^2) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
+        
+        ẋ[2](t) == -(μ2m * s(t) / (s(t) + Ks)) * b(t) + u(t) * β * (γ * y(t) - s(t))
+        
+        ẋ[3](t) == ((μ2m * s(t) / (s(t) + Ks)) - u(t) * β) * b(t)
 
-        # Objective: Minimize negative integral (Maximize production)
-        -∫(_bio_growth(s(t), μ2m, Ks) * b(t) / (β + c)) → min
+        # Objective
+        -∫((μ2m * s(t) / (s(t) + Ks)) * b(t) / (β + c)) → min
     end
 
     # --- 3. Transcription ---

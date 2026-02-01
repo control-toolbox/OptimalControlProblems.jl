@@ -28,21 +28,6 @@ julia> docp = OptimalControlProblems.bioreactor(OptimalControlBackend(); N=100);
 - BOCOP repository: https://github.com/control-toolbox/bocop/tree/main/bocop
 """
 
-# --- HELPER FUNCTIONS (Must be defined outside the main function) ---
-
-# Growth model (Monod)
-function _bio_growth(s, μ2m, Ks)
-    return μ2m * s / (s + Ks)
-end
-
-# Light model
-function _bio_light(t, halfperiod, μbar)
-    # Explicit periodicity
-    w = π / halfperiod
-    return max(0, sin(w * t))^2 * μbar
-end
-
-
 function OptimalControlProblems.bioreactor(
     ::OptimalControlBackend,
     description::Symbol...;
@@ -75,14 +60,18 @@ function OptimalControlProblems.bioreactor(
         # Initial conditions (Inequalities)
         [y_t0_l, s_t0_l, b_t0_l] ≤ x(t0) ≤ [y_t0_u, s_t0_u, b_t0_u]
 
-        # Dynamics
-        # Using external helper functions to avoid scope errors
-        ẋ[1](t) == _bio_light(t, halfperiod, μbar) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
-        ẋ[2](t) == -_bio_growth(s(t), μ2m, Ks) * b(t) + u(t) * β * (γ * y(t) - s(t))
-        ẋ[3](t) == (_bio_growth(s(t), μ2m, Ks) - u(t) * β) * b(t)
+        # Dynamics (Hard-coded formulas to avoid scope/overwrite errors)
+        # Light = μbar * max(0, sin(t * π / halfperiod))^2
+        # Growth = μ2m * s / (s + Ks)
 
-        # Objective: Minimize negative integral (Maximize production)
-        -∫(_bio_growth(s(t), μ2m, Ks) * b(t) / (β + c)) → min
+        ẋ[1](t) == (μbar * max(0, sin(t * π / halfperiod))^2) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
+        
+        ẋ[2](t) == -(μ2m * s(t) / (s(t) + Ks)) * b(t) + u(t) * β * (γ * y(t) - s(t))
+        
+        ẋ[3](t) == ((μ2m * s(t) / (s(t) + Ks)) - u(t) * β) * b(t)
+
+        # Objective
+        -∫((μ2m * s(t) / (s(t) + Ks)) * b(t) / (β + c)) → min
     end
 
     # --- 3. Transcription ---
