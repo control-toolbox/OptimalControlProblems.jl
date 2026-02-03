@@ -1,8 +1,8 @@
 """
-Constructs an OptimalControl bioreactor model with fixed initial conditions.
-Vector state form is required by CTParser.
-"""
+$(TYPEDSIGNATURES)
 
+Constructs the **Bioreactor optimal control problem** with **fixed initial conditions**.
+"""
 function OptimalControlProblems.bioreactor_s(
     ::OptimalControlBackend,
     description::Symbol...;
@@ -10,10 +10,8 @@ function OptimalControlProblems.bioreactor_s(
     parameters::Union{Nothing,NamedTuple} = nothing,
     kwargs...,
 )
-
     # --- Parameters ---
     params = parameters_data(:bioreactor, parameters)
-
     t0, tf = params[:t0], params[:tf]
     β, c, γ = params[:β], params[:c], params[:γ]
     halfperiod = params[:halfperiod]
@@ -22,12 +20,10 @@ function OptimalControlProblems.bioreactor_s(
     # --- Model ---
     ocp = @def begin
         t ∈ [t0, tf], time
-
-        # Vector state required by parser
         x ∈ R⁴, state
         u ∈ R, control
 
-        # State aliases for readability
+        # Coordinate aliases
         y = x[1]
         s = x[2]
         b = x[3]
@@ -43,24 +39,27 @@ function OptimalControlProblems.bioreactor_s(
         # Control bounds
         0 ≤ u(t) ≤ 1
 
-        # Fixed initial conditions
+        # Fixed Initial Conditions
         y(t0) == 0.05
         s(t0) == 0.5
         b(t0) == 0.5
         k(t0) == t0
 
-        # Smooth light term (AD-safe)
-        light = sin(k(t) * π / halfperiod)^2
+        # Dynamics (Coordinatewise & Inline)
+        
+        # dy/dt
+        ẋ[1](t) == (μbar * sin(k(t) * π / halfperiod)^2) * y(t) / (1 + y(t)) - (r + u(t)) * y(t)
 
-        # Vector dynamics
-        ẋ(t) == [
-            (μbar * light) * y(t) / (1 + y(t)) - (r + u(t)) * y(t),
-            -(μ2m * s(t) / (s(t) + Ks)) * b(t) + u(t) * β * (γ * y(t) - s(t)),
-            ((μ2m * s(t) / (s(t) + Ks)) - u(t) * β) * b(t),
-            1
-        ]
+        # ds/dt
+        ẋ[2](t) == -(μ2m * s(t) / (s(t) + Ks)) * b(t) + u(t) * β * (γ * y(t) - s(t))
 
-        # Objective functional
+        # db/dt
+        ẋ[3](t) == ((μ2m * s(t) / (s(t) + Ks)) - u(t) * β) * b(t)
+
+        # dk/dt
+        ẋ[4](t) == 1
+
+        # Objective
         -∫((μ2m * s(t) / (s(t) + Ks)) * b(t) / (β + c)) → min
     end
 
@@ -74,7 +73,7 @@ function OptimalControlProblems.bioreactor_s(
         lagrange_to_mayer = false,
         init = init,
         grid_size = grid_size,
-        disc_method = :trapezoid,
+        disc_method = :trapeze,
         kwargs...,
     )
 
