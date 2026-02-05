@@ -144,4 +144,4 @@ end
 
     Get inspiration from the already existing problems in [OptimalControlProblems.jl/ext/JuMPModels](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/JuMPModels). Especially if the final time is free.
 
-**5.** Describe the problem in a file named `new_problem.jl` in the `ext/Descriptions` directory. Get inspiration from the already existing descriptions in [OptimalControlProblems.jl/ext/Descriptions](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/Descriptions).
+**5.** Describe the problem in a file named `new_problem.md` in the `ext/Descriptions` directory. Get inspiration from the already existing descriptions in [OptimalControlProblems.jl/ext/Descriptions](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/Descriptions).
