@@ -36,30 +36,26 @@ function OptimalControlProblems.brachistochrone(
         tf ∈ R, variable
         t ∈ [t0, tf], time
 
-        
-        [x, y, v] ∈ R³, state
-        # ----------------------
+        q ∈ R³, state # q[1]=x, q[2]=y, q[3]=v
+        # ------------------------------------------
 
         u ∈ R, control
 
-        x(t0) == x0
-        y(t0) == y0
-        v(t0) == v0
+        q(t0) == [x0, y0, v0]
         
-        x(tf) == xf
-        y(tf) == yf
-
+    
+        q(tf)[1] == xf
+        q(tf)[2] == yf
+    
         0.1 ≤ tf ≤ 20.0 
 
-        
-        ẋ(t) == v(t) * sin(u(t))
-        ẏ(t) == v(t) * cos(u(t))
-        v̇(t) == g * cos(u(t))
+        q̇(t) == [ q(t)[3] * sin(u(t)), 
+                  q(t)[3] * cos(u(t)), 
+                  g * cos(u(t)) ]
 
         tf → min
     end
 
- 
     init = (
         state = [5.0, 7.5, 5.0], 
         control = 1.5, 

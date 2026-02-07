@@ -35,7 +35,6 @@ function OptimalControlProblems.brachistochrone_s(
     kwargs...,
 )
 
-   
     params = parameters_data(:brachistochrone, parameters)
     g  = params[:g]
     t0 = params[:t0]
@@ -51,37 +50,35 @@ function OptimalControlProblems.brachistochrone_s(
         tf ∈ R, variable
         t ∈ [t0, tf], time
 
-       
-        [x, y, v] ∈ R³, state
-        # ------------------
+    
+        q ∈ R³, state
+        # ------------------------------------------
 
         u ∈ R, control
 
-        x(t0) == x0
-        y(t0) == y0
-        v(t0) == v0
+        q(t0) == [x0, y0, v0]
         
-        x(tf) == xf
-        y(tf) == yf
+        q(tf)[1] == xf
+        q(tf)[2] == yf
 
         0.1 ≤ tf ≤ 20.0
 
-     
-        ∂(x)(t) == v(t) * sin(u(t))
-        ∂(y)(t) == v(t) * cos(u(t))
-        ∂(v)(t) == g * cos(u(t))
+        
+        ∂(q)(t) == [ q(t)[3] * sin(u(t)), 
+                     q(t)[3] * cos(u(t)), 
+                     g * cos(u(t)) ]
 
         tf → min
     end
 
-  
+    # initial guess
     init = (
         state = [5.0, 7.5, 5.0], 
         control = 1.57, 
         variable = 2.0
     )
 
-    
+    # discretise the optimal control problem
     docp = direct_transcription(
         ocp,
         description...;

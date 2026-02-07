@@ -65,8 +65,6 @@ function OptimalControlProblems.brachistochrone(
     model[:time_grid] = () -> range(t0, value(tf), N+1)
     model[:state_components] = ["x", "y", "v"]
     
-    # --- CORRECTION ICI ---
-    # Il faut déclarer la liste des costates (vide ici) pour satisfaire les tests
     model[:costate_components] = String[]
     # ----------------------
     
