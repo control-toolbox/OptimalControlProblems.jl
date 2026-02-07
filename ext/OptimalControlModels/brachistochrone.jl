@@ -18,7 +18,7 @@ julia> docp = OptimalControlProblems.brachistochrone(OptimalControlBackend(); N=
 function OptimalControlProblems.brachistochrone(
     ::OptimalControlBackend,
     description::Symbol...;
-    grid_size::Int=grid_size_data(Val(:brachistochrone)),
+    grid_size::Int=grid_size_data(:brachistochrone),
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )

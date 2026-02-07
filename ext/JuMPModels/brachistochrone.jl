@@ -29,7 +29,7 @@ julia> model = OptimalControlProblems.brachistochrone(JuMPBackend(); N=100)
 function OptimalControlProblems.brachistochrone(
     ::JuMPBackend,
     args...;
-    grid_size::Int=grid_size_data(Val(:brachistochrone)),
+    grid_size::Int=grid_size_data(:brachistochrone),
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
