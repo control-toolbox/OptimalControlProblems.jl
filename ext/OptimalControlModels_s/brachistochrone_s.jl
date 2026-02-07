@@ -27,7 +27,7 @@ julia> docp = OptimalControlProblems.brachistochrone(OptimalControlBackend(); N=
 
 - Dymos Brachistochrone: https://openmdao.github.io/dymos/examples/brachistochrone/brachistochrone.html
 """
-function OptimalControlProblems.brachistochrone(
+function OptimalControlProblems.brachistochrone_s(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:brachistochrone),
