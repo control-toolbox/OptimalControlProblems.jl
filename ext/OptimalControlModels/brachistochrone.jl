@@ -23,7 +23,7 @@ function OptimalControlProblems.brachistochrone(
     kwargs...,
 )
     
-    params = parameters_data(Val(:brachistochrone), parameters)
+    params = parameters_data(:brachistochrone, parameters)
     g  = params[:g]
     t0 = params[:t0]
     x0 = params[:x0]
