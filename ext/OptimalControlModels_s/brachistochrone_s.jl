@@ -51,9 +51,9 @@ function OptimalControlProblems.brachistochrone_s(
         tf ∈ R, variable
         t ∈ [t0, tf], time
 
-        x ∈ R, state
-        y ∈ R, state
-        v ∈ R, state
+       
+        [x, y, v] ∈ R³, state
+        # ------------------
 
         u ∈ R, control
 
@@ -66,6 +66,7 @@ function OptimalControlProblems.brachistochrone_s(
 
         0.1 ≤ tf ≤ 20.0
 
+     
         ∂(x)(t) == v(t) * sin(u(t))
         ∂(y)(t) == v(t) * cos(u(t))
         ∂(v)(t) == g * cos(u(t))
@@ -73,14 +74,14 @@ function OptimalControlProblems.brachistochrone_s(
         tf → min
     end
 
-    # initial guess
+  
     init = (
         state = [5.0, 7.5, 5.0], 
         control = 1.57, 
         variable = 2.0
     )
 
-    # discretise the optimal control problem
+    
     docp = direct_transcription(
         ocp,
         description...;
