@@ -46,7 +46,9 @@ function OptimalControlProblems.brachistochrone(
 
         0.1 ≤ tf ≤ 20.0 
 
-        ẋ(t) == [ x₃(t) * sin(u(t)), x₃(t) * cos(u(t)), g * cos(u(t)) ]
+        ẋ₁(t) == x₃(t) * sin(u(t))
+        ẋ₂(t) == x₃(t) * cos(u(t))
+        ẋ₃(t) == g * cos(u(t))
 
         tf → min
     end
