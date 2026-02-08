@@ -36,14 +36,14 @@ function OptimalControlProblems.brachistochrone(
         tf ∈ R, variable
         t ∈ [t0, tf], time
 
-        x ∈ R³, state 
+        x ∈ R³, state
         u ∈ R, control
 
         x(t0) == [x0, y0, v0]
         
         x₁(tf) == xf
         x₂(tf) == yf
-        
+
         0.1 ≤ tf ≤ 20.0 
 
         ẋ(t) == [ x₃(t) * sin(u(t)), x₃(t) * cos(u(t)), g * cos(u(t)) ]
