@@ -45,7 +45,6 @@ function OptimalControlProblems.brachistochrone_s(
 
     # model
     ocp = @def begin
-        
         tf ∈ R, variable
         t ∈ [t0, tf], time
 
@@ -57,9 +56,11 @@ function OptimalControlProblems.brachistochrone_s(
         x₁(tf) == xf
         x₂(tf) == yf
 
-        0.1 ≤ tf ≤ 20.0
+        0.1 ≤ tf ≤ 20.0 
 
-        ż(t) == dynamics(x₃(t), u(t), g)
+        ẋ₁(t) == x₃(t) * sin(u(t))
+        ẋ₂(t) == x₃(t) * cos(u(t))
+        ẋ₃(t) == g * cos(u(t))
 
         tf → min
     end
