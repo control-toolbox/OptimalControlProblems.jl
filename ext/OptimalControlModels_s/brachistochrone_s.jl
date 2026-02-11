@@ -49,7 +49,7 @@ function OptimalControlProblems.brachistochrone_s(
         tf ∈ R, variable
         t ∈ [t0, tf], time
 
-        x = (x₁, x₂, x₃) ∈ R³, state
+        x ∈ R³, state
         u ∈ R, control
 
         x(t0) == [x0, y0, v0]
