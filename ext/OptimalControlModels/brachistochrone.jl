@@ -8,7 +8,6 @@ The goal is to move from point A to point B in minimum time under gravity.
 - `::OptimalControlBackend`: The backend type.
 - `grid_size`: Number of time steps.
 - `parameters`: Optional parameter overrides.
-
 ```julia-repl
 julia> using OptimalControlProblems
 
@@ -36,14 +35,10 @@ function OptimalControlProblems.brachistochrone(
         tf ∈ R, variable
         t ∈ [t0, tf], time
 
-        x₁ ∈ R, state
-        x₂ ∈ R, state
-        x₃ ∈ R, state
+        x = (x₁, x₂, x₃) ∈ R³, state
         u ∈ R, control
 
-        x₁(t0) == x0
-        x₂(t0) == y0
-        x₃(t0) == v0
+        x(t0) == [x0, y0, v0]
         
         x₁(tf) == xf
         x₂(tf) == yf
