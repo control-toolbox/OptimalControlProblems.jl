@@ -39,7 +39,7 @@ function OptimalControlProblems.bryson_denham_s(
     t0, tf = params[:t0], params[:tf]
     x1_t0, x2_t0 = params[:x1_t0], params[:x2_t0]
     x1_tf, x2_tf = params[:x1_tf], params[:x2_tf]
-    x1_max = params[:x1_max] 
+    x1_max = params[:x1_max]
 
     ocp = @def begin
         t ∈ [t0, tf], time
@@ -59,7 +59,7 @@ function OptimalControlProblems.bryson_denham_s(
 
     init = (state=[0.0, 0.0], control=0.0)
 
-    docp = direct_transcription(
+    return direct_transcription(
         ocp,
         description...;
         lagrange_to_mayer=false,
@@ -68,7 +68,4 @@ function OptimalControlProblems.bryson_denham_s(
         disc_method=:trapeze,
         kwargs...,
     )
-
-    return docp
 end
-

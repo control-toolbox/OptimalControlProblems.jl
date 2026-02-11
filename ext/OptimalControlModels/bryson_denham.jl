@@ -28,24 +28,19 @@ Bryson, A. E. and Denham, W. F., "A Steering Program for Optimal Transfer of a T
 - Formulation inspired by OptimalControl approach for swing-up control problems.
 """
 
-function OptimalControlProblems.bryson_denham( 
-    ::OptimalControlBackend, 
+function OptimalControlProblems.bryson_denham(
+    ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:bryson_denham),
-    parameters::Union{Nothing,NamedTuple}=nothing, kwargs..., 
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
 )
-
-    # parameters
     params = parameters_data(:bryson_denham, parameters)
-    t0 = params[:t0]
-    tf = params[:tf]
-    x1_t0 = params[:x1_t0]
-    x2_t0 = params[:x2_t0]
-    x1_tf = params[:x1_tf]
-    x2_tf = params[:x2_tf]
+    t0, tf = params[:t0], params[:tf]
+    x1_t0, x2_t0 = params[:x1_t0], params[:x2_t0]
+    x1_tf, x2_tf = params[:x1_tf], params[:x2_tf]
     x1_max = params[:x1_max]
 
-    # model
     ocp = @def begin
         t ∈ [t0, tf], time
         x ∈ R², state
@@ -56,17 +51,14 @@ function OptimalControlProblems.bryson_denham(
 
         x₁(t) ≤ x1_max
 
-        ∂(x₁)(t) == x₂(t)
-        ∂(x₂)(t) == u(t)
+        ẋ(t) == [x₂(t), u(t)]
 
         ∫(0.5 * u(t)^2) → min
     end
 
-    # initial guess
     init = (state=[0.0, 0.0], control=0.0)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
+    return direct_transcription(
         ocp,
         description...;
         lagrange_to_mayer=false,
@@ -75,6 +67,4 @@ function OptimalControlProblems.bryson_denham(
         disc_method=:trapeze,
         kwargs...,
     )
-
-    return docp
 end
