@@ -18,6 +18,7 @@ It then performs direct transcription to generate a discrete optimal control pro
 
 ```julia-repl
 julia> using OptimalControlProblems
+
 julia> docp = OptimalControlProblems.bryson_denham(OptimalControlBackend(); N=100);
 ```
 

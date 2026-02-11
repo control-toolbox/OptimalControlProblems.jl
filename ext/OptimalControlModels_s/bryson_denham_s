@@ -18,7 +18,8 @@ required to travel a given distance within a set time, subject to a state constr
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> docp = OptimalControlProblems.bryson_denham(OptimalControlBackend(); grid_size=100);
+
+julia> docp = OptimalControlProblems.bryson_denham(OptimalControlBackend(); N=100);
 ```
 
 # References
@@ -27,7 +28,7 @@ julia> docp = OptimalControlProblems.bryson_denham(OptimalControlBackend(); grid
 - Dymos Examples: https://openmdao.github.io/dymos/examples/bryson_denham/bryson_denham.html
 """
 
-function OptimalControlProblems.bryson_denham(
+function OptimalControlProblems.bryson_denham_s(
     ::OptimalControlBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:bryson_denham),
