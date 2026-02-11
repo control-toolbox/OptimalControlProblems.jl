@@ -34,14 +34,10 @@ function OptimalControlProblems.bryson_denham(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-    # Extraction (Correction des clés ici)
     params = parameters_data(:bryson_denham, parameters)
-    t0 = params[:t0]       
-    tf = params[:tf]       
-    x1_t0 = params[:x1_t0]   
-    x2_t0 = params[:x2_t0]   
-    x1_tf = params[:x1_tf]   
-    x2_tf = params[:x2_tf]   
+    t0, tf = params[:t0], params[:tf]
+    x1_t0, x2_t0 = params[:x1_t0], params[:x2_t0]
+    x1_tf, x2_tf = params[:x1_tf], params[:x2_tf]
     x1_max = params[:x1_max] 
 
     ocp = @def begin
@@ -74,3 +70,4 @@ function OptimalControlProblems.bryson_denham(
 
     return docp
 end
+

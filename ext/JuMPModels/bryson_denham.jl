@@ -32,7 +32,6 @@ function OptimalControlProblems.bryson_denham(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-    # Extraction des paramètres
     params = parameters_data(:bryson_denham, parameters)
     t0, tf = params[:t0], params[:tf]
     x1_t0, x2_t0 = params[:x1_t0], params[:x2_t0]
@@ -41,34 +40,30 @@ function OptimalControlProblems.bryson_denham(
 
     model = JuMP.Model(args...; kwargs...)
 
-    # Metadata
+    # --- CORRECTION DES MÉTADONNÉES POUR LES TESTS ---
     model[:time_grid] = () -> range(t0, tf, grid_size+1)
     model[:state_components] = ["x1", "x2"]
     model[:control_components] = ["u"]
+    model[:costate_components] = ["p1", "p2"] # Ajouté pour passer les tests
+    model[:variable_components] = []          # Ajouté pour passer les tests
+    # -------------------------------------------------
 
     N = grid_size
     Δt = (tf - t0) / N
 
-    # Variables
     @variable(model, x1[0:N] <= x1_max, start = 0.0)
     @variable(model, x2[0:N], start = 0.0)
     @variable(model, u[0:N], start = 0.0)
 
-    # Boundary constraints
     @constraints(model, begin
         x1[0] == x1_t0
         x2[0] == x2_t0
         x1[N] == x1_tf
         x2[N] == x2_tf
+        [i = 1:N], x1[i] == x1[i-1] + 0.5 * Δt * (x2[i] + x2[i-1])
+        [i = 1:N], x2[i] == x2[i-1] + 0.5 * Δt * (u[i] + u[i-1])
     end)
 
-    # Dynamics (Trapezoidal)
-    @constraint(model, [i = 1:N], 
-        x1[i] == x1[i-1] + 0.5 * Δt * (x2[i] + x2[i-1]))
-    @constraint(model, [i = 1:N], 
-        x2[i] == x2[i-1] + 0.5 * Δt * (u[i] + u[i-1]))
-
-    # Objective: Minimize 0.5 * ∫ u² dt
     @objective(model, Min, 0.5 * Δt * sum(0.5 * (u[i]^2 + u[i-1]^2) for i in 1:N))
 
     return model
