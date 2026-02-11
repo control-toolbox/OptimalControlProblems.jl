@@ -72,6 +72,17 @@ function make_list_of_problems()
         :robot,
         :space_shuttle,
         :steering,
+        :beam,
+        :cart_pendulum,
+        :chain,
+        :dielectrophoretic_particle,
+        :double_oscillator,
+        :electric_vehicle,
+        :glider,
+        :jackson,
+        :robbins,
+        :rocket,
+        :vanderpol,
     ]
     list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 

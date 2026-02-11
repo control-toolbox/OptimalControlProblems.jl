@@ -32,18 +32,13 @@ function OptimalControlProblems.bryson_denham(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
-    # Parameters (Standard: t0=0, tf=1, x1_t0=0, x2_t0=1, x1_tf=0, x2_tf=-1)
+    # Extraction des paramètres
     params = parameters_data(:bryson_denham, parameters)
-    t0 = params[:t0]
-    tf = params[:tf]
-    x1_t0 = params[:x1_t0]
-    x2_t0 = params[:x2_t0]
-    x1_tf = params[:x1_tf]
-    x2_tf = params[:x2_tf]
-    x1_max = params[:x1_max] # Typically 1/9
+    t0, tf = params[:t0], params[:tf]
+    x1_t0, x2_t0 = params[:x1_t0], params[:x2_t0]
+    x1_tf, x2_tf = params[:x1_tf], params[:x2_tf]
+    x1_max = params[:x1_max]
 
-    # Model initialization
     model = JuMP.Model(args...; kwargs...)
 
     # Metadata
@@ -51,52 +46,30 @@ function OptimalControlProblems.bryson_denham(
     model[:state_components] = ["x1", "x2"]
     model[:control_components] = ["u"]
 
-    @expression(model, N, grid_size)
+    N = grid_size
+    Δt = (tf - t0) / N
 
-    # Variables and initial guess
-    @variables(
-        model,
-        begin
-            x1[0:N] <= x1_max, (start = 0.0)
-            x2[0:N],           (start = 0.0)
-            u[0:N],            (start = 0.0)
-        end
-    )
+    # Variables
+    @variable(model, x1[0:N] <= x1_max, start = 0.0)
+    @variable(model, x2[0:N], start = 0.0)
+    @variable(model, u[0:N], start = 0.0)
 
     # Boundary constraints
-    @constraints(
-        model,
-        begin
-            x1[0] == x1_t0
-            x2[0] == x2_t0
-            x1[N] == x1_tf
-            x2[N] == x2_tf
-        end
-    )
+    @constraints(model, begin
+        x1[0] == x1_t0
+        x2[0] == x2_t0
+        x1[N] == x1_tf
+        x2[N] == x2_tf
+    end)
 
-    # Dynamics and Integration (Trapezoidal Method)
-    @expressions(
-        model,
-        begin
-            Δt, (tf - t0) / N
-            dx1[i = 0:N], x2[i]
-            dx2[i = 0:N], u[i]
-            # Cost integrand: 0.5 * u^2
-            dc[i = 0:N], 0.5 * u[i]^2
-        end
-    )
+    # Dynamics (Trapezoidal)
+    @constraint(model, [i = 1:N], 
+        x1[i] == x1[i-1] + 0.5 * Δt * (x2[i] + x2[i-1]))
+    @constraint(model, [i = 1:N], 
+        x2[i] == x2[i-1] + 0.5 * Δt * (u[i] + u[i-1]))
 
-    @constraints(
-        model,
-        begin
-            # System dynamics via Trapezoidal rule
-            [i = 1:N], x1[i] == x1[i - 1] + 0.5 * Δt * (dx1[i] + dx1[i - 1])
-            [i = 1:N], x2[i] == x2[i - 1] + 0.5 * Δt * (dx2[i] + dx2[i - 1])
-        end
-    )
-
-    # Objective: Minimize control effort over [t0, tf]
-    @objective(model, Min, 0.5 * Δt * sum(dc[i] + dc[i - 1] for i in 1:N))
+    # Objective: Minimize 0.5 * ∫ u² dt
+    @objective(model, Min, 0.5 * Δt * sum(0.5 * (u[i]^2 + u[i-1]^2) for i in 1:N))
 
     return model
 end
