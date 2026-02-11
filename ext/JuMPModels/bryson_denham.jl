@@ -60,8 +60,8 @@ function OptimalControlProblems.bryson_denham(
         x2[0] == x2_t0
         x1[N] == x1_tf
         x2[N] == x2_tf
-        [i = 1:N], x1[i] == x1[i-1] + 0.5 * Δt * (x2[i] + x2[i-1])
-        [i = 1:N], x2[i] == x2[i-1] + 0.5 * Δt * (u[i] + u[i-1])
+        p1[i = 1:N], x1[i] == x1[i-1] + 0.5 * Δt * (x2[i] + x2[i-1])
+        p2[i = 1:N], x2[i] == x2[i-1] + 0.5 * Δt * (u[i] + u[i-1])
     end)
 
     @objective(model, Min, 0.5 * Δt * sum(0.5 * (u[i]^2 + u[i-1]^2) for i in 1:N))
