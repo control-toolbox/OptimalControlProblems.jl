@@ -35,10 +35,10 @@ function OptimalControlProblems.brachistochrone(
         tf ∈ R, variable
         t ∈ [t0, tf], time
 
-        z = (x₁, x₂, x₃) ∈ R³, state
+        x = (x₁, x₂, x₃) ∈ R³, state
         u ∈ R, control
 
-        z(t0) == [x0, y0, v0]
+        x(t0) == [x0, y0, v0]
         
         x₁(tf) == xf
         x₂(tf) == yf
@@ -50,10 +50,6 @@ function OptimalControlProblems.brachistochrone(
         ẋ₃(t) == g * cos(u(t))
 
         tf → min
-    end
-
-    function dynamics(x₃, u, g)
-        return [x₃ * sin(u), x₃ * cos(u), g * cos(u)]
     end
 
     init = (
