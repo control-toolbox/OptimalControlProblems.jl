@@ -69,15 +69,17 @@ function OptimalControlProblems.brachistochrone(
 
     init = (
         state = [x0, y0, v0], 
-        control = 0.0, 
-        variable = 1.0
+        control = 1.57, 
+        variable = 2.0
     )
 
     docp = direct_transcription(
         ocp,
         description...;
+        lagrange_to_mayer=false,
         init = init,
         grid_size = grid_size,
+        disc_method=:trapeze,
         kwargs...
     )
 

@@ -54,8 +54,8 @@ function OptimalControlProblems.brachistochrone(
         model,
         begin
             0.1 <= tf <= 20.0, (start = 2.0)
-            x[0:N]
-            y[0:N]
+            px[0:N]
+            py[0:N]
             v[0:N]
             u[0:N]
         end
@@ -63,15 +63,15 @@ function OptimalControlProblems.brachistochrone(
 
 
     model[:time_grid] = () -> range(t0, value(tf), N+1)
-    model[:state_components] = ["x", "y", "v"]
-    model[:costate_components] = ["∂x", "∂y", "∂v"]
+    model[:state_components] = ["px", "py", "v"]
+    model[:costate_components] = ["∂px", "∂py", "∂v"]
     model[:control_components] = ["u"]
     model[:variable_components] = ["tf"]
 
     for i in 0:N
         alpha = i / N
-        set_start_value(x[i], x0 + alpha * (xf - x0))
-        set_start_value(y[i], y0 + alpha * (yf - y0))
+        set_start_value(px[i], x0 + alpha * (xf - x0))
+        set_start_value(py[i], y0 + alpha * (yf - y0))
         set_start_value(v[i], v0 + alpha * 10.0) # Estimate speed
         set_start_value(u[i], 1.57) # ~90 degrees
     end
@@ -81,13 +81,13 @@ function OptimalControlProblems.brachistochrone(
         model,
         begin
             # Start
-            x[0] == x0
-            y[0] == y0
+            px[0] == x0
+            py[0] == y0
             v[0] == v0
             
             # End
-            x[N] == xf
-            y[N] == yf
+            px[N] == xf
+            py[N] == yf
             # v[N] is free
         end
     )
@@ -100,11 +100,11 @@ function OptimalControlProblems.brachistochrone(
             dt, (tf - t0) / N
 
             # Dynamics expressions (Dymos formulation)
-            # dx/dt = v * sin(u)
-            dx[i = 0:N], v[i] * sin(u[i])
+            # dpx/dt = v * sin(u)
+            dpx[i = 0:N], v[i] * sin(u[i])
             
-            # dy/dt = -v * cos(u)
-            dy[i = 0:N], -v[i] * cos(u[i])
+            # dpy/dt = -v * cos(u)
+            dpy[i = 0:N], -v[i] * cos(u[i])
             
             # dv/dt = g * cos(u)
             dv[i = 0:N], g * cos(u[i])
@@ -115,8 +115,8 @@ function OptimalControlProblems.brachistochrone(
     @constraints(
         model,
         begin
-            ∂x[i = 1:N], x[i] == x[i - 1] + 0.5 * dt * (dx[i] + dx[i - 1])
-            ∂y[i = 1:N], y[i] == y[i - 1] + 0.5 * dt * (dy[i] + dy[i - 1])
+            ∂px[i = 1:N], px[i] == px[i - 1] + 0.5 * dt * (dpx[i] + dpx[i - 1])
+            ∂py[i = 1:N], py[i] == py[i - 1] + 0.5 * dt * (dpy[i] + dpy[i - 1])
             ∂v[i = 1:N], v[i] == v[i - 1] + 0.5 * dt * (dv[i] + dv[i - 1])
         end
     )
