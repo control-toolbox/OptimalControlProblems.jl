@@ -49,26 +49,29 @@ function OptimalControlProblems.brachistochrone_s(
         tf ∈ R, variable
         t ∈ [t0, tf], time
 
+    
         z = (px, py, v) ∈ R³, state
         u ∈ R, control
 
+       
         z(t0) == [x0, y0, v0]
         
+       
         px(tf) == xf
         py(tf) == yf
 
         0.1 ≤ tf ≤ 20.0
 
-        ṗx(t) == v(t) * sin(u(t))
-        ṗy(t) == v(t) * cos(u(t))
-        v̇(t) == g * cos(u(t))
+        ∂(px)(t) == v(t) * sin(u(t))
+        ∂(py)(t) == v(t) * cos(u(t))
+        ∂(v)(t)  == g * cos(u(t))
 
         tf → min
     end
 
     # initial guess
     init = (
-        state = [5.0, 7.5, 5.0], 
+        state = [x0, y0, v0], 
         control = 1.57, 
         variable = 2.0
     )
