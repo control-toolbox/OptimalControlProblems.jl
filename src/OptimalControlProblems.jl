@@ -83,6 +83,7 @@ function make_list_of_problems()
         :robbins,
         :rocket,
         :vanderpol,
+        :bryson_denham,  ###
     ]
     list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
