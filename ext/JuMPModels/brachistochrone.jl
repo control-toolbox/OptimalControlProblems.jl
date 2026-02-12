@@ -64,10 +64,7 @@ function OptimalControlProblems.brachistochrone(
 
     model[:time_grid] = () -> range(t0, value(tf), N+1)
     model[:state_components] = ["x", "y", "v"]
-    
-    model[:costate_components] = String[]
-    # ----------------------
-    
+    model[:costate_components] = ["∂x", "∂y", "∂v"]
     model[:control_components] = ["u"]
     model[:variable_components] = ["tf"]
 
