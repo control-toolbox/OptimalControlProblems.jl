@@ -60,7 +60,7 @@ function OptimalControlProblems.brachistochrone(
         py(tf) == yf
 
         ∂(px)(t) == v(t) * sin(u(t))
-        ∂(py)(t) == v(t) * cos(u(t))
+        ∂(py)(t) == -v(t) * cos(u(t))
         ∂(v)(t)  == g * cos(u(t))
 
         # Objectif

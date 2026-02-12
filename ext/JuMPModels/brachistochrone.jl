@@ -106,8 +106,8 @@ function OptimalControlProblems.brachistochrone(
             # dx/dt = v * sin(u)
             dx[i = 0:N], v[i] * sin(u[i])
             
-            # dy/dt = v * cos(u)
-            dy[i = 0:N], v[i] * cos(u[i])
+            # dy/dt = -v * cos(u)
+            dy[i = 0:N], -v[i] * cos(u[i])
             
             # dv/dt = g * cos(u)
             dv[i = 0:N], g * cos(u[i])

@@ -63,7 +63,7 @@ function OptimalControlProblems.brachistochrone_s(
         0.1 ≤ tf ≤ 20.0
 
         ∂(px)(t) == v(t) * sin(u(t))
-        ∂(py)(t) == v(t) * cos(u(t))
+        ∂(py)(t) == -v(t) * cos(u(t))
         ∂(v)(t)  == g * cos(u(t))
 
         tf → min
