@@ -67,10 +67,16 @@ function OptimalControlProblems.brachistochrone(
         tf → min
     end
 
+    # initial guess: linear interpolation to match JuMP
+    tf_guess = 2.0
     init = (
-        state = [x0, y0, v0], 
-        control = 1.57, 
-        variable = 2.0
+        state = t -> [
+            x0 + (t - t0) / (tf_guess - t0) * (xf - x0),
+            y0 + (t - t0) / (tf_guess - t0) * (yf - y0),
+            v0 + (t - t0) / (tf_guess - t0) * 10.0
+        ],
+        control = 1.57,
+        variable = tf_guess
     )
 
     docp = direct_transcription(
