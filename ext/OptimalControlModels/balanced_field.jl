@@ -94,7 +94,7 @@ function OptimalControlProblems.balanced_field(
         L = q * S * CL
         
         h_eff = h + h_w
-        term_h = 33.0 * (h_eff / b)^1.5
+        term_h = 33.0 * abs(h_eff / b)^1.5
         K = K_nom * term_h / (1.0 + term_h)
         D = q * S * (CD0 + K * CL^2)
         
