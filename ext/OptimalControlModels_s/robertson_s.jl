@@ -46,21 +46,23 @@ function OptimalControlProblems.robertson_s(
         x ∈ R, state
         y ∈ R, state
         z ∈ R, state
+        u ∈ R, control
 
         x(t0) == x_t0
         y(t0) == y_t0
         z(t0) == z_t0
+        -1 ≤ u(t) ≤ 1
 
         ∂(x)(t) == -k₁ * x(t) + k₂ * y(t) * z(t)
         ∂(y)(t) ==  k₁ * x(t) - k₂ * y(t) * z(t) - k₃ * y(t)^2
         ∂(z)(t) ==  k₃ * y(t)^2
 
-        0 → min
+        ∫(u(t)^2) → min
     end
 
     # initial guess
     # xinit = [x_t0, y_t0, z_t0]
-    init = (state=[x_t0, y_t0, z_t0],)
+    init = (state=[x_t0, y_t0, z_t0], control=0.0)
 
     # discretise the optimal control problem
     docp = direct_transcription(

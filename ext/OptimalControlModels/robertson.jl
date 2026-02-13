@@ -44,18 +44,20 @@ function OptimalControlProblems.robertson(
     ocp = @def begin
         t ∈ [t0, tf], time
         x ∈ R³, state
+        u ∈ R, control
 
         x(t0) == [x_t0, y_t0, z_t0]
+        -1 ≤ u(t) ≤ 1
 
         ẋ(t) == [-k₁ * x[1](t) + k₂ * x[2](t) * x[3](t),
                   k₁ * x[1](t) - k₂ * x[2](t) * x[3](t) - k₃ * x[2](t)^2,
                   k₃ * x[2](t)^2]
 
-        0 → min
+        ∫(u(t)^2) → min
     end
 
     # initial guess
-    init = (state=[x_t0, y_t0, z_t0],)
+    init = (state=[x_t0, y_t0, z_t0], control=0.0)
 
     # discretise the optimal control problem
     docp = direct_transcription(
