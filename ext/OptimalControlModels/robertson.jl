@@ -49,9 +49,9 @@ function OptimalControlProblems.robertson(
         x(t0) == [x_t0, y_t0, z_t0]
         -1 ≤ u(t) ≤ 1
 
-        ẋ(t) == [-k₁ * x[1](t) + k₂ * x[2](t) * x[3](t),
-                  k₁ * x[1](t) - k₂ * x[2](t) * x[3](t) - k₃ * x[2](t)^2,
-                  k₃ * x[2](t)^2]
+        ẋ(t) == [-k₁ * x₁(t) + k₂ * x₂(t) * x₃(t),
+                  k₁ * x₁(t) - k₂ * x₂(t) * x₃(t) - k₃ * x₂(t)^2,
+                  k₃ * x₂(t)^2]
 
         ∫(u(t)^2) → min
     end

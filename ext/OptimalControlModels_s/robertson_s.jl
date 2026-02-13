@@ -43,19 +43,17 @@ function OptimalControlProblems.robertson_s(
     # model
     ocp = @def begin
         t ∈ [t0, tf], time
-        x ∈ R, state
-        y ∈ R, state
-        z ∈ R, state
+        x ∈ R³, state
         u ∈ R, control
 
-        x(t0) == x_t0
-        y(t0) == y_t0
-        z(t0) == z_t0
+        x₁(t0) == x_t0
+        x₂(t0) == y_t0
+        x₃(t0) == z_t0
         -1 ≤ u(t) ≤ 1
 
-        ∂(x)(t) == -k₁ * x(t) + k₂ * y(t) * z(t)
-        ∂(y)(t) ==  k₁ * x(t) - k₂ * y(t) * z(t) - k₃ * y(t)^2
-        ∂(z)(t) ==  k₃ * y(t)^2
+        ∂(x₁)(t) == -k₁ * x₁(t) + k₂ * x₂(t) * x₃(t)
+        ∂(x₂)(t) ==  k₁ * x₁(t) - k₂ * x₂(t) * x₃(t) - k₃ * x₂(t)^2
+        ∂(x₃)(t) ==  k₃ * x₂(t)^2
 
         ∫(u(t)^2) → min
     end
