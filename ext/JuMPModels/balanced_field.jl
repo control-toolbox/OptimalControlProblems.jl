@@ -69,8 +69,8 @@ function OptimalControlProblems.balanced_field(
         model,
         begin
             r[0:N], (start = r_t0)
-            v[0:N], (start = v_t0 + 10.0)
-            h[0:N], (start = h_tf / 2.0)
+            v[0:N] ≥ 1.0, (start = v_t0 + 10.0)
+            h[0:N] ≥ 0.0, (start = h_tf / 2.0)
             γ[0:N], (start = γ_tf)
             0 ≤ α[0:N] ≤ α_max_ctrl, (start = 0.1)
             tf ≥ 0.1, (start = 10.0)

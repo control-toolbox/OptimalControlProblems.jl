@@ -78,6 +78,8 @@ function OptimalControlProblems.balanced_field(
         
         0 ≤ α(t) ≤ α_max_ctrl # alpha
         tf ≥ 0.1
+        h(t) ≥ 0
+        v(t) ≥ 1.0
 
         ẋ(t) == dynamics(x(t), α(t), m, g, ρ, S, CD0, CL0, CL_max, α_max, T, b, K_nom, h_w)
 

@@ -67,6 +67,8 @@ function OptimalControlProblems.balanced_field_s(
         
         0 ≤ α(t) ≤ α_max_ctrl
         tf ≥ 0.1
+        h(t) ≥ 0
+        v(t) ≥ 1.0
 
         # dynamics
         q = 0.5 * ρ * v(t)^2
