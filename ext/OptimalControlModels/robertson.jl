@@ -53,7 +53,7 @@ function OptimalControlProblems.robertson(
                   k₁ * x₁(t) - k₂ * x₂(t) * x₃(t) - k₃ * x₂(t)^2,
                   k₃ * x₂(t)^2]
 
-        ∫(u(t)^2) → min
+        -x₃(tf) → min
     end
 
     # initial guess

@@ -98,7 +98,7 @@ function OptimalControlProblems.robertson(
     )
 
     # objective
-    @objective(model, Min, 0)
+    @objective(model, Min, -z[N])
 
     return model
 end
