@@ -90,6 +90,7 @@ function OptimalControlProblems.mountain_car_s(
     docp = direct_transcription(
         ocp,
         description...;
+        lagrange_to_mayer=false,
         init=init,
         grid_size=grid_size,
         disc_method=:trapeze,
