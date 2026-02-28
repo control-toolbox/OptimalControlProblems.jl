@@ -1,8 +1,8 @@
 mountain_car_meta = OrderedDict(
-    :grid_size => 100,
+    :grid_size => 300,
     :parameters => (
         t0 = 0.0,
-        tf_start = 10.0,
+        tf_start = 105.0,
         tf_min = 0.1,
         pos_t0 = -0.5,
         vel_t0 = 0.0,
