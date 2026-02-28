@@ -71,9 +71,9 @@ function OptimalControlProblems.mountain_car(
     @variables(
         model,
         begin
-            pos_min ≤ pos[i = 0:N] ≤ pos_max, (start = pos_t0 + (pos_tf - pos_t0) * i / N)
-            vel_min ≤ vel[i = 0:N] ≤ vel_max, (start = 0.0)
-            u_min ≤ u[i = 0:N] ≤ u_max, (start = 0.0)
+            pos_min ≤ pos[0:N] ≤ pos_max, (start = pos_t0)
+            vel_min ≤ vel[0:N] ≤ vel_max, (start = vel_t0)
+            u_min ≤ u[0:N] ≤ u_max, (start = 0.0)
             tf ≥ tf_min, (start = tf_start)
         end
     )

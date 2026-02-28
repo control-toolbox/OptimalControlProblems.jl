@@ -80,11 +80,7 @@ function OptimalControlProblems.mountain_car_s(
     end
 
     # initial guess
-    N = grid_size
-    xinit = [[pos_t0 + (pos_tf - pos_t0) * i / N, 0.0] for i in 0:N]
-    uinit = 0.0
-    time_vec = LinRange(t0, tf_start, N + 1)
-    init = (time=time_vec, state=xinit, control=uinit, variable=tf_start)
+    init = (state=[pos_t0, vel_t0], control=0.0, variable=tf_start)
 
     # discretise the optimal control problem
     docp = direct_transcription(
