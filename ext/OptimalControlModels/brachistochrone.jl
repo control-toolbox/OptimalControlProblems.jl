@@ -50,8 +50,9 @@ function OptimalControlProblems.brachistochrone(
         t ∈ [t0, tf], time
         
         z = (px, py, v) ∈ R³, state
-        u ∈ [u_min, u_max], control
+        u ∈ R, control
 
+        u_min ≤ u(t) ≤ u_max
         0.1 ≤ tf ≤ 20.0 
 
         px(t0) == x0

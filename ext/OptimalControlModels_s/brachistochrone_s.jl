@@ -47,22 +47,22 @@ function OptimalControlProblems.brachistochrone_s(
 
     # model
     ocp = @def begin
-        
+
         tf ∈ R, variable
         t ∈ [t0, tf], time
 
-    
-        z = (px, py, v) ∈ R³, state
-        u ∈ [u_min, u_max], control
 
-       
+        z = (px, py, v) ∈ R³, state
+        u ∈ R, control
+
+        u_min ≤ u(t) ≤ u_max
+        0.1 ≤ tf ≤ 20.0
+
         z(t0) == [x0, y0, v0]
         
        
         px(tf) == xf
         py(tf) == yf
-
-        0.1 ≤ tf ≤ 20.0
 
         ∂(px)(t) == v(t) * sin(u(t))
         ∂(py)(t) == -v(t) * cos(u(t))
