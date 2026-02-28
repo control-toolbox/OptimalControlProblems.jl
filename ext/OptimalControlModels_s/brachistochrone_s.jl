@@ -55,7 +55,7 @@ function OptimalControlProblems.brachistochrone_s(
         z = (px, py, v) ∈ R³, state
         u ∈ R, control
 
-        u_min ≤ u(t) ≤ u_max
+        -1.57 ≤ u(t) ≤ 1.57
         0.1 ≤ tf ≤ 20.0
 
         z(t0) == [x0, y0, v0]

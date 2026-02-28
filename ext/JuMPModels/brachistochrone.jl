@@ -59,7 +59,7 @@ function OptimalControlProblems.brachistochrone(
             px[0:N]
             py[0:N]
             v[0:N]
-            u_min <= u[0:N] <= u_max
+            -1.57 <= u[0:N] <= 1.57
         end
     )
 
