@@ -106,7 +106,7 @@ function OptimalControlProblems.robot_s(
         dϕ(tf) == dϕ_tf, (dϕ_tf)
 
         # aliases
-        I_θ = ((L - ρ(t))^3 + ρ(t)^3) * sin(ϕ(t))^2
+        I_θ = ((L - ρ(t))^3 + ρ(t)^3) * (sin(ϕ(t))^2 + 1e-9)
         I_ϕ = (L - ρ(t))^3 + ρ(t)^3
 
         # dynamics  
@@ -122,18 +122,29 @@ function OptimalControlProblems.robot_s(
     end
 
     # initial guess
-    tf = 1
-    xinit =
-        t -> [
-            ρ_t0,
-            0,
-            2π/3 * ((t - t0) / (tf - t0))^2,
-            4π/3 * ((t - t0) / (tf - t0)),
-            ϕ_t0,
-            0,
+    tf_guess = 9.1
+    xinit = t -> begin
+        alpha = clamp((t - t0) / (tf_guess - t0), 0.0, 1.0)
+        
+        ρ_val = ρ_t0 + alpha * (ρ_tf - ρ_t0)
+        θ_val = θ_t0 + alpha * (θ_tf - θ_t0)
+        ϕ_val = ϕ_t0 + alpha * (ϕ_tf - ϕ_t0)
+
+        if abs(ϕ_val) < 1e-6
+            ϕ_val = 1e-6
+        end
+
+        return [
+            ρ_val, 
+            0.0, 
+            θ_val, 
+            0.0, 
+            ϕ_val, 
+            0.0,
         ]
-    uinit = [0, 0, 0]
-    init = (state=xinit, control=uinit, variable=tf)
+    end
+    uinit = [0.0, 0.0, 0.0]
+    init = (state=xinit, control=uinit, variable=tf_guess)
 
     # discretise the optimal control problem
     docp = direct_transcription(
