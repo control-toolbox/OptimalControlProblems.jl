@@ -53,9 +53,10 @@ function OptimalControlProblems.water_rocket(
 
     # model
     ocp = @def begin
+        vars ∈ R², variable
+        Vw0 = vars[1]
+        γ0 = vars[2]
         tf ∈ R, variable
-        Vw0 ∈ R, variable
-        γ0 ∈ R, variable
         t ∈ [t0, tf], time
         x = (r, h, v, γ, p, Vw) ∈ R⁶, state
         u ∈ R, control # dummy
