@@ -19,7 +19,7 @@ The goal is to maximise the total range of a cannonball by optimizing its radius
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp = OptimalControlProblems.cannonball_s(OptimalControlBackend(); N=100);
+julia> docp = OptimalControlProblems.cannonball(OptimalControlBackend(); N=100);
 ```
 """
 function OptimalControlProblems.cannonball_s(
@@ -50,10 +50,7 @@ function OptimalControlProblems.cannonball_s(
 
     # model
     ocp = @def begin
-        v0 ∈ R, variable
-        γ0 ∈ R, variable
-        r_ball ∈ R, variable
-        tf ∈ R, variable
+        vvar = (v0, γ0, r_ball, tf) ∈ R⁴, variable
         t ∈ [t0, tf], time
         x = (v, γ, h, r) ∈ R⁴, state
 
