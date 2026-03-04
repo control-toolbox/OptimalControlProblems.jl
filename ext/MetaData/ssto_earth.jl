@@ -13,9 +13,9 @@ ssto_earth_meta = OrderedDict(
         y_tf = 185000.0,
         vx_tf = 7796.6961,
         vy_tf = 0.0,
-        tf_l = 10.0,
+        tf_l = 0.1,
         tf_u = 1000.0,
-        theta_l = -1.5707963267948966, # -pi/2
-        theta_u = 1.5707963267948966,  # pi/2
+        theta_l = -1.57, # -pi/2
+        theta_u = 1.57,  # pi/2
     )
 )

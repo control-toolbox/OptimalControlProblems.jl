@@ -33,53 +33,57 @@ function OptimalControlProblems.cannonball(
     # parameters
     params = parameters_data(:cannonball, parameters)
     t0 = params[:t0]
-    ρ_metal = params[:ρ_metal]
+    rho_metal = params[:rho_metal]
     Cd = params[:Cd]
     KE_max = params[:KE_max]
     g = params[:g]
-    ρ0 = params[:ρ0]
+    rho0 = params[:rho0]
     hr = params[:hr]
     r_ball_l = params[:r_ball_l]
     r_ball_u = params[:r_ball_u]
     v0_l = params[:v0_l]
     v0_u = params[:v0_u]
-    γ0_l = params[:γ0_l]
-    γ0_u = params[:γ0_u]
+    gamma0_l = params[:gamma0_l]
+    gamma0_u = params[:gamma0_u]
     tf_l = params[:tf_l]
     tf_u = params[:tf_u]
 
     # model
     ocp = @def begin
-        vvar = (v0, γ0, rball, tf) ∈ R⁴, variable
+        v = (v0, gamma0, rball, tf) ∈ R⁴, variable
         t ∈ [t0, tf], time
-        x = (v, γ, h, r) ∈ R⁴, state
+        x = (v_mag, gamma, h, r) ∈ R⁴, state
+        u ∈ R, control # dummy
 
         # variables bounds
         v0_l ≤ v0 ≤ v0_u
-        γ0_l ≤ γ0 ≤ γ0_u
+        gamma0_l ≤ gamma0 ≤ gamma0_u
         r_ball_l ≤ rball ≤ r_ball_u
         tf_l ≤ tf ≤ tf_u
 
         # KE constraint: 0.5 * m * v0^2 ≤ KE_max
-        # m = (4/3) * π * ρ_metal * r_ball^3
-        0.5 * ((4/3) * π * ρ_metal * rball^3) * v0^2 ≤ KE_max
+        # m = (4/3) * π * rho_metal * rball^3
+        0.5 * ((4/3) * π * rho_metal * rball^3) * v0^2 ≤ KE_max
 
         # initial conditions
-        x(t0) == [v0, γ0, 0, 0]
+        v_mag(t0) == v0
+        gamma(t0) == gamma0
+        h(t0) == 0.0
+        r(t0) == 0.0
 
         # final conditions
-        h(tf) == 0
+        h(tf) == 0.0
 
         # dynamics
-        m = (4/3) * π * ρ_metal * rball^3
-        S = π * rball^2
+        m_eff = (4/3) * π * rho_metal * rball^3
+        S_eff = π * rball^2
         
-        # x[1]=v, x[2]=γ, x[3]=h, x[4]=r
+        # ẋ(t)
         ẋ(t) == [
-            -(0.5 * ρ0 * exp(-h(t) / hr) * v(t)^2 * S * Cd) / m - g * sin(γ(t)),
-            -g * cos(γ(t)) / v(t),
-            v(t) * sin(γ(t)),
-            v(t) * cos(γ(t))
+            -(0.5 * rho0 * exp(-h(t) / hr) * v_mag(t)^2 * S_eff * Cd) / m_eff - g * sin(gamma(t)),
+            -g * cos(gamma(t)) / v_mag(t),
+            v_mag(t) * sin(gamma(t)),
+            v_mag(t) * cos(gamma(t))
         ]
 
         r(tf) → max
@@ -87,10 +91,10 @@ function OptimalControlProblems.cannonball(
 
     # initial guess
     v0_init = 100.0
-    γ0_init = π/4
+    gamma0_init = 0.785
     r_ball_init = 0.05
     tf_init = 10.0
-    init = (state=[v0_init, γ0_init, 1.0, 1.0], variable=[v0_init, γ0_init, r_ball_init, tf_init])
+    init = (state=[v0_init, gamma0_init, 1.0, 1.0], variable=[v0_init, gamma0_init, r_ball_init, tf_init])
 
     # discretise
     docp = direct_transcription(
