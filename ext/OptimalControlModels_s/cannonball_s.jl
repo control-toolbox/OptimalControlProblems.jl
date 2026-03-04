@@ -50,10 +50,7 @@ function OptimalControlProblems.cannonball_s(
 
     # model
     ocp = @def begin
-        v0 ∈ R, variable
-        γ0 ∈ R, variable
-        r_ball ∈ R, variable
-        tf ∈ R, variable
+        vvar = (v0, γ0, r_ball, tf) ∈ R⁴, variable
         t ∈ [t0, tf], time
         x = (v, γ, h, r) ∈ R⁴, state
 

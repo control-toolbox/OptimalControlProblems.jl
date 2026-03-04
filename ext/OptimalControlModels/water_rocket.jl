@@ -53,10 +53,7 @@ function OptimalControlProblems.water_rocket(
 
     # model
     ocp = @def begin
-        vars ∈ R², variable
-        Vw0 = vars[1]
-        γ0 = vars[2]
-        tf ∈ R, variable
+        v_opt = (tf, Vw0, γ0) ∈ R³, variable
         t ∈ [t0, tf], time
         x = (r, h, v, γ, p, Vw) ∈ R⁶, state
         u ∈ R, control # dummy
@@ -77,23 +74,15 @@ function OptimalControlProblems.water_rocket(
         Vw(t0) == Vw0
 
         # dynamics
-        ṙ(t) == v(t) * cos(γ(t))
-        ḣ(t) == v(t) * sin(γ(t))
-        
-        # Intermediate calculations (implicitly in dynamics)
-        # v_out = sqrt(2*(p - p_a)/rho_w)
-        # Vẇ = -v_out * A_out
-        # ṗ = k * p * Vẇ / (V_b - Vw)
-        # T = 2 * A_out * (p - p_a)
-        # m = m_empty + rho_w * Vw
-        # D = 0.5 * rho_a * v^2 * S * C_d
-        # v̇ = (T - D - m * g * sin(γ)) / m
-        # γ̇ = - (g * cos(γ)) / v
-
-        Vẇ(t) == -sqrt(2 * (p(t) - p_a) / rho_w) * A_out
-        ṗ(t) == k * p(t) * (-sqrt(2 * (p(t) - p_a) / rho_w) * A_out) / (V_b - Vw(t))
-        v̇(t) == (2 * A_out * (p(t) - p_a) - 0.5 * rho_a * v(t)^2 * S * C_d - (m_empty + rho_w * Vw(t)) * g * sin(γ(t))) / (m_empty + rho_w * Vw(t))
-        γ̇(t) == - (g * cos(γ(t))) / v(t)
+        # x = (r, h, v, γ, p, Vw)
+        ẋ(t) == [
+            v(t) * cos(γ(t)),
+            v(t) * sin(γ(t)),
+            (2 * A_out * (p(t) - p_a) - 0.5 * rho_a * v(t)^2 * S * C_d - (m_empty + rho_w * Vw(t)) * g * sin(γ(t))) / (m_empty + rho_w * Vw(t)),
+            - (g * cos(γ(t))) / v(t),
+            k * p(t) * (-sqrt(2 * (p(t) - p_a) / rho_w) * A_out) / (V_b - Vw(t)),
+            -sqrt(2 * (p(t) - p_a) / rho_w) * A_out
+        ]
 
         # objective
         h(tf) → max

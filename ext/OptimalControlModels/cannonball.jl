@@ -50,43 +50,39 @@ function OptimalControlProblems.cannonball(
 
     # model
     ocp = @def begin
-        vars ∈ R³, variable
-        v0 = vars[1]
-        γ0 = vars[2]
-        r_ball = vars[3]
-        tf ∈ R, variable
+        vvar = (v0, γ0, rball, tf) ∈ R⁴, variable
         t ∈ [t0, tf], time
-        x ∈ R⁴, state
+        x = (v, γ, h, r) ∈ R⁴, state
 
         # variables bounds
         v0_l ≤ v0 ≤ v0_u
         γ0_l ≤ γ0 ≤ γ0_u
-        r_ball_l ≤ r_ball ≤ r_ball_u
+        r_ball_l ≤ rball ≤ r_ball_u
         tf_l ≤ tf ≤ tf_u
 
         # KE constraint: 0.5 * m * v0^2 ≤ KE_max
         # m = (4/3) * π * ρ_metal * r_ball^3
-        0.5 * ((4/3) * π * ρ_metal * r_ball^3) * v0^2 ≤ KE_max
+        0.5 * ((4/3) * π * ρ_metal * rball^3) * v0^2 ≤ KE_max
 
         # initial conditions
         x(t0) == [v0, γ0, 0, 0]
 
         # final conditions
-        x(tf)[3] == 0 # h(tf) = 0
+        h(tf) == 0
 
         # dynamics
-        m = (4/3) * π * ρ_metal * r_ball^3
-        S = π * r_ball^2
+        m = (4/3) * π * ρ_metal * rball^3
+        S = π * rball^2
         
         # x[1]=v, x[2]=γ, x[3]=h, x[4]=r
         ẋ(t) == [
-            -(0.5 * ρ0 * exp(-x[3](t) / hr) * x[1](t)^2 * S * Cd) / m - g * sin(x[2](t)),
-            -g * cos(x[2](t)) / x[1](t),
-            x[1](t) * sin(x[2](t)),
-            x[1](t) * cos(x[2](t))
+            -(0.5 * ρ0 * exp(-h(t) / hr) * v(t)^2 * S * Cd) / m - g * sin(γ(t)),
+            -g * cos(γ(t)) / v(t),
+            v(t) * sin(γ(t)),
+            v(t) * cos(γ(t))
         ]
 
-        x(tf)[4] → max
+        r(tf) → max
     end
 
     # initial guess
