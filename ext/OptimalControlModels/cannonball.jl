@@ -50,43 +50,43 @@ function OptimalControlProblems.cannonball(
 
     # model
     ocp = @def begin
-        v = (v0, gamma0, rball, tf) ∈ R⁴, variable
+        w = (tf, v0, gamma0, rball) ∈ R⁴, variable
         t ∈ [t0, tf], time
-        x = (v_mag, gamma, h, r) ∈ R⁴, state
+        x ∈ R⁴, state
         u ∈ R, control # dummy
 
         # variables bounds
-        v0_l ≤ v0 ≤ v0_u
-        gamma0_l ≤ gamma0 ≤ gamma0_u
-        r_ball_l ≤ rball ≤ r_ball_u
         tf_l ≤ tf ≤ tf_u
+        v0_l ≤ w[2] ≤ v0_u
+        gamma0_l ≤ w[3] ≤ gamma0_u
+        r_ball_l ≤ w[4] ≤ r_ball_u
 
         # KE constraint: 0.5 * m * v0^2 ≤ KE_max
         # m = (4/3) * π * rho_metal * rball^3
-        0.5 * ((4/3) * π * rho_metal * rball^3) * v0^2 ≤ KE_max
+        0.5 * ((4/3) * π * rho_metal * w[4]^3) * w[2]^2 ≤ KE_max
 
         # initial conditions
-        v_mag(t0) == v0
-        gamma(t0) == gamma0
-        h(t0) == 0.0
-        r(t0) == 0.0
+        x[1](t0) == w[2]
+        x[2](t0) == w[3]
+        x[3](t0) == 0.0
+        x[4](t0) == 0.0
 
         # final conditions
-        h(tf) == 0.0
+        x[3](tf) == 0.0
 
         # dynamics
-        m_eff = (4/3) * π * rho_metal * rball^3
-        S_eff = π * rball^2
+        # x[1]=v_mag, x[2]=gamma, x[3]=h, x[4]=r
+        m_eff = (4/3) * π * rho_metal * w[4]^3
+        S_eff = π * w[4]^2
         
-        # ẋ(t)
         ẋ(t) == [
-            -(0.5 * rho0 * exp(-h(t) / hr) * v_mag(t)^2 * S_eff * Cd) / m_eff - g * sin(gamma(t)),
-            -g * cos(gamma(t)) / v_mag(t),
-            v_mag(t) * sin(gamma(t)),
-            v_mag(t) * cos(gamma(t))
+            -(0.5 * rho0 * exp(-x[3](t) / hr) * x[1](t)^2 * S_eff * Cd) / m_eff - g * sin(x[2](t)),
+            -g * cos(x[2](t)) / x[1](t),
+            x[1](t) * sin(x[2](t)),
+            x[1](t) * cos(x[2](t))
         ]
 
-        r(tf) → max
+        x[4](tf) → max
     end
 
     # initial guess
@@ -94,7 +94,7 @@ function OptimalControlProblems.cannonball(
     gamma0_init = 0.785
     r_ball_init = 0.05
     tf_init = 10.0
-    init = (state=[v0_init, gamma0_init, 1.0, 1.0], variable=[v0_init, gamma0_init, r_ball_init, tf_init])
+    init = (state=[v0_init, gamma0_init, 1.0, 1.0], variable=[tf_init, v0_init, gamma0_init, r_ball_init])
 
     # discretise
     docp = direct_transcription(

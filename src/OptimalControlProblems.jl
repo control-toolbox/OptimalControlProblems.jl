@@ -68,6 +68,24 @@ function make_list_of_problems()
         :dielectrophoretic_particle,
         :moonlander,
         :ducted_fan,
+        :balanced_field,
+        :beam,
+        :brachistochrone,
+        :bryson_denham,
+        :chain,
+        :double_oscillator,
+        :electric_vehicle,
+        :glider,
+        :insurance,
+        :jackson,
+        :mountain_car,
+        :robbins,
+        :robot,
+        :rocket,
+        :space_shuttle,
+        :steering,
+        :vanderpol
+
     ]
     list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 

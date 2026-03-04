@@ -50,32 +50,32 @@ function OptimalControlProblems.cannonball_s(
 
     # model
     ocp = @def begin
-        w = (v0, gamma0, rball, tf) ∈ R⁴, variable
+        w = (tf, v0, gamma0, r_ball) ∈ R⁴, variable
         t ∈ [t0, tf], time
         x = (v_mag, gamma, h, r) ∈ R⁴, state
         u ∈ R, control # dummy
 
         # variables bounds
+        tf_l ≤ tf ≤ tf_u
         v0_l ≤ v0 ≤ v0_u
         gamma0_l ≤ gamma0 ≤ gamma0_u
-        r_ball_l ≤ rball ≤ r_ball_u
-        tf_l ≤ tf ≤ tf_u
+        r_ball_l ≤ r_ball ≤ r_ball_u
 
         # KE constraint
-        m_eff = (4/3) * π * rho_metal * rball^3
+        m_eff = (4/3) * π * rho_metal * r_ball^3
         0.5 * m_eff * v0^2 ≤ KE_max
 
         # initial conditions
         v_mag(t0) == v0
         gamma(t0) == gamma0
-        h(t0) == 0
-        r(t0) == 0
+        h(t0) == 0.0
+        r(t0) == 0.0
 
         # final conditions
-        h(tf) == 0
+        h(tf) == 0.0
 
         # dynamics
-        S_eff = π * rball^2
+        S_eff = π * r_ball^2
         rho_val = rho0 * exp(-h(t) / hr)
         D_eff = 0.5 * rho_val * v_mag(t)^2 * S_eff * Cd
         
@@ -92,7 +92,7 @@ function OptimalControlProblems.cannonball_s(
     gamma0_init = 0.785
     r_ball_init = 0.05
     tf_init = 10.0
-    init = (state=[v0_init, gamma0_init, 1.0, 1.0], variable=[v0_init, gamma0_init, r_ball_init, tf_init])
+    init = (state=[v0_init, gamma0_init, 1.0, 1.0], variable=[tf_init, v0_init, gamma0_init, r_ball_init])
 
     # discretise
     docp = direct_transcription(
