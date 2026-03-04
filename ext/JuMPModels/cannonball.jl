@@ -68,7 +68,7 @@ function OptimalControlProblems.cannonball(
             v_mag[0:N] ≥ 0.0, (start = 100.0)
             gamma[0:N], (start = 0.785)
             h[0:N] ≥ 0.0, (start = 1.0)
-            r[0:N], (start = 1.0)
+            r[0:N] ≥ 0.0, (start = 1.0)
             u[0:N], (start = 0.0)
             v0_l ≤ v0 ≤ v0_u, (start = 100.0)
             gamma0_l ≤ gamma0 ≤ gamma0_u, (start = 0.785)
@@ -83,26 +83,26 @@ function OptimalControlProblems.cannonball(
         begin
             v_mag[0] == v0
             gamma[0] == gamma0
-            h[0] == 0
-            r[0] == 0
-            h[N] == 0
+            h[0] == 0.0
+            r[0] == 0.0
+            h[N] == 0.0
         end
     )
 
-    # design constraints
-    @constraint(model, 0.5 * ((4/3) * π * rho_metal * rball^3) * v0^2 ≤ KE_max)
+    # design constraints (scaled by KE_max)
+    @constraint(model, (0.5 * ((4/3) * pi * rho_metal * rball^3) * v0^2) / KE_max ≤ 1.0)
 
     # dynamics
     @expressions(
         model,
         begin
             Δt, (tf - t0) / N
-            m_eff, (4/3) * π * rho_metal * rball^3
-            S_eff, π * rball^2
+            m_eff, (4/3) * pi * rho_metal * rball^3
+            S_eff, pi * rball^2
             rho_val[i = 0:N], rho0 * exp(-h[i] / hr)
             D_eff[i = 0:N], 0.5 * rho_val[i] * v_mag[i]^2 * S_eff * Cd
             dv_mag[i = 0:N], -D_eff[i] / m_eff - g * sin(gamma[i])
-            dgamma[i = 0:N], -g * cos(gamma[i]) / v_mag[i]
+            dgamma[i = 0:N], -g * cos(gamma[i]) / (v_mag[i] + 1e-6) # prevent div by zero
             dh[i = 0:N], v_mag[i] * sin(gamma[i])
             dr[i = 0:N], v_mag[i] * cos(gamma[i])
         end
@@ -118,8 +118,8 @@ function OptimalControlProblems.cannonball(
         end
     )
 
-    # objective
-    @objective(model, Max, r[N])
+    # objective (scaled by 1000.0)
+    @objective(model, Max, r[N] / 1000.0)
 
     return model
 end

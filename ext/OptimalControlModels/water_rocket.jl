@@ -39,7 +39,7 @@ function OptimalControlProblems.water_rocket(
     V_b = params[:V_b]
     A_out = params[:A_out]
     S = params[:S]
-    C_d = params[:C_d]
+    Cd = params[:Cd]
     rho_a = params[:rho_a]
     m_empty = params[:m_empty]
     t0 = params[:t0]
@@ -53,7 +53,7 @@ function OptimalControlProblems.water_rocket(
 
     # model
     ocp = @def begin
-        w = (tf, Vw0, gamma0) ∈ R³, variable
+        v = (tf, Vw0, gamma0) ∈ R³, variable
         t ∈ [t0, tf], time
         x = (r, h, v_mag, gamma, p, Vw) ∈ R⁶, state
         u ∈ R, control # dummy
@@ -74,11 +74,15 @@ function OptimalControlProblems.water_rocket(
         Vw(t0) == Vw0
 
         # dynamics
-        # x = (r, h, v_mag, gamma, p, Vw)
+        # v_out = sqrt(2 * (p - p_a) / rho_w)
+        # thrust = rho_w * A_out * v_out^2 = 2 * A_out * (p - p_a)
+        # m = m_empty + rho_w * Vw
+        # drag = 0.5 * rho_a * v_mag^2 * Cd * S
+        
         ẋ(t) == [
             v_mag(t) * cos(gamma(t)),
             v_mag(t) * sin(gamma(t)),
-            (2 * A_out * (p(t) - p_a) - 0.5 * rho_a * v_mag(t)^2 * S * C_d - (m_empty + rho_w * Vw(t)) * g * sin(gamma(t))) / (m_empty + rho_w * Vw(t)),
+            (2 * A_out * (p(t) - p_a) - 0.5 * rho_a * v_mag(t)^2 * Cd * S - (m_empty + rho_w * Vw(t)) * g * sin(gamma(t))) / (m_empty + rho_w * Vw(t)),
             - (g * cos(gamma(t))) / v_mag(t),
             k * p(t) * (-sqrt(2 * (p(t) - p_a) / rho_w) * A_out) / (V_b - Vw(t)),
             -sqrt(2 * (p(t) - p_a) / rho_w) * A_out

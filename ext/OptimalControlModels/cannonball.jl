@@ -50,7 +50,7 @@ function OptimalControlProblems.cannonball(
 
     # model
     ocp = @def begin
-        w = (v0, gamma0, rball, tf) ∈ R⁴, variable
+        v = (v0, gamma0, rball, tf) ∈ R⁴, variable
         t ∈ [t0, tf], time
         x = (v_mag, gamma, h, r) ∈ R⁴, state
         u ∈ R, control # dummy
@@ -68,17 +68,17 @@ function OptimalControlProblems.cannonball(
         # initial conditions
         v_mag(t0) == v0
         gamma(t0) == gamma0
-        h(t0) == 0
-        r(t0) == 0
+        h(t0) == 0.0
+        r(t0) == 0.0
 
         # final conditions
-        h(tf) == 0
+        h(tf) == 0.0
 
         # dynamics
         m_eff = (4/3) * π * rho_metal * rball^3
         S_eff = π * rball^2
         
-        # x[1]=v_mag, x[2]=gamma, x[3]=h, x[4]=r
+        # ẋ(t)
         ẋ(t) == [
             -(0.5 * rho0 * exp(-h(t) / hr) * v_mag(t)^2 * S_eff * Cd) / m_eff - g * sin(gamma(t)),
             -g * cos(gamma(t)) / v_mag(t),

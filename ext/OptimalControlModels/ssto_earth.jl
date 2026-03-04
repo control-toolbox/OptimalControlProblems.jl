@@ -2,7 +2,7 @@
 $(TYPEDSIGNATURES)
 
 Constructs an **OptimalControl problem** for the SSTO Earth Launch problem.  
-The goal is to minimise the time required to reach a circular orbit at an altitude of 185 km.  
+The goal is to minimise the time required to reach a circular orbit at an altitude of 185 km.
 
 # Arguments
 
@@ -12,7 +12,6 @@ The goal is to minimise the time required to reach a circular orbit at an altitu
 # Returns
 
 - `docp`: The direct optimal control problem object representing the SSTO Earth problem.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
 
 # Example
 
@@ -51,37 +50,38 @@ function OptimalControlProblems.ssto_earth(
 
     # model
     ocp = @def begin
-        tf ∈ R, variable
+        w = tf ∈ R, variable
         t ∈ [t0, tf], time
-        x ∈ R⁵, state
-        θ ∈ R, control
+        x = (px, py, vx, vy, m) ∈ R⁵, state
+        u = theta ∈ R, control
 
         # tf bounds
         tf_l ≤ tf ≤ tf_u
         # control bounds
-        theta_l ≤ θ(t) ≤ theta_u
+        theta_l ≤ theta(t) ≤ theta_u
 
         # initial conditions
-        x(t0) == [0.0, 0.0, 0.0, 0.0, m0]
+        px(t0) == 0.0
+        py(t0) == 0.0
+        vx(t0) == 0.0
+        vy(t0) == 0.0
+        m(t0) == m0
 
         # final conditions
-        x(tf)[2] == y_tf
-        x(tf)[3] == vx_tf
-        x(tf)[4] == vy_tf
+        py(tf) == y_tf
+        vx(tf) == vx_tf
+        vy(tf) == vy_tf
 
         # dynamics
-        # x[1]=x, x[2]=y, x[3]=vx, x[4]=vy, x[5]=m
-        v = sqrt(x[3](t)^2 + x[4](t)^2)
-        rho = rho_ref * exp(-x[2](t) / h_scale)
-        # D = 0.5 * rho * v^2 * Cd * S
-        # Drag term: D * velocity_component / v = 0.5 * rho * v * velocity_component * Cd * S
-        D_factor = 0.5 * rho * v * Cd * S
+        # v = sqrt(vx^2 + vy^2)
+        # rho = rho_ref * exp(-py / h_scale)
+        # D_factor = 0.5 * rho * v * Cd * S
         
         ẋ(t) == [
-            x[3](t),
-            x[4](t),
-            (Thrust * cos(θ(t)) - D_factor * x[3](t)) / x[5](t),
-            (Thrust * sin(θ(t)) - D_factor * x[4](t)) / x[5](t) - g,
+            vx(t),
+            vy(t),
+            (Thrust * cos(theta(t)) - (0.5 * rho_ref * exp(-py(t) / h_scale) * sqrt(vx(t)^2 + vy(t)^2) * Cd * S) * vx(t)) / m(t),
+            (Thrust * sin(theta(t)) - (0.5 * rho_ref * exp(-py(t) / h_scale) * sqrt(vx(t)^2 + vy(t)^2) * Cd * S) * vy(t)) / m(t) - g,
             -Thrust / (g * Isp)
         ]
 
@@ -90,7 +90,6 @@ function OptimalControlProblems.ssto_earth(
 
     # initial guess
     tf_init = 150.0
-    # x(t) = [x, y, vx, vy, m]
     x_init = [1e5, 1e5, 4000.0, 1000.0, 100000.0]
     init = (state=x_init, control=[0.5], variable=[tf_init])
 
