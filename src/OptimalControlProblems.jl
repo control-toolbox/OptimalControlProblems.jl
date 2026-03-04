@@ -84,8 +84,10 @@ function make_list_of_problems()
         :rocket,
         :space_shuttle,
         :steering,
-        :vanderpol
-
+        :vanderpol,
+        ssto_earth,
+        water_rocket,
+        cannonball
     ]
     list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
