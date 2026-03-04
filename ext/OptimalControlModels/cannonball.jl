@@ -57,17 +57,16 @@ function OptimalControlProblems.cannonball(
 
         # variables bounds
         tf_l ≤ tf ≤ tf_u
-        v0_l ≤ w[2] ≤ v0_u
-        gamma0_l ≤ w[3] ≤ gamma0_u
-        r_ball_l ≤ w[4] ≤ r_ball_u
+        v0_l ≤ v0 ≤ v0_u
+        gamma0_l ≤ gamma0 ≤ gamma0_u
+        r_ball_l ≤ rball ≤ r_ball_u
 
         # KE constraint: 0.5 * m * v0^2 ≤ KE_max
-        # m = (4/3) * π * rho_metal * rball^3
-        0.5 * ((4/3) * π * rho_metal * w[4]^3) * w[2]^2 ≤ KE_max
+        0.5 * ((4/3) * pi * rho_metal * rball^3) * v0^2 ≤ KE_max
 
         # initial conditions
-        x[1](t0) == w[2]
-        x[2](t0) == w[3]
+        x[1](t0) == v0
+        x[2](t0) == gamma0
         x[3](t0) == 0.0
         x[4](t0) == 0.0
 
@@ -76,11 +75,8 @@ function OptimalControlProblems.cannonball(
 
         # dynamics
         # x[1]=v_mag, x[2]=gamma, x[3]=h, x[4]=r
-        m_eff = (4/3) * π * rho_metal * w[4]^3
-        S_eff = π * w[4]^2
-        
         ẋ(t) == [
-            -(0.5 * rho0 * exp(-x[3](t) / hr) * x[1](t)^2 * S_eff * Cd) / m_eff - g * sin(x[2](t)),
+            -(0.5 * rho0 * exp(-x[3](t) / hr) * (x[1](t)^2) * (pi * rball^2) * Cd) / ((4/3) * pi * rho_metal * rball^3) - g * sin(x[2](t)),
             -g * cos(x[2](t)) / x[1](t),
             x[1](t) * sin(x[2](t)),
             x[1](t) * cos(x[2](t))

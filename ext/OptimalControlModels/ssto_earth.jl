@@ -109,15 +109,11 @@ function OptimalControlProblems.ssto_earth(
 
         # dynamics
         # x[1]=px, x[2]=py, x[3]=vx, x[4]=vy, x[5]=m
-        v_mag = sqrt(x[3](t)^2 + x[4](t)^2)
-        rho_val = rho_ref * exp(-x[2](t) / h_scale)
-        D_at = 0.5 * rho_val * v_mag * Cd * S
-        
         ẋ(t) == [
             x[3](t),
             x[4](t),
-            (Thrust * cos(u(t)) - D_at * x[3](t)) / x[5](t),
-            (Thrust * sin(u(t)) - D_at * x[4](t)) / x[5](t) - g,
+            (Thrust * cos(u(t)) - (0.5 * rho_ref * exp(-x[2](t) / h_scale) * sqrt(x[3](t)^2 + x[4](t)^2) * Cd * S) * x[3](t)) / x[5](t),
+            (Thrust * sin(u(t)) - (0.5 * rho_ref * exp(-x[2](t) / h_scale) * sqrt(x[3](t)^2 + x[4](t)^2) * Cd * S) * x[4](t)) / x[5](t) - g,
             -Thrust / (g * Isp)
 >>>>>>> b16df7e38a3ff4923fb965ed4235c3a8d4521775
         ]

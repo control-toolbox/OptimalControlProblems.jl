@@ -71,35 +71,14 @@ function OptimalControlProblems.ssto_earth(
         tf_l <= tf <= tf_u, (start = 150.0)
         theta_l <= θ[0:N] <= theta_u, (start = 0.5)
 
-        spx[0:N]
-        spy[0:N]
-        svx[0:N]
-        svy[0:N]
-        sm[0:N]
+        px[0:N], (start = 0.0)
+        py[0:N], (start = i/N * y_tf / s_p)
+        vx[0:N], (start = i/N * vx_tf / s_v)
+        vy[0:N], (start = 0.0)
+        m[0:N], (start = m0 / s_m)
     end)
 
-    # Initial guess: linear interpolation between boundary conditions
-    function linear_interpolate(x_s, x_t, n)
-        return [x_s + (i - 1) / (n - 1) * (x_t - x_s) for i in 1:n]
-    end
-
-    px_tf_guess = 5.0e5 # 500 km
-    m_tf_guess = m0 - (Thrust / (g * Isp)) * 150.0 # rough mass loss estimate
-
-    set_start_value.(spx, linear_interpolate(0.0, px_tf_guess / scaling_p, N + 1))
-    set_start_value.(spy, linear_interpolate(0.0, y_tf / scaling_p, N + 1))
-    set_start_value.(svx, linear_interpolate(0.0, vx_tf / scaling_v, N + 1))
-    set_start_value.(svy, linear_interpolate(0.0, vy_tf / scaling_v, N + 1))
-    set_start_value.(sm,  linear_interpolate(m0 / scaling_m, m_tf_guess / scaling_m, N + 1))
-
-    # unscaled expressions
-    @expression(model, px[i=0:N], spx[i] * scaling_p)
-    @expression(model, py[i=0:N], spy[i] * scaling_p)
-    @expression(model, vx[i=0:N], svx[i] * scaling_v)
-    @expression(model, vy[i=0:N], svy[i] * scaling_v)
-    @expression(model, m[i=0:N],  sm[i] * scaling_m)
-
-    # constraints
+    # boundary constraints (scaled)
     @constraints(model, begin
         px[0] == 0.0
         py[0] == 0.0
@@ -116,8 +95,9 @@ function OptimalControlProblems.ssto_earth(
         Δt, (tf - t0) / N
         
         # dynamics at each node
-        v_at[i=0:N], sqrt(vx[i]^2 + vy[i]^2 + 1e-9)
-        rho_at[i=0:N], rho_ref * exp(-py[i] / h_scale)
+        v_at[i=0:N], sqrt(vx_val[i]^2 + vy_val[i]^2)
+        rho_at[i=0:N], rho_ref * exp(-p_val[i] / h_scale)
+        D_factor_at[i=0:N], 0.5 * rho_at[i] * v_at[i] * Cd * S
         
         dpx[i=0:N], vx[i]
         dpy[i=0:N], vy[i]

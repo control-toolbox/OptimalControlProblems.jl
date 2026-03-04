@@ -60,8 +60,8 @@ function OptimalControlProblems.water_rocket(
 
         # constraints
         0.001 ≤ tf ≤ 1.0
-        0.1e-3 ≤ w[2] ≤ 1.9e-3
-        0.1 ≤ w[3] ≤ 1.5
+        0.1e-3 ≤ Vw0 ≤ 1.9e-3
+        0.1 ≤ gamma0 ≤ 1.5
         x[6](tf) == 0.0
         x[2](t) ≥ 0.0
 
@@ -69,16 +69,16 @@ function OptimalControlProblems.water_rocket(
         x[1](t0) == r_t0
         x[2](t0) == h_t0
         x[3](t0) == v_t0
-        x[4](t0) == w[3]
+        x[4](t0) == gamma0
         x[5](t0) == p_t0
-        x[6](t0) == w[2]
+        x[6](t0) == Vw0
 
         # dynamics
         # x[1]=r, x[2]=h, x[3]=v_mag, x[4]=gamma, x[5]=p, x[6]=Vw
         ẋ(t) == [
             x[3](t) * cos(x[4](t)),
             x[3](t) * sin(x[4](t)),
-            (2 * A_out * (x[5](t) - p_a) - 0.5 * rho_a * x[3](t)^2 * Cd * S - (m_empty + rho_w * x[6](t)) * g * sin(x[4](t))) / (m_empty + rho_w * x[6](t)),
+            (2 * A_out * (x[5](t) - p_a) - 0.5 * rho_a * (x[3](t)^2) * Cd * S - (m_empty + rho_w * x[6](t)) * g * sin(x[4](t))) / (m_empty + rho_w * x[6](t)),
             - (g * cos(x[4](t))) / x[3](t),
             k * x[5](t) * (-sqrt(2 * (x[5](t) - p_a) / rho_w) * A_out) / (V_b - x[6](t)),
             -sqrt(2 * (x[5](t) - p_a) / rho_w) * A_out
