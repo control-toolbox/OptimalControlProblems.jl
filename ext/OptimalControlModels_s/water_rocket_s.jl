@@ -19,7 +19,7 @@ The objective is to maximise the altitude at the end of the water ejection.
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp = OptimalControlProblems.water_rocket_s(OptimalControlBackend(); N=100);
+julia> docp = OptimalControlProblems.water_rocket(OptimalControlBackend(); N=100);
 ```
 """
 function OptimalControlProblems.water_rocket_s(
@@ -53,9 +53,9 @@ function OptimalControlProblems.water_rocket_s(
 
     # model
     ocp = @def begin
-        v_opt = (tf, Vw0, gamma0) ∈ R³, variable
+        w = (tf, Vw0, gamma0) ∈ R³, variable
         t ∈ [t0, tf], time
-        x = (r, h, v, gamma, p, Vw) ∈ R⁶, state
+        x = (r, h, v_mag, gamma, p, Vw) ∈ R⁶, state
         u ∈ R, control # dummy
 
         # constraints
@@ -68,18 +68,18 @@ function OptimalControlProblems.water_rocket_s(
         # initial conditions
         r(t0) == r_t0
         h(t0) == h_t0
-        v(t0) == v_t0
+        v_mag(t0) == v_t0
         gamma(t0) == gamma0
         p(t0) == p_t0
         Vw(t0) == Vw0
 
         # dynamics
-        ∂(r)(t) == v(t) * cos(gamma(t))
-        ∂(h)(t) == v(t) * sin(gamma(t))
+        ∂(r)(t) == v_mag(t) * cos(gamma(t))
+        ∂(h)(t) == v_mag(t) * sin(gamma(t))
         ∂(Vw)(t) == -sqrt(2 * (p(t) - p_a) / rho_w) * A_out
         ∂(p)(t) == k * p(t) * (-sqrt(2 * (p(t) - p_a) / rho_w) * A_out) / (V_b - Vw(t))
-        ∂(v)(t) == (2 * A_out * (p(t) - p_a) - 0.5 * rho_a * v(t)^2 * S * C_d - (m_empty + rho_w * Vw(t)) * g * sin(gamma(t))) / (m_empty + rho_w * Vw(t))
-        ∂(gamma)(t) == - (g * cos(gamma(t))) / v(t)
+        ∂(v_mag)(t) == (2 * A_out * (p(t) - p_a) - 0.5 * rho_a * v_mag(t)^2 * S * C_d - (m_empty + rho_w * Vw(t)) * g * sin(gamma(t))) / (m_empty + rho_w * Vw(t))
+        ∂(gamma)(t) == - (g * cos(gamma(t))) / v_mag(t)
 
         # objective
         h(tf) → max

@@ -19,7 +19,7 @@ The goal is to minimise the time required to reach a circular orbit at an altitu
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp = OptimalControlProblems.ssto_earth_s(OptimalControlBackend(); N=100);
+julia> docp = OptimalControlProblems.ssto_earth(OptimalControlBackend(); N=100);
 ```
 """
 function OptimalControlProblems.ssto_earth_s(
@@ -76,12 +76,14 @@ function OptimalControlProblems.ssto_earth_s(
         # dynamics
         v = sqrt(vx(t)^2 + vy(t)^2)
         rho = rho_ref * exp(-py(t) / h_scale)
-        D = 0.5 * rho * v^2 * Cd * S
+        # D = 0.5 * rho * v^2 * Cd * S
+        # Drag term: D * velocity_component / v = 0.5 * rho * v * velocity_component * Cd * S
+        D_factor = 0.5 * rho * v * Cd * S
         
         ∂(px)(t) == vx(t)
         ∂(py)(t) == vy(t)
-        ∂(vx)(t) == (Thrust * cos(θ(t)) - (v > 1e-6 ? D * vx(t) / v : 0.0)) / m(t)
-        ∂(vy)(t) == (Thrust * sin(θ(t)) - (v > 1e-6 ? D * vy(t) / v : 0.0)) / m(t) - g
+        ∂(vx)(t) == (Thrust * cos(θ(t)) - D_factor * vx(t)) / m(t)
+        ∂(vy)(t) == (Thrust * sin(θ(t)) - D_factor * vy(t)) / m(t) - g
         ∂(m)(t) == -Thrust / (g * Isp)
 
         tf → min

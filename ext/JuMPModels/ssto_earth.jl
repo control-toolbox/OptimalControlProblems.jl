@@ -90,14 +90,16 @@ function OptimalControlProblems.ssto_earth(
         Δt, (tf - t0) / N
         
         # dynamics at each node
-        v_at[i=0:N], sqrt(vx[i]^2 + vy[i]^2 + 1e-9) # add epsilon to avoid sqrt(0)
+        v_at[i=0:N], sqrt(vx[i]^2 + vy[i]^2)
         rho_at[i=0:N], rho_ref * exp(-py[i] / h_scale)
-        D_at[i=0:N], 0.5 * rho_at[i] * v_at[i]^2 * Cd * S
+        # D_at = 0.5 * rho_at * v_at^2 * Cd * S
+        # Drag term: D_at * velocity_component / v_at = 0.5 * rho_at * v_at * velocity_component * Cd * S
+        D_factor_at[i=0:N], 0.5 * rho_at[i] * v_at[i] * Cd * S
         
         dpx[i=0:N], vx[i]
         dpy[i=0:N], vy[i]
-        dvx[i=0:N], (Thrust * cos(θ[i]) - D_at[i] * vx[i] / v_at[i]) / m[i]
-        dvy[i=0:N], (Thrust * sin(θ[i]) - D_at[i] * vy[i] / v_at[i]) / m[i] - g
+        dvx[i=0:N], (Thrust * cos(θ[i]) - D_factor_at[i] * vx[i]) / m[i]
+        dvy[i=0:N], (Thrust * sin(θ[i]) - D_factor_at[i] * vy[i]) / m[i] - g
         dm[i=0:N], -Thrust / (g * Isp)
     end)
 

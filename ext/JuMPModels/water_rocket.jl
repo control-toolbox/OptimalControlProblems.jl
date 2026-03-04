@@ -56,10 +56,10 @@ function OptimalControlProblems.water_rocket(
 
     # metadata
     model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1)
-    model[:state_components] = ["r", "h", "v", "γ", "p", "Vw"]
-    model[:costate_components] = ["∂r", "∂h", "∂v", "∂γ", "∂p", "∂Vw"]
+    model[:state_components] = ["r", "h", "v_mag", "gamma", "p", "Vw"]
+    model[:costate_components] = ["∂r", "∂h", "∂v_mag", "∂gamma", "∂p", "∂Vw"]
     model[:control_components] = ["u"]
-    model[:variable_components] = ["tf", "Vw0", "γ0"]
+    model[:variable_components] = ["tf", "Vw0", "gamma0"]
 
     # N = grid_size
     @expression(model, N, grid_size)
@@ -70,14 +70,14 @@ function OptimalControlProblems.water_rocket(
         begin
             r[0:N], (start = 0.0)
             h[0:N] ≥ 0.0, (start = 0.0)
-            v[0:N], (start = 1.0)
-            γ[0:N], (start = 0.785)
+            v_mag[0:N], (start = 1.0)
+            gamma[0:N], (start = 0.785)
             p[0:N], (start = 7.0e5)
             Vw[0:N], (start = 1.0e-3)
             u[0:N], (start = 0.0)
             0.001 ≤ tf ≤ 1.0, (start = tf_start)
             0.1e-3 ≤ Vw0 ≤ 1.9e-3, (start = Vw0_start)
-            0.1 ≤ γ0 ≤ 1.5, (start = gamma0_start)
+            0.1 ≤ gamma0 ≤ 1.5, (start = gamma0_start)
         end
     )
 
@@ -87,8 +87,8 @@ function OptimalControlProblems.water_rocket(
         begin
             r[0] == r_t0
             h[0] == h_t0
-            v[0] == v_t0
-            γ[0] == γ0
+            v_mag[0] == v_t0
+            gamma[0] == gamma0
             p[0] == p_t0
             Vw[0] == Vw0
             Vw[N] == 0.0
@@ -100,12 +100,12 @@ function OptimalControlProblems.water_rocket(
         model,
         begin
             Δt, (tf - t0) / N
-            dr[i = 0:N], v[i] * cos(γ[i])
-            dh[i = 0:N], v[i] * sin(γ[i])
+            dr[i = 0:N], v_mag[i] * cos(gamma[i])
+            dh[i = 0:N], v_mag[i] * sin(gamma[i])
             dVw[i = 0:N], -sqrt(2 * (p[i] - p_a) / rho_w) * A_out
             dp[i = 0:N], k * p[i] * (-sqrt(2 * (p[i] - p_a) / rho_w) * A_out) / (V_b - Vw[i])
-            dv[i = 0:N], (2 * A_out * (p[i] - p_a) - 0.5 * rho_a * v[i]^2 * S * C_d - (m_empty + rho_w * Vw[i]) * g * sin(γ[i])) / (m_empty + rho_w * Vw[i])
-            dγ[i = 0:N], - (g * cos(γ[i])) / v[i]
+            dv_mag[i = 0:N], (2 * A_out * (p[i] - p_a) - 0.5 * rho_a * v_mag[i]^2 * S * C_d - (m_empty + rho_w * Vw[i]) * g * sin(gamma[i])) / (m_empty + rho_w * Vw[i])
+            dgamma[i = 0:N], - (g * cos(gamma[i])) / v_mag[i]
         end
     )
 
@@ -114,8 +114,8 @@ function OptimalControlProblems.water_rocket(
         begin
             ∂r[i = 1:N], r[i] == r[i - 1] + 0.5 * Δt * (dr[i] + dr[i - 1])
             ∂h[i = 1:N], h[i] == h[i - 1] + 0.5 * Δt * (dh[i] + dh[i - 1])
-            ∂v[i = 1:N], v[i] == v[i - 1] + 0.5 * Δt * (dv[i] + dv[i - 1])
-            ∂γ[i = 1:N], γ[i] == γ[i - 1] + 0.5 * Δt * (dγ[i] + dγ[i - 1])
+            ∂v_mag[i = 1:N], v_mag[i] == v_mag[i - 1] + 0.5 * Δt * (dv_mag[i] + dv_mag[i - 1])
+            ∂gamma[i = 1:N], gamma[i] == gamma[i - 1] + 0.5 * Δt * (dgamma[i] + dgamma[i - 1])
             ∂p[i = 1:N], p[i] == p[i - 1] + 0.5 * Δt * (dp[i] + dp[i - 1])
             ∂Vw[i = 1:N], Vw[i] == Vw[i - 1] + 0.5 * Δt * (dVw[i] + dVw[i - 1])
         end

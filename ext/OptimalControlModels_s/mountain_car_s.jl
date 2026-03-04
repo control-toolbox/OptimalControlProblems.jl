@@ -20,7 +20,7 @@ The problem formulation can be found [here](https://openmdao.github.io/dymos/exa
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp = OptimalControlProblems.mountain_car_s(OptimalControlBackend(); N=100);
+julia> docp = OptimalControlProblems.mountain_car(OptimalControlBackend(); N=100);
 ```
 """
 function OptimalControlProblems.mountain_car_s(

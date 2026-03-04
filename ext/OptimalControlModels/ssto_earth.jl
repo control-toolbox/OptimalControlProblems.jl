@@ -73,18 +73,15 @@ function OptimalControlProblems.ssto_earth(
         # x[1]=x, x[2]=y, x[3]=vx, x[4]=vy, x[5]=m
         v = sqrt(x[3](t)^2 + x[4](t)^2)
         rho = rho_ref * exp(-x[2](t) / h_scale)
-        D = 0.5 * rho * v^2 * Cd * S
-        
-        # Avoid division by zero for D_cos_gamma and D_sin_gamma
-        # gamma is the angle of the velocity vector
-        # cos_gamma = vx / v, sin_gamma = vy / v
-        # if v is small, we can approximate D_cos_gamma and D_sin_gamma
+        # D = 0.5 * rho * v^2 * Cd * S
+        # Drag term: D * velocity_component / v = 0.5 * rho * v * velocity_component * Cd * S
+        D_factor = 0.5 * rho * v * Cd * S
         
         ẋ(t) == [
             x[3](t),
             x[4](t),
-            (Thrust * cos(θ(t)) - (v > 1e-6 ? D * x[3](t) / v : 0.0)) / x[5](t),
-            (Thrust * sin(θ(t)) - (v > 1e-6 ? D * x[4](t) / v : 0.0)) / x[5](t) - g,
+            (Thrust * cos(θ(t)) - D_factor * x[3](t)) / x[5](t),
+            (Thrust * sin(θ(t)) - D_factor * x[4](t)) / x[5](t) - g,
             -Thrust / (g * Isp)
         ]
 
