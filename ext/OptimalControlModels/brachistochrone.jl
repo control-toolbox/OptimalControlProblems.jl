@@ -42,6 +42,8 @@ function OptimalControlProblems.brachistochrone(
     v0 = params[:v0]
     xf = params[:xf]
     yf = params[:yf]
+    u_min = params[:u_min]
+    u_max = params[:u_max]
 
     ocp = @def begin
         tf ∈ R, variable
@@ -50,6 +52,7 @@ function OptimalControlProblems.brachistochrone(
         z = (px, py, v) ∈ R³, state
         u ∈ R, control
 
+        -1.57 ≤ u(t) ≤ 1.57
         0.1 ≤ tf ≤ 20.0 
 
         px(t0) == x0

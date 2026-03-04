@@ -43,6 +43,8 @@ function OptimalControlProblems.brachistochrone(
     v0 = params[:v0]
     xf = params[:xf]
     yf = params[:yf]
+    u_min = params[:u_min]
+    u_max = params[:u_max]
 
     # model
     model = JuMP.Model(args...; kwargs...)
@@ -57,7 +59,7 @@ function OptimalControlProblems.brachistochrone(
             px[0:N]
             py[0:N]
             v[0:N]
-            u[0:N]
+            -1.57 <= u[0:N] <= 1.57
         end
     )
 

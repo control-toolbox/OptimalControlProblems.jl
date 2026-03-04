@@ -1,0 +1,71 @@
+"""
+$(TYPEDSIGNATURES)
+
+Constructs an **OptimalControl problem** representing the Bryson-Denham problem. 
+This problem consists of minimizing the integral of the squared acceleration for a particle 
+required to travel a given distance within a set time, subject to a state constraint on position.
+
+# Arguments
+
+- `::OptimalControlBackend`: Placeholder type to specify the OptimalControl backend or solver interface.
+- `grid_size::Int=500`: (Keyword) Number of discretization points for the direct transcription grid.
+
+# Returns
+
+- `docp`: The discretized optimal control problem (DOCP) object.
+
+# Example
+
+```julia-repl
+julia> using OptimalControlProblems
+
+julia> docp = OptimalControlProblems.bryson_denham(OptimalControlBackend(); N=100);
+```
+
+# References
+
+- Bryson, A. E. and Denham, W. F., "A Steering Program for Optimal Transfer of a Thrust-Limited Rocket Between Neighboring Circular Orbits", 1962.
+- Dymos Examples: https://openmdao.github.io/dymos/examples/bryson_denham/bryson_denham.html
+"""
+
+function OptimalControlProblems.bryson_denham_s(
+    ::OptimalControlBackend,
+    description::Symbol...;
+    grid_size::Int=grid_size_data(:bryson_denham),
+    parameters::Union{Nothing,NamedTuple}=nothing,
+    kwargs...,
+)
+    params = parameters_data(:bryson_denham, parameters)
+    t0, tf = params[:t0], params[:tf]
+    x1_t0, x2_t0 = params[:x1_t0], params[:x2_t0]
+    x1_tf, x2_tf = params[:x1_tf], params[:x2_tf]
+    x1_max = params[:x1_max]
+
+    ocp = @def begin
+        t ∈ [t0, tf], time
+        x ∈ R², state  # x1 (position) et x2(speed)
+        u ∈ R, control   
+
+        x(t0) == [x1_t0, x2_t0]
+        x(tf) == [x1_tf, x2_tf]
+
+        x₁(t) ≤ x1_max
+
+        ∂(x₁)(t) == x₂(t)
+        ∂(x₂)(t) == u(t)
+
+        ∫(0.5 * u(t)^2) → min   
+    end
+
+    init = (state=[0.0, 0.0], control=0.0)
+
+    return direct_transcription(
+        ocp,
+        description...;
+        lagrange_to_mayer=false,
+        init=init,
+        grid_size=grid_size,
+        disc_method=:trapeze,
+        kwargs...,
+    )
+end
