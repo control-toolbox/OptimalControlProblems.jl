@@ -72,8 +72,8 @@ function OptimalControlProblems.ssto_earth(
         theta_l <= theta[0:N] <= theta_u, (start = 0.5)
 
         px[0:N], (start = 0.0)
-        py[0:N], (start = i/N * y_tf / s_p)
-        vx[0:N], (start = i/N * vx_tf / s_v)
+        py[i=0:N], (start = i/N * y_tf / s_p)
+        vx[i=0:N], (start = i/N * vx_tf / s_v)
         vy[0:N], (start = 0.0)
         m[0:N], (start = m0 / s_m)
     end)
@@ -101,7 +101,7 @@ function OptimalControlProblems.ssto_earth(
         m_val[i=0:N], m[i] * s_m
         
         # dynamics at each node
-        v_at[i=0:N], sqrt(vx_val[i]^2 + vy_val[i]^2)
+        v_at[i=0:N], sqrt(vx_val[i]^2 + vy_val[i]^2 + 1e-6)
         rho_at[i=0:N], rho_ref * exp(-p_val[i] / h_scale)
         D_factor_at[i=0:N], 0.5 * rho_at[i] * v_at[i] * Cd * S
         

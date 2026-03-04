@@ -74,14 +74,10 @@ function OptimalControlProblems.ssto_earth_s(
         vy(tf) == vy_tf
 
         # dynamics
-        v_mag = sqrt(vx(t)^2 + vy(t)^2)
-        rho_val = rho_ref * exp(-py(t) / h_scale)
-        D_factor = 0.5 * rho_val * v_mag * Cd * S
-        
         ∂(px)(t) == vx(t)
         ∂(py)(t) == vy(t)
-        ∂(vx)(t) == (Thrust * cos(theta(t)) - D_factor * vx(t)) / m(t)
-        ∂(vy)(t) == (Thrust * sin(theta(t)) - D_factor * vy(t)) / m(t) - g
+        ∂(vx)(t) == (Thrust * cos(theta(t)) - (0.5 * rho_ref * exp(-py(t) / h_scale) * sqrt(vx(t)^2 + vy(t)^2) * Cd * S) * vx(t)) / m(t)
+        ∂(vy)(t) == (Thrust * sin(theta(t)) - (0.5 * rho_ref * exp(-py(t) / h_scale) * sqrt(vx(t)^2 + vy(t)^2) * Cd * S) * vy(t)) / m(t) - g
         ∂(m)(t) == -Thrust / (g * Isp)
 
         tf → min

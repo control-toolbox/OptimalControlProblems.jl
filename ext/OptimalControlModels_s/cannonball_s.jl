@@ -62,8 +62,7 @@ function OptimalControlProblems.cannonball_s(
         r_ball_l ≤ r_ball ≤ r_ball_u
 
         # KE constraint
-        m_eff = (4/3) * π * rho_metal * r_ball^3
-        0.5 * m_eff * v0^2 ≤ KE_max
+        0.5 * ((4/3) * pi * rho_metal * r_ball^3) * v0^2 ≤ KE_max
 
         # initial conditions
         v_mag(t0) == v0
@@ -75,11 +74,7 @@ function OptimalControlProblems.cannonball_s(
         h(tf) == 0.0
 
         # dynamics
-        S_eff = π * r_ball^2
-        rho_val = rho0 * exp(-h(t) / hr)
-        D_eff = 0.5 * rho_val * v_mag(t)^2 * S_eff * Cd
-        
-        ∂(v_mag)(t) == -D_eff/m_eff - g * sin(gamma(t))
+        ∂(v_mag)(t) == -(0.5 * rho0 * exp(-h(t) / hr) * v_mag(t)^2 * (pi * r_ball^2) * Cd) / ((4/3) * pi * rho_metal * r_ball^3) - g * sin(gamma(t))
         ∂(gamma)(t) == -g * cos(gamma(t)) / v_mag(t)
         ∂(h)(t) == v_mag(t) * sin(gamma(t))
         ∂(r)(t) == v_mag(t) * cos(gamma(t))
