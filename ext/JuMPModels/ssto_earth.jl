@@ -49,12 +49,17 @@ function OptimalControlProblems.ssto_earth(
     theta_l = params[:theta_l]
     theta_u = params[:theta_u]
 
+    ## Scalings
+    scaling_p = 1e5
+    scaling_v = 1e3
+    scaling_m = 1e5
+
     # model
     model = JuMP.Model(args...; kwargs...)
 
     # metadata
     model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1)
-    model[:state_components] = ["px", "py", "vx", "vy", "m"]
+    model[:state_components] = ["spx", "spy", "svx", "svy", "sm"]
     model[:costate_components] = ["∂px", "∂py", "∂vx", "∂vy", "∂m"]
     model[:control_components] = ["θ"]
     model[:variable_components] = ["tf"]
@@ -66,12 +71,33 @@ function OptimalControlProblems.ssto_earth(
         tf_l <= tf <= tf_u, (start = 150.0)
         theta_l <= θ[0:N] <= theta_u, (start = 0.5)
 
-        px[0:N], (start = 0.0)
-        py[0:N], (start = 0.0)
-        vx[0:N], (start = 0.0)
-        vy[0:N], (start = 0.0)
-        m[0:N], (start = m0)
+        spx[0:N]
+        spy[0:N]
+        svx[0:N]
+        svy[0:N]
+        sm[0:N]
     end)
+
+    # Initial guess: linear interpolation between boundary conditions
+    function linear_interpolate(x_s, x_t, n)
+        return [x_s + (i - 1) / (n - 1) * (x_t - x_s) for i in 1:n]
+    end
+
+    px_tf_guess = 5.0e5 # 500 km
+    m_tf_guess = m0 - (Thrust / (g * Isp)) * 150.0 # rough mass loss estimate
+
+    set_start_value.(spx, linear_interpolate(0.0, px_tf_guess / scaling_p, N + 1))
+    set_start_value.(spy, linear_interpolate(0.0, y_tf / scaling_p, N + 1))
+    set_start_value.(svx, linear_interpolate(0.0, vx_tf / scaling_v, N + 1))
+    set_start_value.(svy, linear_interpolate(0.0, vy_tf / scaling_v, N + 1))
+    set_start_value.(sm,  linear_interpolate(m0 / scaling_m, m_tf_guess / scaling_m, N + 1))
+
+    # unscaled expressions
+    @expression(model, px[i=0:N], spx[i] * scaling_p)
+    @expression(model, py[i=0:N], spy[i] * scaling_p)
+    @expression(model, vx[i=0:N], svx[i] * scaling_v)
+    @expression(model, vy[i=0:N], svy[i] * scaling_v)
+    @expression(model, m[i=0:N],  sm[i] * scaling_m)
 
     # constraints
     @constraints(model, begin
@@ -90,14 +116,13 @@ function OptimalControlProblems.ssto_earth(
         Δt, (tf - t0) / N
         
         # dynamics at each node
-        v_at[i=0:N], sqrt(vx[i]^2 + vy[i]^2 + 1e-9) # add epsilon to avoid sqrt(0)
+        v_at[i=0:N], sqrt(vx[i]^2 + vy[i]^2 + 1e-9)
         rho_at[i=0:N], rho_ref * exp(-py[i] / h_scale)
-        D_at[i=0:N], 0.5 * rho_at[i] * v_at[i]^2 * Cd * S
         
         dpx[i=0:N], vx[i]
         dpy[i=0:N], vy[i]
-        dvx[i=0:N], (Thrust * cos(θ[i]) - D_at[i] * vx[i] / v_at[i]) / m[i]
-        dvy[i=0:N], (Thrust * sin(θ[i]) - D_at[i] * vy[i] / v_at[i]) / m[i] - g
+        dvx[i=0:N], (Thrust * cos(θ[i]) - 0.5 * rho_at[i] * v_at[i] * vx[i] * Cd * S) / m[i]
+        dvy[i=0:N], (Thrust * sin(θ[i]) - 0.5 * rho_at[i] * v_at[i] * vy[i] * Cd * S) / m[i] - g
         dm[i=0:N], -Thrust / (g * Isp)
     end)
 
