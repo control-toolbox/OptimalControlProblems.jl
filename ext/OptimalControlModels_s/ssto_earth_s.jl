@@ -12,6 +12,7 @@ The goal is to minimise the time required to reach a circular orbit at an altitu
 # Returns
 
 - `docp`: The direct optimal control problem object representing the SSTO Earth problem.
+- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
 
 # Example
 
@@ -50,7 +51,7 @@ function OptimalControlProblems.ssto_earth_s(
 
     # model
     ocp = @def begin
-        w = tf ∈ R, variable
+        tf ∈ R, variable
         t ∈ [t0, tf], time
         x = (px, py, vx, vy, m) ∈ R⁵, state
         u = theta ∈ R, control

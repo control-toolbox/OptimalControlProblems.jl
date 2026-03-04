@@ -50,38 +50,35 @@ function OptimalControlProblems.ssto_earth(
 
     # model
     ocp = @def begin
-        w = tf ∈ R, variable
+        tf ∈ R, variable
         t ∈ [t0, tf], time
-        x = (px, py, vx, vy, m) ∈ R⁵, state
-        u = theta ∈ R, control
+        x ∈ R⁵, state
+        u ∈ R, control
 
         # tf bounds
         tf_l ≤ tf ≤ tf_u
         # control bounds
-        theta_l ≤ theta(t) ≤ theta_u
+        theta_l ≤ u(t) ≤ theta_u
 
         # initial conditions
-        px(t0) == 0.0
-        py(t0) == 0.0
-        vx(t0) == 0.0
-        vy(t0) == 0.0
-        m(t0) == m0
+        x(t0) == [0.0, 0.0, 0.0, 0.0, m0]
 
         # final conditions
-        py(tf) == y_tf
-        vx(tf) == vx_tf
-        vy(tf) == vy_tf
+        x[2](tf) == y_tf
+        x[3](tf) == vx_tf
+        x[4](tf) == vy_tf
 
         # dynamics
-        # v = sqrt(vx^2 + vy^2)
-        # rho = rho_ref * exp(-py / h_scale)
-        # D_factor = 0.5 * rho * v * Cd * S
+        # x[1]=px, x[2]=py, x[3]=vx, x[4]=vy, x[5]=m
+        v_mag = sqrt(x[3](t)^2 + x[4](t)^2)
+        rho_val = rho_ref * exp(-x[2](t) / h_scale)
+        D_at = 0.5 * rho_val * v_mag * Cd * S
         
         ẋ(t) == [
-            vx(t),
-            vy(t),
-            (Thrust * cos(theta(t)) - (0.5 * rho_ref * exp(-py(t) / h_scale) * sqrt(vx(t)^2 + vy(t)^2) * Cd * S) * vx(t)) / m(t),
-            (Thrust * sin(theta(t)) - (0.5 * rho_ref * exp(-py(t) / h_scale) * sqrt(vx(t)^2 + vy(t)^2) * Cd * S) * vy(t)) / m(t) - g,
+            x[3](t),
+            x[4](t),
+            (Thrust * cos(u(t)) - D_at * x[3](t)) / x[5](t),
+            (Thrust * sin(u(t)) - D_at * x[4](t)) / x[5](t) - g,
             -Thrust / (g * Isp)
         ]
 
