@@ -33,40 +33,41 @@ function OptimalControlProblems.cannonball_s(
     # parameters
     params = parameters_data(:cannonball, parameters)
     t0 = params[:t0]
-    ρ_metal = params[:ρ_metal]
+    rho_metal = params[:ρ_metal]
     Cd = params[:Cd]
     KE_max = params[:KE_max]
     g = params[:g]
-    ρ0 = params[:ρ0]
+    rho0 = params[:ρ0]
     hr = params[:hr]
     r_ball_l = params[:r_ball_l]
     r_ball_u = params[:r_ball_u]
     v0_l = params[:v0_l]
     v0_u = params[:v0_u]
-    γ0_l = params[:γ0_l]
-    γ0_u = params[:γ0_u]
+    gamma0_l = params[:γ0_l]
+    gamma0_u = params[:γ0_u]
     tf_l = params[:tf_l]
     tf_u = params[:tf_u]
 
     # model
     ocp = @def begin
-        vvar = (v0, γ0, r_ball, tf) ∈ R⁴, variable
+        vvar = (v0, gamma0, r_ball, tf) ∈ R⁴, variable
         t ∈ [t0, tf], time
-        x = (v, γ, h, r) ∈ R⁴, state
+        x = (v, gamma, h, r) ∈ R⁴, state
+        u ∈ R, control # dummy
 
         # variables bounds
         v0_l ≤ v0 ≤ v0_u
-        γ0_l ≤ γ0 ≤ γ0_u
+        gamma0_l ≤ gamma0 ≤ gamma0_u
         r_ball_l ≤ r_ball ≤ r_ball_u
         tf_l ≤ tf ≤ tf_u
 
         # KE constraint
-        m = (4/3) * π * ρ_metal * r_ball^3
+        m = (4/3) * π * rho_metal * r_ball^3
         0.5 * m * v0^2 ≤ KE_max
 
         # initial conditions
         v(t0) == v0
-        γ(t0) == γ0
+        gamma(t0) == gamma0
         h(t0) == 0
         r(t0) == 0
 
@@ -75,13 +76,13 @@ function OptimalControlProblems.cannonball_s(
 
         # dynamics
         S = π * r_ball^2
-        ρ = ρ0 * exp(-h(t) / hr)
-        D = 0.5 * ρ * v(t)^2 * S * Cd
+        rho = rho0 * exp(-h(t) / hr)
+        D = 0.5 * rho * v(t)^2 * S * Cd
         
-        ∂(v)(t) == -D/m - g * sin(γ(t))
-        ∂(γ)(t) == -g * cos(γ(t)) / v(t)
-        ∂(h)(t) == v(t) * sin(γ(t))
-        ∂(r)(t) == v(t) * cos(γ(t))
+        ∂(v)(t) == -D/m - g * sin(gamma(t))
+        ∂(gamma)(t) == -g * cos(gamma(t)) / v(t)
+        ∂(h)(t) == v(t) * sin(gamma(t))
+        ∂(r)(t) == v(t) * cos(gamma(t))
 
         r(tf) → max
     end
