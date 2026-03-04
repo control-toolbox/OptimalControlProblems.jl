@@ -80,7 +80,6 @@ function OptimalControlProblems.ssto_earth_s(
         svy(t0) == 0
         sm(t0) == m0 / scaling_m
 
-<<<<<<< HEAD
         # final conditions (scaled)
         spy(tf) == y_tf / scaling_p
         svx(tf) == vx_tf / scaling_v
@@ -95,14 +94,6 @@ function OptimalControlProblems.ssto_earth_s(
         ∂(svx)(t) == ((Thrust * cos(θ(t)) - 0.5 * rho * v_norm * vx * Cd * S) / m) / scaling_v
         ∂(svy)(t) == ((Thrust * sin(θ(t)) - 0.5 * rho * v_norm * vy * Cd * S) / m - g) / scaling_v
         ∂(sm)(t) == (-Thrust / (g * Isp)) / scaling_m
-=======
-        # dynamics
-        ∂(px)(t) == vx(t)
-        ∂(py)(t) == vy(t)
-        ∂(vx)(t) == (Thrust * cos(theta(t)) - (0.5 * rho_ref * exp(-py(t) / h_scale) * sqrt(vx(t)^2 + vy(t)^2) * Cd * S) * vx(t)) / m(t)
-        ∂(vy)(t) == (Thrust * sin(theta(t)) - (0.5 * rho_ref * exp(-py(t) / h_scale) * sqrt(vx(t)^2 + vy(t)^2) * Cd * S) * vy(t)) / m(t) - g
-        ∂(m)(t) == -Thrust / (g * Isp)
->>>>>>> 6e3484b3ecdbb3abd72cd067a4387e6c125c3913
 
         tf → min
     end
