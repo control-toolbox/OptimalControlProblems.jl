@@ -2,7 +2,7 @@
 $(TYPEDSIGNATURES)
 
 Constructs an **OptimalControl problem** for the SSTO Earth Launch problem.  
-The goal is to minimise the time required to reach a circular orbit at an altitude of 185 km.  
+The goal is to minimise the time required to reach a circular orbit at an altitude of 185 km.
 
 # Arguments
 
@@ -12,7 +12,6 @@ The goal is to minimise the time required to reach a circular orbit at an altitu
 # Returns
 
 - `docp`: The direct optimal control problem object representing the SSTO Earth problem.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
 
 # Example
 
@@ -49,58 +48,24 @@ function OptimalControlProblems.ssto_earth(
     theta_l = params[:theta_l]
     theta_u = params[:theta_u]
 
-    ## Scalings
-    scaling_p = 1e5
-    scaling_v = 1e3
-    scaling_m = 1e5
-
     # model
     ocp = @def begin
         tf ∈ R, variable
         t ∈ [t0, tf], time
         x ∈ R⁵, state
-<<<<<<< HEAD
-        θ ∈ R, control
-=======
-        u ∈ R, control
->>>>>>> b16df7e38a3ff4923fb965ed4235c3a8d4521775
+        theta ∈ R, control
 
         # tf bounds
         tf_l ≤ tf ≤ tf_u
         # control bounds
-<<<<<<< HEAD
-        theta_l ≤ θ(t) ≤ theta_u
-
-        # unscaled helpers
-        px = x[1](t) * scaling_p
-        py = x[2](t) * scaling_p
-        vx = x[3](t) * scaling_v
-        vy = x[4](t) * scaling_v
-        m  = x[5](t) * scaling_m
-
-        # initial conditions (scaled)
-        x(t0) == [0.0, 0.0, 0.0, 0.0, m0 / scaling_m]
-
-        # final conditions (scaled)
-        x(tf)[2] == y_tf / scaling_p
-        x(tf)[3] == vx_tf / scaling_v
-        x(tf)[4] == vy_tf / scaling_v
-
-        # dynamics (scaled)
-        v_norm = sqrt(vx^2 + vy^2 + 1e-9)
-        rho = rho_ref * exp(-py / h_scale)
-        
-        ẋ(t) == [
-            vx / scaling_p,
-            vy / scaling_p,
-            ((Thrust * cos(θ(t)) - 0.5 * rho * v_norm * vx * Cd * S) / m) / scaling_v,
-            ((Thrust * sin(θ(t)) - 0.5 * rho * v_norm * vy * Cd * S) / m - g) / scaling_v,
-            (-Thrust / (g * Isp)) / scaling_m
-=======
-        theta_l ≤ u(t) ≤ theta_u
+        theta_l ≤ theta(t) ≤ theta_u
 
         # initial conditions
-        x(t0) == [0.0, 0.0, 0.0, 0.0, m0]
+        x[1](t0) == 0.0
+        x[2](t0) == 0.0
+        x[3](t0) == 0.0
+        x[4](t0) == 0.0
+        x[5](t0) == m0
 
         # final conditions
         x[2](tf) == y_tf
@@ -112,27 +77,17 @@ function OptimalControlProblems.ssto_earth(
         ẋ(t) == [
             x[3](t),
             x[4](t),
-            (Thrust * cos(u(t)) - (0.5 * rho_ref * exp(-x[2](t) / h_scale) * sqrt(x[3](t)^2 + x[4](t)^2) * Cd * S) * x[3](t)) / x[5](t),
-            (Thrust * sin(u(t)) - (0.5 * rho_ref * exp(-x[2](t) / h_scale) * sqrt(x[3](t)^2 + x[4](t)^2) * Cd * S) * x[4](t)) / x[5](t) - g,
+            (Thrust * cos(theta(t)) - (0.5 * rho_ref * exp(-x[2](t) / h_scale) * sqrt(x[3](t)^2 + x[4](t)^2) * Cd * S) * x[3](t)) / x[5](t),
+            (Thrust * sin(theta(t)) - (0.5 * rho_ref * exp(-x[2](t) / h_scale) * sqrt(x[3](t)^2 + x[4](t)^2) * Cd * S) * x[4](t)) / x[5](t) - g,
             -Thrust / (g * Isp)
->>>>>>> b16df7e38a3ff4923fb965ed4235c3a8d4521775
         ]
 
         tf → min
     end
 
-    # initial guess: linear interpolation
+    # initial guess
     tf_init = 150.0
-    px_tf_guess = 5.0e5
-    m_tf_guess = m0 - (Thrust / (g * Isp)) * 150.0
-
-    x_init = t -> [
-        (0.0 + t / tf_init * px_tf_guess) / scaling_p,
-        (0.0 + t / tf_init * y_tf) / scaling_p,
-        (0.0 + t / tf_init * vx_tf) / scaling_v,
-        (0.0 + t / tf_init * vy_tf) / scaling_v,
-        (m0 + t / tf_init * (m_tf_guess - m0)) / scaling_m
-    ]
+    x_init = [1e5, 1e5, 4000.0, 1000.0, 100000.0]
     init = (state=x_init, control=[0.5], variable=[tf_init])
 
     # discretise

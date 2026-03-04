@@ -56,7 +56,7 @@ function OptimalControlProblems.cannonball(
     model[:state_components] = ["v_mag", "gamma", "h", "r"]
     model[:costate_components] = ["∂v_mag", "∂gamma", "∂h", "∂r"]
     model[:control_components] = ["u"]
-    model[:variable_components] = ["v0", "gamma0", "rball", "tf"]
+    model[:variable_components] = ["tf", "v0", "gamma0", "rball"]
 
     # N = grid_size
     @expression(model, N, grid_size)
@@ -70,10 +70,10 @@ function OptimalControlProblems.cannonball(
             h[0:N] ≥ 0.0, (start = 1.0)
             r[0:N] ≥ 0.0, (start = 1.0)
             u[0:N], (start = 0.0)
+            tf_l ≤ tf ≤ tf_u, (start = 10.0)
             v0_l ≤ v0 ≤ v0_u, (start = 100.0)
             gamma0_l ≤ gamma0 ≤ gamma0_u, (start = 0.785)
             r_ball_l ≤ rball ≤ r_ball_u, (start = 0.05)
-            tf_l ≤ tf ≤ tf_u, (start = 10.0)
         end
     )
 

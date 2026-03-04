@@ -12,7 +12,6 @@ The goal is to maximise the total range of a cannonball by optimizing its radius
 # Returns
 
 - `docp`: The direct optimal control problem object representing the cannonball problem.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
 
 # Example
 
@@ -50,36 +49,37 @@ function OptimalControlProblems.cannonball_s(
 
     # model
     ocp = @def begin
-        w = (tf, v0, gamma0, r_ball) ∈ R⁴, variable
+        v = (tf, v0, gamma0, rball) ∈ R⁴, variable
         t ∈ [t0, tf], time
-        x = (v_mag, gamma, h, r) ∈ R⁴, state
+        x ∈ R⁴, state
         u ∈ R, control # dummy
 
         # variables bounds
         tf_l ≤ tf ≤ tf_u
         v0_l ≤ v0 ≤ v0_u
         gamma0_l ≤ gamma0 ≤ gamma0_u
-        r_ball_l ≤ r_ball ≤ r_ball_u
+        r_ball_l ≤ rball ≤ r_ball_u
 
         # KE constraint
-        0.5 * ((4/3) * pi * rho_metal * r_ball^3) * v0^2 ≤ KE_max
+        0.5 * ((4/3) * pi * rho_metal * rball^3) * v0^2 ≤ KE_max
 
         # initial conditions
-        v_mag(t0) == v0
-        gamma(t0) == gamma0
-        h(t0) == 0.0
-        r(t0) == 0.0
+        x[1](t0) == v0
+        x[2](t0) == gamma0
+        x[3](t0) == 0.0
+        x[4](t0) == 0.0
 
         # final conditions
-        h(tf) == 0.0
+        x[3](tf) == 0.0
 
         # dynamics
-        ∂(v_mag)(t) == -(0.5 * rho0 * exp(-h(t) / hr) * v_mag(t)^2 * (pi * r_ball^2) * Cd) / ((4/3) * pi * rho_metal * r_ball^3) - g * sin(gamma(t))
-        ∂(gamma)(t) == -g * cos(gamma(t)) / v_mag(t)
-        ∂(h)(t) == v_mag(t) * sin(gamma(t))
-        ∂(r)(t) == v_mag(t) * cos(gamma(t))
+        # x[1]=v_mag, x[2]=gamma, x[3]=h, x[4]=r
+        ∂(x[1])(t) == -(0.5 * rho0 * exp(-x[3](t) / hr) * x[1](t)^2 * (pi * rball^2) * Cd) / ((4/3) * pi * rho_metal * rball^3) - g * sin(x[2](t))
+        ∂(x[2])(t) == -g * cos(x[2](t)) / (x[1](t) + 1e-6)
+        ∂(x[3])(t) == x[1](t) * sin(x[2](t))
+        ∂(x[4])(t) == x[1](t) * cos(x[2](t))
 
-        r(tf) → max
+        x[4](tf) → max
     end
 
     # initial guess
@@ -87,7 +87,7 @@ function OptimalControlProblems.cannonball_s(
     gamma0_init = 0.785
     r_ball_init = 0.05
     tf_init = 10.0
-    init = (state=[v0_init, gamma0_init, 1.0, 1.0], variable=[tf_init, v0_init, gamma0_init, r_ball_init])
+    init = (state=[v0_init, gamma0_init, 1.0, 1.0], control=0.0, variable=[tf_init, v0_init, gamma0_init, r_ball_init])
 
     # discretise
     docp = direct_transcription(

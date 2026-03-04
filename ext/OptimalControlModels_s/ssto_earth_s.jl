@@ -1,7 +1,7 @@
 """
 $(TYPEDSIGNATURES)
 
-Constructs an **OptimalControl problem** for the SSTO Earth Launch problem using scalar state components.  
+Constructs an **OptimalControl problem** for the SSTO Earth Launch problem using scalar state components (symbolic version).  
 The goal is to minimise the time required to reach a circular orbit at an altitude of 185 km.  
 
 # Arguments
@@ -12,14 +12,13 @@ The goal is to minimise the time required to reach a circular orbit at an altitu
 # Returns
 
 - `docp`: The direct optimal control problem object representing the SSTO Earth problem.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
 
 # Example
 
 ```julia-repl
 julia> using OptimalControlProblems
 
-julia> docp = OptimalControlProblems.ssto_earth_s(OptimalControlBackend(); N=100);
+julia> docp = OptimalControlProblems.ssto_earth(OptimalControlBackend(); N=100);
 ```
 """
 function OptimalControlProblems.ssto_earth_s(
@@ -49,76 +48,44 @@ function OptimalControlProblems.ssto_earth_s(
     theta_l = params[:theta_l]
     theta_u = params[:theta_u]
 
-    ## Scalings
-    scaling_p = 1e5
-    scaling_v = 1e3
-    scaling_m = 1e5
-
     # model
     ocp = @def begin
         tf ∈ R, variable
         t ∈ [t0, tf], time
-        x = (spx, spy, svx, svy, sm) ∈ R⁵, state
-        θ ∈ R, control
+        x ∈ R⁵, state
+        theta ∈ R, control
 
         # tf bounds
         tf_l ≤ tf ≤ tf_u
         # control bounds
-        theta_l ≤ θ(t) ≤ theta_u
+        theta_l ≤ theta(t) ≤ theta_u
 
-        # unscaled helpers
-        px = spx(t) * scaling_p
-        py = spy(t) * scaling_p
-        vx = svx(t) * scaling_v
-        vy = svy(t) * scaling_v
-        m  = sm(t) * scaling_m
+        # initial conditions
+        x[1](t0) == 0.0
+        x[2](t0) == 0.0
+        x[3](t0) == 0.0
+        x[4](t0) == 0.0
+        x[5](t0) == m0
 
-        # initial conditions (scaled)
-        spx(t0) == 0
-        spy(t0) == 0
-        svx(t0) == 0
-        svy(t0) == 0
-        sm(t0) == m0 / scaling_m
+        # final conditions
+        x[2](tf) == y_tf
+        x[3](tf) == vx_tf
+        x[4](tf) == vy_tf
 
-<<<<<<< HEAD
-        # final conditions (scaled)
-        spy(tf) == y_tf / scaling_p
-        svx(tf) == vx_tf / scaling_v
-        svy(tf) == vy_tf / scaling_v
-
-        # dynamics (scaled)
-        v_norm = sqrt(vx^2 + vy^2 + 1e-9)
-        rho = rho_ref * exp(-py / h_scale)
-        
-        ∂(spx)(t) == vx / scaling_p
-        ∂(spy)(t) == vy / scaling_p
-        ∂(svx)(t) == ((Thrust * cos(θ(t)) - 0.5 * rho * v_norm * vx * Cd * S) / m) / scaling_v
-        ∂(svy)(t) == ((Thrust * sin(θ(t)) - 0.5 * rho * v_norm * vy * Cd * S) / m - g) / scaling_v
-        ∂(sm)(t) == (-Thrust / (g * Isp)) / scaling_m
-=======
         # dynamics
-        ∂(px)(t) == vx(t)
-        ∂(py)(t) == vy(t)
-        ∂(vx)(t) == (Thrust * cos(theta(t)) - (0.5 * rho_ref * exp(-py(t) / h_scale) * sqrt(vx(t)^2 + vy(t)^2) * Cd * S) * vx(t)) / m(t)
-        ∂(vy)(t) == (Thrust * sin(theta(t)) - (0.5 * rho_ref * exp(-py(t) / h_scale) * sqrt(vx(t)^2 + vy(t)^2) * Cd * S) * vy(t)) / m(t) - g
-        ∂(m)(t) == -Thrust / (g * Isp)
->>>>>>> 6e3484b3ecdbb3abd72cd067a4387e6c125c3913
+        # x[1]=px, x[2]=py, x[3]=vx, x[4]=vy, x[5]=m
+        ∂(x[1])(t) == x[3](t)
+        ∂(x[2])(t) == x[4](t)
+        ∂(x[3])(t) == (Thrust * cos(theta(t)) - (0.5 * rho_ref * exp(-x[2](t) / h_scale) * sqrt(x[3](t)^2 + x[4](t)^2) * Cd * S) * x[3](t)) / x[5](t)
+        ∂(x[4])(t) == (Thrust * sin(theta(t)) - (0.5 * rho_ref * exp(-x[2](t) / h_scale) * sqrt(x[3](t)^2 + x[4](t)^2) * Cd * S) * x[4](t)) / x[5](t) - g
+        ∂(x[5])(t) == -Thrust / (g * Isp)
 
         tf → min
     end
 
-    # initial guess: linear interpolation
+    # initial guess
     tf_init = 150.0
-    px_tf_guess = 5.0e5
-    m_tf_guess = m0 - (Thrust / (g * Isp)) * 150.0
-
-    x_init = t -> [
-        (0.0 + t / tf_init * px_tf_guess) / scaling_p,
-        (0.0 + t / tf_init * y_tf) / scaling_p,
-        (0.0 + t / tf_init * vx_tf) / scaling_v,
-        (0.0 + t / tf_init * vy_tf) / scaling_v,
-        (m0 + t / tf_init * (m_tf_guess - m0)) / scaling_m
-    ]
+    x_init = [1e5, 1e5, 4000.0, 1000.0, 100000.0]
     init = (state=x_init, control=[0.5], variable=[tf_init])
 
     # discretise

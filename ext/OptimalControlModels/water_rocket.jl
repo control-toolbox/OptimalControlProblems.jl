@@ -53,7 +53,7 @@ function OptimalControlProblems.water_rocket(
 
     # model
     ocp = @def begin
-        w = (tf, Vw0, gamma0) ∈ R³, variable
+        v = (tf, Vw0, gamma0) ∈ R³, variable
         t ∈ [t0, tf], time
         x ∈ R⁶, state
         u ∈ R, control # dummy
@@ -79,9 +79,9 @@ function OptimalControlProblems.water_rocket(
             x[3](t) * cos(x[4](t)),
             x[3](t) * sin(x[4](t)),
             (2 * A_out * (x[5](t) - p_a) - 0.5 * rho_a * (x[3](t)^2) * Cd * S - (m_empty + rho_w * x[6](t)) * g * sin(x[4](t))) / (m_empty + rho_w * x[6](t)),
-            - (g * cos(x[4](t))) / x[3](t),
-            k * x[5](t) * (-sqrt(2 * (x[5](t) - p_a) / rho_w) * A_out) / (V_b - x[6](t)),
-            -sqrt(2 * (x[5](t) - p_a) / rho_w) * A_out
+            - (g * cos(x[4](t))) / (x[3](t) + 1e-6),
+            k * x[5](t) * (-sqrt(max(0.0, 2 * (x[5](t) - p_a) / rho_w)) * A_out) / max(1e-9, V_b - x[6](t)),
+            -sqrt(max(0.0, 2 * (x[5](t) - p_a) / rho_w)) * A_out
         ]
 
         # objective

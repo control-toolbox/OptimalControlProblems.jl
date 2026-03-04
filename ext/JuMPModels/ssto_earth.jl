@@ -49,36 +49,37 @@ function OptimalControlProblems.ssto_earth(
     theta_l = params[:theta_l]
     theta_u = params[:theta_u]
 
-    ## Scalings
-    scaling_p = 1e5
-    scaling_v = 1e3
-    scaling_m = 1e5
-
     # model
     model = JuMP.Model(args...; kwargs...)
 
     # metadata
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1)
-    model[:state_components] = ["spx", "spy", "svx", "svy", "sm"]
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1)
+    model[:state_components] = ["px", "py", "vx", "vy", "m"]
     model[:costate_components] = ["∂px", "∂py", "∂vx", "∂vy", "∂m"]
-    model[:control_components] = ["θ"]
+    model[:control_components] = ["theta"]
     model[:variable_components] = ["tf"]
 
     N = grid_size
     @expression(model, N_expr, N)
 
-    @variables(model, begin
-        tf_l <= tf <= tf_u, (start = 150.0)
-        theta_l <= θ[0:N] <= theta_u, (start = 0.5)
+    @variable(model, tf_l <= tf <= tf_u, start = 150.0)
+    @variable(model, theta_l <= theta[0:N] <= theta_u, start = 0.5)
 
-        px[0:N], (start = 0.0)
-        py[0:N], (start = i/N * y_tf / s_p)
-        vx[0:N], (start = i/N * vx_tf / s_v)
-        vy[0:N], (start = 0.0)
-        m[0:N], (start = m0 / s_m)
-    end)
+    @variable(model, px[0:N])
+    @variable(model, py[0:N])
+    @variable(model, vx[0:N])
+    @variable(model, vy[0:N])
+    @variable(model, m[0:N])
 
-    # boundary constraints (scaled)
+    for i in 0:N
+        set_start_value(px[i], 0.0)
+        set_start_value(py[i], i/N * y_tf)
+        set_start_value(vx[i], i/N * vx_tf)
+        set_start_value(vy[i], 0.0)
+        set_start_value(m[i], m0)
+    end
+
+    # boundary constraints
     @constraints(model, begin
         px[0] == 0.0
         py[0] == 0.0
@@ -95,14 +96,14 @@ function OptimalControlProblems.ssto_earth(
         Δt, (tf - t0) / N
         
         # dynamics at each node
-        v_at[i=0:N], sqrt(vx_val[i]^2 + vy_val[i]^2)
-        rho_at[i=0:N], rho_ref * exp(-p_val[i] / h_scale)
+        v_at[i=0:N], sqrt(vx[i]^2 + vy[i]^2 + 1e-6)
+        rho_at[i=0:N], rho_ref * exp(-py[i] / h_scale)
         D_factor_at[i=0:N], 0.5 * rho_at[i] * v_at[i] * Cd * S
         
         dpx[i=0:N], vx[i]
         dpy[i=0:N], vy[i]
-        dvx[i=0:N], (Thrust * cos(θ[i]) - 0.5 * rho_at[i] * v_at[i] * vx[i] * Cd * S) / m[i]
-        dvy[i=0:N], (Thrust * sin(θ[i]) - 0.5 * rho_at[i] * v_at[i] * vy[i] * Cd * S) / m[i] - g
+        dvx[i=0:N], (Thrust * cos(theta[i]) - D_factor_at[i] * vx[i]) / m[i]
+        dvy[i=0:N], (Thrust * sin(theta[i]) - D_factor_at[i] * vy[i]) / m[i] - g
         dm[i=0:N], -Thrust / (g * Isp)
     end)
 
@@ -114,7 +115,7 @@ function OptimalControlProblems.ssto_earth(
         ∂m[i=1:N], m[i] == m[i-1] + 0.5 * Δt * (dm[i] + dm[i-1])
     end)
 
-    @objective(model, Min, tf)
+    @objective(model, Min, tf / 100.0)
 
     return model
 end

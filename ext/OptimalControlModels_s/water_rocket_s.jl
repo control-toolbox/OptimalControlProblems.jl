@@ -53,36 +53,37 @@ function OptimalControlProblems.water_rocket_s(
 
     # model
     ocp = @def begin
-        w = (tf, Vw0, gamma0) ∈ R³, variable
+        v = (tf, Vw0, gamma0) ∈ R³, variable
         t ∈ [t0, tf], time
-        x = (r, h, v_mag, gamma, p, Vw) ∈ R⁶, state
+        x ∈ R⁶, state
         u ∈ R, control # dummy
 
         # constraints
         0.001 ≤ tf ≤ 1.0
         0.1e-3 ≤ Vw0 ≤ 1.9e-3
         0.1 ≤ gamma0 ≤ 1.5
-        Vw(tf) == 0.0
-        h(t) ≥ 0.0
+        x[6](tf) == 0.0
+        x[2](t) ≥ 0.0
 
         # initial conditions
-        r(t0) == r_t0
-        h(t0) == h_t0
-        v_mag(t0) == v_t0
-        gamma(t0) == gamma0
-        p(t0) == p_t0
-        Vw(t0) == Vw0
+        x[1](t0) == r_t0
+        x[2](t0) == h_t0
+        x[3](t0) == v_t0
+        x[4](t0) == gamma0
+        x[5](t0) == p_t0
+        x[6](t0) == Vw0
 
         # dynamics
-        ∂(r)(t) == v_mag(t) * cos(gamma(t))
-        ∂(h)(t) == v_mag(t) * sin(gamma(t))
-        ∂(Vw)(t) == -sqrt(2 * (p(t) - p_a) / rho_w) * A_out
-        ∂(p)(t) == k * p(t) * (-sqrt(2 * (p(t) - p_a) / rho_w) * A_out) / (V_b - Vw(t))
-        ∂(v_mag)(t) == (2 * A_out * (p(t) - p_a) - 0.5 * rho_a * v_mag(t)^2 * Cd * S - (m_empty + rho_w * Vw(t)) * g * sin(gamma(t))) / (m_empty + rho_w * Vw(t))
-        ∂(gamma)(t) == - (g * cos(gamma(t))) / v_mag(t)
+        # x[1]=r, x[2]=h, x[3]=v_mag, x[4]=gamma, x[5]=p, x[6]=Vw
+        ∂(x[1])(t) == x[3](t) * cos(x[4](t))
+        ∂(x[2])(t) == x[3](t) * sin(x[4](t))
+        ∂(x[3])(t) == (2 * A_out * (x[5](t) - p_a) - 0.5 * rho_a * (x[3](t)^2) * Cd * S - (m_empty + rho_w * x[6](t)) * g * sin(x[4](t))) / (m_empty + rho_w * x[6](t))
+        ∂(x[4])(t) == - (g * cos(x[4](t))) / (x[3](t) + 1e-6)
+        ∂(x[5])(t) == k * x[5](t) * (-sqrt(max(0.0, 2 * (x[5](t) - p_a) / rho_w)) * A_out) / max(1e-9, V_b - x[6](t))
+        ∂(x[6])(t) == -sqrt(max(0.0, 2 * (x[5](t) - p_a) / rho_w)) * A_out
 
         # objective
-        h(tf) → max
+        x[2](tf) → max
     end
 
     # initial guess
