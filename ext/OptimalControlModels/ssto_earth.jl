@@ -75,16 +75,15 @@ function OptimalControlProblems.ssto_earth(
         vy(tf) == vy_tf
 
         # dynamics
-        v_norm = sqrt(vx(t)^2 + vy(t)^2 + 1e-6)
+        v_norm = sqrt(vx(t)^2 + vy(t)^2 + 1.0e-6)
         rho = rho_ref * exp(-py(t) / h_scale)
+        drag = 0.5 * rho * v_norm * Cd * S
         
-        ẋ(t) == [
-            vx(t),
-            vy(t),
-            (Thrust * cos(theta(t)) - 0.5 * rho * v_norm * vx(t) * Cd * S) / m(t),
-            (Thrust * sin(theta(t)) - 0.5 * rho * v_norm * vy(t) * Cd * S) / m(t) - g,
-            -Thrust / (g * Isp)
-        ]
+        ∂(px)(t) == vx(t)
+        ∂(py)(t) == vy(t)
+        ∂(vx)(t) == (Thrust * cos(theta(t)) - drag * vx(t)) / m(t)
+        ∂(vy)(t) == (Thrust * sin(theta(t)) - drag * vy(t)) / m(t) - g
+        ∂(m)(t)  == -Thrust / (g * Isp)
 
         tf / 100.0 → min
     end
