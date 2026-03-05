@@ -53,33 +53,38 @@ function OptimalControlProblems.ssto_earth(
         tf ∈ R, variable
         t ∈ [t0, tf], time
         x ∈ R⁵, state
-        theta ∈ R, control
+        θ ∈ R, control
 
         # tf bounds
         tf_l ≤ tf ≤ tf_u
         # control bounds
-        theta_l ≤ theta(t) ≤ theta_u
+        theta_l ≤ θ(t) ≤ theta_u
 
-        # initial conditions
-        x[1](t0) == 0.0
-        x[2](t0) == 0.0
-        x[3](t0) == 0.0
-        x[4](t0) == 0.0
-        x[5](t0) == m0
+        # unscaled helpers
+        px = x[1](t) * scaling_p
+        py = x[2](t) * scaling_p
+        vx = x[3](t) * scaling_v
+        vy = x[4](t) * scaling_v
+        m  = x[5](t) * scaling_m
 
-        # final conditions
-        x[2](tf) == y_tf
-        x[3](tf) == vx_tf
-        x[4](tf) == vy_tf
+        # initial conditions (scaled)
+        x(t0) == [0.0, 0.0, 0.0, 0.0, m0 / scaling_m]
 
-        # dynamics
-        # x[1]=px, x[2]=py, x[3]=vx, x[4]=vy, x[5]=m
+        # final conditions (scaled)
+        x(tf)[2] == y_tf / scaling_p
+        x(tf)[3] == vx_tf / scaling_v
+        x(tf)[4] == vy_tf / scaling_v
+
+        # dynamics (scaled)
+        v_norm = sqrt(vx^2 + vy^2 + 1e-9)
+        rho = rho_ref * exp(-py / h_scale)
+        
         ẋ(t) == [
-            x[3](t),
-            x[4](t),
-            (Thrust * cos(theta(t)) - (0.5 * rho_ref * exp(-x[2](t) / h_scale) * sqrt(x[3](t)^2 + x[4](t)^2) * Cd * S) * x[3](t)) / x[5](t),
-            (Thrust * sin(theta(t)) - (0.5 * rho_ref * exp(-x[2](t) / h_scale) * sqrt(x[3](t)^2 + x[4](t)^2) * Cd * S) * x[4](t)) / x[5](t) - g,
-            -Thrust / (g * Isp)
+            vx / scaling_p,
+            vy / scaling_p,
+            ((Thrust * cos(θ(t)) - 0.5 * rho * v_norm * vx * Cd * S) / m) / scaling_v,
+            ((Thrust * sin(θ(t)) - 0.5 * rho * v_norm * vy * Cd * S) / m - g) / scaling_v,
+            (-Thrust / (g * Isp)) / scaling_m
         ]
 
         tf → min
