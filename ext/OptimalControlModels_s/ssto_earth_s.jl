@@ -52,7 +52,7 @@ function OptimalControlProblems.ssto_earth_s(
     ocp = @def begin
         tf ∈ R, variable
         t ∈ [t0, tf], time
-        (px, py, vx, vy, m) ∈ R⁵, state
+        x = (px, py, vx, vy, m) ∈ R⁵, state
         theta ∈ R, control
 
         # tf bounds
