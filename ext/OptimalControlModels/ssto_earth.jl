@@ -52,48 +52,52 @@ function OptimalControlProblems.ssto_earth(
     ocp = @def begin
         tf ∈ R, variable
         t ∈ [t0, tf], time
-        x ∈ R⁵, state
-        θ ∈ R, control
+        (px, py, vx, vy, m) ∈ R⁵, state
+        theta ∈ R, control
 
         # tf bounds
         tf_l ≤ tf ≤ tf_u
         # control bounds
-        theta_l ≤ θ(t) ≤ theta_u
+        theta_l ≤ theta(t) ≤ theta_u
 
-        # unscaled helpers
-        px = x[1](t) * scaling_p
-        py = x[2](t) * scaling_p
-        vx = x[3](t) * scaling_v
-        vy = x[4](t) * scaling_v
-        m  = x[5](t) * scaling_m
+        # initial conditions
+        px(t0) == 0.0
+        py(t0) == 0.0
+        vx(t0) == 0.0
+        vy(t0) == 0.0
+        m(t0)  == m0
 
-        # initial conditions (scaled)
-        x(t0) == [0.0, 0.0, 0.0, 0.0, m0 / scaling_m]
+        # final conditions
+        py(tf) == y_tf
+        vx(tf) == vx_tf
+        vy(tf) == vy_tf
 
-        # final conditions (scaled)
-        x(tf)[2] == y_tf / scaling_p
-        x(tf)[3] == vx_tf / scaling_v
-        x(tf)[4] == vy_tf / scaling_v
-
-        # dynamics (scaled)
-        v_norm = sqrt(vx^2 + vy^2 + 1e-9)
-        rho = rho_ref * exp(-py / h_scale)
+        # dynamics
+        v_norm = sqrt(vx(t)^2 + vy(t)^2 + 1e-9)
+        rho = rho_ref * exp(-py(t) / h_scale)
         
-        ẋ(t) == [
-            vx / scaling_p,
-            vy / scaling_p,
-            ((Thrust * cos(θ(t)) - 0.5 * rho * v_norm * vx * Cd * S) / m) / scaling_v,
-            ((Thrust * sin(θ(t)) - 0.5 * rho * v_norm * vy * Cd * S) / m - g) / scaling_v,
-            (-Thrust / (g * Isp)) / scaling_m
-        ]
+        ∂(px)(t) == vx(t)
+        ∂(py)(t) == vy(t)
+        ∂(vx)(t) == (Thrust * cos(theta(t)) - 0.5 * rho * v_norm * vx(t) * Cd * S) / m(t)
+        ∂(vy)(t) == (Thrust * sin(theta(t)) - 0.5 * rho * v_norm * vy(t) * Cd * S) / m(t) - g
+        ∂(m)(t)  == -Thrust / (g * Isp)
 
-        tf → min
+        tf / 100.0 → min
     end
 
     # initial guess
     tf_init = 150.0
-    x_init = [1e5, 1e5, 4000.0, 1000.0, 100000.0]
-    init = (state=x_init, control=[0.5], variable=[tf_init])
+    init = (
+        state = t -> [
+            0.0,                                      # px
+            (t - t0) / (tf_init - t0) * y_tf,         # py
+            (t - t0) / (tf_init - t0) * vx_tf,         # vx
+            0.0,                                      # vy
+            m0                                        # m
+        ],
+        control = 0.5,
+        variable = tf_init
+    )
 
     # discretise
     docp = direct_transcription(
