@@ -57,6 +57,8 @@ function OptimalControlProblems.ssto_earth_s(
 
         # tf bounds
         tf_l ≤ tf ≤ tf_u
+        # state bounds
+        m(t) ≥ 1.0
         # control bounds
         theta_l ≤ theta(t) ≤ theta_u
 
@@ -73,7 +75,7 @@ function OptimalControlProblems.ssto_earth_s(
         vy(tf) == vy_tf
 
         # dynamics
-        v_norm = sqrt(vx(t)^2 + vy(t)^2 + 1e-9)
+        v_norm = sqrt(vx(t)^2 + vy(t)^2 + 1e-6)
         rho = rho_ref * exp(-py(t) / h_scale)
         
         ∂(px)(t) == vx(t)
@@ -86,7 +88,7 @@ function OptimalControlProblems.ssto_earth_s(
     end
 
     # initial guess
-    tf_init = 150.0
+    tf_init = 100.0
     init = (
         state = t -> [
             0.0,                                      # px

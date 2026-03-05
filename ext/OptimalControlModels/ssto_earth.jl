@@ -57,6 +57,8 @@ function OptimalControlProblems.ssto_earth(
 
         # tf bounds
         tf_l ≤ tf ≤ tf_u
+        # state bounds
+        m(t) ≥ 1.0
         # control bounds
         theta_l ≤ theta(t) ≤ theta_u
 
@@ -73,34 +75,22 @@ function OptimalControlProblems.ssto_earth(
         vy(tf) == vy_tf
 
         # dynamics
-        ẋ(t) == ssto_dynamics(px(t), py(t), vx(t), vy(t), m(t), theta(t), params)
+        v_norm = sqrt(vx(t)^2 + vy(t)^2 + 1e-6)
+        rho = rho_ref * exp(-py(t) / h_scale)
+        
+        ẋ(t) == [
+            vx(t),
+            vy(t),
+            (Thrust * cos(theta(t)) - 0.5 * rho * v_norm * vx(t) * Cd * S) / m(t),
+            (Thrust * sin(theta(t)) - 0.5 * rho * v_norm * vy(t) * Cd * S) / m(t) - g,
+            -Thrust / (g * Isp)
+        ]
 
         tf / 100.0 → min
     end
 
-    function ssto_dynamics(px, py, vx, vy, m, theta, params)
-        rho_ref = params[:rho_ref]
-        h_scale = params[:h_scale]
-        Thrust = params[:Thrust]
-        Cd = params[:Cd]
-        S = params[:S]
-        g = params[:g]
-        Isp = params[:Isp]
-
-        v_norm = sqrt(vx^2 + vy^2 + 1e-9)
-        rho = rho_ref * exp(-py / h_scale)
-        
-        dpx = vx
-        dpy = vy
-        dvx = (Thrust * cos(theta) - 0.5 * rho * v_norm * vx * Cd * S) / m
-        dvy = (Thrust * sin(theta) - 0.5 * rho * v_norm * vy * Cd * S) / m - g
-        dm  = -Thrust / (g * Isp)
-
-        return [dpx, dpy, dvx, dvy, dm]
-    end
-
     # initial guess
-    tf_init = 150.0
+    tf_init = 100.0
     init = (
         state = t -> [
             0.0,                                      # px

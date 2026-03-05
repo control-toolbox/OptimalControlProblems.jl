@@ -62,7 +62,7 @@ function OptimalControlProblems.ssto_earth(
     N = grid_size
     @expression(model, N_expr, N)
 
-    @variable(model, tf_l <= tf <= tf_u, start = 150.0)
+    @variable(model, tf_l <= tf <= tf_u, start = 100.0)
     @variable(model, theta_l <= theta[0:N] <= theta_u, start = 0.5)
 
     @variable(model, px[0:N])
