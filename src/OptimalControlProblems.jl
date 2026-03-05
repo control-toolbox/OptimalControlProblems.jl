@@ -85,7 +85,6 @@ function make_list_of_problems()
         :space_shuttle,
         :steering,
         :vanderpol,
-        :ssto_earth,
         :water_rocket,
         :cannonball
     ]
