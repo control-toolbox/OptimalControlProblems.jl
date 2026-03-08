@@ -68,9 +68,6 @@ function make_list_of_problems()
         :dielectrophoretic_particle,
         :moonlander,
         :ducted_fan,
-        :ssto_earth,
-        :water_rocket,
-        :cannonball
     ]
     list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
