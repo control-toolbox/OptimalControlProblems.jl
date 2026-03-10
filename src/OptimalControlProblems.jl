@@ -65,9 +65,7 @@ function make_list_of_problems()
     problems_to_exclude = [
         :bioreactor,
         :cart_pendulum,
-        #:dielectrophoretic_particle,
         :moonlander,
-        :ducted_fan,
     ]
     list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 

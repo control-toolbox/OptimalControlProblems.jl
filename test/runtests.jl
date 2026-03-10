@@ -32,7 +32,7 @@ list_of_problems = OptimalControlProblems.problems()
 
 # # Override the list of problems to test
 list_of_problems = [
-    :dielectrophoretic_particle,
+    :ducted_fan,
 ]
 
 # The list of all the problems to test
