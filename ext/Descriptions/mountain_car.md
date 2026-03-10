@@ -10,7 +10,7 @@ The problem can be stated as
 ```math
 \begin{aligned}
 \min_{x,v,u,t_f} \quad & J = t_f \\
-	ext{s.t.} \quad & \dot{x}(t) = v(t), \\
+	\text{s.t.} \quad & \dot{x}(t) = v(t), \\
 & \dot{v}(t) = a \, u(t) - b \, \cos(c \, x(t)), \\
 & x(0) = -0.5, \quad v(0) = 0.0, \\
 & x(t_f) = 0.5, \quad v(t_f) \ge 0.0, \\
