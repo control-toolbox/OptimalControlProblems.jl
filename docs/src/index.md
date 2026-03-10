@@ -51,6 +51,8 @@ If you want to ask a question, feel free to start a discussion [here](https://gi
 - [0Yassine0](https://github.com/0Yassine0)
 - [Nico77310](https://github.com/Nico77310)
 - [frapac](https://github.com/frapac)
+- [AmielMetier](https://github.com/AmielMetier)
+- [HediChennoufi](https://github.com/HediChennoufi)
 - [BOCOP - A collection of examples](https://project.inria.fr/bocop/files/2017/05/Examples-BOCOP.pdf)
 - [COPS: Large-Scale Optimization Problems](https://www.mcs.anl.gov/~more/cops) and [COPSBenchmark.jl](https://github.com/MadNLP/COPSBenchmark.jl)
 

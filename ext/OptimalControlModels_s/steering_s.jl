@@ -85,7 +85,7 @@ function OptimalControlProblems.steering_s(
         end
     end
     xinit = t -> [gen_x0(t, i) for i in 1:4]
-    init = (state=xinit, control=0, variable=1)
+    init = (state=xinit, control=0, variable=0.6)
 
     # discretise the optimal control problem
     docp = direct_transcription(

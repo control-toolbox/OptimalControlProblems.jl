@@ -184,7 +184,7 @@ function OptimalControlProblems.space_shuttle(
     set_start_value.(model[:ψ], vec(initial_guess[:, 6]))
     set_start_value.(model[:α], vec(initial_guess[:, 7]))
     set_start_value.(model[:β], vec(initial_guess[:, 8]))
-    set_start_value.(model[:tf], (tf_l+tf_u)/2)
+    set_start_value.(model[:tf], 2000.0) #######
 
     # Functions to restore `h` and `v` to their true scale
     @expression(model, h[j = 0:N], scaled_h[j] * scaling_h)
