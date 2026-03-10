@@ -85,7 +85,7 @@ function handle_solver_error(e::Exception, problem_name::Symbol)
     # List of exception types that should be marked as broken instead of errored
     expected_solver_errors = (DomainError,)
     
-    if isa(e, expected_solver_errors)
+    if any(T -> isa(e, T), expected_solver_errors)
         # Mark as broken test
         @test false broken=true
         DEBUG && println("│ \033[1;33mSolver error (broken): ", typeof(e), "\033[0m")
