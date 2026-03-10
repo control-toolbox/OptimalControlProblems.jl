@@ -9,14 +9,14 @@ The problem can be stated as
 
 ```math
 \begin{aligned}
-\min_{x,v,u,t_f} \quad & J = t_f \[0.5em]
-	ext{s.t.} \quad & \dot{x}(t) = v(t), \[0.5em]
-& \dot{v}(t) = a \, u(t) - b \, \cos(c \, x(t)), \[0.5em]
-& x(0) = -0.5, \quad v(0) = 0.0, \[0.5em]
-& x(t_f) = 0.5, \quad v(t_f) \ge 0.0, \[0.5em]
-& -1.2 \le x(t) \le 0.5, \[0.5em]
-& -0.07 \le v(t) \le 0.07, \[0.5em]
-& -1 \le u(t) \le 1, \[0.5em]
+\min_{x,v,u,t_f} \quad & J = t_f \\
+	ext{s.t.} \quad & \dot{x}(t) = v(t), \\
+& \dot{v}(t) = a \, u(t) - b \, \cos(c \, x(t)), \\
+& x(0) = -0.5, \quad v(0) = 0.0, \\
+& x(t_f) = 0.5, \quad v(t_f) \ge 0.0, \\
+& -1.2 \le x(t) \le 0.5, \\
+& -0.07 \le v(t) \le 0.07, \\
+& -1 \le u(t) \le 1, \\
 & t_f \ge 0.
 \end{aligned}
 ```
