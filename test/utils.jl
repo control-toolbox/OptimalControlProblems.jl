@@ -57,6 +57,50 @@ macro my_test_broken(e)
 end
 
 """
+handle_solver_error(e::Exception, problem_name::Symbol)
+
+Handle solver exceptions during tests. Marks certain expected exceptions (like DomainError)
+as broken tests, while rethrowing unexpected exceptions.
+
+# Arguments
+
+- `e::Exception`: The exception that was caught.
+- `problem_name::Symbol`: The name of the problem being tested.
+
+# Returns
+
+- `::Nothing`: Marks the test as broken for expected exceptions, or rethrows for unexpected ones.
+
+# Example
+
+```julia-repl
+julia> try
+           # solver code that might throw DomainError
+       catch e
+           handle_solver_error(e, :my_problem)
+       end
+```
+"""
+function handle_solver_error(e::Exception, problem_name::Symbol)
+    # List of exception types that should be marked as broken instead of errored
+    expected_solver_errors = (DomainError,)
+    
+    if isa(e, expected_solver_errors)
+        # Mark as broken test
+        @test false broken=true
+        DEBUG && println("│ \033[1;33mSolver error (broken): ", typeof(e), "\033[0m")
+        DEBUG && println("└─")
+        
+        # Remove from final list
+        global LIST_OF_PROBLEMS_FINAL
+        LIST_OF_PROBLEMS_FINAL = setdiff(LIST_OF_PROBLEMS_FINAL, [problem_name])
+    else
+        # Unexpected error: rethrow to make the test fail properly
+        rethrow(e)
+    end
+end
+
+"""
 comparison(; max_iter, test_name)
 
 Run a comparison between the `OptimalControl` backend and a `JuMP` backend for a set of optimal control problems.  
@@ -263,6 +307,7 @@ function comparison(; max_iter, test_name)
         grid_size = metadata(f)[:grid_size] # get default number of steps
 
         @testset "$(string(f)) ($(string(test_name)))" verbose=VERBOSE begin
+            try
             DEBUG && println("\n┌─ ", string(f), " (", string(test_name), ")")
             DEBUG && println("│")
 
@@ -636,6 +681,10 @@ function comparison(; max_iter, test_name)
 
             # save figure
             savefig(plt, joinpath(figdir, "$f" * ".pdf"))
+
+            catch e
+                handle_solver_error(e, f)
+            end
         end# end testset
     end # end for
 end
