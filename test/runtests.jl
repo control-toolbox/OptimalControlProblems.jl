@@ -23,25 +23,22 @@ const MAX_ITER = 1000
 const MAX_WALL_TIME = 500.0
 
 # Collect all the problems from OptimalControlProblems
-list_of_problems = OptimalControlProblems.problems()
+override_list_of_problems = false
 
-# Remove from the tests the following problems
-problems_to_exclude = [
-# :bioreactor, # no need to remove here since already removed in OptimalControlProblems.jl
-# :cart_pendulum, # no need to remove here since already removed in OptimalControlProblems.jl
-# :dielectrophoretic_particle, # no need to remove here since already removed in OptimalControlProblems.jl
-# :moonlander, # no need to remove here since already removed in OptimalControlProblems.jl
-# :ducted_fan,
-# :insurance,
-# :robot,
-# :space_shuttle,
-# :steering,
-]
-list_of_problems = setdiff(list_of_problems, problems_to_exclude)
+list_of_problems = if override_list_of_problems
+    [
+        # put here the problems to test
+    ]
+else
+    # Get all problems
+    all_problems = OptimalControlProblems.problems()
 
-# list_of_problems = [
-#     :jackson,
-# ]
+    # Remove from the tests the following problems
+    problems_to_exclude = [
+        # put here problems to exclude from the tests
+    ]
+    setdiff(all_problems, problems_to_exclude)
+end
 
 # The list of all the problems to test
 const LIST_OF_PROBLEMS = deepcopy(list_of_problems)
@@ -76,10 +73,10 @@ const VERBOSE = true # print or not details during tests
     println("\nProblems that passed the tests: ");
     display(LIST_OF_PROBLEMS_FINAL)
     println("\nList of available problems: ");
-    display(problems());
+    display(OptimalControlProblems.problems());
     println()
 
     # @testset "available_problems" verbose=VERBOSE begin
-    #     @test LIST_OF_PROBLEMS_FINAL == problems()
+    #     @test LIST_OF_PROBLEMS_FINAL == OptimalControlProblems.problems()
     # end
 end

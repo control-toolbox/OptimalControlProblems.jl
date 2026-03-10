@@ -63,8 +63,8 @@ function OptimalControlProblems.brachistochrone(
         end
     )
 
-
-    model[:time_grid] = () -> range(t0, value(tf), N+1)
+    # metadata: required
+    model[:time_grid] = () -> range(t0, value(tf), grid_size+1)
     model[:state_components] = ["px", "py", "v"]
     model[:costate_components] = ["∂px", "∂py", "∂v"]
     model[:control_components] = ["u"]
