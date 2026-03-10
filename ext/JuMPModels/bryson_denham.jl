@@ -24,7 +24,6 @@ julia> model = OptimalControlProblems.bryson_denham(JuMPBackend(); N=100)
 # References
 
 """
-
 function OptimalControlProblems.bryson_denham(
     ::JuMPBackend,
     args...;
@@ -40,6 +39,7 @@ function OptimalControlProblems.bryson_denham(
 
     model = JuMP.Model(args...; kwargs...)
 
+    # metadata: required
     model[:time_grid] = () -> range(t0, tf, grid_size+1)
     model[:state_components] = ["x1", "x2"]
     model[:control_components] = ["u"]

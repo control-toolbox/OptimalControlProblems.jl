@@ -25,23 +25,15 @@ const MAX_WALL_TIME = 500.0
 # Collect all the problems from OptimalControlProblems
 list_of_problems = OptimalControlProblems.problems()
 
-# Remove from the tests the following problems
-problems_to_exclude = [
-# :bioreactor, # no need to remove here since already removed in OptimalControlProblems.jl
-# :cart_pendulum, # no need to remove here since already removed in OptimalControlProblems.jl
-# :dielectrophoretic_particle, # no need to remove here since already removed in OptimalControlProblems.jl
-# :moonlander, # no need to remove here since already removed in OptimalControlProblems.jl
-# :ducted_fan,
-# :insurance,
-# :robot,
-# :space_shuttle,
-# :steering,
-]
-list_of_problems = setdiff(list_of_problems, problems_to_exclude)
-
-# list_of_problems = [
-#     :jackson,
+# # Remove from the tests the following problems
+# problems_to_exclude = [
 # ]
+# list_of_problems = setdiff(list_of_problems, problems_to_exclude)
+
+# # Override the list of problems to test
+list_of_problems = [
+    :dielectrophoretic_particle,
+]
 
 # The list of all the problems to test
 const LIST_OF_PROBLEMS = deepcopy(list_of_problems)

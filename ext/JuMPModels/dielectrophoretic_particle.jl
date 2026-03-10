@@ -66,9 +66,9 @@ function OptimalControlProblems.dielectrophoretic_particle(
         model,
         begin
             x[0:N], (start = 1)
-            y[0:N], (start = 1)
-            u_l ≤ u[0:N] ≤ u_u, (start = 0.1)
-            tf ≥ tf_l, (start = 5)
+            y[0:N], (start = 0.5)
+            u_l ≤ u[0:N] ≤ u_u, (start = 0.5)
+            tf ≥ tf_l, (start = 8)
         end
     )
 
