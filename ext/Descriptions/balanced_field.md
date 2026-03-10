@@ -8,12 +8,12 @@ The state vector is $x(t) = [r(t), v(t), h(t), \gamma(t)]^	op$ and the control i
 
 ```math
 \begin{aligned}
-\min_{\alpha, t_f} \quad & r(t_f) \[0.5em]
-	ext{s.t.} \quad & \dot{r}(t) = v(t) \cos \gamma(t), \[0.5em]
-& \dot{v}(t) = \frac{T \cos \alpha(t) - D}{m} - g \sin \gamma(t), \[0.5em]
-& \dot{h}(t) = v(t) \sin \gamma(t), \[0.5em]
-& \dot{\gamma}(t) = \frac{T \sin \alpha(t) + L}{m v(t)} - \frac{g \cos \gamma(t)}{v(t)}, \[0.5em]
-& h(t_f) = 10.668 	ext{ m (35 ft)}, \[0.5em]
+\min_{\alpha, t_f} \quad & r(t_f) \\
+	ext{s.t.} \quad & \dot{r}(t) = v(t) \cos \gamma(t), \\
+& \dot{v}(t) = \frac{T \cos \alpha(t) - D}{m} - g \sin \gamma(t), \\
+& \dot{h}(t) = v(t) \sin \gamma(t), \\
+& \dot{\gamma}(t) = \frac{T \sin \alpha(t) + L}{m v(t)} - \frac{g \cos \gamma(t)}{v(t)}, \\
+& h(t_f) = 10.668 	ext{ m (35 ft)}, \\
 & \gamma(t_f) = 5^\circ.
 \end{aligned}
 ```
