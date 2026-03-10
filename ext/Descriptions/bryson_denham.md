@@ -9,9 +9,9 @@ The problem can be stated as
 ```math
 $$
 \begin{aligned}
-\min_{x,u} \quad & J(x,u) = \int_0^1 \frac{1}{2} u^2(t) \,\mathrm{d}t \\[1em]
-\text{s.t.} \quad & \dot{x}_1(t) = x_2(t), \quad \dot{x}_2(t) = u(t), \\[0.5em]
-& x_1(0) = 0, \; x_1(1) = 0, \; x_2(0) = 1, \; x_2(1) = -1, \\[0.5em]
+\min_{x,u} \quad & J(x,u) = \int_0^1 \frac{1}{2} u^2(t) \,\mathrm{d}t \\
+\text{s.t.} \quad & \dot{x}_1(t) = x_2(t), \quad \dot{x}_2(t) = u(t), \\
+& x_1(0) = 0, \; x_1(1) = 0, \; x_2(0) = 1, \; x_2(1) = -1, \\
 & x_1(t) \le a.
 \end{aligned}
 $$
