@@ -123,7 +123,7 @@ data_re = DataFrame(            # to store data about the resolutions
     end
 
     return plt
-end</code></pre></details></div></div><pre><code class="language-julia hljs">plot_initial_guess(:jackson)</code></pre><img src="jackson-76918d3a.svg" alt="Example block output"/><h2 id="Solving-the-problem"><a class="docs-heading-anchor" href="#Solving-the-problem">Solving the problem</a><a id="Solving-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Solving-the-problem" title="Permalink"></a></h2><p>To solve an optimal control problem, we can rely on two complementary formulations: the <code>OptimalControl</code> backend, which works directly with the discretised control problem, and the <code>JuMP</code> backend, which leverages JuMP’s flexible modelling framework.  </p><p>Both approaches generate equivalent NLPs that can be solved with Ipopt, and comparing them ensures consistency between the two formulations.</p><p>Before solving, we can inspect the discretisation details of the problem. The table below reports the number of grid points, decision variables, and constraints associated with the chosen formulation.  </p><pre><code class="language-julia hljs">push!(data_pb,(
+end</code></pre></details></div></div><pre><code class="language-julia hljs">plot_initial_guess(:jackson)</code></pre><img src="jackson-fdc7c809.svg" alt="Example block output"/><h2 id="Solving-the-problem"><a class="docs-heading-anchor" href="#Solving-the-problem">Solving the problem</a><a id="Solving-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Solving-the-problem" title="Permalink"></a></h2><p>To solve an optimal control problem, we can rely on two complementary formulations: the <code>OptimalControl</code> backend, which works directly with the discretised control problem, and the <code>JuMP</code> backend, which leverages JuMP’s flexible modelling framework.  </p><p>Both approaches generate equivalent NLPs that can be solved with Ipopt, and comparing them ensures consistency between the two formulations.</p><p>Before solving, we can inspect the discretisation details of the problem. The table below reports the number of grid points, decision variables, and constraints associated with the chosen formulation.  </p><pre><code class="language-julia hljs">push!(data_pb,(
     Problem=:jackson,
     Grid_Size=metadata(:jackson)[:grid_size],
     Variables=get_nvar(nlp_model(jackson(OptimalControlBackend()))),
@@ -155,12 +155,12 @@ Total number of inequality constraints...............:        0
 Number of Iterations....: 58
 
                                    (scaled)                 (unscaled)
-Objective...............:  -1.9182194736953315e-01   -1.9182194736953315e-01
-Dual infeasibility......:   2.3668871685481004e-10    2.3668871685481004e-10
-Constraint violation....:   1.3612999616441357e-11    1.3612999616441357e-11
-Variable bound violation:   2.0291465756758422e-39    2.0291465756758422e-39
-Complementarity.........:   1.0083369766192956e-11    1.0083369766192956e-11
-Overall NLP error.......:   2.3668871685481004e-10    2.3668871685481004e-10
+Objective...............:  -1.9182194736952879e-01   -1.9182194736952879e-01
+Dual infeasibility......:   2.4102984187587167e-10    2.4102984187587167e-10
+Constraint violation....:   1.6731505070310959e-11    1.6731505070310959e-11
+Variable bound violation:   0.0000000000000000e+00    0.0000000000000000e+00
+Complementarity.........:   1.0083503424697878e-11    1.0083503424697878e-11
+Overall NLP error.......:   2.4102984187587167e-10    2.4102984187587167e-10
 
 
 Number of objective function evaluations             = 61
@@ -170,7 +170,7 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 59
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 58
-Total seconds in IPOPT                               = 1.456
+Total seconds in IPOPT                               = 1.468
 
 EXIT: Optimal Solution Found.</code></pre><h3 id="JuMP-model"><a class="docs-heading-anchor" href="#JuMP-model">JuMP model</a><a id="JuMP-model-1"></a><a class="docs-heading-anchor-permalink" href="#JuMP-model" title="Permalink"></a></h3><p>We now repeat the procedure using the <code>JuMP</code> backend. Here, the problem is reformulated as a JuMP model, which offers a flexible and widely used framework for nonlinear optimisation in Julia. The solver settings are chosen to mirror those used previously, so that the results can be compared on an equal footing. </p><pre><code class="language-julia hljs"># import model
 nlp_jp = jackson(JuMPBackend())
@@ -196,12 +196,12 @@ Total number of inequality constraints...............:        0
 Number of Iterations....: 58
 
                                    (scaled)                 (unscaled)
-Objective...............:  -1.9182194736955310e-01   -1.9182194736955310e-01
-Dual infeasibility......:   2.0869838081511906e-10    2.0869838081511906e-10
-Constraint violation....:   1.4119652062133392e-11    1.4119652062133392e-11
-Variable bound violation:   2.1214944929710018e-41    2.1214944929710018e-41
-Complementarity.........:   1.0073803791550525e-11    1.0073803791550525e-11
-Overall NLP error.......:   2.0869838081511906e-10    2.0869838081511906e-10
+Objective...............:  -1.9182194736952385e-01   -1.9182194736952385e-01
+Dual infeasibility......:   2.9182402935198572e-10    2.9182402935198572e-10
+Constraint violation....:   2.0279343091941793e-11    2.0279343091941793e-11
+Variable bound violation:   1.3976331255584633e-41    1.3976331255584633e-41
+Complementarity.........:   1.0083652571771611e-11    1.0083652571771611e-11
+Overall NLP error.......:   2.9182402935198572e-10    2.9182402935198572e-10
 
 
 Number of objective function evaluations             = 61
@@ -211,7 +211,7 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 59
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 58
-Total seconds in IPOPT                               = 0.234
+Total seconds in IPOPT                               = 0.223
 
 EXIT: Optimal Solution Found.</code></pre><h2 id="Numerical-comparisons"><a class="docs-heading-anchor" href="#Numerical-comparisons">Numerical comparisons</a><a id="Numerical-comparisons-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparisons" title="Permalink"></a></h2><p>In this section, we examine the results of the problem resolutions. We extract the solver status (flag), the number of iterations, and the objective value for each model. This provides a first overview of how each approach performs and sets the stage for a more detailed comparison of the solution trajectories.</p><pre><code class="language-julia hljs"># from OptimalControl model
 push!(data_re,(
@@ -308,14 +308,14 @@ end</code></pre></details></div></div><pre><code class="language-julia hljs">pri
 ├─  Number of Iterations
 │     OptimalControl : 58   JuMP : 58
 ├─  States (L2 Norms)
-│     a      Abs: 3.281e-10   Rel: 1.943e-10
-│     b      Abs: 4.316e-10   Rel: 3.430e-09
-│     x₃     Abs: 1.036e-10   Rel: 4.674e-10
+│     a      Abs: 1.632e-10   Rel: 9.668e-11
+│     b      Abs: 2.148e-10   Rel: 1.707e-09
+│     x₃     Abs: 5.168e-11   Rel: 2.331e-10
 ├─  Controls (L2 Norms)
-│     u      Abs: 1.538e-06   Rel: 2.170e-06
+│     u      Abs: 1.150e-06   Rel: 1.623e-06
 ├─  Variables
 ├─  Objective
-│            Abs: 1.996e-14   Rel: 1.040e-13
+│            Abs: 4.940e-15   Rel: 2.576e-14
 └─</code></pre><h2 id="Plotting-the-solutions"><a class="docs-heading-anchor" href="#Plotting-the-solutions">Plotting the solutions</a><a id="Plotting-the-solutions-1"></a><a class="docs-heading-anchor-permalink" href="#Plotting-the-solutions" title="Permalink"></a></h2><p>In this section, we visualise the trajectories of the states, costates, and controls obtained from both the OptimalControl and JuMP solutions. The plots provide an intuitive way to compare the two approaches and to observe how the constraints and the optimal control influence the system dynamics.  </p><p>For each variable, the OptimalControl solution is shown in solid lines, while the JuMP solution is overlaid using dashed lines. Since both models represent the same mathematical problem, their trajectories should closely coincide, highlighting the consistency between the two formulations.</p><pre><code class="language-julia hljs"># build an ocp solution to use the plot from OptimalControl package
 ocp_sol = build_OCP_solution(docp, nlp_oc_sol)
 
@@ -352,9 +352,9 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
-end</code></pre><img src="jackson-9582ee8a.svg" alt="Example block output"/><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+end</code></pre><img src="jackson-e1d81b66.svg" alt="Example block output"/><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
 mermaid.initialize({
     startOnLoad: true,
     theme: "neutral"
 });
-</script></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="insurance.html">« Insurance</a><a class="docs-footer-nextpage" href="mountain_car.html">Mountain car »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Tuesday 10 March 2026 15:00">Tuesday 10 March 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</script></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="insurance.html">« Insurance</a><a class="docs-footer-nextpage" href="mountain_car.html">Mountain car »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Tuesday 10 March 2026 15:39">Tuesday 10 March 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
