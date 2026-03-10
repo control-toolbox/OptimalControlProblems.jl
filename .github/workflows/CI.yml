@@ -14,6 +14,6 @@ jobs:
       versions: '["1.10", "1.12"]'
       runs_on: '["ubuntu-latest", "macos-latest"]'
       runner_type: 'github'
-      use_ct_registry: true
+      use_ct_registry: false
     secrets:
       SSH_KEY: ${{ secrets.SSH_KEY }}
