@@ -84,13 +84,13 @@ julia> try
 function handle_solver_error(e::Exception, problem_name::Symbol)
     # List of exception types that should be marked as broken instead of errored
     expected_solver_errors = (DomainError,)
-    
+
     if any(T -> isa(e, T), expected_solver_errors)
         # Mark as broken test
         @test false broken=true
         DEBUG && println("│ \033[1;33mSolver error (broken): ", typeof(e), "\033[0m")
         DEBUG && println("└─")
-        
+
         # Remove from final list
         global LIST_OF_PROBLEMS_FINAL
         LIST_OF_PROBLEMS_FINAL = setdiff(LIST_OF_PROBLEMS_FINAL, [problem_name])
@@ -308,379 +308,386 @@ function comparison(; max_iter, test_name)
 
         @testset "$(string(f)) ($(string(test_name)))" verbose=VERBOSE begin
             try
-            DEBUG && println("\n┌─ ", string(f), " (", string(test_name), ")")
-            DEBUG && println("│")
+                DEBUG && println("\n┌─ ", string(f), " (", string(test_name), ")")
+                DEBUG && println("│")
 
-            ############### JuMP ###############
-            nlp_jp = OptimalControlProblems.eval(f)(JuMPBackend(); grid_size=grid_size)
-            set_optimizer(nlp_jp, Ipopt.Optimizer)
-            set_silent(nlp_jp)
-            set_optimizer_attribute(nlp_jp, "tol", options_ipopt[:tol])
-            set_optimizer_attribute(nlp_jp, "max_iter", options_ipopt[:max_iter])
-            set_optimizer_attribute(nlp_jp, "mu_strategy", options_ipopt[:mu_strategy])
-            set_optimizer_attribute(nlp_jp, "linear_solver", "mumps")
-            set_optimizer_attribute(nlp_jp, "max_wall_time", options_ipopt[:max_wall_time])
-            set_optimizer_attribute(nlp_jp, "sb", options_ipopt[:sb])
-            optimize!(nlp_jp)
-
-            t_jp = time_grid(nlp_jp)
-            x_jp = state(nlp_jp).(t_jp)
-            u_jp = control(nlp_jp).(t_jp)
-            o_jp = objective(nlp_jp)
-            i_jp = iterations(nlp_jp)
-            v_jp = variable(nlp_jp)
-            p_jp = costate(nlp_jp).(t_jp)
-            nb_var_jp = num_variables(nlp_jp)
-            nb_con_jp = num_constraints(nlp_jp; count_variable_in_set_constraints=false)
-            x_vars_jp = state_components(nlp_jp)
-            u_vars_jp = control_components(nlp_jp)
-            v_vars_jp = variable_components(nlp_jp)
-            #
-            x_vars = x_vars_jp
-            u_vars = u_vars_jp
-            v_vars = v_vars_jp
-
-            ########## OptimalControl ##########
-            docp = OptimalControlProblems.eval(f)(
-                OptimalControlBackend(); grid_size=grid_size
-            )
-            nlp_oc = nlp_model(docp)
-            ocp_oc = ocp_model(docp)
-            nlp_sol = NLPModelsIpopt.ipopt(nlp_oc; options_ipopt...)
-            sol_oc = build_OCP_solution(docp, nlp_sol)
-
-            t_oc = time_grid(sol_oc)
-            x_oc = state(sol_oc).(t_oc)
-            u_oc = control(sol_oc).(t_oc)
-            o_oc = objective(sol_oc)
-            i_oc = iterations(sol_oc)
-            v_oc = variable(sol_oc)
-            nb_var_oc = get_nvar(nlp_oc)
-            nb_con_oc = get_ncon(nlp_oc)
-            x_vars_oc = state_components(ocp_oc)
-            u_vars_oc = control_components(ocp_oc)
-            v_vars_oc = variable_components(ocp_oc)
-
-            ########## OptimalControl_s ##########
-            model_backend = :exa # :adnlp
-            docp = OptimalControlProblems.eval(Symbol(f, :_s))(
-                OptimalControlBackend(), :madnlp, model_backend; grid_size=grid_size
-            )
-            nlp_os = nlp_model(docp)
-            ocp_os = ocp_model(docp)
-            nlp_sol = madnlp(nlp_os; options_madnlp...)
-            sol_os = build_OCP_solution(docp, nlp_sol)
-
-            t_os = time_grid(sol_os)
-            x_os = state(sol_os).(t_os)
-            u_os = control(sol_os).(t_os)
-            o_os = objective(sol_os)
-            i_os = iterations(sol_os)
-            v_os = variable(sol_os)
-            nb_var_os = get_nvar(nlp_os)
-            nb_con_os = get_ncon(nlp_os)
-            x_vars_os = state_components(ocp_os)
-            u_vars_os = control_components(ocp_os)
-            v_vars_os = variable_components(ocp_os)
-
-            ########## Iterations ##########
-            DEBUG && @printf("├─ Iterations\n")
-            DEBUG && @printf("│      → JP: %d  OC: %d  OS: %d\n", i_jp, i_oc, i_os)
-
-            #
-            keep_problem = true
-
-            ########## Components Names ##########
-            if test_name == :init
-                @testset "nlp" verbose=VERBOSE begin
-                    DEBUG && @printf("├─ Components names\n")
-                    keep_problem = test_components(
-                        x_vars_jp, x_vars_oc, "state   : JP", "OC", keep_problem
-                    )
-                    keep_problem = test_components(
-                        x_vars_jp, x_vars_os, "state   : JP", "OS", keep_problem
-                    )
-                    keep_problem = test_components(
-                        u_vars_jp, u_vars_oc, "control : JP", "OC", keep_problem
-                    )
-                    keep_problem = test_components(
-                        u_vars_jp, u_vars_os, "control : JP", "OS", keep_problem
-                    )
-                    keep_problem = test_components(
-                        v_vars_jp, v_vars_oc, "variable: JP", "OC", keep_problem
-                    )
-                    keep_problem = test_components(
-                        v_vars_jp, v_vars_os, "variable: JP", "OS", keep_problem
-                    )
-                end
-            end
-
-            ########## Variables / Constraints ##########
-            @testset "nlp" verbose=VERBOSE begin
-                DEBUG && @printf("├─ Variables\n")
-                keep_problem = test_int(nb_var_jp, nb_var_oc, "JP", "OC", keep_problem)
-                keep_problem = test_int(nb_var_jp, nb_var_os, "JP", "OS", keep_problem)
-
-                DEBUG && @printf("├─ Constraints\n")
-                keep_problem = test_int(nb_con_jp, nb_con_oc, "JP", "OC", keep_problem)
-                keep_problem = test_int(nb_con_jp, nb_con_os, "JP", "OS", keep_problem)
-            end
-
-            ########## Time Grid ##########
-            test_grid_ok = true
-            @testset "grid" verbose=VERBOSE begin
-
-                # ----------------------------
-                # final time
-                DEBUG && @printf("├─ Final time\n")
-                keep_problem, test_grid_ok = test_abs(
-                    t_jp[end],
-                    t_oc[end],
-                    "JP",
-                    "OC",
-                    keep_problem,
-                    test_grid_ok;
-                    ε_abs=ε_abs_grid,
-                    ε_rel=ε_rel_grid,
+                ############### JuMP ###############
+                nlp_jp = OptimalControlProblems.eval(f)(JuMPBackend(); grid_size=grid_size)
+                set_optimizer(nlp_jp, Ipopt.Optimizer)
+                set_silent(nlp_jp)
+                set_optimizer_attribute(nlp_jp, "tol", options_ipopt[:tol])
+                set_optimizer_attribute(nlp_jp, "max_iter", options_ipopt[:max_iter])
+                set_optimizer_attribute(nlp_jp, "mu_strategy", options_ipopt[:mu_strategy])
+                set_optimizer_attribute(nlp_jp, "linear_solver", "mumps")
+                set_optimizer_attribute(
+                    nlp_jp, "max_wall_time", options_ipopt[:max_wall_time]
                 )
-                keep_problem, test_grid_ok = test_abs(
-                    t_jp[end],
-                    t_os[end],
-                    "JP",
-                    "OS",
-                    keep_problem,
-                    test_grid_ok;
-                    ε_abs=ε_abs_grid,
-                    ε_rel=ε_rel_grid,
-                )
+                set_optimizer_attribute(nlp_jp, "sb", options_ipopt[:sb])
+                optimize!(nlp_jp)
 
-                # ----------------------------
-                # length of the grids
-                DEBUG && @printf("├─ Grid length\n")
-                keep_problem, test_grid_ok = test_length(
-                    t_jp, t_oc, "JP", "OC", keep_problem, test_grid_ok
-                )
-                keep_problem, test_grid_ok = test_length(
-                    t_jp, t_os, "JP", "OS", keep_problem, test_grid_ok
-                )
+                t_jp = time_grid(nlp_jp)
+                x_jp = state(nlp_jp).(t_jp)
+                u_jp = control(nlp_jp).(t_jp)
+                o_jp = objective(nlp_jp)
+                i_jp = iterations(nlp_jp)
+                v_jp = variable(nlp_jp)
+                p_jp = costate(nlp_jp).(t_jp)
+                nb_var_jp = num_variables(nlp_jp)
+                nb_con_jp = num_constraints(nlp_jp; count_variable_in_set_constraints=false)
+                x_vars_jp = state_components(nlp_jp)
+                u_vars_jp = control_components(nlp_jp)
+                v_vars_jp = variable_components(nlp_jp)
+                #
+                x_vars = x_vars_jp
+                u_vars = u_vars_jp
+                v_vars = v_vars_jp
 
-                # ----------------------------
-                # max error
-                if test_grid_ok
-                    DEBUG && @printf("├─ Grid max error\n")
-                    keep_problem, test_grid_ok = test_grid_max_error(
-                        t_jp, t_oc, "JP", "OC", keep_problem, test_grid_ok
-                    )
-                    keep_problem, test_grid_ok = test_grid_max_error(
-                        t_jp, t_os, "JP", "OS", keep_problem, test_grid_ok
-                    )
-                end
-            end
+                ########## OptimalControl ##########
+                docp = OptimalControlProblems.eval(f)(
+                    OptimalControlBackend(); grid_size=grid_size
+                )
+                nlp_oc = nlp_model(docp)
+                ocp_oc = ocp_model(docp)
+                nlp_sol = NLPModelsIpopt.ipopt(nlp_oc; options_ipopt...)
+                sol_oc = build_OCP_solution(docp, nlp_sol)
 
-            ########## States ##########
-            if test_grid_ok
-                @testset "state" verbose=VERBOSE begin
-                    DEBUG && println("├─ States")
-                    for i in eachindex(x_vars)
-                        DEBUG && @printf("│   %-6s\n", x_vars[i])
-                        @testset "$(x_vars[i])" verbose=VERBOSE begin
-                            keep_problem = test_L2_i(
-                                i,
-                                t_jp,
-                                x_jp,
-                                x_oc,
-                                "JP",
-                                "OC",
-                                keep_problem;
-                                ε_abs=ε_abs_state,
-                                ε_rel=ε_rel_state,
-                            )
-                            keep_problem = test_L2_i(
-                                i,
-                                t_jp,
-                                x_jp,
-                                x_os,
-                                "JP",
-                                "OS",
-                                keep_problem;
-                                ε_abs=ε_abs_state,
-                                ε_rel=ε_rel_state,
-                            )
-                        end
+                t_oc = time_grid(sol_oc)
+                x_oc = state(sol_oc).(t_oc)
+                u_oc = control(sol_oc).(t_oc)
+                o_oc = objective(sol_oc)
+                i_oc = iterations(sol_oc)
+                v_oc = variable(sol_oc)
+                nb_var_oc = get_nvar(nlp_oc)
+                nb_con_oc = get_ncon(nlp_oc)
+                x_vars_oc = state_components(ocp_oc)
+                u_vars_oc = control_components(ocp_oc)
+                v_vars_oc = variable_components(ocp_oc)
+
+                ########## OptimalControl_s ##########
+                model_backend = :exa # :adnlp
+                docp = OptimalControlProblems.eval(Symbol(f, :_s))(
+                    OptimalControlBackend(), :madnlp, model_backend; grid_size=grid_size
+                )
+                nlp_os = nlp_model(docp)
+                ocp_os = ocp_model(docp)
+                nlp_sol = madnlp(nlp_os; options_madnlp...)
+                sol_os = build_OCP_solution(docp, nlp_sol)
+
+                t_os = time_grid(sol_os)
+                x_os = state(sol_os).(t_os)
+                u_os = control(sol_os).(t_os)
+                o_os = objective(sol_os)
+                i_os = iterations(sol_os)
+                v_os = variable(sol_os)
+                nb_var_os = get_nvar(nlp_os)
+                nb_con_os = get_ncon(nlp_os)
+                x_vars_os = state_components(ocp_os)
+                u_vars_os = control_components(ocp_os)
+                v_vars_os = variable_components(ocp_os)
+
+                ########## Iterations ##########
+                DEBUG && @printf("├─ Iterations\n")
+                DEBUG && @printf("│      → JP: %d  OC: %d  OS: %d\n", i_jp, i_oc, i_os)
+
+                #
+                keep_problem = true
+
+                ########## Components Names ##########
+                if test_name == :init
+                    @testset "nlp" verbose=VERBOSE begin
+                        DEBUG && @printf("├─ Components names\n")
+                        keep_problem = test_components(
+                            x_vars_jp, x_vars_oc, "state   : JP", "OC", keep_problem
+                        )
+                        keep_problem = test_components(
+                            x_vars_jp, x_vars_os, "state   : JP", "OS", keep_problem
+                        )
+                        keep_problem = test_components(
+                            u_vars_jp, u_vars_oc, "control : JP", "OC", keep_problem
+                        )
+                        keep_problem = test_components(
+                            u_vars_jp, u_vars_os, "control : JP", "OS", keep_problem
+                        )
+                        keep_problem = test_components(
+                            v_vars_jp, v_vars_oc, "variable: JP", "OC", keep_problem
+                        )
+                        keep_problem = test_components(
+                            v_vars_jp, v_vars_os, "variable: JP", "OS", keep_problem
+                        )
                     end
                 end
-            end
 
-            ########## Controls ##########
-            if test_grid_ok
-                @testset "control" verbose=VERBOSE begin
-                    DEBUG && println("├─ Controls")
-                    for i in eachindex(u_vars)
-                        DEBUG && @printf("│   %-6s\n", u_vars[i])
-                        @testset "$(u_vars[i])" verbose=VERBOSE begin
-                            if !(test_name == :solution && f == :jackson)
+                ########## Variables / Constraints ##########
+                @testset "nlp" verbose=VERBOSE begin
+                    DEBUG && @printf("├─ Variables\n")
+                    keep_problem = test_int(nb_var_jp, nb_var_oc, "JP", "OC", keep_problem)
+                    keep_problem = test_int(nb_var_jp, nb_var_os, "JP", "OS", keep_problem)
+
+                    DEBUG && @printf("├─ Constraints\n")
+                    keep_problem = test_int(nb_con_jp, nb_con_oc, "JP", "OC", keep_problem)
+                    keep_problem = test_int(nb_con_jp, nb_con_os, "JP", "OS", keep_problem)
+                end
+
+                ########## Time Grid ##########
+                test_grid_ok = true
+                @testset "grid" verbose=VERBOSE begin
+
+                    # ----------------------------
+                    # final time
+                    DEBUG && @printf("├─ Final time\n")
+                    keep_problem, test_grid_ok = test_abs(
+                        t_jp[end],
+                        t_oc[end],
+                        "JP",
+                        "OC",
+                        keep_problem,
+                        test_grid_ok;
+                        ε_abs=ε_abs_grid,
+                        ε_rel=ε_rel_grid,
+                    )
+                    keep_problem, test_grid_ok = test_abs(
+                        t_jp[end],
+                        t_os[end],
+                        "JP",
+                        "OS",
+                        keep_problem,
+                        test_grid_ok;
+                        ε_abs=ε_abs_grid,
+                        ε_rel=ε_rel_grid,
+                    )
+
+                    # ----------------------------
+                    # length of the grids
+                    DEBUG && @printf("├─ Grid length\n")
+                    keep_problem, test_grid_ok = test_length(
+                        t_jp, t_oc, "JP", "OC", keep_problem, test_grid_ok
+                    )
+                    keep_problem, test_grid_ok = test_length(
+                        t_jp, t_os, "JP", "OS", keep_problem, test_grid_ok
+                    )
+
+                    # ----------------------------
+                    # max error
+                    if test_grid_ok
+                        DEBUG && @printf("├─ Grid max error\n")
+                        keep_problem, test_grid_ok = test_grid_max_error(
+                            t_jp, t_oc, "JP", "OC", keep_problem, test_grid_ok
+                        )
+                        keep_problem, test_grid_ok = test_grid_max_error(
+                            t_jp, t_os, "JP", "OS", keep_problem, test_grid_ok
+                        )
+                    end
+                end
+
+                ########## States ##########
+                if test_grid_ok
+                    @testset "state" verbose=VERBOSE begin
+                        DEBUG && println("├─ States")
+                        for i in eachindex(x_vars)
+                            DEBUG && @printf("│   %-6s\n", x_vars[i])
+                            @testset "$(x_vars[i])" verbose=VERBOSE begin
                                 keep_problem = test_L2_i(
                                     i,
                                     t_jp,
-                                    u_jp,
-                                    u_oc,
+                                    x_jp,
+                                    x_oc,
                                     "JP",
                                     "OC",
                                     keep_problem;
-                                    ε_abs=ε_abs_control,
-                                    ε_rel=ε_rel_control,
+                                    ε_abs=ε_abs_state,
+                                    ε_rel=ε_rel_state,
                                 )
                                 keep_problem = test_L2_i(
                                     i,
                                     t_jp,
-                                    u_jp,
-                                    u_os,
+                                    x_jp,
+                                    x_os,
                                     "JP",
                                     "OS",
                                     keep_problem;
-                                    ε_abs=ε_abs_control,
-                                    ε_rel=ε_rel_control,
+                                    ε_abs=ε_abs_state,
+                                    ε_rel=ε_rel_state,
                                 )
                             end
                         end
                     end
                 end
-            end
 
-            ########## Variables ##########
-            if test_grid_ok && !isnothing(v_vars)
-                @testset "variable" verbose=VERBOSE begin
-                    DEBUG && println("├─ Variables")
-                    for i in eachindex(v_vars)
-                        DEBUG && @printf("│   %-6s\n", v_vars[i])
-                        @testset "$(v_vars[i])" verbose=VERBOSE begin
-                            keep_problem = test_abs_i(
-                                i,
-                                v_jp,
-                                v_oc,
-                                "JP",
-                                "OC",
-                                keep_problem;
-                                ε_abs=ε_abs_variable,
-                                ε_rel=ε_rel_variable,
-                            )
-                            keep_problem = test_abs_i(
-                                i,
-                                v_jp,
-                                v_os,
-                                "JP",
-                                "OS",
-                                keep_problem;
-                                ε_abs=ε_abs_variable,
-                                ε_rel=ε_rel_variable,
-                            )
+                ########## Controls ##########
+                if test_grid_ok
+                    @testset "control" verbose=VERBOSE begin
+                        DEBUG && println("├─ Controls")
+                        for i in eachindex(u_vars)
+                            DEBUG && @printf("│   %-6s\n", u_vars[i])
+                            @testset "$(u_vars[i])" verbose=VERBOSE begin
+                                if !(test_name == :solution && f == :jackson)
+                                    keep_problem = test_L2_i(
+                                        i,
+                                        t_jp,
+                                        u_jp,
+                                        u_oc,
+                                        "JP",
+                                        "OC",
+                                        keep_problem;
+                                        ε_abs=ε_abs_control,
+                                        ε_rel=ε_rel_control,
+                                    )
+                                    keep_problem = test_L2_i(
+                                        i,
+                                        t_jp,
+                                        u_jp,
+                                        u_os,
+                                        "JP",
+                                        "OS",
+                                        keep_problem;
+                                        ε_abs=ε_abs_control,
+                                        ε_rel=ε_rel_control,
+                                    )
+                                end
+                            end
                         end
                     end
                 end
-            end
 
-            ########## Objective ##########
-            DEBUG && println("├─ Objective")
-            @testset "objective" verbose=VERBOSE begin
-                keep_problem = test_abs(
-                    o_jp,
-                    o_oc,
-                    "JP",
-                    "OC",
-                    keep_problem;
-                    ε_abs=ε_abs_objective,
-                    ε_rel=ε_rel_objective,
+                ########## Variables ##########
+                if test_grid_ok && !isnothing(v_vars)
+                    @testset "variable" verbose=VERBOSE begin
+                        DEBUG && println("├─ Variables")
+                        for i in eachindex(v_vars)
+                            DEBUG && @printf("│   %-6s\n", v_vars[i])
+                            @testset "$(v_vars[i])" verbose=VERBOSE begin
+                                keep_problem = test_abs_i(
+                                    i,
+                                    v_jp,
+                                    v_oc,
+                                    "JP",
+                                    "OC",
+                                    keep_problem;
+                                    ε_abs=ε_abs_variable,
+                                    ε_rel=ε_rel_variable,
+                                )
+                                keep_problem = test_abs_i(
+                                    i,
+                                    v_jp,
+                                    v_os,
+                                    "JP",
+                                    "OS",
+                                    keep_problem;
+                                    ε_abs=ε_abs_variable,
+                                    ε_rel=ε_rel_variable,
+                                )
+                            end
+                        end
+                    end
+                end
+
+                ########## Objective ##########
+                DEBUG && println("├─ Objective")
+                @testset "objective" verbose=VERBOSE begin
+                    keep_problem = test_abs(
+                        o_jp,
+                        o_oc,
+                        "JP",
+                        "OC",
+                        keep_problem;
+                        ε_abs=ε_abs_objective,
+                        ε_rel=ε_rel_objective,
+                    )
+                    keep_problem = test_abs(
+                        o_jp,
+                        o_os,
+                        "JP",
+                        "OS",
+                        keep_problem;
+                        ε_abs=ε_abs_objective,
+                        ε_rel=ε_rel_objective,
+                    )
+                end
+
+                DEBUG && println("└─")
+
+                if !keep_problem
+                    global LIST_OF_PROBLEMS_FINAL
+                    LIST_OF_PROBLEMS_FINAL = setdiff(LIST_OF_PROBLEMS_FINAL, [f])
+                end
+
+                ############ PLOT ############
+                figdir = joinpath(@__DIR__, "figures", string(test_name))
+                isdir(figdir) || mkpath(figdir)
+
+                n = length(x_vars)
+                m = length(u_vars)
+
+                # OptimalControl
+                color = 1
+                labelOC = if (test_name == :solution)
+                    "OptimalControl: " * string(i_oc) * " it"
+                else
+                    "OptimalControl"
+                end
+                plt = plot(
+                    sol_oc;
+                    state_style=(color=color,),
+                    costate_style=(color=color, legend=:none),
+                    control_style=(color=color, legend=:none),
+                    path_style=(color=color, legend=:none),
+                    dual_style=(color=color, legend=:none),
+                    size=(900, 220*(n+m)),
+                    label=labelOC,
+                    leftmargin=20mm,
                 )
-                keep_problem = test_abs(
-                    o_jp,
-                    o_os,
-                    "JP",
-                    "OS",
-                    keep_problem;
-                    ε_abs=ε_abs_objective,
-                    ε_rel=ε_rel_objective,
+                for i in 2:n
+                    plot!(plt[i]; legend=:none)
+                end
+
+                # OptimalControl_s
+                color = 2
+                labelOC = if (test_name == :solution)
+                    "OptimalControl_s: " * string(i_oc) * " it"
+                else
+                    "OptimalControl_s"
+                end
+                plot!(
+                    plt,
+                    sol_os;
+                    linestyle=:dot,
+                    state_style=(color=color,),
+                    costate_style=(color=color, legend=:none),
+                    control_style=(color=color, legend=:none),
+                    path_style=(color=color, legend=:none),
+                    dual_style=(color=color, legend=:none),
+                    label=labelOC,
                 )
-            end
+                for i in 2:n
+                    plot!(plt[i]; legend=:none)
+                end
 
-            DEBUG && println("└─")
+                # JuMP
+                color = 3
+                labelJP =
+                    (test_name == :solution) ? "JuMP: " * string(i_jp) * " it" : "JuMP"
+                for i in eachindex(x_vars) # state
+                    xi_jp = [x_jp[k][i] for k in eachindex(t_jp)]
+                    label = i == 1 ? labelJP : :none
+                    plot!(plt[i], t_jp, xi_jp; color=color, linestyle=:dash, label=label)
+                end
 
-            if !keep_problem
-                global LIST_OF_PROBLEMS_FINAL
-                LIST_OF_PROBLEMS_FINAL = setdiff(LIST_OF_PROBLEMS_FINAL, [f])
-            end
+                for i in eachindex(x_vars) # costate
+                    pi_jp = [p_jp[k][i] for k in eachindex(t_jp)]
+                    plot!(
+                        plt[n + i], t_jp, -pi_jp; color=color, linestyle=:dash, label=:none
+                    )
+                end
 
-            ############ PLOT ############
-            figdir = joinpath(@__DIR__, "figures", string(test_name))
-            isdir(figdir) || mkpath(figdir)
+                for i in eachindex(u_vars) # control
+                    ui_jp = [u_jp[k][i] for k in eachindex(t_jp)]
+                    plot!(
+                        plt[2n + i], t_jp, ui_jp; color=color, linestyle=:dash, label=:none
+                    )
+                end
 
-            n = length(x_vars)
-            m = length(u_vars)
-
-            # OptimalControl
-            color = 1
-            labelOC = if (test_name == :solution)
-                "OptimalControl: " * string(i_oc) * " it"
-            else
-                "OptimalControl"
-            end
-            plt = plot(
-                sol_oc;
-                state_style=(color=color,),
-                costate_style=(color=color, legend=:none),
-                control_style=(color=color, legend=:none),
-                path_style=(color=color, legend=:none),
-                dual_style=(color=color, legend=:none),
-                size=(900, 220*(n+m)),
-                label=labelOC,
-                leftmargin=20mm,
-            )
-            for i in 2:n
-                plot!(plt[i]; legend=:none)
-            end
-
-            # OptimalControl_s
-            color = 2
-            labelOC = if (test_name == :solution)
-                "OptimalControl_s: " * string(i_oc) * " it"
-            else
-                "OptimalControl_s"
-            end
-            plot!(
-                plt,
-                sol_os;
-                linestyle=:dot,
-                state_style=(color=color,),
-                costate_style=(color=color, legend=:none),
-                control_style=(color=color, legend=:none),
-                path_style=(color=color, legend=:none),
-                dual_style=(color=color, legend=:none),
-                label=labelOC,
-            )
-            for i in 2:n
-                plot!(plt[i]; legend=:none)
-            end
-
-            # JuMP
-            color = 3
-            labelJP = (test_name == :solution) ? "JuMP: " * string(i_jp) * " it" : "JuMP"
-            for i in eachindex(x_vars) # state
-                xi_jp = [x_jp[k][i] for k in eachindex(t_jp)]
-                label = i == 1 ? labelJP : :none
-                plot!(plt[i], t_jp, xi_jp; color=color, linestyle=:dash, label=label)
-            end
-
-            for i in eachindex(x_vars) # costate
-                pi_jp = [p_jp[k][i] for k in eachindex(t_jp)]
-                plot!(plt[n + i], t_jp, -pi_jp; color=color, linestyle=:dash, label=:none)
-            end
-
-            for i in eachindex(u_vars) # control
-                ui_jp = [u_jp[k][i] for k in eachindex(t_jp)]
-                plot!(plt[2n + i], t_jp, ui_jp; color=color, linestyle=:dash, label=:none)
-            end
-
-            # save figure
-            savefig(plt, joinpath(figdir, "$f" * ".pdf"))
+                # save figure
+                savefig(plt, joinpath(figdir, "$f" * ".pdf"))
 
             catch e
                 handle_solver_error(e, f)

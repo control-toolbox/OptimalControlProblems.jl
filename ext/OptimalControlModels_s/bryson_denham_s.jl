@@ -44,7 +44,7 @@ function OptimalControlProblems.bryson_denham_s(
     ocp = @def begin
         t ∈ [t0, tf], time
         x ∈ R², state  # x1 (position) et x2(speed)
-        u ∈ R, control   
+        u ∈ R, control
 
         x(t0) == [x1_t0, x2_t0]
         x(tf) == [x1_tf, x2_tf]
@@ -54,7 +54,7 @@ function OptimalControlProblems.bryson_denham_s(
         ∂(x₁)(t) == x₂(t)
         ∂(x₂)(t) == u(t)
 
-        ∫(0.5 * u(t)^2) → min   
+        ∫(0.5 * u(t)^2) → min
     end
 
     init = (state=[0.0, 0.0], control=0.0)
