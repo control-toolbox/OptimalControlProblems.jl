@@ -353,9 +353,9 @@ version = "0.0.20230411+1"
 
 [[deps.ExaModels]]
 deps = ["NLPModels", "Printf", "SolverCore"]
-git-tree-sha1 = "36127a7f3989bb0e793bf750c084309fd84acbb6"
+git-tree-sha1 = "59cb2c3630989ad8081fef9d920f9fe84b5f2f2c"
 uuid = "1037b233-b668-4ce9-9b63-f9f681f55dd2"
-version = "0.9.6"
+version = "0.9.7"
 
     [deps.ExaModels.extensions]
     ExaModelsAMDGPU = "AMDGPU"
