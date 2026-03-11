@@ -46,7 +46,7 @@ function OptimalControlProblems.balanced_field(
     span = params[:span]
     α_max = params[:α_max]
     T = params[:T]
-    
+
     r_t0 = params[:r_t0]
     v_t0 = params[:v_t0]
     h_t0 = params[:h_t0]
@@ -75,7 +75,7 @@ function OptimalControlProblems.balanced_field(
 
         h(tf) == h_tf
         γ(tf) == γ_tf
-        
+
         0 ≤ α(t) ≤ α_max_ctrl # alpha
         tf ≥ 0.1
         h(t) ≥ 0
@@ -88,21 +88,21 @@ function OptimalControlProblems.balanced_field(
 
     function dynamics(x, α, m, g, ρ, S, CD0, CL0, CL_max, α_max, T, b, K_nom, h_w)
         r, v, h, γ = x
-        
+
         q = 0.5 * ρ * v^2
         CL = CL0 + (α / α_max) * (CL_max - CL0)
         L = q * S * CL
-        
+
         h_eff = h + h_w
         term_h = 33.0 * abs(h_eff / b)^1.5
         K = K_nom * term_h / (1.0 + term_h)
         D = q * S * (CD0 + K * CL^2)
-        
+
         rdot = v * cos(γ)
         vdot = (T * cos(α) - D) / m - g * sin(γ)
         hdot = v * sin(γ)
         γdot = (T * sin(α) + L) / (m * v) - (g * cos(γ)) / v
-        
+
         return [rdot, vdot, hdot, γdot]
     end
 

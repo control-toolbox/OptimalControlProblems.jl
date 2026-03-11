@@ -62,11 +62,7 @@ function make_list_of_problems()
     end
 
     # exclude the following problems
-    problems_to_exclude = [
-        :bioreactor,
-        :cart_pendulum,
-        :moonlander,
-    ]
+    problems_to_exclude = [:bioreactor, :cart_pendulum, :moonlander]
     list_of_problems = setdiff(list_of_problems, problems_to_exclude)
 
     return tuple(list_of_problems...), path

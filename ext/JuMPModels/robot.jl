@@ -133,7 +133,7 @@ function OptimalControlProblems.robot(
         set_start_value(dρ[k], 0.0)
         set_start_value(dθ[k], 0.0)
         set_start_value(dϕ[k], 0.0)
-        
+
         set_start_value(uρ[k], 0.0)
         set_start_value(uθ[k], 0.0)
         set_start_value(uϕ[k], 0.0)

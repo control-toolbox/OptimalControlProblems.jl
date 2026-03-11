@@ -38,7 +38,7 @@ function OptimalControlProblems.balanced_field_s(
     span = params[:span]
     α_max = params[:α_max]
     T = params[:T]
-    
+
     r_t0 = params[:r_t0]
     v_t0 = params[:v_t0]
     h_t0 = params[:h_t0]
@@ -64,7 +64,7 @@ function OptimalControlProblems.balanced_field_s(
 
         h(tf) == h_tf
         γ(tf) == γ_tf
-        
+
         0 ≤ α(t) ≤ α_max_ctrl
         tf ≥ 0.1
         h(t) ≥ 0

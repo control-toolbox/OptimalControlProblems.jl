@@ -44,25 +44,28 @@ function OptimalControlProblems.bryson_denham(
     model[:state_components] = ["x1", "x2"]
     model[:control_components] = ["u"]
     model[:costate_components] = ["p1", "p2"]
-    model[:variable_components] = []          
+    model[:variable_components] = []
 
     N = grid_size
-    Δt = (tf- t0) /N
+    Δt = (tf - t0) / N
 
     @variable(model, x1[0:N] <= x1_max, start = 0.0)
     @variable(model, x2[0:N], start = 0.0)
     @variable(model, u[0:N], start = 0.0)
 
-    @constraints(model, begin
-        x1[0] == x1_t0
-        x2[0] == x2_t0
-        x1[N] == x1_tf
-        x2[N] == x2_tf
-        p1[i = 1:N], x1[i] == x1[i-1] + 0.5* Δt * (x2[i] + x2[i-1])
-        p2[i = 1:N], x2[i] == x2[i-1] + 0.5 * Δt * (u[i] + u[i-1])
-    end)
+    @constraints(
+        model,
+        begin
+            x1[0] == x1_t0
+            x2[0] == x2_t0
+            x1[N] == x1_tf
+            x2[N] == x2_tf
+            p1[i = 1:N], x1[i] == x1[i - 1] + 0.5 * Δt * (x2[i] + x2[i - 1])
+            p2[i = 1:N], x2[i] == x2[i - 1] + 0.5 * Δt * (u[i] + u[i - 1])
+        end
+    )
 
-    @objective(model, Min, 0.5 * Δt * sum(0.5 * (u[i]^2 + u[i-1]^2) for i in 1:N))
+    @objective(model, Min, 0.5 * Δt * sum(0.5 * (u[i]^2 + u[i - 1]^2) for i in 1:N))
 
     return model
 end

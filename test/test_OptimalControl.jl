@@ -45,7 +45,9 @@ function test_OptimalControl()
                 )
 
                 # Test
-                res = @my_test_broken (sol.status == :first_order || sol.status == :acceptable)
+                res = @my_test_broken (
+                    sol.status == :first_order || sol.status == :acceptable
+                )
                 keep_problem = keep_problem && res
                 DEBUG && res && println(", \033[1;32mPass\033[0m")
                 DEBUG && !res && println(", \033[1;31mFail\033[0m")

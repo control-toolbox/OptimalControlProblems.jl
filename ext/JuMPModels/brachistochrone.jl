@@ -36,7 +36,7 @@ function OptimalControlProblems.brachistochrone(
 
     # parameters
     params = parameters_data(:brachistochrone, parameters)
-    g  = params[:g]
+    g = params[:g]
     t0 = params[:t0]
     x0 = params[:x0]
     y0 = params[:y0]
@@ -86,7 +86,7 @@ function OptimalControlProblems.brachistochrone(
             px[0] == x0
             py[0] == y0
             v[0] == v0
-            
+
             # End
             px[N] == xf
             py[N] == yf
@@ -104,10 +104,10 @@ function OptimalControlProblems.brachistochrone(
             # Dynamics expressions (Dymos formulation)
             # dpx/dt = v * sin(u)
             dpx[i = 0:N], v[i] * sin(u[i])
-            
+
             # dpy/dt = -v * cos(u)
             dpy[i = 0:N], -v[i] * cos(u[i])
-            
+
             # dv/dt = g * cos(u)
             dv[i = 0:N], g * cos(u[i])
         end

@@ -37,7 +37,7 @@ function OptimalControlProblems.balanced_field(
     span = params[:span]
     α_max = params[:α_max]
     T = params[:T]
-    
+
     r_t0 = params[:r_t0]
     v_t0 = params[:v_t0]
     h_t0 = params[:h_t0]
@@ -96,16 +96,16 @@ function OptimalControlProblems.balanced_field(
         model,
         begin
             Δt, (tf - t0) / N
-            
+
             q[i = 0:N], 0.5 * ρ * v[i]^2
             CL[i = 0:N], CL0 + (α[i] / α_max) * (CL_max - CL0)
             L[i = 0:N], q[i] * S * CL[i]
-            
+
             h_eff[i = 0:N], h[i] + h_w
             term_h[i = 0:N], 33.0 * abs(h_eff[i] / b)^1.5
             K[i = 0:N], K_nom * term_h[i] / (1.0 + term_h[i])
             D[i = 0:N], q[i] * S * (CD0 + K[i] * CL[i]^2)
-            
+
             dr[i = 0:N], v[i] * cos(γ[i])
             dv[i = 0:N], (T * cos(α[i]) - D[i]) / m - g * sin(γ[i])
             dh[i = 0:N], v[i] * sin(γ[i])

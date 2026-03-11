@@ -27,7 +27,7 @@ override_list_of_problems = false
 
 list_of_problems = if override_list_of_problems
     [
-        # put here the problems to test
+    # put here the problems to test
     ]
 else
     # Get all problems
@@ -35,7 +35,7 @@ else
 
     # Remove from the tests the following problems
     problems_to_exclude = [
-        # put here problems to exclude from the tests
+    # put here problems to exclude from the tests
     ]
     setdiff(all_problems, problems_to_exclude)
 end

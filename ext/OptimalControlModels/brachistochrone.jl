@@ -33,9 +33,8 @@ function OptimalControlProblems.brachistochrone(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-    
     params = parameters_data(:brachistochrone, parameters)
-    g  = params[:g]
+    g = params[:g]
     t0 = params[:t0]
     x0 = params[:x0]
     y0 = params[:y0]
@@ -48,23 +47,23 @@ function OptimalControlProblems.brachistochrone(
     ocp = @def begin
         tf ∈ R, variable
         t ∈ [t0, tf], time
-        
+
         z = (px, py, v) ∈ R³, state
         u ∈ R, control
 
         -1.57 ≤ u(t) ≤ 1.57
-        0.1 ≤ tf ≤ 20.0 
+        0.1 ≤ tf ≤ 20.0
 
         px(t0) == x0
         py(t0) == y0
-        v(t0)  == v0
-        
+        v(t0) == v0
+
         px(tf) == xf
         py(tf) == yf
 
         ∂(px)(t) == v(t) * sin(u(t))
         ∂(py)(t) == -v(t) * cos(u(t))
-        ∂(v)(t)  == g * cos(u(t))
+        ∂(v)(t) == g * cos(u(t))
 
         # Objectif
         tf → min
@@ -73,23 +72,23 @@ function OptimalControlProblems.brachistochrone(
     # initial guess: linear interpolation to match JuMP
     tf_guess = 2.0
     init = (
-        state = t -> [
+        state=t -> [
             x0 + (t - t0) / (tf_guess - t0) * (xf - x0),
             y0 + (t - t0) / (tf_guess - t0) * (yf - y0),
-            v0 + (t - t0) / (tf_guess - t0) * 10.0
+            v0 + (t - t0) / (tf_guess - t0) * 10.0,
         ],
-        control = 1.57,
-        variable = tf_guess
+        control=1.57,
+        variable=tf_guess,
     )
 
     docp = direct_transcription(
         ocp,
         description...;
         lagrange_to_mayer=false,
-        init = init,
-        grid_size = grid_size,
+        init=init,
+        grid_size=grid_size,
         disc_method=:trapeze,
-        kwargs...
+        kwargs...,
     )
 
     return docp
