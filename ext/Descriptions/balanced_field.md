@@ -4,12 +4,12 @@ This implementation focuses on the **takeoff climb** phase with one engine out, 
 ### Mathematical formulation
 
 The problem is to minimise the final range $r(t_f)$ to reach the screen height (usually 35 ft).  
-The state vector is $x(t) = [r(t), v(t), h(t), \gamma(t)]^	op$ and the control is the angle of attack $\alpha(t)$.
+The state vector is $x(t) = (r(t), v(t), h(t), \gamma(t))$ and the control is the angle of attack $\alpha(t)$.
 
 ```math
 \begin{aligned}
 \min_{\alpha, t_f} \quad & r(t_f) \\
-	ext{s.t.} \quad & \dot{r}(t) = v(t) \cos \gamma(t), \\
+	\text{s.t.} \quad & \dot{r}(t) = v(t) \cos \gamma(t), \\
 & \dot{v}(t) = \frac{T \cos \alpha(t) - D}{m} - g \sin \gamma(t), \\
 & \dot{h}(t) = v(t) \sin \gamma(t), \\
 & \dot{\gamma}(t) = \frac{T \sin \alpha(t) + L}{m v(t)} - \frac{g \cos \gamma(t)}{v(t)}, \\
