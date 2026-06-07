@@ -675,7 +675,7 @@ const TABLE = (presentation=TABLE_PRESENTATION, style=TABLE_STYLE, logic=TABLE_L
 # Helpers
 # -------------------------------
 function sum_namedtuple(nt::NamedTuple)
-    sum(values(nt))
+    return sum(values(nt))
 end
 
 function ocp_data_to_json(data_ocp::DataFrame)
@@ -683,7 +683,7 @@ function ocp_data_to_json(data_ocp::DataFrame)
 end
 
 function write_block(io, content)
-    write(io, content)
+    return write(io, content)
 end
 
 function generate_constraint_buttons_html(constraint_dims::NamedTuple)
@@ -818,7 +818,7 @@ function generate_problems_browser!(path::AbstractString)
     json_str = collect_problems_data_json()
     html = assemble_problems_browser_html(json_str)
     open(path, "w") do io
-        write(io, html)
+        return write(io, html)
     end
     return path
 end

@@ -112,7 +112,7 @@ Draft = false
 ```
 =#
 with_problems_browser() do browser_file # generates the problems browser and remove it at the end
-    makedocs(;
+    return makedocs(;
         draft=draft,
         #remotes=nothing,
         warnonly=:cross_references,
