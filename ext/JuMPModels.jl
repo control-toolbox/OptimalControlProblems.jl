@@ -92,7 +92,7 @@ julia> OptimalControlProblems.control_components(model)
 ```
 """
 function OptimalControlProblems.control_components(model::JuMP.GenericModel)
-    model[:control_components]
+    return model[:control_components]
 end
 
 """
@@ -116,7 +116,7 @@ julia> OptimalControlProblems.variable_components(model)
 ```
 """
 function OptimalControlProblems.variable_components(model::JuMP.GenericModel)
-    model[:variable_components]
+    return model[:variable_components]
 end
 
 """

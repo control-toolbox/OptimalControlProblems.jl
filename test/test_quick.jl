@@ -124,5 +124,5 @@ function test_quick()
         end
     end
 
-    DEBUG && println("maximal relative error: ", max_r_err)
+    return DEBUG && println("maximal relative error: ", max_r_err)
 end
