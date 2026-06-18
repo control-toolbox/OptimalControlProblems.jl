@@ -85,7 +85,7 @@ for problem in LIST_OF_PROBLEMS
         @doc $doc function $problem(
             model_backend::T, args...; kwargs...
         ) where {T<:AbstractModelBackend}
-            throw(CTBase.ExtensionError(weakdeps[T]))
+            return throw(CTBase.ExtensionError(weakdeps[T]))
         end
         export $problem
     end
@@ -103,7 +103,7 @@ for problem in LIST_OF_PROBLEMS
         @doc $doc_s function $problem_s(
             model_backend::T, args...; kwargs...
         ) where {T<:AbstractModelBackend}
-            throw(CTBase.ExtensionError(weakdeps[T]))
+            return throw(CTBase.ExtensionError(weakdeps[T]))
         end
         export $problem_s
     end
@@ -304,7 +304,7 @@ ERROR: CTBase.UnauthorizedCall("There is nothing to merge.")
 ```
 """
 function merge(::Nothing, ::NamedTuple)
-    throw(CTBase.UnauthorizedCall("There is nothing to merge."))
+    return throw(CTBase.UnauthorizedCall("There is nothing to merge."))
 end
 
 """
