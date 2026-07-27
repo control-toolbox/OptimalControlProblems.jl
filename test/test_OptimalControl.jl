@@ -28,9 +28,9 @@ function test_OptimalControl()
                 nlp = nlp_model(docp)
 
                 # Solve the model
-                print("  First solve:  ");
+                print("  First solve:  ")
                 @time sol = NLPModelsIpopt.ipopt(nlp; options_ipopt...)
-                print("  Second solve: ");
+                print("  Second solve: ")
                 @time sol = NLPModelsIpopt.ipopt(nlp; options_ipopt...)
 
                 # Infos

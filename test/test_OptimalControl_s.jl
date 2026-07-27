@@ -29,9 +29,9 @@ function test_OptimalControl_s()
                 nlp = nlp_model(docp)
 
                 # Solve the model
-                print("  First solve:  ");
+                print("  First solve:  ")
                 @time sol = madnlp(nlp; options_madnlp...)
-                print("  Second solve: ");
+                print("  Second solve: ")
                 @time sol = madnlp(nlp; options_madnlp...)
 
                 # Infos

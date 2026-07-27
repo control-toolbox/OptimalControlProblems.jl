@@ -47,9 +47,9 @@ function test_JuMP()
                 end
 
                 # Solve the model
-                print("  First solve:  ");
+                print("  First solve:  ")
                 @time optimize!(nlp)
-                print("  Second solve: ");
+                print("  Second solve: ")
                 @time optimize!(nlp)
 
                 # Infos
