@@ -70,10 +70,10 @@ const VERBOSE = true # print or not details during tests
     end
 
     # compare the list of problems that passed the tests to the available problems
-    println("\nProblems that passed the tests: ");
+    println("\nProblems that passed the tests: ")
     display(LIST_OF_PROBLEMS_FINAL)
-    println("\nList of available problems: ");
-    display(OptimalControlProblems.problems());
+    println("\nList of available problems: ")
+    display(OptimalControlProblems.problems())
     println()
 
     # @testset "available_problems" verbose=VERBOSE begin
