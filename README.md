@@ -9,7 +9,7 @@ The OptimalControlProblems.jl package is part of the [control-toolbox ecosystem]
 
 | **Category** | **Badge** |
 |-----------------------|-----------|
-| **Documentation** | [![Stable Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://control-toolbox.org/OptimalControlProblems.jl/stable/) [![Dev Docs](https://img.shields.io/badge/docs-dev-8A2BE2.svg)](https://control-toolbox.org/OptimalControlProblems.jl/dev/) |
+| **Documentation** | [![Stable Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://control-toolbox.org/OptimalControlProblems.jl/stable/) [![Dev Docs](https://img.shields.io/badge/docs-dev-8A2BE2.svg)](https://control-toolbox.org/OptimalControlProblems.jl/dev/) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/control-toolbox/OptimalControlProblems.jl) |
 | **CI / Build** | [![Build Status](https://github.com/control-toolbox/OptimalControlProblems.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/control-toolbox/OptimalControlProblems.jl/actions/workflows/CI.yml?query=branch%3Amain) |
 | **Test Coverage** | [![Coverage](https://codecov.io/gh/control-toolbox/OptimalControlProblems.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/control-toolbox/OptimalControlProblems.jl) |
 | **Package Evaluation** | [![PkgEval](https://img.shields.io/badge/Julia-package-purple)](https://juliahub.com/ui/Packages/General/OptimalControlProblems) [![Dependencies](https://juliahub.com/docs/General/OptimalControlProblems/stable/deps.svg)](https://juliahub.com/ui/Packages/General/OptimalControlProblems?t=2) |
