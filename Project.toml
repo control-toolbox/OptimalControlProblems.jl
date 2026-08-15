@@ -1,7 +1,7 @@
 name = "OptimalControlProblems"
 uuid = "59046045-fb9c-4c23-964f-ff0a25704f96"
-authors = ["Olivier Cots <olivier.cots@toulouse-inp.fr>"]
 version = "0.5.0"
+authors = ["Olivier Cots <olivier.cots@toulouse-inp.fr>"]
 
 [deps]
 ADNLPModels = "54578032-b7ea-4c30-94aa-7cbd1cce6c9a"
@@ -27,7 +27,7 @@ CTBase = "0.16"
 CTDirect = "0.17"
 CTModels = "0.6"
 DocStringExtensions = "0.9"
-ExaModels = "0.9"
+ExaModels = "0.9, 0.12"
 JuMP = "1"
 OptimalControl = "1"
 OrderedCollections = "1"
