@@ -9,7 +9,7 @@ The OptimalControlProblems.jl package is part of the [control-toolbox ecosystem]
 
 | **Category** | **Badge** |
 |-----------------------|-----------|
-| **Documentation** | [![Stable Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://control-toolbox.org/OptimalControlProblems.jl/stable/) [![Dev Docs](https://img.shields.io/badge/docs-dev-8A2BE2.svg)](https://control-toolbox.org/OptimalControlProblems.jl/dev/) |
+| **Documentation** | [![Stable Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://control-toolbox.org/OptimalControlProblems.jl/stable/) [![Dev Docs](https://img.shields.io/badge/docs-dev-8A2BE2.svg)](https://control-toolbox.org/OptimalControlProblems.jl/dev/) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/control-toolbox/OptimalControlProblems.jl) |
 | **CI / Build** | [![Build Status](https://github.com/control-toolbox/OptimalControlProblems.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/control-toolbox/OptimalControlProblems.jl/actions/workflows/CI.yml?query=branch%3Amain) |
 | **Test Coverage** | [![Coverage](https://codecov.io/gh/control-toolbox/OptimalControlProblems.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/control-toolbox/OptimalControlProblems.jl) |
 | **Package Evaluation** | [![PkgEval](https://img.shields.io/badge/Julia-package-purple)](https://juliahub.com/ui/Packages/General/OptimalControlProblems) [![Dependencies](https://juliahub.com/docs/General/OptimalControlProblems/stable/deps.svg)](https://juliahub.com/ui/Packages/General/OptimalControlProblems?t=2) |
@@ -91,3 +91,11 @@ If you want to ask a question, feel free to start a discussion [here](https://gi
 
 >[!NOTE]
 > If you want to add an application or a package to the control-toolbox ecosystem, please follow this [set up tutorial](https://github.com/orgs/control-toolbox/discussions/65).
+
+---
+
+## Developer Resources
+
+The [ct-conventions](https://github.com/control-toolbox/ct-conventions) repository (coding rules, method, plan template) is pinned to a SemVer release tag in `AGENTS.md` ("Pinned version"). Read it from a local clone in `.conventions/`, which git ignores; `AGENTS.md` gives the clone command.
+
+It is not a git submodule: `Pkg.add` on Julia 1.10 fails on a package whose tree contains one (`cannot get submodules without a working tree`). To bump it, change the tag in `AGENTS.md` (the "Pinned version" line and the clone command), then re-clone.
