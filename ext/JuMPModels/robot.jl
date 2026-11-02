@@ -79,7 +79,7 @@ function OptimalControlProblems.robot(
     model = JuMP.Model(args...; kwargs...)
 
     # metadata: required
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
     model[:state_components] = ["ρ", "dρ", "θ", "dθ", "ϕ", "dϕ"]
     model[:costate_components] = ["∂ρ", "∂dρ", "∂θ", "∂dθ", "∂ϕ", "∂dϕ"]
     model[:control_components] = ["uρ", "uθ", "uϕ"]

@@ -68,7 +68,7 @@ function OptimalControlProblems.ducted_fan(
     model = JuMP.Model(args...; kwargs...)
 
     # metadata: required
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
     model[:state_components] = ["x₁", "v₁", "x₂", "v₂", "α", "vα"]
     model[:costate_components] = ["∂x₁", "∂v₁", "∂x₂", "∂v₂", "∂α", "∂vα"]
     model[:control_components] = ["u₁", "u₂"]

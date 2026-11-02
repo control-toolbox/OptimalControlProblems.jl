@@ -31,7 +31,7 @@ function test_quick()
     for f in LIST_OF_PROBLEMS
         grid_size = metadata(f)[:grid_size]
 
-        @testset "$(string(f)) (objective)" verbose=VERBOSE begin
+        @testset "$(string(f)) (objective)" verbose = VERBOSE begin
             try
                 DEBUG && println("\n", "┌─ ", string(f))
                 DEBUG && println("│")
@@ -80,13 +80,13 @@ function test_quick()
                 A = o_oc
                 B = o_jp
 
-                o_di = abs(A-B)
-                o_bd = max(0.5*(abs(A) + abs(B))*ε_rel_objective, ε_abs_objective)
-                max_r_err = max(max_r_err, o_di/(0.5*(abs(A) + abs(B))))
+                o_di = abs(A - B)
+                o_bd = max(0.5 * (abs(A) + abs(B)) * ε_rel_objective, ε_abs_objective)
+                max_r_err = max(max_r_err, o_di / (0.5 * (abs(A) + abs(B))))
 
                 DEBUG && println("│     JuMP vs OptimalControl")
                 DEBUG && println("│")
-                DEBUG && println("│          r_err = ", o_di/(0.5*(abs(A) + abs(B))))
+                DEBUG && println("│          r_err = ", o_di / (0.5 * (abs(A) + abs(B))))
                 DEBUG && println("│          a_err = ", o_di)
                 DEBUG && println("│          bound = ", o_bd)
 
@@ -100,13 +100,13 @@ function test_quick()
                 A = o_os
                 B = o_jp
 
-                o_di = abs(A-B)
-                o_bd = max(0.5*(abs(A) + abs(B))*ε_rel_objective, ε_abs_objective)
-                max_r_err = max(max_r_err, o_di/(0.5*(abs(A) + abs(B))))
+                o_di = abs(A - B)
+                o_bd = max(0.5 * (abs(A) + abs(B)) * ε_rel_objective, ε_abs_objective)
+                max_r_err = max(max_r_err, o_di / (0.5 * (abs(A) + abs(B))))
 
                 DEBUG && println("│     JuMP vs OptimalControl_s")
                 DEBUG && println("│")
-                DEBUG && println("│          r_err = ", o_di/(0.5*(abs(A) + abs(B))))
+                DEBUG && println("│          r_err = ", o_di / (0.5 * (abs(A) + abs(B))))
                 DEBUG && println("│          a_err = ", o_di)
                 DEBUG && println("│          bound = ", o_bd)
 

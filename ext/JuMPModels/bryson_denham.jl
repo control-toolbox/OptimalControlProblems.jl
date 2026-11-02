@@ -40,7 +40,7 @@ function OptimalControlProblems.bryson_denham(
     model = JuMP.Model(args...; kwargs...)
 
     # metadata: required
-    model[:time_grid] = () -> range(t0, tf, grid_size+1)
+    model[:time_grid] = () -> range(t0, tf, grid_size + 1)
     model[:state_components] = ["x1", "x2"]
     model[:control_components] = ["u"]
     model[:costate_components] = ["p1", "p2"]
@@ -49,9 +49,9 @@ function OptimalControlProblems.bryson_denham(
     N = grid_size
     Δt = (tf - t0) / N
 
-    @variable(model, x1[0:N] <= x1_max, start = 0.0)
-    @variable(model, x2[0:N], start = 0.0)
-    @variable(model, u[0:N], start = 0.0)
+    @variable(model, x1[0:N] <= x1_max, start=0.0)
+    @variable(model, x2[0:N], start=0.0)
+    @variable(model, u[0:N], start=0.0)
 
     @constraints(
         model,

@@ -69,7 +69,7 @@ function OptimalControlProblems.moonlander(
     model = JuMP.Model(args...; kwargs...)
 
     # metadata: required
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
     model[:state_components] = ["p₁", "p₂", "dp₁", "dp₂", "θ", "dθ"]
     model[:costate_components] = ["∂p₁", "∂p₂", "∂dp₁", "∂dp₂", "∂θ", "∂dθ"]
     model[:control_components] = ["F₁", "F₂"]

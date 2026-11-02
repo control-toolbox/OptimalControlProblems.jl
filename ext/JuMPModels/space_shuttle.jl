@@ -60,8 +60,8 @@ function OptimalControlProblems.space_shuttle(
     # 
     Δt_min = params[:Δt_min]
     Δt_max = params[:Δt_max]
-    tf_l = grid_size*Δt_min
-    tf_u = grid_size*Δt_max
+    tf_l = grid_size * Δt_min
+    tf_u = grid_size * Δt_max
 
     ## Initial conditions
     h_t0 = params[:h_t0]
@@ -104,7 +104,7 @@ function OptimalControlProblems.space_shuttle(
     model = JuMP.Model(args...; kwargs...)
 
     # metadata: required
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
     model[:state_components] = ["scaled_h", "ϕ", "θ", "scaled_v", "γ", "ψ"]
     model[:costate_components] = ["∂h", "∂ϕ", "∂θ", "∂v", "∂γ", "∂ψ"]
     model[:control_components] = ["α", "β"]
@@ -159,14 +159,14 @@ function OptimalControlProblems.space_shuttle(
     end
 
     ## Interpolate each parameter separately
-    h_interp = linear_interpolate(h_t0, h_tf, N+1)
-    ϕ_interp = linear_interpolate(ϕ_t0, ϕ_t0, N+1) # no change in longitude
-    θ_interp = linear_interpolate(θ_t0, θ_t0, N+1) # no change in latitude
-    v_interp = linear_interpolate(v_t0, v_tf, N+1)
-    γ_interp = linear_interpolate(γ_t0, γ_tf, N+1)
-    ψ_interp = linear_interpolate(ψ_t0, ψ_t0, N+1) # no change in azimuth
-    α_interp = linear_interpolate(α_s, α_s, N+1) # no change in angle of attack
-    β_interp = linear_interpolate(β_s, β_s, N+1) # no change in bank angle
+    h_interp = linear_interpolate(h_t0, h_tf, N + 1)
+    ϕ_interp = linear_interpolate(ϕ_t0, ϕ_t0, N + 1) # no change in longitude
+    θ_interp = linear_interpolate(θ_t0, θ_t0, N + 1) # no change in latitude
+    v_interp = linear_interpolate(v_t0, v_tf, N + 1)
+    γ_interp = linear_interpolate(γ_t0, γ_tf, N + 1)
+    ψ_interp = linear_interpolate(ψ_t0, ψ_t0, N + 1) # no change in azimuth
+    α_interp = linear_interpolate(α_s, α_s, N + 1) # no change in angle of attack
+    β_interp = linear_interpolate(β_s, β_s, N + 1) # no change in bank angle
 
     ## Combine all interpolated parameters into an array of arrays
     interpolated_values = [

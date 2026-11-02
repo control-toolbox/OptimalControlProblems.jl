@@ -66,7 +66,7 @@ function OptimalControlProblems.bioreactor(
     model = JuMP.Model(args...; kwargs...)
 
     # metadata: required
-    model[:time_grid] = () -> range(t0, tf, grid_size+1) # tf is a fixed
+    model[:time_grid] = () -> range(t0, tf, grid_size + 1) # tf is a fixed
     model[:state_components] = ["y", "s", "b"]
     model[:costate_components] = ["∂y", "∂s", "∂b"]
     model[:control_components] = ["u"]
@@ -101,7 +101,7 @@ function OptimalControlProblems.bioreactor(
         model,
         begin
             #
-            Δt, (tf-t0) / N
+            Δt, (tf - t0) / N
 
             # intermediate variables
             growth[k = 0:N], μ2m * s[k] / (s[k] + Ks)

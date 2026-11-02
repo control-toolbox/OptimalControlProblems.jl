@@ -66,7 +66,7 @@ function OptimalControlProblems.insurance(
     model = JuMP.Model(args...; kwargs...)
 
     # metadata: required
-    model[:time_grid] = () -> range(t0, tf, grid_size+1) # tf is a fixed
+    model[:time_grid] = () -> range(t0, tf, grid_size + 1) # tf is a fixed
     model[:state_components] = ["I", "m", "x₃"]
     model[:costate_components] = ["∂I", "∂m", "∂x₃"]
     model[:control_components] = ["h", "R", "H", "U", "dUdR"]

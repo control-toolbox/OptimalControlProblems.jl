@@ -63,7 +63,7 @@ function OptimalControlProblems.glider(
     model = JuMP.Model(args...; kwargs...)
 
     # metadata: required
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
     model[:state_components] = ["x", "y", "vx", "vy"]
     model[:costate_components] = ["∂x", "∂y", "∂vx", "∂vy"]
     model[:control_components] = ["cL"]

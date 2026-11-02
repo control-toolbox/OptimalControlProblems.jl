@@ -59,7 +59,7 @@ function OptimalControlProblems.rocket(
     model = JuMP.Model(args...; kwargs...)
 
     # metadata
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
     model[:state_components] = ["h", "v", "m"]
     model[:costate_components] = ["∂h", "∂v", "∂m"]
     model[:control_components] = ["T"]

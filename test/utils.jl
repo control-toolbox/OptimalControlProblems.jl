@@ -23,7 +23,7 @@ function L2_norm(T, X)
     # T and X are supposed to be one dimensional
     s = 0.0
     for i in 1:(length(T) - 1)
-        s += 0.5 * (X[i]^2 + X[i + 1]^2) * (T[i + 1]-T[i])
+        s += 0.5 * (X[i]^2 + X[i + 1]^2) * (T[i + 1] - T[i])
     end
     return √(s)
 end
@@ -51,7 +51,7 @@ julia> @macroexpand @my_test_broken 1 == 2
 """
 macro my_test_broken(e)
     return esc(quote
-        res = @test $e broken=!$e
+        res = @test $e broken = !$e
         typeof(res) == Test.Pass
     end)
 end
@@ -87,7 +87,7 @@ function handle_solver_error(e::Exception, problem_name::Symbol)
 
     if any(T -> isa(e, T), expected_solver_errors)
         # Mark as broken test
-        @test false broken=true
+        @test false broken = true
         DEBUG && println("│ \033[1;33mSolver error (broken): ", typeof(e), "\033[0m")
         DEBUG && println("└─")
 
@@ -170,9 +170,9 @@ function comparison(; max_iter, test_name)
         yi_oc, yi_jp = [B[k][i] for k in eachindex(times)],
         [A[k][i] for k in eachindex(times)]
         L2_di = L2_norm(times, yi_oc - yi_jp)
-        L2_bd = max(0.5*(L2_norm(times, yi_oc)+L2_norm(times, yi_jp))*ε_rel, ε_abs)
+        L2_bd = max(0.5 * (L2_norm(times, yi_oc) + L2_norm(times, yi_jp)) * ε_rel, ε_abs)
         res = @my_test_broken L2_di < L2_bd
-        r_err = L2_di / (0.5*(L2_norm(times, yi_oc)+L2_norm(times, yi_jp)))
+        r_err = L2_di / (0.5 * (L2_norm(times, yi_oc) + L2_norm(times, yi_jp)))
         DEBUG && @printf(
             "│      → %s vs %s: r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
             A_name,
@@ -193,9 +193,9 @@ function comparison(; max_iter, test_name)
     #
     function test_abs(A, B, A_name, B_name; ε_abs, ε_rel)
         tf_di = abs(A - B)
-        tf_bd = max(0.5*(A+B)*ε_rel, ε_abs)
+        tf_bd = max(0.5 * (A + B) * ε_rel, ε_abs)
         res = @my_test_broken tf_di < tf_bd
-        r_err = tf_di / (0.5*(abs(A)+abs(B)))
+        r_err = tf_di / (0.5 * (abs(A) + abs(B)))
         DEBUG && @printf(
             "│      → %s: %.3e  %s: %.3e  r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
             A_name,
@@ -279,7 +279,7 @@ function comparison(; max_iter, test_name)
         ti_di_max, ti_bd_max, itera_max = 0, NaN, 0
         for i in eachindex(B)
             ti_di = B[i] - A[i]
-            ti_bd = max(0.5*(abs(B[i])+abs(A[i]))*ε_rel_grid, ε_abs_grid)
+            ti_bd = max(0.5 * (abs(B[i]) + abs(A[i])) * ε_rel_grid, ε_abs_grid)
             res = @my_test_broken abs(ti_di) < ti_bd
             keep_problem = keep_problem && res
             test_grid_ok = test_grid_ok && res
@@ -287,8 +287,8 @@ function comparison(; max_iter, test_name)
                 ti_di_max, ti_bd_max, itera_max = ti_di, ti_bd, i
             end
         end
-        r_err = abs(ti_di_max)/(0.5*(abs(B[itera_max])+abs(A[itera_max])))
-        res = r_err<1.0
+        r_err = abs(ti_di_max) / (0.5 * (abs(B[itera_max]) + abs(A[itera_max])))
+        res = r_err < 1.0
         DEBUG && @printf(
             "│      → %s vs %s: iter=%d  r_err=%.3e  a_err=%.3e  bound=%.3e  %s\n",
             A_name,
@@ -306,7 +306,7 @@ function comparison(; max_iter, test_name)
     for f in LIST_OF_PROBLEMS
         grid_size = metadata(f)[:grid_size] # get default number of steps
 
-        @testset "$(string(f)) ($(string(test_name)))" verbose=VERBOSE begin
+        @testset "$(string(f)) ($(string(test_name)))" verbose = VERBOSE begin
             try
                 DEBUG && println("\n┌─ ", string(f), " (", string(test_name), ")")
                 DEBUG && println("│")
@@ -394,7 +394,7 @@ function comparison(; max_iter, test_name)
 
                 ########## Components Names ##########
                 if test_name == :init
-                    @testset "nlp" verbose=VERBOSE begin
+                    @testset "nlp" verbose = VERBOSE begin
                         DEBUG && @printf("├─ Components names\n")
                         keep_problem = test_components(
                             x_vars_jp, x_vars_oc, "state   : JP", "OC", keep_problem
@@ -418,7 +418,7 @@ function comparison(; max_iter, test_name)
                 end
 
                 ########## Variables / Constraints ##########
-                @testset "nlp" verbose=VERBOSE begin
+                @testset "nlp" verbose = VERBOSE begin
                     DEBUG && @printf("├─ Variables\n")
                     keep_problem = test_int(nb_var_jp, nb_var_oc, "JP", "OC", keep_problem)
                     keep_problem = test_int(nb_var_jp, nb_var_os, "JP", "OS", keep_problem)
@@ -430,7 +430,7 @@ function comparison(; max_iter, test_name)
 
                 ########## Time Grid ##########
                 test_grid_ok = true
-                @testset "grid" verbose=VERBOSE begin
+                @testset "grid" verbose = VERBOSE begin
 
                     # ----------------------------
                     # final time
@@ -481,11 +481,11 @@ function comparison(; max_iter, test_name)
 
                 ########## States ##########
                 if test_grid_ok
-                    @testset "state" verbose=VERBOSE begin
+                    @testset "state" verbose = VERBOSE begin
                         DEBUG && println("├─ States")
                         for i in eachindex(x_vars)
                             DEBUG && @printf("│   %-6s\n", x_vars[i])
-                            @testset "$(x_vars[i])" verbose=VERBOSE begin
+                            @testset "$(x_vars[i])" verbose = VERBOSE begin
                                 keep_problem = test_L2_i(
                                     i,
                                     t_jp,
@@ -515,11 +515,11 @@ function comparison(; max_iter, test_name)
 
                 ########## Controls ##########
                 if test_grid_ok
-                    @testset "control" verbose=VERBOSE begin
+                    @testset "control" verbose = VERBOSE begin
                         DEBUG && println("├─ Controls")
                         for i in eachindex(u_vars)
                             DEBUG && @printf("│   %-6s\n", u_vars[i])
-                            @testset "$(u_vars[i])" verbose=VERBOSE begin
+                            @testset "$(u_vars[i])" verbose = VERBOSE begin
                                 if !(test_name == :solution && f == :jackson)
                                     keep_problem = test_L2_i(
                                         i,
@@ -551,11 +551,11 @@ function comparison(; max_iter, test_name)
 
                 ########## Variables ##########
                 if test_grid_ok && !isnothing(v_vars)
-                    @testset "variable" verbose=VERBOSE begin
+                    @testset "variable" verbose = VERBOSE begin
                         DEBUG && println("├─ Variables")
                         for i in eachindex(v_vars)
                             DEBUG && @printf("│   %-6s\n", v_vars[i])
-                            @testset "$(v_vars[i])" verbose=VERBOSE begin
+                            @testset "$(v_vars[i])" verbose = VERBOSE begin
                                 keep_problem = test_abs_i(
                                     i,
                                     v_jp,
@@ -583,7 +583,7 @@ function comparison(; max_iter, test_name)
 
                 ########## Objective ##########
                 DEBUG && println("├─ Objective")
-                @testset "objective" verbose=VERBOSE begin
+                @testset "objective" verbose = VERBOSE begin
                     keep_problem = test_abs(
                         o_jp,
                         o_oc,
@@ -632,7 +632,7 @@ function comparison(; max_iter, test_name)
                     control_style=(color=color, legend=:none),
                     path_style=(color=color, legend=:none),
                     dual_style=(color=color, legend=:none),
-                    size=(900, 220*(n+m)),
+                    size=(900, 220 * (n + m)),
                     label=labelOC,
                     leftmargin=20mm,
                 )

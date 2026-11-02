@@ -79,9 +79,9 @@ function OptimalControlProblems.steering_s(
         if i == 1 || i == 4
             return 0.0
         elseif i == 2
-            return 5.0 * (t-t0)
+            return 5.0 * (t - t0)
         elseif i == 3
-            return 45.0 * (t-t0)
+            return 45.0 * (t - t0)
         end
     end
     xinit = t -> [gen_x0(t, i) for i in 1:4]
