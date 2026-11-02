@@ -54,7 +54,7 @@ function OptimalControlProblems.double_oscillator(
     model = JuMP.Model(args...; kwargs...)
 
     # metadata: required
-    model[:time_grid] = () -> range(t0, tf, grid_size+1) # tf is a fixed
+    model[:time_grid] = () -> range(t0, tf, grid_size + 1) # tf is a fixed
     model[:state_components] = ["x₁", "x₂", "x₃", "x₄"]
     model[:costate_components] = ["∂x₁", "∂x₂", "∂x₃", "∂x₄"]
     model[:control_components] = ["u"]
@@ -90,7 +90,7 @@ function OptimalControlProblems.double_oscillator(
         begin
             #
             Δt, (tf - t0) / N
-            t[k = 0:N], t0 + k * (tf-t0) / N
+            t[k = 0:N], t0 + k * (tf - t0) / N
             F[k = 0:N], sin((t[k] - t0) * 2π / (tf - t0))
 
             # dynamics

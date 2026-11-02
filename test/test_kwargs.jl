@@ -5,7 +5,7 @@ function test_kwargs()
     optimiser = Ipopt.Optimizer
 
     for f in LIST_OF_PROBLEMS
-        @testset "$(string(f)) (kwargs)" verbose=VERBOSE begin
+        @testset "$(string(f)) (kwargs)" verbose = VERBOSE begin
             DEBUG && println("─ ", string(f), " (kwargs)")
 
             # OptimalControl model

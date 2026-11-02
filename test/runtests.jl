@@ -49,7 +49,7 @@ LIST_OF_PROBLEMS_FINAL = deepcopy(list_of_problems)
 # Tests
 const DEBUG = true
 const VERBOSE = true # print or not details during tests
-@testset "OptimalControlProblems tests" verbose=VERBOSE showtiming=true begin
+@testset "OptimalControlProblems tests" verbose = VERBOSE showtiming = true begin
     for name in (
         #:aqua,
         :kwargs,
@@ -61,7 +61,7 @@ const VERBOSE = true # print or not details during tests
         :quick,                 # quick comparison: objective rel error only
         :parameters,            # tests with different parameters values, does no depend on `list_of_problems`
     )
-        @testset "$(name)" verbose=VERBOSE begin
+        @testset "$(name)" verbose = VERBOSE begin
             test_name = Symbol(:test_, name)
             println("Testing: " * string(name))
             include("$(test_name).jl")

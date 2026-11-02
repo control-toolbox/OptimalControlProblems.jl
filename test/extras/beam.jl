@@ -21,6 +21,6 @@ function Beam(a)
     return ocp
 end
 
-plot(solve(Beam(1/2))) # state constraint inactive
-plot(solve(Beam(1/5))) # state constraint active: touch point
-plot(solve(Beam(1/8))) # state constraint active: arc
+plot(solve(Beam(1 / 2))) # state constraint inactive
+plot(solve(Beam(1 / 5))) # state constraint active: touch point
+plot(solve(Beam(1 / 8))) # state constraint active: arc

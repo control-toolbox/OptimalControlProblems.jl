@@ -7,6 +7,6 @@ bryson_denham_meta = OrderedDict(
         x2_t0=1.0,       # Initial velocity
         x1_tf=0.0,       # Final position
         x2_tf=-1.0,      # Final velocity
-        x1_max=1/9,        # State constraint: x1(t) <= x1_max
+        x1_max=1 / 9,        # State constraint: x1(t) <= x1_max
     ),
 )

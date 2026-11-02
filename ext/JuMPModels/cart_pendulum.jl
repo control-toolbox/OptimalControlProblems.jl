@@ -60,7 +60,7 @@ function OptimalControlProblems.cart_pendulum(
     model = JuMP.Model(args...; kwargs...)
 
     # metadata: required
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
     model[:state_components] = ["x", "v", "θ", "ω"]
     model[:costate_components] = ["∂x", "∂v", "∂θ", "∂ω"]
     model[:control_components] = ["Fex"]

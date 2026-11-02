@@ -47,7 +47,7 @@ function OptimalControlProblems.vanderpol(
     model = JuMP.Model(args...; kwargs...)
 
     # metadata: required
-    model[:time_grid] = () -> range(t0, tf, grid_size+1) # tf is a fixed
+    model[:time_grid] = () -> range(t0, tf, grid_size + 1) # tf is a fixed
     model[:state_components] = ["x₁", "x₂"]
     model[:costate_components] = ["∂x₁", "∂x₂"]
     model[:control_components] = ["u"]

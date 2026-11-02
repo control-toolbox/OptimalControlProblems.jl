@@ -56,9 +56,9 @@ function OptimalControlProblems.steering(
         if i == 1 || i == 4
             return 0.0
         elseif i == 2
-            return 5.0 * k * (tf_start-t0) / N
+            return 5.0 * k * (tf_start - t0) / N
         elseif i == 3
-            return 45.0 * k * (tf_start-t0) / N
+            return 45.0 * k * (tf_start - t0) / N
         end
     end
 
@@ -66,7 +66,7 @@ function OptimalControlProblems.steering(
     model = JuMP.Model(args...; kwargs...)
 
     # metadata: required
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
+    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
     model[:state_components] = ["x₁", "x₂", "x₃", "x₄"]
     model[:costate_components] = ["∂x₁", "∂x₂", "∂x₃", "∂x₄"]
     model[:control_components] = ["u"]

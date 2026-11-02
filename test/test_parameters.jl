@@ -1,5 +1,5 @@
 function test_parameters()
-    @testset "merge (parameters)" verbose=VERBOSE begin
+    @testset "merge (parameters)" verbose = VERBOSE begin
         @test OptimalControlProblems.merge(nothing, nothing) === nothing
         @test OptimalControlProblems.merge((tf=1,), nothing) == (tf=1,)
         @test OptimalControlProblems.merge((tf=1,), (tf=2,)) == (tf=2,)
