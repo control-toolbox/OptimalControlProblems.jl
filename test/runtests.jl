@@ -24,6 +24,8 @@
 using Test: Test
 
 include(joinpath(@__DIR__, "common", "options.jl"))
+include(joinpath(@__DIR__, "common", "solver_options.jl"))
+include(joinpath(@__DIR__, "common", "helpers.jl"))
 include(joinpath(@__DIR__, "common", "runner.jl"))
 
 const ROOT = dirname(@__DIR__)
@@ -51,7 +53,9 @@ function run_environment(name::AbstractString; cron::Bool, patterns::Vector{Stri
     source = joinpath(@__DIR__, name)
     project = mktempdir()
     cp(joinpath(source, "Project.toml"), joinpath(project, "Project.toml"))
-    julia = Base.julia_cmd()
+    # `Pkg.test` restricts JULIA_LOAD_PATH (and may set JULIA_PROJECT) to its own
+    # temporary environment: a subprocess inheriting them would ignore `--project`.
+    julia = addenv(Base.julia_cmd(), "JULIA_LOAD_PATH" => nothing, "JULIA_PROJECT" => nothing)
     try
         setup = "using Pkg: Pkg; Pkg.develop(path=ARGS[1]); Pkg.instantiate()"
         run(`$julia --project=$project -e $setup $ROOT`)

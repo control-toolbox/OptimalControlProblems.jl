@@ -1,6 +1,8 @@
 # Entry point of the subprocess that runs one test environment.
 # Arguments: <environment directory> <cron: true|false> [patterns...]
 include(joinpath(@__DIR__, "options.jl"))
+include(joinpath(@__DIR__, "solver_options.jl"))
+include(joinpath(@__DIR__, "helpers.jl"))
 include(joinpath(@__DIR__, "runner.jl"))
 
 dir = ARGS[1]
