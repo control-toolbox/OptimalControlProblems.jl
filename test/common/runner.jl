@@ -74,7 +74,7 @@ function run_dir(
             entry = Symbol(first(splitext(file)))
             Base.include(Main, joinpath(folder, file))
             Test.@testset "$entry" verbose = verbose begin
-                Base.invokelatest(getfield(Main, entry))
+                Base.invokelatest(Base.invokelatest(getfield, Main, entry))
             end
         end
     end
