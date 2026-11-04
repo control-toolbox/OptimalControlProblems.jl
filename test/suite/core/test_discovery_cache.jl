@@ -33,32 +33,23 @@ function run_package(julia, package, code)
     return process
 end
 
-function package_output(julia, package, code)
-    return read(`$julia --startup-file=no --project=$package -e $code`, String)
+function cache_files(depot)
+    cache_dir = joinpath(
+        depot, "compiled", "v$(VERSION.major).$(VERSION.minor)", "OptimalControlProblems"
+    )
+    isdir(cache_dir) || return NamedTuple[]
+    return [
+        (path=path, mtime=stat(path).mtime, size=filesize(path)) for
+        path in sort(filter(endswith(".ji"), readdir(cache_dir; join=true)))
+    ]
 end
 
-function cache_signature(julia, package; query=false)
-    prefix = query ? "println(:foo in problems(JuMPBackend(); status=:all));" : ""
-    output = package_output(
-        julia,
-        package,
-        """
-        using OptimalControlProblems
-        $prefix
-        path = Base.compilecache_path(Base.PkgId(OptimalControlProblems))
-        println(path)
-        println(stat(path).mtime)
-        println(filesize(path))
-        """,
+function query_fixture(julia, package)
+    output = read(
+        `$julia --startup-file=no --project=$package -e 'using OptimalControlProblems; println(:foo in problems(JuMPBackend(); status=:all))'`,
+        String,
     )
-    lines = split(chomp(output), '\n')
-    offset = query ? 1 : 0
-    return (
-        foo_seen=query ? lines[1] == "true" : false,
-        path=lines[offset + 1],
-        mtime=lines[offset + 2],
-        size=lines[offset + 3],
-    )
+    return strip(output) == "true"
 end
 
 function add_fixture(package, problem)
@@ -167,15 +158,23 @@ function test_discovery_cache()
 
             rm(joinpath(package, "ext", "MetaData", "foo.jl"))
             remove_include_dependencies(package)
-            before = cache_signature(julia, package)
+            Test.@test success(
+                run_package(
+                    julia,
+                    package,
+                    "using OptimalControlProblems; @assert :foo ∉ problems(JuMPBackend(); status=:all)",
+                ),
+            )
+            before = cache_files(depot)
             add_fixture(package, problem)
-            after = cache_signature(julia, package; query=true)
-            reused = before.mtime == after.mtime && before.size == after.size
+            foo_seen = query_fixture(julia, package)
+            after = cache_files(depot)
+            reused = before == after
             @info "Precompilation cache control" before after reused
             if !reused
                 Test.@test_skip false
             else
-                Test.@test !after.foo_seen
+                Test.@test !foo_seen
             end
         finally
             cleanup(depot)
