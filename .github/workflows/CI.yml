@@ -20,7 +20,7 @@ jobs:
         env:
           LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
         run: |
-          args=$(echo "$LABELS" | jq -r '[.[] | select(startswith("test ")) | sub("^test "; "") | sub(" backend$"; "")] | join(" ")')
+          args=$(echo "$LABELS" | jq -r '[(. // [])[] | select(startswith("test ")) | sub("^test "; "") | sub(" backend$"; "")] | join(" ")')
           echo "test_args=$args" >> "$GITHUB_OUTPUT"
           echo "test_args: '$args'"
 
