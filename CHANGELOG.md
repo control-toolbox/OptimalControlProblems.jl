@@ -28,7 +28,7 @@ nlp = nlp_model(docp)
 
 # After
 pb = beam(OptimalControlBackend())
-sol = solve(ocp(pb); init=initial_guess(pb), grid_size=500)
+sol = solve(model(pb); init=initial_guess(pb), grid_size=500)
 ```
 
 #### `metadata(:problem)` renamed to `problem_metadata(:problem)`
@@ -64,7 +64,7 @@ See [BREAKING.md](BREAKING.md).
 
 ### ✨ New Features
 
-- `Problem` type, read with `name`, `ocp`, `initial_guess` and `metadata`, and shown with
+- `Problem` type, read with `model`, `initial_guess` and `metadata`, and shown with
   its modeling, status and dimensions.
 - `using OptimalControl, OptimalControlProblems` loads without name conflict.
 

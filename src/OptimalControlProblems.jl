@@ -14,7 +14,6 @@ const control = CTModels.Components.control
 const costate = CTModels.Components.costate
 const variable = CTModels.Components.variable
 const objective = CTModels.Components.objective
-const name = CTModels.Components.name
 const iterations = CTModels.Solutions.iterations
 const state_components = CTModels.Models.state_components
 const control_components = CTModels.Models.control_components
@@ -23,6 +22,7 @@ const state_dimension = CTModels.Models.state_dimension
 const control_dimension = CTModels.Models.control_dimension
 const variable_dimension = CTModels.Models.variable_dimension
 const metadata = CTBase.Strategies.metadata
+const model = CTModels.Solutions.model
 
 """
 $(TYPEDEF)
@@ -503,6 +503,6 @@ export control_components,
     variable_components,
     variable_dimension
 export problem_metadata, grid_size_data, parameters_data
-export Problem, name, ocp, initial_guess, metadata
+export Problem, model, initial_guess, metadata
 
 end

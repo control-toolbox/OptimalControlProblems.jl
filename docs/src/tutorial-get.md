@@ -27,15 +27,11 @@ pb = beam(OptimalControlBackend())
 The returned [`Problem`](@ref OptimalControlProblems.Problem) holds the **continuous** optimal control problem (OCP) and its initial guess; it is not discretised. Read it through its accessors:
 
 ```@example main_oc
-name(pb)
-```
-
-```@example main_oc
 initial_guess(pb)
 ```
 
 ```@example main_oc
-ocp(pb)
+model(pb)
 ```
 
 The scheme, the grid, the modeler and the solver are chosen when solving, see [Solve a problem](@ref solve-problem). You can replace any default parameter value:
@@ -65,8 +61,8 @@ To get the nonlinear programming problem (NLP), discretise the OCP and build the
 
 ```@example main_oc
 pb = beam(OptimalControlBackend())
-docp = discretize(ocp(pb), OptimalControl.Collocation(grid_size=100, scheme=:trapeze))
-init = build_initial_guess(ocp(pb), initial_guess(pb))
+docp = discretize(model(pb), OptimalControl.Collocation(grid_size=100, scheme=:trapeze))
+init = build_initial_guess(model(pb), initial_guess(pb))
 nlp = nlp_model(docp, init, OptimalControl.ADNLP())
 nothing # hide
 ```
@@ -120,7 +116,7 @@ N = problem_metadata(:beam)[:grid_size]
 The number of steps is chosen when discretising:
 
 ```@example main_oc
-docp = discretize(ocp(pb), OptimalControl.Collocation(grid_size=200, scheme=:trapeze))
+docp = discretize(model(pb), OptimalControl.Collocation(grid_size=200, scheme=:trapeze))
 get_nvar(nlp_model(docp, init, OptimalControl.ADNLP()))
 ```
 

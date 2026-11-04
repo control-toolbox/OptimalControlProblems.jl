@@ -740,7 +740,7 @@ end
 # Data collection
 # -------------------------------
 function collect_problem_data(problem_sym::Symbol)
-    ocp_pb = ocp(eval(problem_sym)(OptimalControlBackend()))
+    ocp_pb = model(eval(problem_sym)(OptimalControlBackend()))
 
     cost = if has_mayer_cost(ocp_pb) && has_lagrange_cost(ocp_pb)
         "Bolza"

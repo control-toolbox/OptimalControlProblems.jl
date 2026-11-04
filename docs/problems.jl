@@ -110,7 +110,7 @@ We plot the resulting trajectories for both the OptimalControl and JuMP models. 
         # Build OptimalControl problem
         # -----------------------------
         pb = eval(problem)(OptimalControlBackend())
-        ocp_oc = ocp(pb)
+        ocp_oc = model(pb)
 
         # Solve with zero iterations (initial guess), on the default grid
         ocp_sol = solve(
@@ -205,8 +205,8 @@ Before solving, we can inspect the discretisation details of the problem. We dis
 ```@example main
 pb = $PROBLEM(OptimalControlBackend())
 N = problem_metadata(:$PROBLEM)[:grid_size]
-docp = discretize(ocp(pb), OptimalControl.Collocation(grid_size=N, scheme=:trapeze))
-init = build_initial_guess(ocp(pb), initial_guess(pb))
+docp = discretize(model(pb), OptimalControl.Collocation(grid_size=N, scheme=:trapeze))
+init = build_initial_guess(model(pb), initial_guess(pb))
 nlp_oc = nlp_model(docp, init, OptimalControl.ADNLP())
 
 push!(data_pb,(
@@ -224,7 +224,7 @@ We first solve the problem using the `OptimalControl` backend. The continuous pr
 
 ```@example main
 ocp_sol = solve(
-    ocp(pb), :collocation, :adnlp, :ipopt;
+    model(pb), :collocation, :adnlp, :ipopt;
     init=initial_guess(pb),
     grid_size=N,
     scheme=:trapeze,

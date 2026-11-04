@@ -8,7 +8,7 @@ OptimalControl, and its initial guess. Discretizing and solving it is left to
 `OptimalControl.solve`, where the scheme, the grid, the modeler and the solver are chosen.
 
 A `Problem` is returned by a problem function for the OptimalControl modelings. Read it
-through [`name`](@ref), [`ocp`](@ref), [`initial_guess`](@ref) and [`metadata`](@ref).
+through [`model`](@ref), [`initial_guess`](@ref) and [`metadata`](@ref).
 
 # Fields
 
@@ -19,7 +19,7 @@ $(TYPEDFIELDS)
 ```julia-repl
 julia> using OptimalControl, OptimalControlProblems
 julia> pb = beam(OptimalControlBackend())
-julia> sol = solve(ocp(pb); init=initial_guess(pb), grid_size=500)
+julia> sol = solve(model(pb); init=initial_guess(pb), grid_size=500)
 ```
 """
 struct Problem{M,I<:NamedTuple}
@@ -51,17 +51,10 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Return the name of the problem, e.g. `:beam`.
-"""
-CTModels.Components.name(pb::Problem) = pb.name
-
-"""
-$(TYPEDSIGNATURES)
-
 Return the continuous optimal control problem, to be given to `OptimalControl.solve` or
-`OptimalControl.discretize`.
+`OptimalControl.discretize`, as `model(sol)` returns the problem of a solution.
 """
-ocp(pb::Problem) = pb.ocp
+CTModels.Solutions.model(pb::Problem) = pb.ocp
 
 """
 $(TYPEDSIGNATURES)

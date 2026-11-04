@@ -23,7 +23,7 @@ nlp = nlp_model(docp)
 
 # After
 pb = beam(OptimalControlBackend())
-sol = solve(ocp(pb); init=initial_guess(pb), grid_size=500)
+sol = solve(model(pb); init=initial_guess(pb), grid_size=500)
 ```
 
 #### `metadata(:problem)` renamed to `problem_metadata(:problem)`

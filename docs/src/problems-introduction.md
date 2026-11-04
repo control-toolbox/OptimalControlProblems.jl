@@ -146,7 +146,7 @@ We detail below the characteristics of the optimal control problems and their as
 
         #
         pb = eval(problem)(OptimalControlBackend())
-        ocp_pb = ocp(pb)
+        ocp_pb = model(pb)
 
         #
         cost = if has_mayer_cost(ocp_pb) && has_lagrange_cost(ocp_pb)

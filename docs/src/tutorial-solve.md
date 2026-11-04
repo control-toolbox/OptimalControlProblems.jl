@@ -16,14 +16,14 @@ pb = beam(OptimalControlBackend())
 nothing # hide
 ```
 
-The problem `pb` holds the continuous optimal control problem, `ocp(pb)`, and its initial guess, `initial_guess(pb)`. The discretisation, the modeler and the solver are chosen in `solve`. Here, we discretise with the trapezoidal rule on the default grid of the problem, model the NLP with [ADNLPModels.jl](https://github.com/JuliaSmoothOptimizers/ADNLPModels.jl) and solve it with [Ipopt](https://github.com/coin-or/Ipopt):
+The problem `pb` holds the continuous optimal control problem, `model(pb)`, and its initial guess, `initial_guess(pb)`. The discretisation, the modeler and the solver are chosen in `solve`. Here, we discretise with the trapezoidal rule on the default grid of the problem, model the NLP with [ADNLPModels.jl](https://github.com/JuliaSmoothOptimizers/ADNLPModels.jl) and solve it with [Ipopt](https://github.com/coin-or/Ipopt):
 
 ```@example main
 using NLPModelsIpopt
 
 N = problem_metadata(:beam)[:grid_size]
 ocp_sol = solve(
-    ocp(pb), :collocation, :adnlp, :ipopt;
+    model(pb), :collocation, :adnlp, :ipopt;
     init=initial_guess(pb),
     grid_size=N,
     scheme=:trapeze,
@@ -37,7 +37,7 @@ nothing # hide
     The same choices can be made in explicit mode, with the strategies as arguments; see the [explicit mode](https://control-toolbox.org/OptimalControl.jl/dev/solve/explicit-mode) of OptimalControl:
 
     ```julia
-    ocp_sol = solve(ocp(pb);
+    ocp_sol = solve(model(pb);
         init=initial_guess(pb),
         discretizer=OptimalControl.Collocation(grid_size=N, scheme=:trapeze),
         modeler=OptimalControl.ADNLP(),
