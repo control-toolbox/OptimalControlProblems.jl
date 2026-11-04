@@ -87,15 +87,16 @@ function _validate_status(status::Symbol)
     return status
 end
 
-function _select_problems(modelings, status::Symbol)
+function _select_problems(modelings, status::Symbol; require_all::Bool=true)
     _validate_status(status)
     selected = Symbol[]
     for problem in PROBLEM_NAMES
         statuses = METADATA_STORAGE[problem][:status]
-        matches = all(modelings) do spec
+        predicate = spec -> begin
             _problem_exists(problem, spec) &&
             (status === :all || get(statuses, spec.name, nothing) === status)
         end
+        matches = (require_all ? all : any)(predicate, modelings)
         if matches
             push!(selected, problem)
         end
@@ -241,7 +242,7 @@ julia> OptimalControlProblems.problems()
 ```
 """
 function problems(; status::Symbol=:valid)::Vector{Symbol}
-    return _select_problems(MODELING_SPECS, status)
+    return _select_problems(MODELING_SPECS, status; require_all=false)
 end
 
 function problems(backend::AbstractModelBackend; status::Symbol=:valid)::Vector{Symbol}
