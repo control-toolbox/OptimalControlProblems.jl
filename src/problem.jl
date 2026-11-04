@@ -23,7 +23,7 @@ julia> sol = solve(model(pb); init=initial_guess(pb), grid_size=500)
 ```
 """
 struct Problem{M,I<:NamedTuple}
-    "Name of the problem, e.g. `:beam`."
+    "Name of the problem."
     name::Symbol
     "Modeling the problem is written in, e.g. `:OptimalControl`."
     modeling::Symbol
