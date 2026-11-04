@@ -1,0 +1,23 @@
+name: Breakage
+
+# The packages that depend on OptimalControlProblems, tested against it; see CTActions
+# docs/workflows/breakage-suite.md.
+
+on:
+  pull_request:
+    types: [labeled, synchronize, reopened]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  call:
+    if: >
+      github.event_name != 'pull_request' ||
+      (github.event.action == 'labeled' && github.event.label.name == 'run breakage') ||
+      (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'run breakage'))
+    uses: control-toolbox/CTActions/.github/workflows/breakage-suite.yml@main
+    with:
+      use_ct_registry: true
+    secrets:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
