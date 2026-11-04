@@ -47,9 +47,10 @@ function test_status()
 
         Test.@testset "drafts do not fail the run" begin
             # a draft problem whose test fails is recorded, not reported to the parent
-            draft = Main.TestStatus.DraftTestSet("draft")
-            Test.@test draft.fail == 0
-            ts = Test.@testset Main.TestStatus.DraftTestSet "inner" begin
+            # (`@testset` takes a name, not a qualified one, on Julia 1.10)
+            DraftTestSet = Main.TestStatus.DraftTestSet
+            Test.@test DraftTestSet("draft").fail == 0
+            ts = Test.@testset DraftTestSet "inner" begin
                 Test.@test false
                 Test.@test true
             end
