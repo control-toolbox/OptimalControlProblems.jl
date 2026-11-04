@@ -22,9 +22,9 @@ using SolverCore
 import ADNLPModels: ADNLPModels, ADNLPModel
 
 """
-    $(TYPEDEF)
+$(TYPEDEF)
 
-    Abstract tag selecting an optimal control problem modeling.
+Abstract tag selecting an optimal control problem modeling.
 """
 abstract type AbstractModelBackend end
 
@@ -63,21 +63,12 @@ function _modeling_spec(::T) where {T<:AbstractModelBackend}
     end
 end
 
-function _status_key(::T) where {T<:AbstractModelBackend}
-    return _modeling_spec(T).name
-end
-
 function _problem_file(problem::Symbol, spec)
     return joinpath(dirname(@__DIR__), "ext", spec.directory, "$(problem).jl")
 end
 
 function _problem_exists(problem::Symbol, spec)
     return isfile(_problem_file(problem, spec))
-end
-
-function _status_value(problem::Symbol, spec)
-    status = METADATA_STORAGE[problem][:status]
-    return get(status, spec.name, nothing)
 end
 
 function _warn_if_draft(problem::Symbol, modeling::Symbol)
@@ -246,7 +237,19 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Returns the list of available optimal control problems.
+Returns the sorted list of optimal control problems.
+
+Availability comes from the model files present in `ext/<modeling>Models/`; the status
+(`:valid` or `:draft`) of each problem in each modeling comes from its metadata.
+
+- `problems()`: problems having the requested `status` in **at least one** modeling.
+- `problems(backend)`: problems available in that modeling with the requested `status`.
+- `problems(backend1, backend2, ...)`: problems available in **all** the given modelings
+  with the requested `status`, which is the list to use to compare modelings.
+
+# Keyword arguments
+
+- `status::Symbol=:valid`: `:valid`, `:draft` or `:all`.
 
 # Returns
 
@@ -255,8 +258,8 @@ Returns the list of available optimal control problems.
 # Example
 
 ```julia-repl
-julia> OptimalControlProblems.problems()
-[:problem1, :problem2, :problem3]
+julia> OptimalControlProblems.problems(JuMPBackend(), OptimalControlBackend())
+[:balanced_field, :beam, ...]
 ```
 """
 function problems(; status::Symbol=:valid)::Vector{Symbol}
