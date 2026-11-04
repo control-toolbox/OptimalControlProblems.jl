@@ -303,7 +303,7 @@ function comparison(; max_iter, test_name)
     end
 
     # we loop over the problems
-    for f in OptimalControlProblems.problems(JuMPBackend(), OptimalControlBackend())
+    for f in OptimalControlProblems.problems(JuMPBackend(), OptimalControlBackend(), OptimalControlScalarizedBackend())
         grid_size = metadata(f)[:grid_size] # get default number of steps
 
         @testset "$(string(f)) ($(string(test_name)))" verbose = VERBOSE begin
