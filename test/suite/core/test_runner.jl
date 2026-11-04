@@ -34,7 +34,7 @@ function test_runner()
             Test.@test sel(["*kwargs*"]) == (["JuMP", "OptimalControl"], ["*kwargs*"])
             # named: only those, patterns apart
             Test.@test sel(["JuMP"]) == (["JuMP"], String[])
-            Test.@test sel(["ModelingToolkit", "beam"]) == (["ModelingToolkit"], ["beam"])
+            Test.@test sel(["ModelingToolkit", "*solve*"]) == (["ModelingToolkit"], ["*solve*"])
             # `core` alone: no other environment (it always runs in-process)
             Test.@test sel(["core"]) == (String[], String[])
             Test.@test sel(["core", "JuMP"]) == (["JuMP"], String[])

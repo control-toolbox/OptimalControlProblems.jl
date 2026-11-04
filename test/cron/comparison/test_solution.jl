@@ -8,29 +8,18 @@ using OptimalControlProblems: OptimalControlProblems
 const VERBOSE = isdefined(Main, :TestOptions) ? Main.TestOptions.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING : true
 
+default_grid(problem) = OptimalControlProblems.metadata(problem)[:grid_size]
+
 function test_solution()
     C = Main.Comparison
     Test.@testset "solutions of the modelings (default grid)" verbose = VERBOSE showtiming = SHOWTIMING begin
-        for problem in C.problems()
-            Test.@testset "$problem" begin
-                try
-                    grid_size = OptimalControlProblems.metadata(problem)[:grid_size]
-                    data = C.solve_all(problem; grid_size=grid_size, max_iter=Main.TestSolverOptions.MAX_ITER)
-                    for other in (:OptimalControl, :OptimalControlScalarized)
-                        Test.@testset "$(C.REFERENCE) vs $other" begin
-                            ref, cmp = data[C.REFERENCE], data[other]
-                            C.compare_structure(ref, cmp)
-                            if C.compare_grid(ref, cmp)
-                                # the control of `jackson` is not unique
-                                C.compare_trajectories(ref, cmp; check_control=problem != :jackson)
-                            end
-                            C.compare_objective(ref, cmp)
-                        end
-                    end
-                catch err
-                    Main.TestHelpers.broken_if_domain_error(err)
-                end
+        C.for_each_comparison("test_solution"; grid_size=default_grid, max_iter=Main.TestConfigs.MAX_ITER) do problem, ref, cmp
+            C.compare_structure(ref, cmp)
+            if C.compare_grid(ref, cmp)
+                # the control of a problem may not be unique (see `:notes` of its metadata)
+                C.compare_trajectories(ref, cmp; check_control=C.unique_control(problem))
             end
+            C.compare_objective(ref, cmp)
         end
     end
 end

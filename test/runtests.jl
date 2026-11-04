@@ -29,8 +29,8 @@
 using Test: Test
 
 include(joinpath(@__DIR__, "common", "options.jl"))
-include(joinpath(@__DIR__, "common", "solver_options.jl"))
-include(joinpath(@__DIR__, "common", "helpers.jl"))
+include(joinpath(@__DIR__, "common", "configs.jl"))
+include(joinpath(@__DIR__, "common", "status.jl"))
 include(joinpath(@__DIR__, "common", "runner.jl"))
 
 const ROOT = dirname(@__DIR__)
@@ -88,9 +88,13 @@ Test.@testset "OptimalControlProblems tests" verbose = Main.TestOptions.VERBOSE 
     println("Environments: ", join([CORE; selected], ", "), cron ? " (cron)" : "")
 
     # `core` has no cron tests: in cron mode its directory does not exist and nothing runs.
-    LocalTestRunner.run_dir(
-        joinpath(cron ? CRON : SUITE, CORE); patterns=patterns, name=CORE
-    )
+    try
+        LocalTestRunner.run_dir(
+            joinpath(cron ? CRON : SUITE, CORE); patterns=patterns, name=CORE
+        )
+    finally
+        TestStatus.write_report(CORE)
+    end
 
     for name in selected
         Test.@testset "environment $name" begin

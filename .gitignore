@@ -41,3 +41,6 @@ docs/src/problems
 
 # agent reports
 .reports/
+
+# reports of the test statuses (test/common/status.jl)
+test/reports/

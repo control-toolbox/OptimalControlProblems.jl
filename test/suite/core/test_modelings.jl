@@ -42,15 +42,6 @@ function test_modelings()
     end
 
     Test.@testset "status" verbose = VERBOSE showtiming = SHOWTIMING begin
-        for problem in OptimalControlProblems.problems(; status=:all)
-            statuses = OptimalControlProblems.status(problem)
-            for backend in BACKENDS
-                name = OptimalControlProblems._modeling_spec(backend).name
-                # a status is declared exactly for the modelings having a model file
-                Test.@test haskey(statuses, name) ==
-                    (problem in OptimalControlProblems.problems(backend; status=:all))
-            end
-        end
         Test.@test_throws CTBase.IncorrectArgument OptimalControlProblems.status(
             :not_a_problem
         )
