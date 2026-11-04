@@ -11,12 +11,12 @@ const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING :
 function test_kwargs()
     grid_size = 2
     Test.@testset "OptimalControlScalarized keyword arguments" verbose = VERBOSE showtiming = SHOWTIMING begin
-        for problem in OptimalControlProblems.problems()
+        for problem in OptimalControlProblems.problems(OptimalControlProblems.OptimalControlScalarizedBackend())
             Test.@testset "$problem" begin
                 # transitional: the scalarized variants are the `_s` functions until #303
-                build = getfield(OptimalControlProblems, Symbol(problem, :_s))
+                build = getfield(OptimalControlProblems, problem)
                 docp = build(
-                    OptimalControlProblems.OptimalControlBackend(),
+                    OptimalControlProblems.OptimalControlScalarizedBackend(),
                     :madnlp,
                     :exa;
                     grid_size=grid_size,

@@ -13,7 +13,7 @@ const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING :
 function test_convergence()
     options = Main.TestSolverOptions
     Test.@testset "JuMP convergence (default grid)" verbose = VERBOSE showtiming = SHOWTIMING begin
-        for problem in OptimalControlProblems.problems()
+        for problem in OptimalControlProblems.problems(OptimalControlProblems.JuMPBackend())
             Test.@testset "$problem" begin
                 try
                     build = getfield(OptimalControlProblems, problem)

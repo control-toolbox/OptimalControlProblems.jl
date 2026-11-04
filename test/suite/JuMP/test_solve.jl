@@ -14,7 +14,7 @@ const GRID_SIZE = 20
 function test_solve()
     options = Main.TestSolverOptions
     Test.@testset "JuMP solve (small grid)" verbose = VERBOSE showtiming = SHOWTIMING begin
-        for problem in OptimalControlProblems.problems()
+        for problem in OptimalControlProblems.problems(OptimalControlProblems.JuMPBackend())
             Test.@testset "$problem" begin
                 try
                     build = getfield(OptimalControlProblems, problem)

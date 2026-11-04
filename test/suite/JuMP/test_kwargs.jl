@@ -10,7 +10,7 @@ const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING :
 
 function test_kwargs()
     Test.@testset "JuMP keyword arguments" verbose = VERBOSE showtiming = SHOWTIMING begin
-        for problem in OptimalControlProblems.problems()
+        for problem in OptimalControlProblems.problems(OptimalControlProblems.JuMPBackend())
             Test.@testset "$problem" begin
                 build = getfield(OptimalControlProblems, problem)
                 # arguments of the model constructor are forwarded to JuMP.Model

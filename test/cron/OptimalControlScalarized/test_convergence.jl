@@ -22,13 +22,13 @@ function test_convergence()
         :linear_solver => MadNLPMumps.MumpsSolver,
     )
     Test.@testset "OptimalControlScalarized convergence (default grid)" verbose = VERBOSE showtiming = SHOWTIMING begin
-        for problem in OptimalControlProblems.problems()
+        for problem in OptimalControlProblems.problems(OptimalControlProblems.OptimalControlScalarizedBackend())
             Test.@testset "$problem" begin
                 try
                     # transitional: the scalarized variants are the `_s` functions until #303
-                    build = getfield(OptimalControlProblems, Symbol(problem, :_s))
+                    build = getfield(OptimalControlProblems, problem)
                     docp = build(
-                        OptimalControlProblems.OptimalControlBackend(),
+                        OptimalControlProblems.OptimalControlScalarizedBackend(),
                         :madnlp,
                         :exa,
                     )

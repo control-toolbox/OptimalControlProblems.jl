@@ -20,7 +20,7 @@ const REQUIRED = (
 
 function test_metadata()
     Test.@testset "JuMP model information" verbose = VERBOSE showtiming = SHOWTIMING begin
-        for problem in OptimalControlProblems.problems()
+        for problem in OptimalControlProblems.problems(OptimalControlProblems.JuMPBackend())
             Test.@testset "$problem" begin
                 build = getfield(OptimalControlProblems, problem)
                 model = build(OptimalControlProblems.JuMPBackend(); grid_size=GRID_SIZE)

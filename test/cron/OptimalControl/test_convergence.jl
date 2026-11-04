@@ -22,7 +22,7 @@ function test_convergence()
         :max_wall_time => options.MAX_WALL_TIME,
     )
     Test.@testset "OptimalControl convergence (default grid)" verbose = VERBOSE showtiming = SHOWTIMING begin
-        for problem in OptimalControlProblems.problems()
+        for problem in OptimalControlProblems.problems(OptimalControlProblems.OptimalControlBackend())
             Test.@testset "$problem" begin
                 try
                     build = getfield(OptimalControlProblems, problem)

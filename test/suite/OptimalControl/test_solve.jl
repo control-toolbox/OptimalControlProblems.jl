@@ -23,7 +23,7 @@ function test_solve()
         :max_wall_time => options.MAX_WALL_TIME,
     )
     Test.@testset "OptimalControl solve (small grid)" verbose = VERBOSE showtiming = SHOWTIMING begin
-        for problem in OptimalControlProblems.problems()
+        for problem in OptimalControlProblems.problems(OptimalControlProblems.OptimalControlBackend())
             Test.@testset "$problem" begin
                 try
                     build = getfield(OptimalControlProblems, problem)
