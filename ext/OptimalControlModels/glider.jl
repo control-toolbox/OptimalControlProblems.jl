@@ -4,18 +4,15 @@ Builds the `glider` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> glider(OptimalControlBackend(); grid_size=100)
+julia> glider(OptimalControlBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:glider)` and
-`OptimalControlProblems.status(:glider)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:glider)` and `OptimalControlProblems.status(:glider)`.
 """
 function OptimalControlProblems.glider(
-    ::OptimalControlBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:glider),
+    ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:glider, :OptimalControl)
 
@@ -104,16 +101,5 @@ function OptimalControlProblems.glider(
     uinit = 1.0
     init = (state=xinit, control=uinit, variable=tfinit)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:glider, :OptimalControl, ocp, init, params)
 end

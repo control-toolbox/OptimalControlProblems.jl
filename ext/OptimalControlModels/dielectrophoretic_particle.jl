@@ -4,18 +4,15 @@ Builds the `dielectrophoretic_particle` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> dielectrophoretic_particle(OptimalControlBackend(); grid_size=100)
+julia> dielectrophoretic_particle(OptimalControlBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:dielectrophoretic_particle)` and
-`OptimalControlProblems.status(:dielectrophoretic_particle)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:dielectrophoretic_particle)` and `OptimalControlProblems.status(:dielectrophoretic_particle)`.
 """
 function OptimalControlProblems.dielectrophoretic_particle(
-    ::OptimalControlBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:dielectrophoretic_particle),
+    ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:dielectrophoretic_particle, :OptimalControl)
 
@@ -55,16 +52,5 @@ function OptimalControlProblems.dielectrophoretic_particle(
     # initial guess
     init = (state=[1, 0.5], control=0.5, variable=8)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:dielectrophoretic_particle, :OptimalControl, ocp, init, params)
 end

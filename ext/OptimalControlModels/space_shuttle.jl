@@ -4,18 +4,15 @@ Builds the `space_shuttle` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> space_shuttle(OptimalControlBackend(); grid_size=100)
+julia> space_shuttle(OptimalControlBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:space_shuttle)` and
-`OptimalControlProblems.status(:space_shuttle)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:space_shuttle)` and `OptimalControlProblems.status(:space_shuttle)`.
 """
 function OptimalControlProblems.space_shuttle(
-    ::OptimalControlBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:space_shuttle),
+    ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:space_shuttle, :OptimalControl)
 
@@ -174,16 +171,5 @@ function OptimalControlProblems.space_shuttle(
         ]
     init = (state=x_init, control=[α_s, β_s], variable=[tf_init])
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:space_shuttle, :OptimalControl, ocp, init, params)
 end

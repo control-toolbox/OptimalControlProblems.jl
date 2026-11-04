@@ -4,18 +4,15 @@ Builds the `jackson` problem with the OptimalControlScalarized backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> jackson(OptimalControlScalarizedBackend(); grid_size=100)
+julia> jackson(OptimalControlScalarizedBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:jackson)` and
-`OptimalControlProblems.status(:jackson)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:jackson)` and `OptimalControlProblems.status(:jackson)`.
 """
 function OptimalControlProblems.jackson(
-    ::OptimalControlScalarizedBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:jackson),
+    ::OptimalControlScalarizedBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:jackson, :OptimalControlScalarized)
 
@@ -61,16 +58,5 @@ function OptimalControlProblems.jackson(
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:jackson, :OptimalControlScalarized, ocp, init, params)
 end

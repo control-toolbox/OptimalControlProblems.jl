@@ -4,18 +4,15 @@ Builds the `bioreactor` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> bioreactor(OptimalControlBackend(); grid_size=100)
+julia> bioreactor(OptimalControlBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:bioreactor)` and
-`OptimalControlProblems.status(:bioreactor)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:bioreactor)` and `OptimalControlProblems.status(:bioreactor)`.
 """
 function OptimalControlProblems.bioreactor(
-    ::OptimalControlBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:bioreactor),
+    ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:bioreactor, :OptimalControl)
 
@@ -86,16 +83,5 @@ function OptimalControlProblems.bioreactor(
     # initial guess
     init = (state=[50, 50, 50], control=0.5)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:bioreactor, :OptimalControl, ocp, init, params)
 end

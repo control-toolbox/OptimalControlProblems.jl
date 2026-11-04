@@ -4,18 +4,15 @@ Builds the `mountain_car` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> mountain_car(OptimalControlBackend(); grid_size=100)
+julia> mountain_car(OptimalControlBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:mountain_car)` and
-`OptimalControlProblems.status(:mountain_car)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:mountain_car)` and `OptimalControlProblems.status(:mountain_car)`.
 """
 function OptimalControlProblems.mountain_car(
-    ::OptimalControlBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:mountain_car),
+    ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:mountain_car, :OptimalControl)
 
@@ -69,16 +66,5 @@ function OptimalControlProblems.mountain_car(
     # initial guess
     init = (state=[pos_t0, vel_t0], control=0.0, variable=tf_start)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:mountain_car, :OptimalControl, ocp, init, params)
 end
