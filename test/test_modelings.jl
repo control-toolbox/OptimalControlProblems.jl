@@ -2,6 +2,8 @@ function test_modelings()
     @testset "modeling lists" begin
         @test issorted(problems())
         @test :moonlander in problems(JuMPBackend())
+        @test :bryson_denham ∉ problems(JuMPBackend())
+        @test :bryson_denham in problems(JuMPBackend(); status=:draft)
         @test :moonlander in problems(OptimalControlBackend())
         @test :moonlander ∉ problems(OptimalControlScalarizedBackend())
         @test :moonlander in problems(; status=:all)
