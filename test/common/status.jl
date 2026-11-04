@@ -108,11 +108,12 @@ end
 const REPORTS = joinpath(dirname(@__DIR__), "reports")
 
 """
-Print the report and write it to `test/reports/<name>.md`. Nothing is written when there
-is nothing to report.
+Print the report and write it to `test/reports/<name>.md`. When there is nothing to
+report, nothing is written and the report of a previous run is removed.
 """
 function write_report(name::AbstractString)
-    isempty(ROWS) && return nothing
+    file = joinpath(REPORTS, "$name.md")
+    isempty(ROWS) && (rm(file; force=true); return nothing)
     lines = [
         "# Test report: $name",
         "",
@@ -124,7 +125,6 @@ function write_report(name::AbstractString)
     end
     text = join(lines, "\n") * "\n"
     mkpath(REPORTS)
-    file = joinpath(REPORTS, "$name.md")
     write(file, text)
     # lines worth reading: drafts, and checks that report instead of failing
     notable = filter(r -> r.status !== :valid || r.outcome != "see the test summary", ROWS)
