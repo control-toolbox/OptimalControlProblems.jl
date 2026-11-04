@@ -75,17 +75,17 @@ nothing # hide
 The default number of time steps is:
 
 ```@example main
-metadata(:$PROBLEM)[:grid_size]
+problem_metadata(:$PROBLEM)[:grid_size]
 ```
 
 The default values of the parameters are:
 
 ```@example main
-metadata(:$PROBLEM)[:parameters]
+problem_metadata(:$PROBLEM)[:parameters]
 using Printf # hide
 println("Parameter = Value") # hide
 println("------------------") # hide
-for e ∈ pairs(metadata(:$PROBLEM)[:parameters]) # hide
+for e ∈ pairs(problem_metadata(:$PROBLEM)[:parameters]) # hide
     @printf("%6s = ", string(e.first)) # hide
     @printf("%11.4e\\n", e.second) # hide
 end # hide
@@ -109,15 +109,18 @@ We plot the resulting trajectories for both the OptimalControl and JuMP models. 
         # -----------------------------
         # Build OptimalControl problem
         # -----------------------------
-        docp = eval(problem)(OptimalControlBackend())
-        nlp_oc = nlp_model(docp)
-        ocp_oc = ocp_model(docp)
+        pb = eval(problem)(OptimalControlBackend())
+        ocp_oc = ocp(pb)
 
-        # Solve NLP with zero iterations (initial guess)
-        nlp_oc_sol = NLPModelsIpopt.ipopt(nlp_oc; max_iter=0)
-
-        # Build OptimalControl solution
-        ocp_sol = build_OCP_solution(docp, nlp_oc_sol)
+        # Solve with zero iterations (initial guess), on the default grid
+        ocp_sol = solve(
+            ocp_oc, :collocation, :adnlp, :ipopt;
+            init=initial_guess(pb),
+            grid_size=problem_metadata(problem)[:grid_size],
+            scheme=:trapeze,
+            max_iter=0,
+            display=false,
+        )
 
         # get dimensions
         n = state_dimension(ocp_oc)
@@ -197,36 +200,38 @@ To solve an optimal control problem, we can rely on two complementary formulatio
 
 Both approaches generate equivalent NLPs that can be solved with Ipopt, and comparing them ensures consistency between the two formulations.
 
-Before solving, we can inspect the discretisation details of the problem. The table below reports the number of grid points, decision variables, and constraints associated with the chosen formulation.  
+Before solving, we can inspect the discretisation details of the problem. We discretise it with the trapezoidal rule on its default grid and build the NLP with ADNLPModels. The table below reports the number of grid points, decision variables, and constraints associated with this formulation.  
 
 ```@example main
+pb = $PROBLEM(OptimalControlBackend())
+N = problem_metadata(:$PROBLEM)[:grid_size]
+docp = discretize(ocp(pb), OptimalControl.Collocation(grid_size=N, scheme=:trapeze))
+init = build_initial_guess(ocp(pb), initial_guess(pb))
+nlp_oc = nlp_model(docp, init, OptimalControl.ADNLP())
+
 push!(data_pb,(
     Problem=:$PROBLEM,
-    Grid_Size=metadata(:$PROBLEM)[:grid_size],
-    Variables=get_nvar(nlp_model($PROBLEM(OptimalControlBackend()))),
-    Constraints=get_ncon(nlp_model($PROBLEM(OptimalControlBackend()))),
+    Grid_Size=N,
+    Variables=get_nvar(nlp_oc),
+    Constraints=get_ncon(nlp_oc),
 ))
 data_pb # hide
 ```
 
 ### OptimalControl model
 
-We first solve the problem using the `OptimalControl` backend. The process begins by importing the problem definition and constructing the associated nonlinear programming (NLP) model. This NLP is then passed to the Ipopt solver, with standard options for tolerance and barrier parameter strategy.  
+We first solve the problem using the `OptimalControl` backend. The continuous problem is discretised with the trapezoidal rule, modelled with ADNLPModels and solved with Ipopt, with standard options for tolerance and barrier parameter strategy.  
 
 ```@example main
-# import DOCP model
-docp = $PROBLEM(OptimalControlBackend())
-
-# get NLP model
-nlp_oc = nlp_model(docp)
-
-# solve
-nlp_oc_sol = NLPModelsIpopt.ipopt(
-    nlp_oc;
+ocp_sol = solve(
+    ocp(pb), :collocation, :adnlp, :ipopt;
+    init=initial_guess(pb),
+    grid_size=N,
+    scheme=:trapeze,
     print_level=4,
     tol=1e-8,
     mu_strategy="adaptive",
-    sb="yes",
+    display=false,
 )
 nothing # hide
 ```
@@ -257,9 +262,9 @@ In this section, we examine the results of the problem resolutions. We extract t
 # from OptimalControl model
 push!(data_re,(
     Model=:OptimalControl,
-    Flag=nlp_oc_sol.status,
-    Iterations=nlp_oc_sol.iter,
-    Objective=nlp_oc_sol.objective,
+    Flag=status(ocp_sol),
+    Iterations=iterations(ocp_sol),
+    Objective=objective(ocp_sol),
 ))
 
 # from JuMP model
@@ -290,10 +295,9 @@ We compare the solutions obtained from the OptimalControl and JuMP models by exa
         return √(s)
     end
     
-    function print_numerical_comparisons(problem, docp, nlp_oc_sol, nlp_jp)
+    function print_numerical_comparisons(problem, ocp_sol, nlp_jp)
 
         # get relevant data from OptimalControl model
-        ocp_sol = build_OCP_solution(docp, nlp_oc_sol)
         t_oc = time_grid(ocp_sol)
         x_oc = state(ocp_sol).(t_oc)
         u_oc = control(ocp_sol).(t_oc)
@@ -366,7 +370,7 @@ We compare the solutions obtained from the OptimalControl and JuMP models by exa
     ```
 
 ```@example main
-print_numerical_comparisons(:$PROBLEM, docp, nlp_oc_sol, nlp_jp)
+print_numerical_comparisons(:$PROBLEM, ocp_sol, nlp_jp)
 ```
 
 ## Plotting the solutions
@@ -376,9 +380,6 @@ In this section, we visualise the trajectories of the states, costates, and cont
 For each variable, the OptimalControl solution is shown in solid lines, while the JuMP solution is overlaid using dashed lines. Since both models represent the same mathematical problem, their trajectories should closely coincide, highlighting the consistency between the two formulations.
 
 ```@example main
-# build an ocp solution to use the plot from OptimalControl package
-ocp_sol = build_OCP_solution(docp, nlp_oc_sol)
-
 # dimensions
 n = state_dimension(ocp_sol)
 m = control_dimension(ocp_sol)

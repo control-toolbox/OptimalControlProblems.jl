@@ -29,15 +29,12 @@ new_problem_meta = OrderedDict(
     Documentation of the method
 """
 function OptimalControlProblems.new_problem(
-    ::OptimalControlBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:new_problem),
+    ::OptimalControlBackend;
     parameters::Union{Nothing, NamedTuple}=nothing,
-    kwargs...,
 )
 
     # parameters
-    params = parameters_data(:beam, parameters)
+    params = parameters_data(:new_problem, parameters)
     t0 = params[:t0]
     tf = params[:tf]
 
@@ -47,26 +44,16 @@ function OptimalControlProblems.new_problem(
         ...
     end
 
-    # initial guess for the problem
-    init = () 
+    # initial guess for the problem, independent of any grid
+    init = (state=..., control=..., variable=...)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    # the continuous problem: it is discretised when solved
+    return OptimalControlProblems._problem(:new_problem, :OptimalControl, ocp, init, params)
 
 end
 ```
 
-**3.** Define the scalarised **OptimalControl** model of the problem in a file named `new_problem.jl` in the `ext/OptimalControlScalarizedModels` directory. This version is similar to the previous case but, as an example, replace the dynamics:
+**3.** Define the scalarised **OptimalControl** model of the problem in a file named `new_problem.jl` in the `ext/OptimalControlScalarizedModels` directory. This version is similar to the previous case, ending with `OptimalControlProblems._problem(:new_problem, :OptimalControlScalarized, ocp, init, params)`, but, as an example, replace the dynamics:
 
 ```julia
 ẋ(t) == [x₂(t), u(t)]

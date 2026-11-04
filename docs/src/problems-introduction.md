@@ -77,10 +77,10 @@ C_{\mathrm{lower}} \le C(X) \le C_{\mathrm{upper}}
 
 ## JuMP and OptimalControl models
 
-Each optimal control problem in the **OptimalControlProblems** package is modelled both in [JuMP](https://jump.dev/JuMP.jl) and in [OptimalControl](https://control-toolbox.org/OptimalControl.jl). The problem definitions are stored in the [OptimalControlProblems.jl/ext](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext) directory:
+Each optimal control problem in the **OptimalControlProblems** package is modelled in [JuMP](https://jump.dev/JuMP.jl), in [OptimalControl](https://control-toolbox.org/OptimalControl.jl), or in both. The problem definitions are stored in the [OptimalControlProblems.jl/ext](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext) directory:
 
 - JuMP models are stored in the [OptimalControlProblems.jl/ext/JuMPModels](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/JuMPModels) directory. These codes implement the NLP problem directly.
-- OptimalControl models are located in the [OptimalControlProblems.jl/ext/OptimalControlModels](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/OptimalControlModels) directory.  These files define the OCPs themselves, while discretisation is handled by the package through [`CTDirect.direct_transcription`](@extref). Each model returns a [`CTDirect.DOCP`](@extref) (Discretised Optimal Control Problem), which may be thought of as combining the continuous OCP with its corresponding NLP formulation.
+- OptimalControl models are located in the [OptimalControlProblems.jl/ext/OptimalControlModels](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/OptimalControlModels) directory.  These files define the continuous OCPs themselves: each model returns a [`Problem`](@ref OptimalControlProblems.Problem), holding the OCP and its initial guess. The discretisation, the NLP modeler and the solver are chosen when solving, with `solve` from OptimalControl.
 
 For more specific details about the problems, see the following pages. We provide descriptions of the optimal control problems and compare the different models.
 
@@ -94,14 +94,14 @@ Depth = 1
 For each problem, additional data is provided in the [MetaData](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/MetaData) directory:
 
 ```@docs; canonical=false
-OptimalControlProblems.metadata
+OptimalControlProblems.problem_metadata
 ```
 
-To list all metadata, use `metadata()`. To access the metadata of a specific problem, for example `chain`, run:
+To list all metadata, use `problem_metadata()`. To access the metadata of a specific problem, for example `chain`, run:
 
 ```@example main
 using OptimalControlProblems
-metadata(:chain)
+problem_metadata(:chain)
 ```
 
 ## Problems characteristics
@@ -145,29 +145,27 @@ We detail below the characteristics of the optimal control problems and their as
     for problem in problems(OptimalControlBackend(); status=:all)
 
         #
-        docp = eval(problem)(OptimalControlBackend())
-        nlp = nlp_model(docp)
-        ocp = ocp_model(docp)
+        pb = eval(problem)(OptimalControlBackend())
+        ocp_pb = ocp(pb)
 
         #
-        cost = if has_mayer_cost(ocp) && has_lagrange_cost(ocp)
+        cost = if has_mayer_cost(ocp_pb) && has_lagrange_cost(ocp_pb)
             :Bolza
-        elseif has_mayer_cost(ocp)
+        elseif has_mayer_cost(ocp_pb)
             :Mayer
         else
             :Lagrange
         end
 
         #
-        final_time = has_fixed_final_time(ocp) ? :fixed : :free
+        final_time = has_fixed_final_time(ocp_pb) ? :fixed : :free
 
         #
-        using CTModels # these functions should be exported by OptimalControl
-        dim_state_cons_box = CTModels.dim_state_constraints_box(ocp)
-        dim_control_cons_box = CTModels.dim_control_constraints_box(ocp)
-        dim_variable_cons_box = CTModels.dim_variable_constraints_box(ocp)
-        dim_path_cons_nl = CTModels.dim_path_constraints_nl(ocp)
-        dim_boundary_cons_nl = CTModels.dim_boundary_constraints_nl(ocp)
+        dim_state_cons_box = dim_state_constraints_box(ocp_pb)
+        dim_control_cons_box = dim_control_constraints_box(ocp_pb)
+        dim_variable_cons_box = dim_variable_constraints_box(ocp_pb)
+        dim_path_cons_nl = dim_path_constraints_nl(ocp_pb)
+        dim_boundary_cons_nl = dim_boundary_constraints_nl(ocp_pb)
         constraints = ""
         constraints *= dim_state_cons_box    > 0 ? "x" : ""
         constraints *= dim_control_cons_box  > 0 ? (isempty(constraints) ? "" : ", ") * "u" : ""
@@ -181,16 +179,19 @@ We detail below the characteristics of the optimal control problems and their as
         #
         push!(data_ocp,(
             Problem=problem,
-            State=state_dimension(ocp),
-            Control=control_dimension(ocp),
-            Variable=variable_dimension(ocp),
+            State=state_dimension(ocp_pb),
+            Control=control_dimension(ocp_pb),
+            Variable=variable_dimension(ocp_pb),
             Cost=cost,
             FinalTime=final_time,
             Constraints=constraints,
         ))
 
         #
-        N = metadata(problem)[:grid_size] # get default number of steps
+        N = problem_metadata(problem)[:grid_size] # get default number of steps
+        docp = discretize(ocp_pb, OptimalControl.Collocation(grid_size=N, scheme=:trapeze))
+        init = build_initial_guess(ocp_pb, initial_guess(pb))
+        nlp = nlp_model(docp, init, OptimalControl.ADNLP())
 
         push!(data_nlp,(
             Problem=problem,

@@ -8,49 +8,46 @@ using OptimalControlProblems
 
 ## Solving from an OptimalControl model
 
-First, import the problem:
+First, get the problem:
 
 ```@example main
 using OptimalControl
-docp = beam(OptimalControlBackend())
-nlp = nlp_model(docp)
+pb = beam(OptimalControlBackend())
 nothing # hide
 ```
 
-The `nlp` model represents the nonlinear programming problem (NLP) obtained after discretising the optimal control problem (OCP). See the [Introduction](@ref problems-introduction) page for details. The model is an [`ADNLPModels.ADNLPModel`](@extref), which provides automatic differentiation (AD)-based models that follow the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API. 
-
-We can then solve the problem using, for instance, [`NLPModelsIpopt.ipopt`](@extref):
+The problem `pb` holds the continuous optimal control problem, `ocp(pb)`, and its initial guess, `initial_guess(pb)`. The discretisation, the modeler and the solver are chosen in `solve`. Here, we discretise with the trapezoidal rule on the default grid of the problem, model the NLP with [ADNLPModels.jl](https://github.com/JuliaSmoothOptimizers/ADNLPModels.jl) and solve it with [Ipopt](https://github.com/coin-or/Ipopt):
 
 ```@example main
 using NLPModelsIpopt
 
-# Solve the model
-nlp_sol = NLPModelsIpopt.ipopt(
-    nlp;
-    print_level=5,
+N = problem_metadata(:beam)[:grid_size]
+ocp_sol = solve(
+    ocp(pb), :collocation, :adnlp, :ipopt;
+    init=initial_guess(pb),
+    grid_size=N,
+    scheme=:trapeze,
     tol=1e-8,
     mu_strategy="adaptive",
 )
 nothing # hide
 ```
 
-To get the number of iterations from the NLP solution:
+!!! note
+    The same choices can be made in explicit mode, with the strategies as arguments; see the [explicit mode](https://control-toolbox.org/OptimalControl.jl/dev/solve/explicit-mode) of OptimalControl:
+
+    ```julia
+    ocp_sol = solve(ocp(pb);
+        init=initial_guess(pb),
+        discretizer=OptimalControl.Collocation(grid_size=N, scheme=:trapeze),
+        modeler=OptimalControl.ADNLP(),
+        solver=OptimalControl.Ipopt(tol=1e-8),
+    )
+    ```
+
+To recover the state, control, and costate, use the getters of the solution:
 
 ```@example main
-nlp_sol.iter
-```
-
-and the objective value:
-
-```@example main
-nlp_sol.objective
-```
-
-To recover the state, control, and costate, we recommend building an optimal control solution and using the associated getters (you can also retrieve the number of iterations and the objective value from the OCP solution):
-
-```@example main
-ocp_sol = build_OCP_solution(docp, nlp_sol)
-
 t = time_grid(ocp_sol)  # t0, ..., tN = tf
 x = state(ocp_sol)      # function of time
 u = control(ocp_sol)    # function of time
