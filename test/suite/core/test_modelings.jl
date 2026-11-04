@@ -2,6 +2,8 @@ module TestModelings
 
 using Test: Test
 using CTBase: CTBase
+# `Base.Docs.doc` has its methods in REPL since Julia 1.11; no dependency loads it any more.
+using REPL: REPL
 using OptimalControlProblems: OptimalControlProblems
 
 const VERBOSE = isdefined(Main, :TestOptions) ? Main.TestOptions.VERBOSE : true
