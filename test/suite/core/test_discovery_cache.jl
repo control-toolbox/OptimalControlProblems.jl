@@ -9,7 +9,7 @@ const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING :
 
 function copy_package()
     package = mktempdir()
-    root = dirname(dirname(dirname(@__DIR__)))
+    root = pkgdir(OptimalControlProblems)
     cp(joinpath(root, "Project.toml"), joinpath(package, "Project.toml"))
     cp(joinpath(root, "src"), joinpath(package, "src"))
     cp(joinpath(root, "ext"), joinpath(package, "ext"))
@@ -17,16 +17,48 @@ function copy_package()
 end
 
 function julia_process(depot)
+    separator = Sys.iswindows() ? ';' : ':'
+    path = join(vcat([depot], DEPOT_PATH), separator)
     return addenv(
         Base.julia_cmd(),
         "JULIA_LOAD_PATH" => nothing,
         "JULIA_PROJECT" => nothing,
-        "JULIA_DEPOT_PATH" => depot,
+        "JULIA_DEPOT_PATH" => path,
     )
 end
 
 function run_package(julia, package, code)
-    return run(`$julia --startup-file=no --project=$package -e $code`)
+    process = run(`$julia --startup-file=no --project=$package -e $code`; wait=false)
+    wait(process)
+    return process
+end
+
+function package_output(julia, package, code)
+    return read(`$julia --startup-file=no --project=$package -e $code`, String)
+end
+
+function cache_signature(julia, package; query=false)
+    prefix = query ? "println(:foo in problems(JuMPBackend(); status=:all));" : ""
+    output = package_output(
+        julia,
+        package,
+        """
+        using OptimalControlProblems
+        $prefix
+        path = Base.compilecache_path(Base.PkgId(OptimalControlProblems))
+        println(path)
+        println(stat(path).mtime)
+        println(filesize(path))
+        """,
+    )
+    lines = split(chomp(output), '\n')
+    offset = query ? 1 : 0
+    return (
+        foo_seen=query ? lines[1] == "true" : false,
+        path=lines[offset + 1],
+        mtime=lines[offset + 2],
+        size=lines[offset + 3],
+    )
 end
 
 function add_fixture(package, problem)
@@ -55,12 +87,20 @@ end
 function remove_include_dependencies(package)
     path = joinpath(package, "src", "OptimalControlProblems.jl")
     source = read(path, String)
+    @assert occursin("    Base.include_dependency(path)\n", source)
     source = replace(source, "    Base.include_dependency(path)\n" => "")
-    source = replace(
-        source,
-        r"    Base\.include_dependency\(joinpath\(dirname\(@__FILE__\), \"\.\.\", \"ext\", spec\.directory\)\)\n" => "";
-    )
+    directory_dependency = r"    Base\.include_dependency\(joinpath\(dirname\(@__FILE__\), \"\.\.\", \"ext\", spec\.directory\)\)\n"
+    @assert occursin(directory_dependency, source)
+    source = replace(source, directory_dependency => "";)
     return write(path, source)
+end
+
+function cleanup(path)
+    try
+        rm(path; recursive=true, force=true)
+    catch exception
+        @warn "Could not remove temporary test directory" path exception
+    end
 end
 
 function test_discovery_cache()
@@ -74,64 +114,72 @@ function test_discovery_cache()
                 OptimalControlProblems.problems(OptimalControlProblems.JuMPBackend())
             )
             setup = "using Pkg: Pkg; Pkg.instantiate(); using OptimalControlProblems"
-            Test.@test run_package(
-                julia,
-                package,
-                setup * "; @assert :foo ∉ OptimalControlProblems.problems(; status=:all)",
-            ).exitcode == 0
+            Test.@test success(
+                run_package(
+                    julia,
+                    package,
+                    setup *
+                    "; @assert :foo ∉ OptimalControlProblems.problems(; status=:all)",
+                ),
+            )
 
             add_fixture(package, problem)
-            Test.@test run_package(
-                julia,
-                package,
-                """
-                using OptimalControlProblems
-                @assert :foo in problems(JuMPBackend(); status=:draft)
-                @assert :foo ∉ problems(JuMPBackend())
-                @assert :foo ∉ problems(OptimalControlBackend(); status=:all)
-                """,
-            ).exitcode == 0
+            Test.@test success(
+                run_package(
+                    julia,
+                    package,
+                    """
+                    using OptimalControlProblems
+                    @assert :foo in problems(JuMPBackend(); status=:draft)
+                    @assert :foo ∉ problems(JuMPBackend())
+                    @assert :foo ∉ problems(OptimalControlBackend(); status=:all)
+                    """,
+                ),
+            )
 
             set_fixture_status(package, :valid)
-            Test.@test run_package(
-                julia,
-                package,
-                "using OptimalControlProblems; @assert :foo in problems(JuMPBackend())",
-            ).exitcode == 0
+            Test.@test success(
+                run_package(
+                    julia,
+                    package,
+                    "using OptimalControlProblems; @assert :foo in problems(JuMPBackend())",
+                ),
+            )
 
             rm(joinpath(package, "ext", "JuMPModels", "foo.jl"))
-            Test.@test run_package(
-                julia,
-                package,
-                """
-                using CTBase
-                using OptimalControlProblems
-                @assert :foo ∉ problems(JuMPBackend(); status=:all)
-                try
-                    foo(JuMPBackend())
-                    error("missing modeling did not throw")
-                catch exception
-                    @assert exception isa CTBase.IncorrectArgument
-                end
-                """,
-            ).exitcode == 0
+            Test.@test success(
+                run_package(
+                    julia,
+                    package,
+                    """
+                    using CTBase
+                    using OptimalControlProblems
+                    @assert :foo ∉ problems(JuMPBackend(); status=:all)
+                    try
+                        foo(JuMPBackend())
+                        error("missing modeling did not throw")
+                    catch exception
+                        @assert exception isa CTBase.IncorrectArgument
+                    end
+                    """,
+                ),
+            )
 
             rm(joinpath(package, "ext", "MetaData", "foo.jl"))
             remove_include_dependencies(package)
-            Test.@test run_package(
-                julia,
-                package,
-                "using OptimalControlProblems; @assert :foo ∉ problems(JuMPBackend(); status=:all)",
-            ).exitcode == 0
+            before = cache_signature(julia, package)
             add_fixture(package, problem)
-            Test.@test run_package(
-                julia,
-                package,
-                "using OptimalControlProblems; @assert :foo ∉ problems(JuMPBackend(); status=:all)",
-            ).exitcode == 0
+            after = cache_signature(julia, package; query=true)
+            reused = before.mtime == after.mtime && before.size == after.size
+            @info "Precompilation cache control" before after reused
+            if !reused
+                Test.@test_skip false
+            else
+                Test.@test !after.foo_seen
+            end
         finally
-            rm(depot; recursive=true, force=true)
-            rm(package; recursive=true, force=true)
+            cleanup(depot)
+            cleanup(package)
         end
     end
 end
