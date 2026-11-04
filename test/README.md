@@ -1,0 +1,117 @@
+# Tests of OptimalControlProblems.jl
+
+How the tests are organized, run and extended. The tests themselves are discovered from
+the files: this page lists none of them.
+
+## Layout
+
+```text
+test/
+├── runtests.jl     # dispatcher: runs core here, then each environment in a subprocess
+├── Project.toml    # light environment of the dispatcher and of core (Test, Aqua, CTBase)
+├── common/         # shared code, included by the tests (configurations, statuses, solvers)
+├── suite/<group>/  # fast tests, run on every pull request
+└── cron/<group>/   # slow tests of the same group, run by the cron
+```
+
+- `suite/core/` has no extension loaded and runs in the dispatcher's process, always.
+- Every other directory of `suite/` that holds a `Project.toml` is a **test environment**
+  (one per modeling, plus `comparison` where every modeling is loaded). It runs in its
+  own Julia process, in a temporary copy of its `Project.toml` where the package is
+  developed, so that each extension is shown to load alone.
+- `cron/<group>/` holds the slow tests of a group; they run in the environment of
+  `suite/<group>/`.
+
+## Running the tests
+
+```julia
+using Pkg
+Pkg.test()                                              # core and every environment
+Pkg.test(; test_args=["JuMP"])                          # core and one environment
+Pkg.test(; test_args=["core"])                          # core only
+Pkg.test(; test_args=["cron"])                          # slow tests (cron/), every environment
+Pkg.test(; test_args=["JuMP", "cron", "*convergence*"]) # environments, mode and file globs
+```
+
+`test_args` is a list of:
+
+- environment names: run those only; none given runs every environment except the opt-in
+  ones (`OPT_IN` in `runtests.jl`);
+- `cron`: run `cron/<group>/test_*.jl` instead of `suite/<group>/test_*.jl`;
+- file patterns (`*` and `?`, with or without `test_` and `.jl`).
+
+## Statuses and report
+
+Every problem has a status per modeling (`:valid` or `:draft`, in its metadata). Tests
+loop with `Main.TestStatus.for_each_problem(f, test, backends...)`:
+
+- a `:valid` problem is checked with `Test.@test`: a failure fails the run;
+- a `:draft` problem runs in a `DraftTestSet`: its outcome is recorded, a failure never
+  fails the run;
+- a test between several modelings is `:valid` only when the problem is `:valid` in all.
+
+Each run writes `test/reports/<environment>[-cron].md` (git-ignored): one line per test
+and problem, with its status and outcome. The lines worth reading (drafts, checks that
+report instead of failing) are also printed. A draft whose line says `pass` everywhere is
+ready to become `:valid`.
+
+## Configurations
+
+`common/configs.jl` is the single matrix of configurations: solver options, the grid of
+the fast tests, and the configurations to solve with per modeling. A test loops over
+`Main.TestConfigs.CONFIGS.<modeling>`; it never writes solver options itself.
+
+## Continuous integration
+
+The CI runs on a pull request only with a runner label, and the scope labels select what
+it runs:
+
+| Labels | Effect |
+| --- | --- |
+| `run ci github-runner` | run the CI on GitHub runners (Julia 1.10 and 1.13, three OSes) |
+| `test <environment> backend`, `test comparison` | run core and these environments only |
+| no scope label | run core and every environment except the opt-in ones |
+
+Scope labels add up. Adding or removing a label reruns the CI when a runner label is set.
+The cron ignores labels.
+
+## Adding a test
+
+1. Pick the group: `core` for what needs no extension, the modeling environment for one
+   modeling, `comparison` for several; `suite/` if it is fast, `cron/` if it solves on
+   the default grid.
+2. Create `test_<name>.jl` following rule `TST1` of ct-conventions: a module, qualified
+   imports, one entry function `test_<name>()`, redefined at top level:
+
+   ```julia
+   module TestName
+
+   using Test: Test
+   using OptimalControlProblems: OptimalControlProblems
+
+   const VERBOSE = isdefined(Main, :TestOptions) ? Main.TestOptions.VERBOSE : true
+   const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING : true
+
+   function test_name()
+       Test.@testset "what is tested" verbose = VERBOSE showtiming = SHOWTIMING begin
+           Main.TestStatus.for_each_problem("name", OptimalControlProblems.JuMPBackend()) do problem
+               # build, solve, check with Test.@test
+           end
+       end
+   end
+
+   end # module TestName
+
+   test_name() = TestName.test_name()
+   ```
+
+3. Never write a problem name: loop over the catalogue (a consistency test of `core`
+   fails on a problem name written in `src/`, `test/` or an extension file). A fact about
+   one problem goes into its metadata.
+4. Every check you add must be shown to fail on a deliberately broken case.
+
+## Adding an environment
+
+Add `suite/<name>/Project.toml` (and `cron/<name>/` if needed): it is discovered. Add
+its scope label `test <name> backend` to the repository, and its name to `OPT_IN` in
+`runtests.jl` if it must run only when named.
