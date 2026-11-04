@@ -33,7 +33,7 @@ jobs:
       (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'run ci github-runner'))
     uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
     with:
-      versions: '["1.10", "1.12"]'
+      versions: '["1.10", "1.13"]'
       runs_on: '["ubuntu-latest", "macos-latest", "windows-latest"]'
       runner_type: 'github'
       use_ct_registry: true
