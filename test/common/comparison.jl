@@ -186,6 +186,20 @@ function compare_trajectories(ref::Data, other::Data; check_control::Bool=true)
     return nothing
 end
 
-compare_objective(ref::Data, other::Data) = check(within(ref.objective, other.objective; OBJECTIVE...))
+"""
+Objectives agree. Written as one comparison so that a failure shows both values; the
+iterations are logged then (a gap with many iterations means a solver that did not
+converge or another local minimum).
+"""
+function compare_objective(ref::Data, other::Data)
+    a, b = ref.objective, other.objective
+    bound = max(0.5 * (abs(a) + abs(b)) * OBJECTIVE.rtol, OBJECTIVE.atol)
+    ok = abs(a - b) < bound
+    ok || @warn "Objectives differ" reference = a other = b gap = abs(a - b) bound iterations = (
+        ref.iterations, other.iterations
+    )
+    Test.@test abs(a - b) < bound
+    return ok
+end
 
 end # module Comparison
