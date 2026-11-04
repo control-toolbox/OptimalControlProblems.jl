@@ -249,8 +249,13 @@ function problems(backend::AbstractModelBackend; status::Symbol=:valid)::Vector{
     return _select_problems((_modeling_spec(backend),), status)
 end
 
-function problems(first::AbstractModelBackend, second::AbstractModelBackend; status::Symbol=:valid)::Vector{Symbol}
-    return _select_problems((_modeling_spec(first), _modeling_spec(second)), status)
+function problems(
+    first::AbstractModelBackend,
+    rest::AbstractModelBackend...;
+    status::Symbol=:valid,
+)::Vector{Symbol}
+    modelings = (_modeling_spec(first), (_modeling_spec(backend) for backend in rest)...)
+    return _select_problems(modelings, status)
 end
 
 """
