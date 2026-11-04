@@ -1,31 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **photobioreactor–digester system problem** is a benchmark in constrained optimal control.
 
-Constructs an **OptimalControl problem** representing the Bioreactor problem.  
-The function defines the state and control variables, boundary conditions, path constraints, growth and light dynamics, and an objective functional.  
-It performs direct transcription to create a discretised optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the discretised Bioreactor problem.
-- `nlp`: The corresponding nonlinear programming model generated from the DOCP, ready for solver input.
-
-# Example
+Builds the `bioreactor` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.bioreactor(OptimalControlBackend(); N=100);
+julia> bioreactor(OptimalControlBackend(); grid_size=100)
 ```
 
-# References
-
-- BOCOP repository: https://github.com/control-toolbox/bocop/tree/main/bocop
+Default parameters and the modeling status are available through `metadata(:bioreactor)` and
+`OptimalControlProblems.status(:bioreactor)`.
 """
 function OptimalControlProblems.bioreactor(
     ::OptimalControlBackend,
@@ -34,6 +17,7 @@ function OptimalControlProblems.bioreactor(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:bioreactor, :OptimalControl)
 
     # parameters
     params = parameters_data(:bioreactor, parameters)

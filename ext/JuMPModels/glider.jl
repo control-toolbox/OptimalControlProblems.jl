@@ -1,31 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **hang glider problem** is a classical benchmark in optimal control.
 
-Constructs and returns a JuMP model for the **Hang Glider Optimal Control Problem**.  
-The objective is to compute the optimal trajectory of a hang glider that maximises the final horizontal position while accounting for aerodynamic forces and a thermal updraft.  
-The system dynamics are discretised over `N` steps, and collocation constraints enforce the kinematic and dynamic equations of the glider.
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=500`: (Keyword) Number of discretisation steps in the time grid.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the hang glider optimal control problem.
-
-# Example
+Builds the `glider` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.glider(JuMPBackend(); N=100)
+julia> glider(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- Hang Glider Problem formulation as in: https://www.mcs.anl.gov/~more/cops/
+Default parameters and the modeling status are available through `metadata(:glider)` and
+`OptimalControlProblems.status(:glider)`.
 """
 function OptimalControlProblems.glider(
     ::JuMPBackend,
@@ -34,6 +17,7 @@ function OptimalControlProblems.glider(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:glider, :JuMP)
 
     # parameters
     params = parameters_data(:glider, parameters)

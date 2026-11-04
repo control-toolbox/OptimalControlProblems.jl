@@ -1,31 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **particle steering problem** is a classical benchmark in time-optimal control.
 
-Constructs and returns a JuMP model for the **Particle Steering Problem**.  
-The model represents the dynamics of a particle with four state variables (`x₁`, `x₂`, `x₃`, `x₄`) and a control input `u`.  
-The objective is to minimise the final time required for the particle to reach a specified altitude and terminal velocity while satisfying the system dynamics and boundary conditions.
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the particle steering optimal control problem.
-
-# Example
+Builds the `steering` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.steering(JuMPBackend(); N=200)
+julia> steering(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/steering.jl
+Default parameters and the modeling status are available through `metadata(:steering)` and
+`OptimalControlProblems.status(:steering)`.
 """
 function OptimalControlProblems.steering(
     ::JuMPBackend,
@@ -34,6 +17,7 @@ function OptimalControlProblems.steering(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:steering, :JuMP)
 
     # parameters
     params = parameters_data(:steering, parameters)

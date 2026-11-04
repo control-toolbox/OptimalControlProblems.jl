@@ -19,11 +19,10 @@ import ExaModels: ExaModels, variable, objective
 using DocStringExtensions
 using OrderedCollections: OrderedDict
 
-# include problems files
+# Include only files belonging to this modeling. The file presence is the
+# source of truth for availability.
 rel_path_problems = "JuMPModels"
-path = joinpath(dirname(@__FILE__), rel_path_problems)
-list_of_problems = OptimalControlProblems.problems()
-for problem in list_of_problems
+for problem in OptimalControlProblems.problems(JuMPBackend(); status=:all)
     include(joinpath(rel_path_problems, "$(problem).jl"))
 end
 

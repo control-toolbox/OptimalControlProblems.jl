@@ -17,4 +17,5 @@ electric_vehicle_meta = OrderedDict(
         x_tf=10,
         v_tf=0,
     ),
+    :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
 )

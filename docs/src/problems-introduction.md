@@ -142,7 +142,7 @@ We detail below the characteristics of the optimal control problems and their as
         Constraints=Int[],
     )
 
-    for problem in problems()
+    for problem in problems(OptimalControlBackend(); status=:all)
 
         #
         docp = eval(problem)(OptimalControlBackend())

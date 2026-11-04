@@ -1,31 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **clamped beam problem** is a classical benchmark in constrained optimal control.
 
-Constructs a JuMP model representing the **Beam optimal control problem**.  
-The objective is to minimise the control effort while satisfying boundary conditions and the linear beam dynamics.  
-The problem is formulated as in the BOCOP repository.
-
-# Arguments
-
-- `::JuMPBackend`: Placeholder type to specify the JuMP backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation steps for the time grid.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model containing the decision variables, dynamics constraints, boundary conditions, and the quadratic objective function.
-
-# Example
+Builds the `beam` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.beam(JuMPBackend(); N=100)
+julia> beam(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
+Default parameters and the modeling status are available through `metadata(:beam)` and
+`OptimalControlProblems.status(:beam)`.
 """
 function OptimalControlProblems.beam(
     ::JuMPBackend,
@@ -34,6 +17,7 @@ function OptimalControlProblems.beam(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:beam, :JuMP)
 
     # parameters
     params = parameters_data(:beam, parameters)

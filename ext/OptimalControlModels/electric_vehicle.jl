@@ -1,32 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Electric Vehicle (EV) trajectory problem** is a benchmark in optimal control for energy-efficient driving.
 
-Constructs an **OptimalControl problem** for an electric vehicle trajectory.  
-The function defines state and control variables, vehicle dynamics, boundary conditions, and a cost functional representing energy and control effort.  
-It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the electric vehicle trajectory optimisation.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `electric_vehicle` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.electric_vehicle(OptimalControlBackend(); N=500);
+julia> electric_vehicle(OptimalControlBackend(); grid_size=100)
 ```
 
-# References
-
-- Nicolas Petit and Antonio Sciarretta. "Optimal drive of electric vehicles using an inversion-based trajectory generation approach." IFAC Proceedings Volumes 44, no. 1 (2011): 14519-14526. [PS2011]
-- Problem instance follows OptimalControl formulation for electric vehicle trajectory optimisation.
+Default parameters and the modeling status are available through `metadata(:electric_vehicle)` and
+`OptimalControlProblems.status(:electric_vehicle)`.
 """
 function OptimalControlProblems.electric_vehicle(
     ::OptimalControlBackend,
@@ -35,6 +17,7 @@ function OptimalControlProblems.electric_vehicle(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:electric_vehicle, :OptimalControl)
 
     # parameters
     params = parameters_data(:electric_vehicle, parameters)

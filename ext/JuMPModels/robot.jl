@@ -1,31 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **robot arm motion problem** is a benchmark in time-optimal control.
 
-Constructs and returns a JuMP model for the **Robot Arm Optimal Control Problem**.  
-The model represents a robot arm with three states (ρ, θ, ϕ) controlled by three inputs (uρ, uθ, uϕ).  
-The objective is to minimise the final time required for the robot arm to move between specified initial and final positions while respecting dynamic and boundary constraints.
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=250`: (Keyword) Number of discretisation steps for the time horizon.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the robot arm optimal control problem.
-
-# Example
+Builds the `robot` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.robot(JuMPBackend(); N=100)
+julia> robot(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/robot.jl
+Default parameters and the modeling status are available through `metadata(:robot)` and
+`OptimalControlProblems.status(:robot)`.
 """
 function OptimalControlProblems.robot(
     ::JuMPBackend,
@@ -34,6 +17,7 @@ function OptimalControlProblems.robot(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:robot, :JuMP)
 
     # parameters
     params = parameters_data(:robot, parameters)

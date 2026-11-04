@@ -1,28 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Bryson–Denham problem** is a classic optimal control benchmark involving a state inequality constraint.
 
-Constructs a JuMP model representing the **Bryson-Denham optimal control problem**.  
-The objective is to minimize the control effort while satisfying state constraints and double integrator dynamics.
-
-# Arguments
-- `::JuMPBackend`: Placeholder type to specify the JuMP backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretization steps for the time grid.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model containing the decision variables, dynamics constraints, boundary conditions, and the quadratic objective function.
-
-# Example
+Builds the `bryson_denham` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.bryson_denham(JuMPBackend(); N=100)
+julia> bryson_denham(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
+Default parameters and the modeling status are available through `metadata(:bryson_denham)` and
+`OptimalControlProblems.status(:bryson_denham)`.
 """
 function OptimalControlProblems.bryson_denham(
     ::JuMPBackend,
@@ -31,6 +17,7 @@ function OptimalControlProblems.bryson_denham(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:bryson_denham, :JuMP)
     params = parameters_data(:bryson_denham, parameters)
     t0, tf = params[:t0], params[:tf]
     x1_t0, x2_t0 = params[:x1_t0], params[:x2_t0]

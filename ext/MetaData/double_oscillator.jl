@@ -13,4 +13,5 @@ double_oscillator_meta = OrderedDict(
         x₁_t0=0,
         x₂_t0=0,
     ),
+    :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
 )

@@ -1,31 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **insurance problem** is a benchmark in optimal control inspired by health and financial economics.
 
-Constructs and returns a JuMP model for the **Insurance Optimal Control Problem**.  
-The model represents a simplified insurance management scenario where the objective is to optimise the utility function `U` over time, subject to capital accumulation dynamics and other constraints.  
-The system is discretised using `N` steps, and collocation constraints enforce the dynamics of the states `I`, `m`, and `x₃`.
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=500`: (Keyword) Number of discretisation steps in the time grid.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the insurance optimal control problem.
-
-# Example
+Builds the `insurance` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.insurance(JuMPBackend(); N=100)
+julia> insurance(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
+Default parameters and the modeling status are available through `metadata(:insurance)` and
+`OptimalControlProblems.status(:insurance)`.
 """
 function OptimalControlProblems.insurance(
     ::JuMPBackend,
@@ -34,6 +17,7 @@ function OptimalControlProblems.insurance(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:insurance, :JuMP)
 
     # parameters
     params = parameters_data(:insurance, parameters)

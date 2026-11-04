@@ -1,32 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **hang glider problem** is a classical benchmark in optimal control.
 
-Constructs an **OptimalControl problem** for a hang glider trajectory.  
-The function defines state and control variables, glider dynamics in a thermal updraft, boundary conditions, and a cost functional aiming to maximise the final horizontal position.  
-It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the hang glider trajectory optimisation.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `glider` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.glider(OptimalControlBackend(); N=500);
+julia> glider(OptimalControlBackend(); grid_size=100)
 ```
 
-# References
-
-- Original formulation from MadNLP/COPSBenchmark.
-- Problem inspired by glider dynamics with thermal updraft and lift modelling.
+Default parameters and the modeling status are available through `metadata(:glider)` and
+`OptimalControlProblems.status(:glider)`.
 """
 function OptimalControlProblems.glider(
     ::OptimalControlBackend,
@@ -35,6 +17,7 @@ function OptimalControlProblems.glider(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:glider, :OptimalControl)
 
     # parameters
     params = parameters_data(:glider, parameters)

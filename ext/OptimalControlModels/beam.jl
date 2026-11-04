@@ -1,31 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **clamped beam problem** is a classical benchmark in constrained optimal control.
 
-Constructs an **OptimalControl problem** representing the Beam problem using the OptimalControl backend.  
-The function sets up the state and control variables, boundary conditions, dynamics, path constraints, and the objective functional.  
-It then performs direct transcription to generate a discrete optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type to specify the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object, representing the discretised problem.
-- `nlp`: The corresponding nonlinear programming model generated from the DOCP, ready for solver input.
-
-# Example
+Builds the `beam` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.beam(OptimalControlBackend(); N=100);
+julia> beam(OptimalControlBackend(); grid_size=100)
 ```
 
-# References
-
-- BOCOP repository: https://github.com/control-toolbox/bocop/tree/main/bocop
+Default parameters and the modeling status are available through `metadata(:beam)` and
+`OptimalControlProblems.status(:beam)`.
 """
 function OptimalControlProblems.beam(
     ::OptimalControlBackend,
@@ -34,6 +17,7 @@ function OptimalControlProblems.beam(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:beam, :OptimalControl)
 
     # parameters
     params = parameters_data(:beam, parameters)

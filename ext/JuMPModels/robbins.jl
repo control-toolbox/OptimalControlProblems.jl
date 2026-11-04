@@ -1,31 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Robbins benchmark problem** is a classical optimal control problem introduced by Robbins (1980), involving a **third-order state constraint**:.
 
-Constructs and returns a JuMP model for the **Robbins Optimal Control Problem**.  
-The model represents a three-dimensional state system controlled by a single input `u`.  
-The objective is to minimise a cost functional that combines linear and quadratic terms of the state and control over a fixed time horizon.
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=500`: (Keyword) Number of discretisation steps for the time grid.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the Robbins optimal control problem.
-
-# Example
+Builds the `robbins` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.robbins(JuMPBackend(); N=100)
+julia> robbins(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
+Default parameters and the modeling status are available through `metadata(:robbins)` and
+`OptimalControlProblems.status(:robbins)`.
 """
 function OptimalControlProblems.robbins(
     ::JuMPBackend,
@@ -34,6 +17,7 @@ function OptimalControlProblems.robbins(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:robbins, :JuMP)
 
     # parameters
     params = parameters_data(:robbins, parameters)

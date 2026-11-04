@@ -1,31 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **cart-pole swing-up problem** is a classical benchmark in underactuated optimal control.
 
-Constructs and returns a JuMP model for the **Cart–Pendulum Optimal Control Problem**.  
-The objective is to swing a pendulum attached to a cart from the downward position to the upright position in the shortest possible time.  
-The system dynamics, constraints, and objective are discretised over `N` steps.
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=500`: (Keyword) Number of discretisation steps in the time grid.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the cart–pendulum optimal control problem.
-
-# Example
+Builds the `cart_pendulum` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.cart_pendulum(JuMPBackend(); N=200)
+julia> cart_pendulum(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- [Cart–Pendulum Optimal Control Problem](https://arxiv.org/pdf/2303.16746)
+Default parameters and the modeling status are available through `metadata(:cart_pendulum)` and
+`OptimalControlProblems.status(:cart_pendulum)`.
 """
 function OptimalControlProblems.cart_pendulum(
     ::JuMPBackend,
@@ -34,6 +17,7 @@ function OptimalControlProblems.cart_pendulum(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:cart_pendulum, :JuMP)
 
     # parameters
     params = parameters_data(:cart_pendulum, parameters)

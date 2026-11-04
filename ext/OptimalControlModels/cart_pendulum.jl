@@ -1,31 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **cart-pole swing-up problem** is a classical benchmark in underactuated optimal control.
 
-Constructs an **OptimalControl problem** representing the Cart-Pendulum system.  
-The function defines state and control variables, boundary conditions, path constraints, and system dynamics, with the objective of swinging the pendulum from the downward position to the upright position in minimum time.  
-It performs direct transcription to produce a discretised optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the discretised Cart-Pendulum problem.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `cart_pendulum` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.cart_pendulum(OptimalControlBackend(); N=100);
+julia> cart_pendulum(OptimalControlBackend(); grid_size=100)
 ```
 
-# References
-
-- Formulation inspired by OptimalControl approach for swing-up control problems.
+Default parameters and the modeling status are available through `metadata(:cart_pendulum)` and
+`OptimalControlProblems.status(:cart_pendulum)`.
 """
 function OptimalControlProblems.cart_pendulum(
     ::OptimalControlBackend,
@@ -34,6 +17,7 @@ function OptimalControlProblems.cart_pendulum(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:cart_pendulum, :OptimalControl)
 
     # parameters
     params = parameters_data(:cart_pendulum, parameters)

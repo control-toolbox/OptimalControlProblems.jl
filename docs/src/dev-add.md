@@ -66,7 +66,7 @@ function OptimalControlProblems.new_problem(
 end
 ```
 
-**3.** Define the scalarised **OptimalControl** model of the problem in a file named `new_problem_s.jl` in the `ext/OptimalControlModels_s` directory. This version is similar to the previous case but, as an example, replace the dynamics:
+**3.** Define the scalarised **OptimalControl** model of the problem in a file named `new_problem.jl` in the `ext/OptimalControlScalarizedModels` directory. This version is similar to the previous case but, as an example, replace the dynamics:
 
 ```julia
 ẋ(t) == [x₂(t), u(t)]

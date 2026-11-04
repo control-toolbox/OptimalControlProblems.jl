@@ -9,7 +9,24 @@ on:
     types: [labeled, synchronize, reopened]
 
 jobs:
+  # Turn the `test <environment> backend` / `test comparison` labels of a pull request into
+  # the arguments of test/runtests.jl (environment names). Without such a label, or outside
+  # a pull request, the arguments are empty and every environment runs.
+  scope:
+    runs-on: ubuntu-latest
+    outputs:
+      test_args: ${{ steps.scope.outputs.test_args }}
+    steps:
+      - id: scope
+        env:
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          args=$(echo "$LABELS" | jq -r '[(. // [])[] | select(startswith("test ")) | sub("^test "; "") | sub(" backend$"; "")] | join(" ")')
+          echo "test_args=$args" >> "$GITHUB_OUTPUT"
+          echo "test_args: '$args'"
+
   call:
+    needs: scope
     if: >
       github.event_name != 'pull_request' ||
       (github.event.action == 'labeled' && github.event.label.name == 'run ci github-runner') ||
@@ -20,5 +37,6 @@ jobs:
       runs_on: '["ubuntu-latest", "macos-latest", "windows-latest"]'
       runner_type: 'github'
       use_ct_registry: true
+      test_args: ${{ needs.scope.outputs.test_args }}
     secrets:
       SSH_KEY: ${{ secrets.SSH_KEY }}

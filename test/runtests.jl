@@ -1,82 +1,100 @@
-using Aqua
-using CTBase
-using CTDirect
-using Ipopt
-using JuMP
-using NLPModels
-using NLPModelsIpopt
-using MadNLPMumps
-using OptimalControl
-using OptimalControlProblems
-using Test
-using Plots
-using Plots.PlotMeasures # for leftmargin, bottommargin
-using Printf
-using Interpolations
-include("utils.jl")
+# ==============================================================================
+# OptimalControlProblems test runner
+# ==============================================================================
+#
+# Layout (TST1, as CTFlows.jl): `suite/<group>/test_<name>.jl` for the tests of every
+# run, `cron/<group>/test_<name>.jl` for the slow ones (cron mode).
+#
+# One environment per modeling: each group of `suite/` with a `Project.toml` (JuMP,
+# OptimalControl, ...) is run in its own Julia process, so that an extension is shown to
+# load alone and heavy dependencies stay isolated; the slow tests of `cron/<group>/` run
+# in the environment of `suite/<group>/`. `suite/core/` has no extension and runs in this
+# process, always.
+#
+# ## Running tests
+#
+#   julia --project -e 'using Pkg; Pkg.test()'                       # core + all environments
+#   julia --project -e 'using Pkg; Pkg.test(; test_args=["JuMP"])'   # core + one environment
+#   julia --project -e 'using Pkg; Pkg.test(; test_args=["cron"])'   # slow tests (cron/ dirs)
+#   julia --project -e 'using Pkg; Pkg.test(; test_args=["JuMP", "cron", "*beam*"])'
+#
+# `test_args` is a list of: environment names (none given: every environment except the
+# opt-in ones below), the word `cron` (run `cron/<group>/test_*.jl` instead of
+# `suite/<group>/test_*.jl`), and file patterns (`*` and `?` allowed, with or without
+# `test_` and `.jl`).
+#
+# Test files follow TST1: a module and an entry function `test_<name>()`.
+# ==============================================================================
 
-# Parameters for the solvers
-const TOL = 1e-8
-const MU_STRATEGY = "adaptive"
-const SB = "yes"
-const MAX_ITER = 1000
-const MAX_WALL_TIME = 500.0
+using Test: Test
 
-# Collect all the problems from OptimalControlProblems
-override_list_of_problems = false
+include(joinpath(@__DIR__, "common", "options.jl"))
+include(joinpath(@__DIR__, "common", "solver_options.jl"))
+include(joinpath(@__DIR__, "common", "helpers.jl"))
+include(joinpath(@__DIR__, "common", "runner.jl"))
 
-list_of_problems = if override_list_of_problems
-    [
-    # put here the problems to test
-    ]
-else
-    # Get all problems
-    all_problems = OptimalControlProblems.problems()
+const ROOT = dirname(@__DIR__)
+const CORE = "core"
 
-    # Remove from the tests the following problems
-    problems_to_exclude = [
-    # put here problems to exclude from the tests
-    ]
-    setdiff(all_problems, problems_to_exclude)
+# Environments that run only when named (their label, or the cron): heavy dependencies.
+const OPT_IN = ("ModelingToolkit",)
+
+const SUITE = joinpath(@__DIR__, "suite")
+const CRON = joinpath(@__DIR__, "cron")
+
+"""
+Names of the test environments: the groups of `suite/` holding a `Project.toml`.
+"""
+function environments()
+    return sort([d for d in readdir(SUITE) if isfile(joinpath(SUITE, d, "Project.toml"))])
 end
 
-# The list of all the problems to test
-const LIST_OF_PROBLEMS = deepcopy(list_of_problems)
+"""
+Run the tests of one environment in a Julia subprocess: those of `suite/<name>`, or of
+`cron/<name>` in cron mode, in the environment of `suite/<name>`. Its `Project.toml` is
+copied to a temporary directory where the package under test is developed, so that no
+`Manifest.toml` is written in the working tree. The code coverage flag of this process
+is forwarded (`Base.julia_cmd`). Returns `true` on success.
+"""
+function run_environment(name::AbstractString; cron::Bool, patterns::Vector{String})
+    tests = joinpath(cron ? CRON : SUITE, name)
+    project = mktempdir()
+    cp(joinpath(SUITE, name, "Project.toml"), joinpath(project, "Project.toml"))
+    # `Pkg.test` restricts JULIA_LOAD_PATH (and may set JULIA_PROJECT) to its own
+    # temporary environment: a subprocess inheriting them would ignore `--project`.
+    julia = addenv(Base.julia_cmd(), "JULIA_LOAD_PATH" => nothing, "JULIA_PROJECT" => nothing)
+    try
+        setup = "using Pkg: Pkg; Pkg.develop(path=ARGS[1]); Pkg.instantiate()"
+        run(`$julia --project=$project -e $setup $ROOT`)
+        script = joinpath(@__DIR__, "common", "run_environment.jl")
+        run(`$julia --project=$project $script $tests $name $patterns`)
+        return true
+    catch err
+        @error "Environment $name failed" exception = err
+        return false
+    finally
+        rm(project; recursive=true, force=true)
+    end
+end
 
-# The final list of problems for which the tests pass
-LIST_OF_PROBLEMS_FINAL = deepcopy(list_of_problems)
+args = String.(ARGS)
+cron = "cron" in args
+rest = filter(!=("cron"), args)
+available = environments()
+selected, patterns = LocalTestRunner.select_environments(rest, available, OPT_IN; core=CORE)
 
-# Tests
-const DEBUG = true
-const VERBOSE = true # print or not details during tests
-@testset "OptimalControlProblems tests" verbose = VERBOSE showtiming = true begin
-    for name in (
-        #:aqua,
-        :kwargs,
-        :JuMP,                  # convergence tests for JuMP models
-        :OptimalControl,        # convergence tests for OptimalControl models
-        :OptimalControl_s,      # convergence tests for OptimalControl models
-        :init,                  # comparison between OptimalControl and JuMP: init
-        :solution,              # comparison between OptimalControl and JuMP: solution
-        :quick,                 # quick comparison: objective rel error only
-        :parameters,            # tests with different parameters values, does no depend on `list_of_problems`
+Test.@testset "OptimalControlProblems tests" verbose = Main.TestOptions.VERBOSE showtiming =
+    Main.TestOptions.SHOWTIMING begin
+    println("Environments: ", join([CORE; selected], ", "), cron ? " (cron)" : "")
+
+    # `core` has no cron tests: in cron mode its directory does not exist and nothing runs.
+    LocalTestRunner.run_dir(
+        joinpath(cron ? CRON : SUITE, CORE); patterns=patterns, name=CORE
     )
-        @testset "$(name)" verbose = VERBOSE begin
-            test_name = Symbol(:test_, name)
-            println("Testing: " * string(name))
-            include("$(test_name).jl")
-            @eval $test_name()
+
+    for name in selected
+        Test.@testset "environment $name" begin
+            Test.@test run_environment(name; cron=cron, patterns=patterns)
         end
     end
-
-    # compare the list of problems that passed the tests to the available problems
-    println("\nProblems that passed the tests: ")
-    display(LIST_OF_PROBLEMS_FINAL)
-    println("\nList of available problems: ")
-    display(OptimalControlProblems.problems())
-    println()
-
-    # @testset "available_problems" verbose=VERBOSE begin
-    #     @test LIST_OF_PROBLEMS_FINAL == OptimalControlProblems.problems()
-    # end
 end

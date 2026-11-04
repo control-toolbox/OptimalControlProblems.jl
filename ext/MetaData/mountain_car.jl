@@ -18,4 +18,5 @@ mountain_car_meta = OrderedDict(
         b=0.0025,
         c=3.0,
     ),
+    :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
 )

@@ -1,32 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Space Shuttle reentry problem** is a classical benchmark in aerospace optimal control.
 
-Constructs and returns a JuMP model for the **Space Shuttle Reentry Trajectory Problem**.  
-The model represents the dynamics of a space shuttle reentry with multiple states (altitude `h`, longitude `ϕ`, latitude `θ`, velocity `v`, flight path angle `γ`, azimuth `ψ`) and control inputs (angle of attack `α` and bank angle `β`).  
-The objective is to maximise the terminal latitude (cross-range) while satisfying boundary conditions and vehicle dynamics.  
-Note: no heating limit path constraint is included in this formulation.
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the space shuttle reentry optimal control problem.
-
-# Example
+Builds the `space_shuttle` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.space_shuttle(JuMPBackend(); N=200)
+julia> space_shuttle(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- Problem formulation and tutorial available at: https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/
+Default parameters and the modeling status are available through `metadata(:space_shuttle)` and
+`OptimalControlProblems.status(:space_shuttle)`.
 """
 function OptimalControlProblems.space_shuttle(
     ::JuMPBackend,
@@ -35,6 +17,7 @@ function OptimalControlProblems.space_shuttle(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:space_shuttle, :JuMP)
 
     # Parameters
     params = parameters_data(:space_shuttle, parameters)

@@ -1,31 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The Bryson-Denham problem is a constrained minimum-energy transfer problem.
 
-Constructs an **OptimalControl problem** representing the Bryson-Denham problem using the OptimalControl backend.  
-The function sets up the state and control variables, boundary conditions, dynamics, path constraints, and the objective functional.  
-It then performs direct transcription to generate a discrete optimal control problem (DOCP).
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type to specify the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object, representing the discretised problem.
-
-# Example
+Builds the `bryson_denham` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.bryson_denham(OptimalControlBackend(); N=100);
+julia> bryson_denham(OptimalControlBackend(); grid_size=100)
 ```
 
-# References
-
-Bryson, A. E. and Denham, W. F., "A Steering Program for Optimal Transfer of a Thrust-Limited Rocket Between Neighboring Circular Orbits", 1962. 
-- Formulation inspired by OptimalControl approach for swing-up control problems.
+Default parameters and the modeling status are available through `metadata(:bryson_denham)` and
+`OptimalControlProblems.status(:bryson_denham)`.
 """
 
 function OptimalControlProblems.bryson_denham(
@@ -35,6 +18,7 @@ function OptimalControlProblems.bryson_denham(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:bryson_denham, :OptimalControl)
     params = parameters_data(:bryson_denham, parameters)
     t0, tf = params[:t0], params[:tf]
     x1_t0, x2_t0 = params[:x1_t0], params[:x2_t0]

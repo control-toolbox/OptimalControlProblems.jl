@@ -1,27 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Moonlander optimal control problem** is a benchmark in constrained optimal control.
 
-Constructs an **OptimalControl problem** for the Moonlander benchmark model.  
-The function defines the state and control variables, system dynamics, bounds, initial and final conditions, and the cost functional, which minimises the landing time of a moonlander to a specified target.  
-It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the Moonlander problem.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `moonlander` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.moonlander(OptimalControlBackend(); N=500);
+julia> moonlander(OptimalControlBackend(); grid_size=100)
 ```
+
+Default parameters and the modeling status are available through `metadata(:moonlander)` and
+`OptimalControlProblems.status(:moonlander)`.
 """
 function OptimalControlProblems.moonlander(
     ::OptimalControlBackend,
@@ -30,6 +17,7 @@ function OptimalControlProblems.moonlander(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:moonlander, :OptimalControl)
 
     # parameters
     params = parameters_data(:moonlander, parameters)

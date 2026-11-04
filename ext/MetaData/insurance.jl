@@ -26,4 +26,5 @@ insurance_meta = OrderedDict(
         m_t0=0.001,
         x₃_t0=0,
     ),
+    :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
 )

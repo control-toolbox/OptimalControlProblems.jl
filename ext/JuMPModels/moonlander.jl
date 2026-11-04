@@ -1,32 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Moonlander optimal control problem** is a benchmark in constrained optimal control.
 
-Constructs and returns a JuMP model for the **Moonlander Optimal Control Problem**.  
-The model represents the dynamics of a moonlander with two translational and one rotational degrees of freedom.  
-The objective is to minimise the final landing time (`tf`) while ensuring the lander reaches the target position with zero velocity.  
-The dynamics include translational acceleration, rotation, and thrust allocation, discretised with `N` steps using trapezoidal collocation.
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=500`: (Keyword) Number of discretisation steps in the time grid.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the Moonlander optimal control problem.
-
-# Example
+Builds the `moonlander` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.moonlander(JuMPBackend(); N=100)
+julia> moonlander(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- Problem formulation available at: https://arxiv.org/pdf/2303.16746
+Default parameters and the modeling status are available through `metadata(:moonlander)` and
+`OptimalControlProblems.status(:moonlander)`.
 """
 function OptimalControlProblems.moonlander(
     ::JuMPBackend,
@@ -35,6 +17,7 @@ function OptimalControlProblems.moonlander(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:moonlander, :JuMP)
 
     # parameters
     params = parameters_data(:moonlander, parameters)

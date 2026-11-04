@@ -1,31 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Hanging Chain problem** is a classical benchmark in optimal control.
 
-Constructs and returns a JuMP model for the **Hanging Chain Problem**.  
-The goal is to determine the equilibrium shape of a chain of fixed length `L` hanging between two fixed points `a` and `b`, by minimising its potential energy.  
-The formulation follows a standard optimal control approach with discretised dynamics and constraints.
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=500`: (Keyword) Number of discretisation steps in the time grid.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the hanging chain optimal control problem.
-
-# Example
+Builds the `chain` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.chain(JuMPBackend(); N=300)
+julia> chain(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- [COPS Benchmark Problems – Hanging Chain](https://www.mcs.anl.gov/~more/cops/)
+Default parameters and the modeling status are available through `metadata(:chain)` and
+`OptimalControlProblems.status(:chain)`.
 """
 function OptimalControlProblems.chain(
     ::JuMPBackend,
@@ -34,6 +17,7 @@ function OptimalControlProblems.chain(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:chain, :JuMP)
 
     # parameters
     params = parameters_data(:chain, parameters)

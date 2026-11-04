@@ -1,32 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Double Oscillator problem** is a benchmark in constrained optimal control illustrating the control of coupled mechanical systems with damping and stiffness effects.
 
-Constructs an **OptimalControl problem** representing a double oscillator system.  
-The function defines state and control variables, system dynamics, boundary conditions, and an objective functional to be minimised.  
-It uses direct transcription to produce a discretised optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the double oscillator system.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `double_oscillator` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.double_oscillator(OptimalControlBackend(); N=100);
+julia> double_oscillator(OptimalControlBackend(); grid_size=100)
 ```
 
-# References
-
-- Coudurier, C., Lepreux, O., & Petit, N. (2018). Optimal bang-bang control of a mechanical double oscillator using averaging methods. *IFAC-PapersOnLine*, 51(2), 49-54. [CLP2018]
-- Formulation follows OptimalControl approach to mechanical oscillator trajectory optimisation.
+Default parameters and the modeling status are available through `metadata(:double_oscillator)` and
+`OptimalControlProblems.status(:double_oscillator)`.
 """
 function OptimalControlProblems.double_oscillator(
     ::OptimalControlBackend,
@@ -35,6 +17,7 @@ function OptimalControlProblems.double_oscillator(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:double_oscillator, :OptimalControl)
 
     # parameters
     params = parameters_data(:double_oscillator, parameters)

@@ -1,34 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **photobioreactor–digester system problem** is a benchmark in constrained optimal control.
 
-Constructs and returns a JuMP model for the **Bioreactor Optimal Control Problem**.  
-The problem formulation follows the version provided in the [control-toolbox/bocop repository](https://github.com/control-toolbox/bocop/tree/main/bocop).
-
-The model includes state variables for biomass (`y`), substrate (`s`), and bacteria (`b`),  
-with control variable `u`, subject to nonlinear dynamics and constraints.  
-The objective is to minimise a cost function derived from the system dynamics.
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=500`: (Keyword) Number of discretisation steps in the time grid.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the bioreactor optimal control problem.
-
-# Example
+Builds the `bioreactor` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.bioreactor(JuMPBackend(); N=100)
+julia> bioreactor(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- [control-toolbox/bocop](https://github.com/control-toolbox/bocop/tree/main/bocop)
+Default parameters and the modeling status are available through `metadata(:bioreactor)` and
+`OptimalControlProblems.status(:bioreactor)`.
 """
 function OptimalControlProblems.bioreactor(
     ::JuMPBackend,
@@ -37,6 +17,7 @@ function OptimalControlProblems.bioreactor(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+    OptimalControlProblems._warn_if_draft(:bioreactor, :JuMP)
 
     # parameters
     params = parameters_data(:bioreactor, parameters)
