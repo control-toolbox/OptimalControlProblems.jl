@@ -1,35 +1,24 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Mountain Car problem** is a classic benchmark in control and reinforcement learning.
 
-Constructs an **OptimalControl problem** for the Mountain Car problem (symbolic version).  
-The goal is to drive an underpowered car up a steep hill.  
-The objective is to minimize the time required to reach the target position.  
-The problem formulation can be found [here](https://openmdao.github.io/dymos/examples/mountain_car/mountain_car.html).
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=100`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the Mountain Car problem.
-
-# Example
+Builds the `mountain_car` problem with the OptimalControlScalarized backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.mountain_car_s(OptimalControlBackend(); N=100);
+julia> mountain_car(OptimalControlScalarizedBackend(); grid_size=100)
 ```
+
+Default parameters and the modeling status are available through `metadata(:mountain_car)` and
+`status(:mountain_car)`.
 """
-function OptimalControlProblems.mountain_car_s(
-    ::OptimalControlBackend,
+function OptimalControlProblems.mountain_car(
+    ::OptimalControlScalarizedBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:mountain_car),
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:mountain_car, :OptimalControlScalarized)
 
     # parameters
     params = parameters_data(:mountain_car, parameters)

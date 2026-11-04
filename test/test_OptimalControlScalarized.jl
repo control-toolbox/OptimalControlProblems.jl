@@ -1,5 +1,5 @@
 # test_OptimalControl_optimality
-function test_OptimalControl_s()
+function test_OptimalControlScalarized()
     options_madnlp = Dict(
         :print_level => MadNLP.ERROR,
         :tol => TOL,
@@ -10,7 +10,7 @@ function test_OptimalControl_s()
         :linear_solver => MumpsSolver,
     )
 
-    for f in LIST_OF_PROBLEMS
+    for f in OptimalControlProblems.problems(OptimalControlScalarizedBackend())
         @testset "$(f)" verbose = VERBOSE begin
             try
                 grid_size = metadata(f)[:grid_size]
@@ -19,12 +19,12 @@ function test_OptimalControl_s()
                 keep_problem = true
 
                 #
-                DEBUG && println("\n", "┌─ ", string(f), " (OptimalControl_s)")
+                DEBUG && println("\n", "┌─ ", string(f), " (OptimalControlScalarized)")
                 DEBUG && println("│")
 
                 # Set up the model
-                docp = OptimalControlProblems.eval(Symbol(f, :_s))(
-                    OptimalControlBackend(), :madnlp, :exa; grid_size=grid_size
+                docp = OptimalControlProblems.eval(f)(
+                    OptimalControlScalarizedBackend(), :madnlp, :exa; grid_size=grid_size
                 )
                 nlp = nlp_model(docp)
 

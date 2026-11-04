@@ -1,27 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Van der Pol oscillator control problem** is a benchmark in nonlinear optimal control.
 
-Constructs an **OptimalControl problem** for the Van der Pol oscillator with a control input.  
-The objective is to minimise a quadratic cost composed of the state and control effort over a fixed time horizon.  
-The problem formulation can be found [here](https://github.com/control-toolbox/bocop/tree/main/bocop).
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the Van der Pol problem.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `vanderpol` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.vanderpol(OptimalControlBackend(); N=500);
+julia> vanderpol(OptimalControlBackend(); grid_size=100)
 ```
+
+Default parameters and the modeling status are available through `metadata(:vanderpol)` and
+`status(:vanderpol)`.
 """
 function OptimalControlProblems.vanderpol(
     ::OptimalControlBackend,
@@ -30,6 +17,8 @@ function OptimalControlProblems.vanderpol(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:vanderpol, :OptimalControl)
 
     # parameters
     params = parameters_data(:vanderpol, parameters)

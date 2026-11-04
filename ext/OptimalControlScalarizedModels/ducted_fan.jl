@@ -1,17 +1,24 @@
+"""The **ducted fan problem** is a classical nonlinear benchmark in optimal control with multiple input and state constraints.
+
+Builds the `ducted_fan` problem with the OptimalControlScalarized backend.
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> ducted_fan(OptimalControlScalarizedBackend(); grid_size=100)
+```
+
+Default parameters and the modeling status are available through `metadata(:ducted_fan)` and
+`status(:ducted_fan)`.
 """
-The Ducted Fan Problem:
-    Implement the optimal control of a planar ducted fan.
-    Instance taken from [GP2009].
-    The problem is formulated as an OptimalControl model.
-Ref: Graichen, K., & Petit, N. (2009). Incorporating a class of constraints into the dynamics of optimal control problems. Optimal Control Applications and Methods, 30(6), 537-561.
-"""
-function OptimalControlProblems.ducted_fan_s(
-    ::OptimalControlBackend,
+function OptimalControlProblems.ducted_fan(
+    ::OptimalControlScalarizedBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:ducted_fan),
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:ducted_fan, :OptimalControlScalarized)
 
     # parameters
     params = parameters_data(:ducted_fan, parameters)

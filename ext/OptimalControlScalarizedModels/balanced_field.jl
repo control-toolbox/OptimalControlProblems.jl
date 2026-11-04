@@ -1,26 +1,24 @@
+"""The **Aircraft Balanced Field Length Calculation** is a classic aeronautical engineering problem used to determine the minimum runway length required for a safe takeoff or a safe stop in the event of an engine failure.
+
+Builds the `balanced_field` problem with the OptimalControlScalarized backend.
+
+```julia-repl
+julia> using OptimalControlProblems
+julia> balanced_field(OptimalControlScalarizedBackend(); grid_size=100)
+```
+
+Default parameters and the modeling status are available through `metadata(:balanced_field)` and
+`status(:balanced_field)`.
 """
-$(TYPEDSIGNATURES)
-
-Constructs an **OptimalControl problem** for the Aircraft Balanced Field Length Calculation (Takeoff phase) using symbolic syntax.  
-The objective is to minimise the final range to reach a specified altitude (35 ft) with one engine out.
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=200`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the problem.
-- `nlp`: The corresponding nonlinear programming model.
-"""
-function OptimalControlProblems.balanced_field_s(
-    ::OptimalControlBackend,
+function OptimalControlProblems.balanced_field(
+    ::OptimalControlScalarizedBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:balanced_field),
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:balanced_field, :OptimalControlScalarized)
 
     # parameters
     params = parameters_data(:balanced_field, parameters)

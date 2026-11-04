@@ -14,4 +14,6 @@ steering_meta = OrderedDict(
         x₃_tf=45,
         x₄_tf=0,
     ),
+    :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
+
 )

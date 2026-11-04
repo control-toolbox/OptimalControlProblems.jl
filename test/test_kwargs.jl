@@ -4,7 +4,7 @@ function test_kwargs()
     solver_backend = :madnlp
     optimiser = Ipopt.Optimizer
 
-    for f in LIST_OF_PROBLEMS
+    for f in OptimalControlProblems.problems(JuMPBackend(), OptimalControlBackend())
         @testset "$(string(f)) (kwargs)" verbose = VERBOSE begin
             DEBUG && println("─ ", string(f), " (kwargs)")
 
@@ -19,9 +19,9 @@ function test_kwargs()
             @test docp.time.steps == grid_size
             @test docp.discretization isa CTDirect.Euler
 
-            # OptimalControl_s model
-            docp = OptimalControlProblems.eval(Symbol(f, :_s))(
-                OptimalControlBackend(),
+            # OptimalControlScalarized model
+            docp = OptimalControlProblems.eval(f)(
+                OptimalControlScalarizedBackend(),
                 :madnlp,
                 :exa;
                 grid_size=grid_size,

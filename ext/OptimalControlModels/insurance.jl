@@ -1,31 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **insurance problem** is a benchmark in optimal control inspired by health and financial economics.
 
-Constructs an **OptimalControl problem** for an insurance system optimisation.  
-The function defines state and control variables, system dynamics, constraints on insurance, expenses, revenue, health, utility, and auxiliary variables, and sets up a cost functional aimed at maximising expected utility over time.  
-It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the insurance optimisation problem.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `insurance` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.insurance(OptimalControlBackend(); N=500);
+julia> insurance(OptimalControlBackend(); grid_size=100)
 ```
 
-# References
-
-- Problem formulation available at [Bocop repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
+Default parameters and the modeling status are available through `metadata(:insurance)` and
+`status(:insurance)`.
 """
 function OptimalControlProblems.insurance(
     ::OptimalControlBackend,
@@ -34,6 +17,8 @@ function OptimalControlProblems.insurance(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:insurance, :OptimalControl)
 
     # parameters
     params = parameters_data(:insurance, parameters)

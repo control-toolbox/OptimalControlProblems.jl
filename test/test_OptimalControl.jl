@@ -9,7 +9,7 @@ function test_OptimalControl()
         :max_wall_time => MAX_WALL_TIME,
     )
 
-    for f in LIST_OF_PROBLEMS
+    for f in OptimalControlProblems.problems(OptimalControlBackend())
         @testset "$(f)" verbose = VERBOSE begin
             try
                 grid_size = metadata(f)[:grid_size]

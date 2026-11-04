@@ -1,30 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Brachistochrone problem** is a classical benchmark in the history of calculus of variations and optimal control.
 
-Constructs a JuMP model representing the **Brachistochrone optimal control problem**.
-The objective is to minimize the final time `tf` to travel between two points under gravity.
-The problem uses a direct transcription (trapezoidal rule) manually implemented in JuMP.
-
-# Arguments
-
-- `::JuMPBackend`: Placeholder type to specify the JuMP backend or solver interface.
-- `grid_size::Int=50`: (Keyword) Number of discretisation steps for the time grid.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model containing the decision variables (including final time), dynamics constraints, and boundary conditions.
-
-# Example
+Builds the `brachistochrone` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-julia> model = OptimalControlProblems.brachistochrone(JuMPBackend(); N=100)
+julia> brachistochrone(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- Dymos Brachistochrone: [https://openmdao.github.io/dymos/examples/brachistochrone/brachistochrone.html](https://openmdao.github.io/dymos/examples/brachistochrone/brachistochrone.html)
+Default parameters and the modeling status are available through `metadata(:brachistochrone)` and
+`status(:brachistochrone)`.
 """
 function OptimalControlProblems.brachistochrone(
     ::JuMPBackend,
@@ -33,6 +17,8 @@ function OptimalControlProblems.brachistochrone(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:brachistochrone, :JuMP)
 
     # parameters
     params = parameters_data(:brachistochrone, parameters)

@@ -23,4 +23,6 @@ glider_meta = OrderedDict(
         x_l=0,
         vx_l=0,
     ),
+    :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
+
 )

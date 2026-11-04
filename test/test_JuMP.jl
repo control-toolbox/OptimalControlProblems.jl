@@ -1,6 +1,6 @@
 # test_JuMP_optimality
 function test_JuMP()
-    for f in LIST_OF_PROBLEMS
+    for f in OptimalControlProblems.problems(JuMPBackend())
         @testset "$(f)" verbose = VERBOSE begin
             try
                 grid_size = metadata(f)[:grid_size]

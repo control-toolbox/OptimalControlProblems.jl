@@ -28,7 +28,7 @@ function test_quick()
 
     max_r_err = -Inf # relative error max
 
-    for f in LIST_OF_PROBLEMS
+    for f in OptimalControlProblems.problems(JuMPBackend(), OptimalControlBackend())
         grid_size = metadata(f)[:grid_size]
 
         @testset "$(string(f)) (objective)" verbose = VERBOSE begin
@@ -58,9 +58,9 @@ function test_quick()
                 sol = build_OCP_solution(docp, nlp_sol)
                 o_oc = objective(sol)
 
-                ########## OptimalControl_s ##########
-                docp = OptimalControlProblems.eval(Symbol(f, :_s))(
-                    OptimalControlBackend(), :madnlp, :exa; grid_size=grid_size
+                ########## OptimalControlScalarized ##########
+                docp = OptimalControlProblems.eval(f)(
+                    OptimalControlScalarizedBackend(), :madnlp, :exa; grid_size=grid_size
                 )
                 nlp = nlp_model(docp)
                 ocp = ocp_model(docp)
@@ -96,7 +96,7 @@ function test_quick()
                 DEBUG && !res && println("│          \033[1;31mTest Failed\033[0m")
                 DEBUG && println("│")
 
-                # comparison JuMP and OptimalControl_s
+                # comparison JuMP and OptimalControlScalarized
                 A = o_os
                 B = o_jp
 
@@ -104,7 +104,7 @@ function test_quick()
                 o_bd = max(0.5 * (abs(A) + abs(B)) * ε_rel_objective, ε_abs_objective)
                 max_r_err = max(max_r_err, o_di / (0.5 * (abs(A) + abs(B))))
 
-                DEBUG && println("│     JuMP vs OptimalControl_s")
+                DEBUG && println("│     JuMP vs OptimalControlScalarized")
                 DEBUG && println("│")
                 DEBUG && println("│          r_err = ", o_di / (0.5 * (abs(A) + abs(B))))
                 DEBUG && println("│          a_err = ", o_di)

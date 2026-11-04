@@ -303,7 +303,7 @@ function comparison(; max_iter, test_name)
     end
 
     # we loop over the problems
-    for f in LIST_OF_PROBLEMS
+    for f in OptimalControlProblems.problems(JuMPBackend(), OptimalControlBackend())
         grid_size = metadata(f)[:grid_size] # get default number of steps
 
         @testset "$(string(f)) ($(string(test_name)))" verbose = VERBOSE begin
@@ -363,10 +363,10 @@ function comparison(; max_iter, test_name)
                 u_vars_oc = control_components(ocp_oc)
                 v_vars_oc = variable_components(ocp_oc)
 
-                ########## OptimalControl_s ##########
+                ########## OptimalControlScalarized ##########
                 model_backend = :exa # :adnlp
-                docp = OptimalControlProblems.eval(Symbol(f, :_s))(
-                    OptimalControlBackend(), :madnlp, model_backend; grid_size=grid_size
+                docp = OptimalControlProblems.eval(f)(
+                    OptimalControlScalarizedBackend(), :madnlp, model_backend; grid_size=grid_size
                 )
                 nlp_os = nlp_model(docp)
                 ocp_os = ocp_model(docp)
@@ -640,12 +640,12 @@ function comparison(; max_iter, test_name)
                     plot!(plt[i]; legend=:none)
                 end
 
-                # OptimalControl_s
+                # OptimalControlScalarized
                 color = 2
                 labelOC = if (test_name == :solution)
-                    "OptimalControl_s: " * string(i_oc) * " it"
+                    "OptimalControlScalarized: " * string(i_oc) * " it"
                 else
-                    "OptimalControl_s"
+                    "OptimalControlScalarized"
                 end
                 plot!(
                     plt,

@@ -18,4 +18,6 @@ jackson_meta = OrderedDict(
         b_t0=0,
         x₃_t0=0,
     ),
+    :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
+
 )

@@ -1,36 +1,24 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Robbins benchmark problem** is a classical optimal control problem introduced by Robbins (1980), involving a **third-order state constraint**:.
 
-Constructs an **OptimalControl problem** for the Robbins benchmark model.  
-This function defines the state and control variables, system dynamics, initial and final conditions, and the cost functional, which minimises a weighted sum of the state and control contributions.  
-It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.  
-Reference: [Robbins Problem on BOCOP](https://github.com/control-toolbox/bocop/tree/main/bocop)
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the Robbins problem.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `robbins` problem with the OptimalControlScalarized backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.robbins(OptimalControlBackend(); N=500);
+julia> robbins(OptimalControlScalarizedBackend(); grid_size=100)
 ```
+
+Default parameters and the modeling status are available through `metadata(:robbins)` and
+`status(:robbins)`.
 """
-function OptimalControlProblems.robbins_s(
-    ::OptimalControlBackend,
+function OptimalControlProblems.robbins(
+    ::OptimalControlScalarizedBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:robbins),
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:robbins, :OptimalControlScalarized)
 
     # parameters
     params = parameters_data(:robbins, parameters)

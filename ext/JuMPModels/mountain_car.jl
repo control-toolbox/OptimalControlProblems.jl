@@ -1,31 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Mountain Car problem** is a classic benchmark in control and reinforcement learning.
 
-Constructs and returns a JuMP model for the **Mountain Car Problem**.  
-The model represents the dynamics of an underpowered car climbing a hill.  
-The objective is to minimize the final time `tf` to reach the target position.
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=100`: (Keyword) Number of discretisation steps for the time horizon.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the Mountain Car optimal control problem.
-
-# Example
+Builds the `mountain_car` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.mountain_car(JuMPBackend(); N=100)
+julia> mountain_car(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- Problem formulation: https://openmdao.github.io/dymos/examples/mountain_car/mountain_car.html
+Default parameters and the modeling status are available through `metadata(:mountain_car)` and
+`status(:mountain_car)`.
 """
 function OptimalControlProblems.mountain_car(
     ::JuMPBackend,
@@ -34,6 +17,8 @@ function OptimalControlProblems.mountain_car(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:mountain_car, :JuMP)
 
     # parameters
     params = parameters_data(:mountain_car, parameters)

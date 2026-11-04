@@ -1,32 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **ducted fan problem** is a classical nonlinear benchmark in optimal control with multiple input and state constraints.
 
-Constructs and returns a JuMP model for the **Planar Ducted Fan Optimal Control Problem**.  
-The objective is to determine the optimal control inputs for a planar ducted fan to move from a given initial state to a desired final state, minimising a combination of control effort and final time.  
-The system is discretised over `N` steps, with collocation constraints enforcing the dynamics.
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=250`: (Keyword) Number of discretisation steps in the time grid.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the planar ducted fan optimal control problem.
-
-# Example
+Builds the `ducted_fan` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.ducted_fan(JuMPBackend(); N=100)
+julia> ducted_fan(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- Graichen, K., & Petit, N. (2009). *Incorporating a class of constraints into the dynamics of optimal control problems*.  
-  Optimal Control Applications and Methods, 30(6), 537–561. [GP2009]
+Default parameters and the modeling status are available through `metadata(:ducted_fan)` and
+`status(:ducted_fan)`.
 """
 function OptimalControlProblems.ducted_fan(
     ::JuMPBackend,
@@ -35,6 +17,8 @@ function OptimalControlProblems.ducted_fan(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:ducted_fan, :JuMP)
 
     # parameters
     params = parameters_data(:ducted_fan, parameters)

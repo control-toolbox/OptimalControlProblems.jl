@@ -1,31 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Goddard rocket problem** is a classical optimal control problem that models the ascent of a vertically launched rocket.
 
-Constructs and returns a JuMP model for the **Goddard Rocket Optimal Control Problem**.  
-The model represents the dynamics of a Goddard rocket with three states (altitude `h`, velocity `v`, and mass `m`) and one control input (`T` for thrust).  
-The objective is to maximise the final altitude of the rocket while satisfying boundary conditions and dynamic constraints.
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the Goddard rocket optimal control problem.
-
-# Example
+Builds the `rocket` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.rocket(JuMPBackend(); N=200)
+julia> rocket(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- Problem formulation available at: https://github.com/MadNLP/COPSBenchmark.jl/blob/main/src/rocket.jl
+Default parameters and the modeling status are available through `metadata(:rocket)` and
+`status(:rocket)`.
 """
 function OptimalControlProblems.rocket(
     ::JuMPBackend,
@@ -34,6 +17,8 @@ function OptimalControlProblems.rocket(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:rocket, :JuMP)
 
     # parameters
     params = parameters_data(:rocket, parameters)

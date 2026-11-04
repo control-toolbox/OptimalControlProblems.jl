@@ -1,32 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **dielectrophoretic particle problem** is a classical time-optimal control benchmark for microfluidic particle manipulation.
 
-Constructs and returns a JuMP model for the **Dielectrophoretic Particle Optimal Control Problem**.  
-The goal is to determine the time–optimal trajectory of a particle in a dielectrophoretic system, moving it from an initial point to a target point.  
-The system dynamics are discretised over `N` steps, with the final time optimised.
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=500`: (Keyword) Number of discretisation steps in the time grid.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the dielectrophoretic particle optimal control problem.
-
-# Example
+Builds the `dielectrophoretic_particle` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.dielectrophoretic_particle(JuMPBackend(); N=200)
+julia> dielectrophoretic_particle(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- [CPR2006] Chang, D. E., Petit, N., & Rouchon, P. (2006). *Time-optimal control of a particle in a dielectrophoretic system*.  
-  IEEE Transactions on Automatic Control, 51(7), 1100–1114.
+Default parameters and the modeling status are available through `metadata(:dielectrophoretic_particle)` and
+`status(:dielectrophoretic_particle)`.
 """
 function OptimalControlProblems.dielectrophoretic_particle(
     ::JuMPBackend,
@@ -35,6 +17,8 @@ function OptimalControlProblems.dielectrophoretic_particle(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:dielectrophoretic_particle, :JuMP)
 
     # parameters
     params = parameters_data(:dielectrophoretic_particle, parameters)

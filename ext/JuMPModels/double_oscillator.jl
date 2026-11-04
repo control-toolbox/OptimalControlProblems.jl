@@ -1,32 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Double Oscillator problem** is a benchmark in constrained optimal control illustrating the control of coupled mechanical systems with damping and stiffness effects.
 
-Constructs and returns a JuMP model for the **Double Oscillator Optimal Control Problem**.  
-The objective is to compute an optimal control trajectory for a mechanical double oscillator system, minimising a quadratic cost on positions and control.  
-The system dynamics are discretised over `N` steps, with collocation constraints enforcing the dynamics.
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=500`: (Keyword) Number of discretisation steps in the time grid.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the double oscillator optimal control problem.
-
-# Example
+Builds the `double_oscillator` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.double_oscillator(JuMPBackend(); N=200)
+julia> double_oscillator(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- [CLP2018] Coudurier, C., Lepreux, O., & Petit, N. (2018). *Optimal bang-bang control of a mechanical double oscillator using averaging methods*.  
-  IFAC-PapersOnLine, 51(2), 49–54.
+Default parameters and the modeling status are available through `metadata(:double_oscillator)` and
+`status(:double_oscillator)`.
 """
 function OptimalControlProblems.double_oscillator(
     ::JuMPBackend,
@@ -35,6 +17,8 @@ function OptimalControlProblems.double_oscillator(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:double_oscillator, :JuMP)
 
     # parameters
     params = parameters_data(:double_oscillator, parameters)

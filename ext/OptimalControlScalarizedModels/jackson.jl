@@ -1,39 +1,24 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Jackson problem** is a classical benchmark in optimal control.
 
-Constructs an **OptimalControl problem** for the Jackson benchmark model.  
-The function sets up state and control variables, system dynamics, bounds, initial and final conditions, and a cost functional aimed at minimising the third state variable at final time.  
-It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the Jackson problem.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `jackson` problem with the OptimalControlScalarized backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.jackson(OptimalControlBackend(); N=500);
+julia> jackson(OptimalControlScalarizedBackend(); grid_size=100)
 ```
 
-# References
-
-- Problem formulation available at [Bocop repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
+Default parameters and the modeling status are available through `metadata(:jackson)` and
+`status(:jackson)`.
 """
-function OptimalControlProblems.jackson_s(
-    ::OptimalControlBackend,
+function OptimalControlProblems.jackson(
+    ::OptimalControlScalarizedBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:jackson),
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:jackson, :OptimalControlScalarized)
 
     # parameters
     params = parameters_data(:jackson, parameters)

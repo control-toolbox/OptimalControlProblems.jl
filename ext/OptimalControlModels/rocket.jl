@@ -1,27 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Goddard rocket problem** is a classical optimal control problem that models the ascent of a vertically launched rocket.
 
-Constructs an **OptimalControl problem** for the Goddard rocket.  
-This function defines the state variables (altitude, velocity, mass), the control variable (thrust), system dynamics, constraints, initial and final conditions, and the cost functional, which maximises the final altitude.  
-Reference: Goddard Rocket Problem [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the Goddard rocket problem.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `rocket` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.rocket(OptimalControlBackend(); N=500);
+julia> rocket(OptimalControlBackend(); grid_size=100)
 ```
+
+Default parameters and the modeling status are available through `metadata(:rocket)` and
+`status(:rocket)`.
 """
 function OptimalControlProblems.rocket(
     ::OptimalControlBackend,
@@ -30,6 +17,8 @@ function OptimalControlProblems.rocket(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:rocket, :OptimalControl)
 
     # parameters
     params = parameters_data(:rocket, parameters)

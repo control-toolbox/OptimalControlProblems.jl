@@ -26,4 +26,6 @@ balanced_field_meta = OrderedDict(
         α_min=-0.1745,  # -10 degrees
         α_max_ctrl=0.2618, # 15 degrees
     ),
+    :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
+
 )

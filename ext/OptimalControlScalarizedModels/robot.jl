@@ -1,35 +1,24 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **robot arm motion problem** is a benchmark in time-optimal control.
 
-Constructs an **OptimalControl problem** for a robotic arm moving between two points.  
-This function defines the state and control variables, system dynamics, initial and final conditions, and the cost functional, which minimises the total time taken to perform the motion.  
-Reference: Robot arm problem on BOCOP [here](https://github.com/control-toolbox/bocop/tree/main/bocop)
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=250`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the robot arm problem.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `robot` problem with the OptimalControlScalarized backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.robot(OptimalControlBackend(); N=250);
+julia> robot(OptimalControlScalarizedBackend(); grid_size=100)
 ```
+
+Default parameters and the modeling status are available through `metadata(:robot)` and
+`status(:robot)`.
 """
-function OptimalControlProblems.robot_s(
-    ::OptimalControlBackend,
+function OptimalControlProblems.robot(
+    ::OptimalControlScalarizedBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:robot),
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:robot, :OptimalControlScalarized)
 
     # parameters
     params = parameters_data(:robot, parameters)

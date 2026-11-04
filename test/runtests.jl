@@ -26,18 +26,9 @@ const MAX_WALL_TIME = 500.0
 override_list_of_problems = false
 
 list_of_problems = if override_list_of_problems
-    [
-    # put here the problems to test
-    ]
+    []
 else
-    # Get all problems
-    all_problems = OptimalControlProblems.problems()
-
-    # Remove from the tests the following problems
-    problems_to_exclude = [
-    # put here problems to exclude from the tests
-    ]
-    setdiff(all_problems, problems_to_exclude)
+    OptimalControlProblems.problems()
 end
 
 # The list of all the problems to test
@@ -52,10 +43,11 @@ const VERBOSE = true # print or not details during tests
 @testset "OptimalControlProblems tests" verbose = VERBOSE showtiming = true begin
     for name in (
         #:aqua,
+        :modelings,             # per-modeling availability and status API
         :kwargs,
         :JuMP,                  # convergence tests for JuMP models
         :OptimalControl,        # convergence tests for OptimalControl models
-        :OptimalControl_s,      # convergence tests for OptimalControl models
+        :OptimalControlScalarized,      # convergence tests for OptimalControl models
         :init,                  # comparison between OptimalControl and JuMP: init
         :solution,              # comparison between OptimalControl and JuMP: solution
         :quick,                 # quick comparison: objective rel error only

@@ -1,32 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Hanging Chain problem** is a classical benchmark in optimal control.
 
-Constructs an **OptimalControl problem** representing the Hanging Chain problem.  
-The function defines state and control variables, boundary conditions, and system dynamics, with the objective of minimising the vertical displacement of the chain's midpoint.  
-It performs direct transcription to produce a discretised optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the discretised Hanging Chain problem.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `chain` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.chain(OptimalControlBackend(); N=100);
+julia> chain(OptimalControlBackend(); grid_size=100)
 ```
 
-# References
-
-- Formulation inspired by OptimalControl approach to variational problems and chain equilibrium.
-- Original problem source: [BOCOP repository](https://github.com/control-toolbox/bocop/tree/main/bocop)
+Default parameters and the modeling status are available through `metadata(:chain)` and
+`status(:chain)`.
 """
 function OptimalControlProblems.chain(
     ::OptimalControlBackend,
@@ -35,6 +17,8 @@ function OptimalControlProblems.chain(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:chain, :OptimalControl)
 
     # parameters
     params = parameters_data(:chain, parameters)

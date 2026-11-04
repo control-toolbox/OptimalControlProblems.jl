@@ -1,17 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Aircraft Balanced Field Length Calculation** is a classic aeronautical engineering problem used to determine the minimum runway length required for a safe takeoff or a safe stop in the event of an engine failure.
 
-Constructs and returns a JuMP model for the **Aircraft Balanced Field Length Calculation (Takeoff phase)**.  
-The model represents the dynamics of the aircraft during takeoff and seeks to minimise the final range.
+Builds the `balanced_field` problem with the JuMP backend.
 
-# Arguments
+```julia-repl
+julia> using OptimalControlProblems
+julia> balanced_field(JuMPBackend(); grid_size=100)
+```
 
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=200`: (Keyword) Number of discretisation steps for the time horizon.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the problem.
+Default parameters and the modeling status are available through `metadata(:balanced_field)` and
+`status(:balanced_field)`.
 """
 function OptimalControlProblems.balanced_field(
     ::JuMPBackend,
@@ -20,6 +17,8 @@ function OptimalControlProblems.balanced_field(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:balanced_field, :JuMP)
 
     # parameters
     params = parameters_data(:balanced_field, parameters)

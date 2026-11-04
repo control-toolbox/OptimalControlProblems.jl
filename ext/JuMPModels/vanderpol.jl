@@ -1,30 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Van der Pol oscillator control problem** is a benchmark in nonlinear optimal control.
 
-Constructs and returns a JuMP model for the **Van der Pol Problem**, a classic nonlinear oscillator system.  
-The model represents the dynamics of the Van der Pol oscillator with control input `u` and seeks to minimise the quadratic cost over the states and control.  
-
-# Arguments
-
-- `::JuMPBackend`: Specifies the backend for building the JuMP model.
-- `grid_size::Int=500`: (Keyword) Number of discretisation steps for the time horizon.
-
-# Returns
-
-- `model::JuMP.Model`: A JuMP model representing the Van der Pol optimal control problem.
-
-# Example
+Builds the `vanderpol` problem with the JuMP backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> using JuMP
-
-julia> model = OptimalControlProblems.vanderpol(JuMPBackend(); N=100)
+julia> vanderpol(JuMPBackend(); grid_size=100)
 ```
 
-# References
-
-- Problem formulation available at: https://github.com/control-toolbox/bocop/tree/main/bocop
+Default parameters and the modeling status are available through `metadata(:vanderpol)` and
+`status(:vanderpol)`.
 """
 function OptimalControlProblems.vanderpol(
     ::JuMPBackend,
@@ -33,6 +17,8 @@ function OptimalControlProblems.vanderpol(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:vanderpol, :JuMP)
 
     # parameters
     params = parameters_data(:vanderpol, parameters)

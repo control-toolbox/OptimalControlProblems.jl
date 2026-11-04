@@ -1,35 +1,24 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **particle steering problem** is a classical benchmark in time-optimal control.
 
-Constructs an **OptimalControl problem** for steering a particle along a trajectory.  
-The objective is to minimise the total time taken to reach a specified terminal state, subject to control limits and particle dynamics.  
-The state vector has four components, and the control is a single scalar input.  
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the particle steering problem.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `steering` problem with the OptimalControlScalarized backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.steering(OptimalControlBackend(); N=500);
+julia> steering(OptimalControlScalarizedBackend(); grid_size=100)
 ```
+
+Default parameters and the modeling status are available through `metadata(:steering)` and
+`status(:steering)`.
 """
-function OptimalControlProblems.steering_s(
-    ::OptimalControlBackend,
+function OptimalControlProblems.steering(
+    ::OptimalControlScalarizedBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:steering),
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:steering, :OptimalControlScalarized)
 
     # parameters
     params = parameters_data(:steering, parameters)

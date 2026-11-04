@@ -1,38 +1,24 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Brachistochrone problem** is a classical benchmark in the history of calculus of variations and optimal control.
 
-Constructs an **OptimalControl problem** representing the Brachistochrone problem using the OptimalControl backend.
-The function sets up the state and control variables, boundary conditions, dynamics, and the objective functional.
-It then performs direct transcription to generate a discrete optimal control problem (DOCP).
+Builds the `brachistochrone` problem with the OptimalControlScalarized backend.
 
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type to specify the OptimalControl backend or solver interface.
-- `grid_size::Int=grid_size_data(:brachistochrone)`: (Keyword) Number of discretisation points for the direct transcription grid.
-- `parameters::Union{Nothing,NamedTuple}=nothing`: (Keyword) Custom parameters to override defaults.
-
-# Returns
-
-- `docp`: The direct optimal control problem object, representing the discretised problem.
-
-# Example
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.brachistochrone(OptimalControlBackend(); N=100);
+julia> brachistochrone(OptimalControlScalarizedBackend(); grid_size=100)
 ```
 
-# References
-
-- Dymos Brachistochrone: https://openmdao.github.io/dymos/examples/brachistochrone/brachistochrone.html
+Default parameters and the modeling status are available through `metadata(:brachistochrone)` and
+`status(:brachistochrone)`.
 """
-function OptimalControlProblems.brachistochrone_s(
-    ::OptimalControlBackend,
+function OptimalControlProblems.brachistochrone(
+    ::OptimalControlScalarizedBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:brachistochrone),
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:brachistochrone, :OptimalControlScalarized)
     params = parameters_data(:brachistochrone, parameters)
     g = params[:g]
     t0 = params[:t0]

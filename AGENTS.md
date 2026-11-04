@@ -11,7 +11,7 @@ A collection of optimal control problems, each available in one or more modeling
 ```text
 src/           # Module: problem registry and model backends (AbstractModelBackend)
 ext/           # Weak-dependency extensions, one per modeling:
-               # OptimalControlModels, OptimalControlModels_s, JuMPModels,
+               # OptimalControlModels, OptimalControlScalarizedModels, JuMPModels,
                # MetaData, Descriptions
 test/          # Test suite: one file per modeling plus shared checks (aqua, init, solution)
 docs/          # Documentation site (Documenter)

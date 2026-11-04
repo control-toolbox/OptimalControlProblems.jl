@@ -1,32 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **dielectrophoretic particle problem** is a classical time-optimal control benchmark for microfluidic particle manipulation.
 
-Constructs an **OptimalControl problem** representing a dielectrophoretic particle system.  
-The function defines state and control variables, boundary conditions, and system dynamics, aiming to minimise the travel time of the particle between two points.  
-It performs direct transcription to produce a discretised optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the dielectrophoretic particle problem.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `dielectrophoretic_particle` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.dielectrophoretic_particle(OptimalControlBackend(); N=100);
+julia> dielectrophoretic_particle(OptimalControlBackend(); grid_size=100)
 ```
 
-# References
-
-- Chang, D. E., Petit, N., & Rouchon, P. (2006). Time-optimal control of a particle in a dielectrophoretic system. *IEEE Transactions on Automatic Control*, 51(7), 1100-1114. [CPR2006]
-- Formulation inspired by OptimalControl approach to time-optimal trajectory problems.
+Default parameters and the modeling status are available through `metadata(:dielectrophoretic_particle)` and
+`status(:dielectrophoretic_particle)`.
 """
 function OptimalControlProblems.dielectrophoretic_particle(
     ::OptimalControlBackend,
@@ -35,6 +17,8 @@ function OptimalControlProblems.dielectrophoretic_particle(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:dielectrophoretic_particle, :OptimalControl)
 
     # parameters
     params = parameters_data(:dielectrophoretic_particle, parameters)

@@ -1,36 +1,24 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **Space Shuttle reentry problem** is a classical benchmark in aerospace optimal control.
 
-Constructs an **OptimalControl problem** for the Space Shuttle reentry trajectory.  
-This function defines the state variables (altitude, longitude, latitude, velocity, flight path angle, azimuth), the control variables (angle of attack, bank angle), system dynamics, constraints, initial and terminal conditions, and the cost functional, which maximises the latitude (cross range) at the terminal point.  
-Reference: Original JuMP model formulation [here](https://jump.dev/JuMP.jl/stable/tutorials/nonlinear/space_shuttle_reentry_trajectory/).  
-Note: No heating limit path constraint is included.
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=500`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the Space Shuttle reentry trajectory.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `space_shuttle` problem with the OptimalControlScalarized backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.space_shuttle(OptimalControlBackend(); N=500);
+julia> space_shuttle(OptimalControlScalarizedBackend(); grid_size=100)
 ```
+
+Default parameters and the modeling status are available through `metadata(:space_shuttle)` and
+`status(:space_shuttle)`.
 """
-function OptimalControlProblems.space_shuttle_s(
-    ::OptimalControlBackend,
+function OptimalControlProblems.space_shuttle(
+    ::OptimalControlScalarizedBackend,
     description::Symbol...;
     grid_size::Int=grid_size_data(:space_shuttle),
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:space_shuttle, :OptimalControlScalarized)
 
     # Parameters
     params = parameters_data(:space_shuttle, parameters)

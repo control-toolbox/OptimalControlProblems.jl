@@ -1,32 +1,14 @@
-"""
-$(TYPEDSIGNATURES)
+"""The **ducted fan problem** is a classical nonlinear benchmark in optimal control with multiple input and state constraints.
 
-Constructs an **OptimalControl problem** for a planar ducted fan system.  
-The function defines state and control variables, system dynamics, boundary conditions, and a cost functional combining control effort and final time.  
-It returns both a discretised direct optimal control problem (DOCP) and the corresponding nonlinear programming (NLP) model.
-
-# Arguments
-
-- `::OptimalControlBackend`: Placeholder type specifying the OptimalControl backend or solver interface.
-- `grid_size::Int=250`: (Keyword) Number of discretisation points for the direct transcription grid.
-
-# Returns
-
-- `docp`: The direct optimal control problem object representing the planar ducted fan.
-- `nlp`: The corresponding nonlinear programming model obtained from the DOCP, suitable for numerical optimisation.
-
-# Example
+Builds the `ducted_fan` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-
-julia> docp = OptimalControlProblems.ducted_fan(OptimalControlBackend(); N=250);
+julia> ducted_fan(OptimalControlBackend(); grid_size=100)
 ```
 
-# References
-
-- Graichen, K., & Petit, N. (2009). Incorporating a class of constraints into the dynamics of optimal control problems. *Optimal Control Applications and Methods*, 30(6), 537-561. [GP2009]
-- Problem instance follows OptimalControl formulation for ducted fan trajectory optimisation.
+Default parameters and the modeling status are available through `metadata(:ducted_fan)` and
+`status(:ducted_fan)`.
 """
 function OptimalControlProblems.ducted_fan(
     ::OptimalControlBackend,
@@ -35,6 +17,8 @@ function OptimalControlProblems.ducted_fan(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
+
+    OptimalControlProblems._warn_if_draft(:ducted_fan, :OptimalControl)
 
     # parameters
     params = parameters_data(:ducted_fan, parameters)

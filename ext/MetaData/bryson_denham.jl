@@ -9,4 +9,6 @@ bryson_denham_meta = OrderedDict(
         x2_tf=-1.0,      # Final velocity
         x1_max=1 / 9,        # State constraint: x1(t) <= x1_max
     ),
+    :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
+
 )
