@@ -7,8 +7,8 @@ julia> using OptimalControlProblems
 julia> beam(JuMPBackend(); grid_size=100)
 ```
 
-Default parameters and the modeling status are available through `metadata(:beam)` and
-`OptimalControlProblems.status(:beam)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:beam)` and `OptimalControlProblems.status(:beam)`.
 """
 function OptimalControlProblems.beam(
     ::JuMPBackend,

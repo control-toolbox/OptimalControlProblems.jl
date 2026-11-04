@@ -7,8 +7,8 @@ julia> using OptimalControlProblems
 julia> glider(JuMPBackend(); grid_size=100)
 ```
 
-Default parameters and the modeling status are available through `metadata(:glider)` and
-`OptimalControlProblems.status(:glider)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:glider)` and `OptimalControlProblems.status(:glider)`.
 """
 function OptimalControlProblems.glider(
     ::JuMPBackend,

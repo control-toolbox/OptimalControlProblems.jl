@@ -7,8 +7,8 @@ julia> using OptimalControlProblems
 julia> robot(JuMPBackend(); grid_size=100)
 ```
 
-Default parameters and the modeling status are available through `metadata(:robot)` and
-`OptimalControlProblems.status(:robot)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:robot)` and `OptimalControlProblems.status(:robot)`.
 """
 function OptimalControlProblems.robot(
     ::JuMPBackend,

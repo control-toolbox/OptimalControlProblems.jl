@@ -7,8 +7,8 @@ julia> using OptimalControlProblems
 julia> electric_vehicle(JuMPBackend(); grid_size=100)
 ```
 
-Default parameters and the modeling status are available through `metadata(:electric_vehicle)` and
-`OptimalControlProblems.status(:electric_vehicle)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:electric_vehicle)` and `OptimalControlProblems.status(:electric_vehicle)`.
 """
 function OptimalControlProblems.electric_vehicle(
     ::JuMPBackend,

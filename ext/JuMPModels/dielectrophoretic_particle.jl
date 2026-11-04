@@ -7,8 +7,8 @@ julia> using OptimalControlProblems
 julia> dielectrophoretic_particle(JuMPBackend(); grid_size=100)
 ```
 
-Default parameters and the modeling status are available through `metadata(:dielectrophoretic_particle)` and
-`OptimalControlProblems.status(:dielectrophoretic_particle)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:dielectrophoretic_particle)` and `OptimalControlProblems.status(:dielectrophoretic_particle)`.
 """
 function OptimalControlProblems.dielectrophoretic_particle(
     ::JuMPBackend,
