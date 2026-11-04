@@ -17,7 +17,6 @@ function OptimalControlProblems.robbins(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:robbins, :OptimalControl)
 
     # parameters

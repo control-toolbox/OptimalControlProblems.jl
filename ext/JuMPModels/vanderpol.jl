@@ -17,7 +17,6 @@ function OptimalControlProblems.vanderpol(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:vanderpol, :JuMP)
 
     # parameters

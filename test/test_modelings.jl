@@ -9,12 +9,11 @@ function test_modelings()
         @test :moonlander in problems(; status=:all)
         @test :moonlander ∉ problems(OptimalControlScalarizedBackend(); status=:all)
         @test problems(JuMPBackend(), OptimalControlBackend()) ==
-              intersect(problems(JuMPBackend()), problems(OptimalControlBackend()))
+            intersect(problems(JuMPBackend()), problems(OptimalControlBackend()))
         @test problems(OptimalControlBackend(), OptimalControlScalarizedBackend()) ==
-              intersect(
-                  problems(OptimalControlBackend()),
-                  problems(OptimalControlScalarizedBackend()),
-              )
+            intersect(
+            problems(OptimalControlBackend()), problems(OptimalControlScalarizedBackend())
+        )
     end
 
     @testset "missing modeling" begin
@@ -25,7 +24,9 @@ function test_modelings()
             exception
         end
         @test error isa CTBase.IncorrectArgument
-        @test occursin("problems(OptimalControlScalarizedBackend())", sprint(showerror, error))
+        @test occursin(
+            "problems(OptimalControlScalarizedBackend())", sprint(showerror, error)
+        )
     end
 
     @testset "draft warning" begin
@@ -33,7 +34,7 @@ function test_modelings()
         original_status = data[:status]
         data[:status] = merge(original_status, (JuMP=:draft,))
         try
-            @test_logs (:warn, r"beam is a draft for JuMP") match_mode=:any begin
+            @test_logs (:warn, r"beam is a draft for JuMP") match_mode = :any begin
                 beam(JuMPBackend(); grid_size=2)
             end
         finally

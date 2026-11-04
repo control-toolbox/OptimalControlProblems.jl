@@ -4,7 +4,9 @@ function test_kwargs()
     solver_backend = :madnlp
     optimiser = Ipopt.Optimizer
 
-    for f in OptimalControlProblems.problems(JuMPBackend(), OptimalControlBackend(), OptimalControlScalarizedBackend())
+    for f in OptimalControlProblems.problems(
+        JuMPBackend(), OptimalControlBackend(), OptimalControlScalarizedBackend()
+    )
         @testset "$(string(f)) (kwargs)" verbose = VERBOSE begin
             DEBUG && println("─ ", string(f), " (kwargs)")
 

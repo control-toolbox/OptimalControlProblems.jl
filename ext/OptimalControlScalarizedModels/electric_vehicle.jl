@@ -17,7 +17,6 @@ function OptimalControlProblems.electric_vehicle(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:electric_vehicle, :OptimalControlScalarized)
 
     # parameters

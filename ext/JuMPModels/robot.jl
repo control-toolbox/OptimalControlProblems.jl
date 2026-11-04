@@ -17,7 +17,6 @@ function OptimalControlProblems.robot(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:robot, :JuMP)
 
     # parameters

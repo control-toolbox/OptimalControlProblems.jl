@@ -17,7 +17,6 @@ function OptimalControlProblems.bioreactor(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:bioreactor, :JuMP)
 
     # parameters

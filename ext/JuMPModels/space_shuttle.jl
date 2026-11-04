@@ -17,7 +17,6 @@ function OptimalControlProblems.space_shuttle(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:space_shuttle, :JuMP)
 
     # Parameters

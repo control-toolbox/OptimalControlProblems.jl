@@ -17,7 +17,6 @@ function OptimalControlProblems.rocket(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:rocket, :OptimalControl)
 
     # parameters

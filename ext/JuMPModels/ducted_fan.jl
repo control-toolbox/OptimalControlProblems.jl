@@ -17,7 +17,6 @@ function OptimalControlProblems.ducted_fan(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:ducted_fan, :JuMP)
 
     # parameters

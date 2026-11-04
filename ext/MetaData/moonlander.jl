@@ -23,5 +23,4 @@ moonlander_meta = OrderedDict(
         dp₂_tf=0,
     ),
     :status => (OptimalControl=:valid, JuMP=:valid),
-
 )

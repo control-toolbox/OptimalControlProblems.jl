@@ -28,7 +28,9 @@ function test_quick()
 
     max_r_err = -Inf # relative error max
 
-    for f in OptimalControlProblems.problems(JuMPBackend(), OptimalControlBackend(), OptimalControlScalarizedBackend())
+    for f in OptimalControlProblems.problems(
+        JuMPBackend(), OptimalControlBackend(), OptimalControlScalarizedBackend()
+    )
         grid_size = metadata(f)[:grid_size]
 
         @testset "$(string(f)) (objective)" verbose = VERBOSE begin

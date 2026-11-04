@@ -17,7 +17,6 @@ function OptimalControlProblems.chain(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:chain, :JuMP)
 
     # parameters

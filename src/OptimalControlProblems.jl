@@ -39,8 +39,18 @@ struct OptimalControlScalarizedBackend <: AbstractModelBackend end
 
 # Keep the modeling table as the single place to add a backend.
 const MODELING_SPECS = (
-    (name=:OptimalControl, backend=OptimalControlBackend, directory="OptimalControlModels", weakdep=:OptimalControl),
-    (name=:OptimalControlScalarized, backend=OptimalControlScalarizedBackend, directory="OptimalControlScalarizedModels", weakdep=:OptimalControl),
+    (
+        name=:OptimalControl,
+        backend=OptimalControlBackend,
+        directory="OptimalControlModels",
+        weakdep=:OptimalControl,
+    ),
+    (
+        name=:OptimalControlScalarized,
+        backend=OptimalControlScalarizedBackend,
+        directory="OptimalControlScalarizedModels",
+        weakdep=:OptimalControl,
+    ),
     (name=:JuMP, backend=JuMPBackend, directory="JuMPModels", weakdep=:JuMP),
 )
 
@@ -49,7 +59,7 @@ const WEAKDEPS = Dict(spec.backend => spec.weakdep for spec in MODELING_SPECS)
 
 function _modeling_spec(::T) where {T<:AbstractModelBackend}
     return get(MODELING_BY_TYPE, T) do
-        throw(CTBase.IncorrectArgument("Unknown modeling backend $(T)"))
+        return throw(CTBase.IncorrectArgument("Unknown modeling backend $(T)"))
     end
 end
 
@@ -82,7 +92,7 @@ end
 
 function _validate_status(status::Symbol)
     status in (:valid, :draft, :all) || throw(
-        CTBase.IncorrectArgument("status must be :valid, :draft, or :all; got $status"),
+        CTBase.IncorrectArgument("status must be :valid, :draft, or :all; got $status")
     )
     return status
 end
@@ -92,10 +102,11 @@ function _select_problems(modelings, status::Symbol; require_all::Bool=true)
     selected = Symbol[]
     for problem in PROBLEM_NAMES
         statuses = METADATA_STORAGE[problem][:status]
-        predicate = spec -> begin
-            _problem_exists(problem, spec) &&
-            (status === :all || get(statuses, spec.name, nothing) === status)
-        end
+        predicate =
+            spec -> begin
+                _problem_exists(problem, spec) &&
+                    (status === :all || get(statuses, spec.name, nothing) === status)
+            end
         matches = (require_all ? all : any)(predicate, modelings)
         if matches
             push!(selected, problem)
@@ -132,16 +143,15 @@ for problem in PROBLEM_NAMES
     raw = eval(Symbol(problem, :_meta))
     statuses = get(raw, :status, NamedTuple())
     METADATA_STORAGE[problem] = OrderedDict{Symbol,Any}(
-        :grid_size => raw[:grid_size],
-        :parameters => raw[:parameters],
-        :status => statuses,
+        :grid_size => raw[:grid_size], :parameters => raw[:parameters], :status => statuses
     )
     if haskey(raw, :notes)
         METADATA_STORAGE[problem][:notes] = raw[:notes]
     end
     for (data, T) in zip(METADATA_INFOS, METADATA_TYPES)
         value = METADATA_STORAGE[problem][data]
-        value isa T || error("Type mismatch: Expected $(T) for $(data), but got $(typeof(value))")
+        value isa T ||
+            error("Type mismatch: Expected $(T) for $(data), but got $(typeof(value))")
     end
 end
 
@@ -156,10 +166,18 @@ Available modelings and statuses are listed by `status(:$problem)`."""
         ) where {T<:AbstractModelBackend}
             spec = _modeling_spec(model_backend)
             if !_problem_exists($(QuoteNode(problem)), spec)
-                throw(CTBase.IncorrectArgument(
-                    string($(QuoteNode(problem)), " is not available for ", spec.name,
-                        "Backend; see problems(", spec.name, "Backend())"),
-                ))
+                throw(
+                    CTBase.IncorrectArgument(
+                        string(
+                            $(QuoteNode(problem)),
+                            " is not available for ",
+                            spec.name,
+                            "Backend; see problems(",
+                            spec.name,
+                            "Backend())",
+                        ),
+                    ),
+                )
             end
             _warn_if_draft($(QuoteNode(problem)), spec.name)
             throw(CTBase.ExtensionError(WEAKDEPS[T]))
@@ -250,9 +268,7 @@ function problems(backend::AbstractModelBackend; status::Symbol=:valid)::Vector{
 end
 
 function problems(
-    first::AbstractModelBackend,
-    rest::AbstractModelBackend...;
-    status::Symbol=:valid,
+    first::AbstractModelBackend, rest::AbstractModelBackend...; status::Symbol=:valid
 )::Vector{Symbol}
     modelings = (_modeling_spec(first), (_modeling_spec(backend) for backend in rest)...)
     return _select_problems(modelings, status)
@@ -264,9 +280,8 @@ $(TYPEDSIGNATURES)
 Return the status of `problem` in each modeling where it exists.
 """
 function status(problem::Symbol)
-    haskey(METADATA_STORAGE, problem) || throw(
-        CTBase.IncorrectArgument("There is no problem named $problem in metadata"),
-    )
+    haskey(METADATA_STORAGE, problem) ||
+        throw(CTBase.IncorrectArgument("There is no problem named $problem in metadata"))
     return METADATA_STORAGE[problem][:status]
 end
 

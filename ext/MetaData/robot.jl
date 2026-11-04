@@ -33,5 +33,4 @@ robot_meta = OrderedDict(
         tf_l=0.1,
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
-
 )

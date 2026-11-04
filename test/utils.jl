@@ -303,7 +303,9 @@ function comparison(; max_iter, test_name)
     end
 
     # we loop over the problems
-    for f in OptimalControlProblems.problems(JuMPBackend(), OptimalControlBackend(), OptimalControlScalarizedBackend())
+    for f in OptimalControlProblems.problems(
+        JuMPBackend(), OptimalControlBackend(), OptimalControlScalarizedBackend()
+    )
         grid_size = metadata(f)[:grid_size] # get default number of steps
 
         @testset "$(string(f)) ($(string(test_name)))" verbose = VERBOSE begin
@@ -366,7 +368,10 @@ function comparison(; max_iter, test_name)
                 ########## OptimalControlScalarized ##########
                 model_backend = :exa # :adnlp
                 docp = OptimalControlProblems.eval(f)(
-                    OptimalControlScalarizedBackend(), :madnlp, model_backend; grid_size=grid_size
+                    OptimalControlScalarizedBackend(),
+                    :madnlp,
+                    model_backend;
+                    grid_size=grid_size,
                 )
                 nlp_os = nlp_model(docp)
                 ocp_os = ocp_model(docp)

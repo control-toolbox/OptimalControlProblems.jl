@@ -28,5 +28,4 @@ ducted_fan_meta = OrderedDict(
         vα_tf=0,
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
-
 )

@@ -17,7 +17,6 @@ function OptimalControlProblems.insurance(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:insurance, :JuMP)
 
     # parameters

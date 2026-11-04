@@ -17,7 +17,6 @@ function OptimalControlProblems.double_oscillator(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:double_oscillator, :OptimalControl)
 
     # parameters

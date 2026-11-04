@@ -17,7 +17,6 @@ function OptimalControlProblems.balanced_field(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:balanced_field, :OptimalControl)
 
     # parameters

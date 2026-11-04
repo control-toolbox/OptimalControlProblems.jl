@@ -18,7 +18,6 @@ function OptimalControlProblems.bryson_denham(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:bryson_denham, :OptimalControl)
     params = parameters_data(:bryson_denham, parameters)
     t0, tf = params[:t0], params[:tf]

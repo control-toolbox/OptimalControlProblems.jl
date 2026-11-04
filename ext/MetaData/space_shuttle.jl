@@ -50,5 +50,4 @@ space_shuttle_meta = OrderedDict(
         β_u=deg2rad(1),
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
-
 )

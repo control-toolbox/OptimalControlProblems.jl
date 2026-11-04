@@ -17,7 +17,6 @@ function OptimalControlProblems.glider(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:glider, :JuMP)
 
     # parameters

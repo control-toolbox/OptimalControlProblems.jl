@@ -17,7 +17,6 @@ function OptimalControlProblems.cart_pendulum(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:cart_pendulum, :JuMP)
 
     # parameters

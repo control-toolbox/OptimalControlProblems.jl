@@ -17,7 +17,6 @@ function OptimalControlProblems.moonlander(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:moonlander, :JuMP)
 
     # parameters

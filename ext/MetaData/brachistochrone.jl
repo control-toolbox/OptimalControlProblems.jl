@@ -12,5 +12,4 @@ brachistochrone_meta = OrderedDict(
         u_max=pi,
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
-
 )

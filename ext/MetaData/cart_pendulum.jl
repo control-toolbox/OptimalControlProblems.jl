@@ -20,5 +20,4 @@ cart_pendulum_meta = OrderedDict(
         ω_tf=0,
     ),
     :status => (OptimalControl=:valid, JuMP=:valid),
-
 )

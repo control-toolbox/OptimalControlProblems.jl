@@ -17,7 +17,6 @@ function OptimalControlProblems.mountain_car(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:mountain_car, :OptimalControl)
 
     # parameters

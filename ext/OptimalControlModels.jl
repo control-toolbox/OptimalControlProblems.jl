@@ -14,7 +14,8 @@ end
 
 # Scalarized OptimalControl problems use a distinct backend and directory.
 rel_path_problems = "OptimalControlScalarizedModels"
-for problem in OptimalControlProblems.problems(OptimalControlScalarizedBackend(); status=:all)
+for problem in
+    OptimalControlProblems.problems(OptimalControlScalarizedBackend(); status=:all)
     include(joinpath(rel_path_problems, "$(problem).jl"))
 end
 

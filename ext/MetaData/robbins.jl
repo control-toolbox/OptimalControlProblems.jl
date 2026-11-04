@@ -15,5 +15,4 @@ robbins_meta = OrderedDict(
         x₃_tf=0,
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
-
 )

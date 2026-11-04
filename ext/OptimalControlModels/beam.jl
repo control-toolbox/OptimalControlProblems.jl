@@ -17,7 +17,6 @@ function OptimalControlProblems.beam(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:beam, :OptimalControl)
 
     # parameters

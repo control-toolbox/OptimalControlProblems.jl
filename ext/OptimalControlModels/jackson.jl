@@ -17,7 +17,6 @@ function OptimalControlProblems.jackson(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:jackson, :OptimalControl)
 
     # parameters

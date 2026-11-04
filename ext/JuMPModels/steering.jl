@@ -17,7 +17,6 @@ function OptimalControlProblems.steering(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:steering, :JuMP)
 
     # parameters

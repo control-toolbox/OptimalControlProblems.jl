@@ -17,8 +17,9 @@ function OptimalControlProblems.dielectrophoretic_particle(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
-    OptimalControlProblems._warn_if_draft(:dielectrophoretic_particle, :OptimalControlScalarized)
+    OptimalControlProblems._warn_if_draft(
+        :dielectrophoretic_particle, :OptimalControlScalarized
+    )
 
     # parameters
     params = parameters_data(:dielectrophoretic_particle, parameters)

@@ -17,7 +17,6 @@ function OptimalControlProblems.brachistochrone(
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
-
     OptimalControlProblems._warn_if_draft(:brachistochrone, :JuMP)
 
     # parameters
