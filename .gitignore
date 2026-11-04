@@ -33,3 +33,11 @@ Manifest.toml
 
 # generated doc for the problems
 docs/src/problems
+# ct-conventions, cloned at the tag pinned in AGENTS.md
+.ct-conventions/
+
+# ct-agents, cloned at the tag pinned in AGENTS.md
+.ct-agents/
+
+# agent reports
+.reports/
