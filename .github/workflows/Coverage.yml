@@ -1,5 +1,5 @@
 # [.github/workflows/coverage.yml]
-name: coverage
+name: Coverage
 on:
   push:
     branches:
@@ -9,7 +9,7 @@ jobs:
   call:
     uses: control-toolbox/CTActions/.github/workflows/coverage.yml@main
     with:
-      use_ct_registry: false
+      use_ct_registry: true
     secrets:
       codecov-secret: ${{ secrets.CODECOV_TOKEN }}
       SSH_KEY: ${{ secrets.SSH_KEY }}
