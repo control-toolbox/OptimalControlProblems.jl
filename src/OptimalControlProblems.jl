@@ -92,16 +92,11 @@ function _select_problems(modelings, status::Symbol)
     selected = Symbol[]
     for problem in PROBLEM_NAMES
         statuses = METADATA_STORAGE[problem][:status]
-        present = false
-        matches = false
-        for spec in modelings
-            if _problem_exists(problem, spec)
-                present = true
-                value = get(statuses, spec.name, nothing)
-                matches |= status === :all || value === status
-            end
+        matches = all(modelings) do spec
+            _problem_exists(problem, spec) &&
+            (status === :all || get(statuses, spec.name, nothing) === status)
         end
-        if present && matches
+        if matches
             push!(selected, problem)
         end
     end

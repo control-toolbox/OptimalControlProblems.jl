@@ -8,6 +8,11 @@ function test_modelings()
         @test :moonlander ∉ problems(OptimalControlScalarizedBackend(); status=:all)
         @test problems(JuMPBackend(), OptimalControlBackend()) ==
               intersect(problems(JuMPBackend()), problems(OptimalControlBackend()))
+        @test problems(OptimalControlBackend(), OptimalControlScalarizedBackend()) ==
+              intersect(
+                  problems(OptimalControlBackend()),
+                  problems(OptimalControlScalarizedBackend()),
+              )
     end
 
     @testset "missing modeling" begin
