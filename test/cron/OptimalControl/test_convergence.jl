@@ -1,38 +1,31 @@
+isdefined(Main, :SolveIpopt) || include(joinpath(@__DIR__, "..", "..", "common", "solve_ipopt.jl"))
+
 module TestConvergenceOptimalControl
 
 using Test: Test
 using CTDirect: CTDirect
-using NLPModelsIpopt: NLPModelsIpopt
 using OptimalControl: OptimalControl # loads the OptimalControlModels extension
 using OptimalControlProblems: OptimalControlProblems
 
 const VERBOSE = isdefined(Main, :TestOptions) ? Main.TestOptions.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING : true
 
-# Default grid of each problem, two solves in a row, as the former test_OptimalControl.
+# Solver modules of test/common/, by the `solver` field of a configuration.
+solver_module(config) = getfield(Main, Dict(:ipopt => :SolveIpopt, :madnlp => :SolveMadNLP)[config.solver])
 
 function test_convergence()
-    options = Main.TestSolverOptions
-    ipopt_options = Dict(
-        :print_level => 0,
-        :tol => options.TOL,
-        :mu_strategy => options.MU_STRATEGY,
-        :sb => options.SB,
-        :max_iter => options.MAX_ITER,
-        :max_wall_time => options.MAX_WALL_TIME,
-    )
     Test.@testset "OptimalControl convergence (default grid)" verbose = VERBOSE showtiming = SHOWTIMING begin
-        for problem in OptimalControlProblems.problems(OptimalControlProblems.OptimalControlBackend())
-            Test.@testset "$problem" begin
-                try
+        for config in Main.TestConfigs.CONFIGS.OptimalControl
+            Test.@testset "$(Main.TestConfigs.label(config))" begin
+                solver = solver_module(config)
+                test = "test_convergence $(Main.TestConfigs.label(config))"
+                Main.TestStatus.for_each_problem(test, OptimalControlProblems.OptimalControlBackend()) do problem
                     build = getfield(OptimalControlProblems, problem)
-                    docp = build(OptimalControlProblems.OptimalControlBackend())
+                    docp = build(OptimalControlProblems.OptimalControlBackend(), config.description...)
                     nlp = CTDirect.nlp_model(docp)
-                    sol = NLPModelsIpopt.ipopt(nlp; ipopt_options...)
-                    sol = NLPModelsIpopt.ipopt(nlp; ipopt_options...) # second solve
-                    Main.TestHelpers.@broken_if_false sol.status in (:first_order, :acceptable)
-                catch err
-                    Main.TestHelpers.broken_if_domain_error(err)
+                    stats = solver.solve(nlp)
+                    stats = solver.solve(nlp) # second solve
+                    Test.@test solver.succeeded(stats)
                 end
             end
         end

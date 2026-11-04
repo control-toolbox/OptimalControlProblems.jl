@@ -1,44 +1,30 @@
+isdefined(Main, :SolveMadNLP) || include(joinpath(@__DIR__, "..", "..", "common", "solve_madnlp.jl"))
+
 module TestSolveOptimalControlScalarized
 
 using Test: Test
 using CTDirect: CTDirect
-using MadNLP: MadNLP
-using MadNLPMumps: MadNLPMumps
 using OptimalControl: OptimalControl # loads the OptimalControlModels extension
 using OptimalControlProblems: OptimalControlProblems
 
 const VERBOSE = isdefined(Main, :TestOptions) ? Main.TestOptions.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING : true
 
-# Small grid: the full convergence study on the default grid is in cron/.
-const GRID_SIZE = 20
+# Solver modules of test/common/, by the `solver` field of a configuration.
+solver_module(config) = getfield(Main, Dict(:ipopt => :SolveIpopt, :madnlp => :SolveMadNLP)[config.solver])
 
 function test_solve()
-    options = Main.TestSolverOptions
-    madnlp_options = Dict(
-        :print_level => MadNLP.ERROR,
-        :tol => options.TOL,
-        :max_iter => options.MAX_ITER,
-        :max_wall_time => options.MAX_WALL_TIME,
-        :linear_solver => MadNLPMumps.MumpsSolver,
-    )
     Test.@testset "OptimalControlScalarized solve (small grid)" verbose = VERBOSE showtiming = SHOWTIMING begin
-        for problem in OptimalControlProblems.problems(OptimalControlProblems.OptimalControlScalarizedBackend())
-            Test.@testset "$problem" begin
-                try
-                    # transitional: the scalarized variants are the `_s` functions until #303
+        for config in Main.TestConfigs.CONFIGS.OptimalControlScalarized
+            Test.@testset "$(Main.TestConfigs.label(config))" begin
+                solver = solver_module(config)
+                test = "test_solve $(Main.TestConfigs.label(config))"
+                Main.TestStatus.for_each_problem(test, OptimalControlProblems.OptimalControlScalarizedBackend()) do problem
                     build = getfield(OptimalControlProblems, problem)
-                    docp = build(
-                        OptimalControlProblems.OptimalControlScalarizedBackend(),
-                        :madnlp,
-                        :exa;
-                        grid_size=GRID_SIZE,
-                    )
+                    docp = build(OptimalControlProblems.OptimalControlScalarizedBackend(), config.description...; grid_size=Main.TestConfigs.SMALL_GRID)
                     nlp = CTDirect.nlp_model(docp)
-                    sol = MadNLP.madnlp(nlp; madnlp_options...)
-                    Main.TestHelpers.@broken_if_false sol.status == MadNLP.SOLVE_SUCCEEDED
-                catch err
-                    Main.TestHelpers.broken_if_domain_error(err)
+                    stats = solver.solve(nlp)
+                    Test.@test solver.succeeded(stats)
                 end
             end
         end

@@ -17,11 +17,14 @@
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["JuMP"])'   # core + one environment
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["cron"])'   # slow tests (cron/ dirs)
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["JuMP", "cron", "*beam*"])'
+#   julia --project -e 'using Pkg; Pkg.test(; test_args=["JuMP", "problem=beam,robot"])'
 #
 # `test_args` is a list of: environment names (none given: every environment except the
 # opt-in ones below), the word `cron` (run `cron/<group>/test_*.jl` instead of
 # `suite/<group>/test_*.jl`), and file patterns (`*` and `?` allowed, with or without
-# `test_` and `.jl`).
+# `test_` and `.jl`);
+# - `problem=a,b`: test only these problems (a name not in the catalogue is an error), for
+#   instance the one you add; `core` and the environments are unchanged otherwise.
 #
 # Test files follow TST1: a module and an entry function `test_<name>()`.
 # ==============================================================================
@@ -29,8 +32,8 @@
 using Test: Test
 
 include(joinpath(@__DIR__, "common", "options.jl"))
-include(joinpath(@__DIR__, "common", "solver_options.jl"))
-include(joinpath(@__DIR__, "common", "helpers.jl"))
+include(joinpath(@__DIR__, "common", "configs.jl"))
+include(joinpath(@__DIR__, "common", "status.jl"))
 include(joinpath(@__DIR__, "common", "runner.jl"))
 
 const ROOT = dirname(@__DIR__)
@@ -67,7 +70,8 @@ function run_environment(name::AbstractString; cron::Bool, patterns::Vector{Stri
         setup = "using Pkg: Pkg; Pkg.develop(path=ARGS[1]); Pkg.instantiate()"
         run(`$julia --project=$project -e $setup $ROOT`)
         script = joinpath(@__DIR__, "common", "run_environment.jl")
-        run(`$julia --project=$project $script $tests $name $patterns`)
+        problem_args = isempty(problem_names) ? String[] : ["problem=" * join(problem_names, ",")]
+        run(`$julia --project=$project $script $tests $name $problem_args $patterns`)
         return true
     catch err
         @error "Environment $name failed" exception = err
@@ -79,18 +83,27 @@ end
 
 args = String.(ARGS)
 cron = "cron" in args
+problem_names, args = LocalTestRunner.split_problems(args)
+TestStatus.select_problems!(problem_names)
 rest = filter(!=("cron"), args)
 available = environments()
 selected, patterns = LocalTestRunner.select_environments(rest, available, OPT_IN; core=CORE)
+# In cron mode, an environment without `cron/<name>/` has nothing to run: skip it (its
+# environment is instantiated for nothing otherwise).
+cron && filter!(name -> isdir(joinpath(CRON, name)), selected)
 
 Test.@testset "OptimalControlProblems tests" verbose = Main.TestOptions.VERBOSE showtiming =
     Main.TestOptions.SHOWTIMING begin
     println("Environments: ", join([CORE; selected], ", "), cron ? " (cron)" : "")
 
     # `core` has no cron tests: in cron mode its directory does not exist and nothing runs.
-    LocalTestRunner.run_dir(
-        joinpath(cron ? CRON : SUITE, CORE); patterns=patterns, name=CORE
-    )
+    try
+        LocalTestRunner.run_dir(
+            joinpath(cron ? CRON : SUITE, CORE); patterns=patterns, name=CORE
+        )
+    finally
+        TestStatus.write_report(CORE)
+    end
 
     for name in selected
         Test.@testset "environment $name" begin

@@ -6,7 +6,7 @@ on:
       - main
     tags: '*'
   pull_request:
-    types: [labeled, synchronize, reopened]
+    types: [labeled, unlabeled, synchronize, reopened]
 
 jobs:
   # Turn the `test <environment> backend` / `test comparison` labels of a pull request into
@@ -25,12 +25,17 @@ jobs:
           echo "test_args=$args" >> "$GITHUB_OUTPUT"
           echo "test_args: '$args'"
 
+  # On a pull request, run when the runner label is set: on a push, on the runner label
+  # being added, or on a scope label (`test ...`) being added or removed, which changes what
+  # runs. Other label events do not rerun the CI.
   call:
     needs: scope
     if: >
       github.event_name != 'pull_request' ||
-      (github.event.action == 'labeled' && github.event.label.name == 'run ci github-runner') ||
-      (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'run ci github-runner'))
+      (contains(github.event.pull_request.labels.*.name, 'run ci github-runner') &&
+        ((github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
+          github.event.label.name == 'run ci github-runner' ||
+          startsWith(github.event.label.name, 'test ')))
     uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
     with:
       versions: '["1.10", "1.13"]'

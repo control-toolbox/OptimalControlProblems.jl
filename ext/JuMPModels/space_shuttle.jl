@@ -41,10 +41,8 @@ function OptimalControlProblems.space_shuttle(
     b₂ = params[:b₂]
 
     # 
-    Δt_min = params[:Δt_min]
-    Δt_max = params[:Δt_max]
-    tf_l = grid_size * Δt_min
-    tf_u = grid_size * Δt_max
+    tf_l = params[:tf_l]
+    tf_u = params[:tf_u]
 
     ## Initial conditions
     h_t0 = params[:h_t0]
