@@ -8,13 +8,11 @@
 # equivalence of #284; convergence is tested per modeling.
 # Numbers only: no plot. The visual comparison is left to the cron report (#310).
 isdefined(Main, :SolveJuMP) || include(joinpath(@__DIR__, "solve_jump.jl"))
-isdefined(Main, :SolveIpopt) || include(joinpath(@__DIR__, "solve_ipopt.jl"))
-isdefined(Main, :SolveMadNLP) || include(joinpath(@__DIR__, "solve_madnlp.jl"))
+isdefined(Main, :SolveOptimalControl) || include(joinpath(@__DIR__, "solve_optimalcontrol.jl"))
 
 module Comparison
 
 using Test: Test
-using CTDirect: CTDirect
 using JuMP: JuMP
 using OptimalControl: OptimalControl # loads the OptimalControlModels extension
 using OptimalControlProblems: OptimalControlProblems
@@ -97,16 +95,16 @@ function solve(::OCP.JuMPBackend, problem::Symbol; grid_size::Int, max_iter::Int
     )
 end
 
-const SOLVER_MODULES = Dict(:ipopt => :SolveIpopt, :madnlp => :SolveMadNLP)
-
-"""Solve `problem` with an OptimalControl modeling (first configuration of the modeling)."""
+"""
+Solve `problem` with an OptimalControl modeling (first configuration of the modeling); the
+size of the NLP is read from `discretize` + `nlp_model`, built as `solve` builds it.
+"""
 function solve(backend::OCP.AbstractModelBackend, problem::Symbol; grid_size::Int, max_iter::Int)
     config = first(getfield(Main.TestConfigs.CONFIGS, Main.TestStatus.modeling(backend)))
-    docp = getfield(OCP, problem)(backend, config.description...; grid_size=grid_size)
-    nlp = CTDirect.nlp_model(docp)
-    stats = getfield(Main, SOLVER_MODULES[config.solver]).solve(nlp; max_iter=max_iter)
-    sol = CTDirect.build_OCP_solution(docp, stats)
-    return from_solution(sol, CTDirect.ocp_model(docp), nlp)
+    pb = getfield(OCP, problem)(backend)
+    S = Main.SolveOptimalControl
+    sol = S.solve(pb, config; grid_size=grid_size, max_iter=max_iter)
+    return from_solution(sol, OCP.model(pb), S.nlp(pb, config; grid_size=grid_size))
 end
 
 """
