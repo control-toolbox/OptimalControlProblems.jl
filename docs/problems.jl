@@ -426,7 +426,8 @@ end
 function generate_documentation_problems(;
     draft::Union{Bool,Nothing}=nothing, exclude_from_draft::Vector{Symbol}=Symbol[]
 )
-    problems_list = problems()
+    # the pages show both the OptimalControl and the JuMP models; drafts are documented too
+    problems_list = problems(OptimalControlBackend(), JuMPBackend(); status=:all)
     problems_pages = map(p -> joinpath("problems", string(p) * ".md"), problems_list)
 
     # reset problems directory

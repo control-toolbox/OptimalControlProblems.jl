@@ -8,7 +8,7 @@ julia> bryson_denham(OptimalControlBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:bryson_denham)` and
-`status(:bryson_denham)`.
+`OptimalControlProblems.status(:bryson_denham)`.
 """
 
 function OptimalControlProblems.bryson_denham(

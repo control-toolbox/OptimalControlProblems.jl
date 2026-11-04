@@ -8,7 +8,7 @@ julia> chain(OptimalControlBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:chain)` and
-`status(:chain)`.
+`OptimalControlProblems.status(:chain)`.
 """
 function OptimalControlProblems.chain(
     ::OptimalControlBackend,

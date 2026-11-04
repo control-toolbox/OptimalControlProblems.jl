@@ -8,7 +8,7 @@ julia> brachistochrone(OptimalControlScalarizedBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:brachistochrone)` and
-`status(:brachistochrone)`.
+`OptimalControlProblems.status(:brachistochrone)`.
 """
 function OptimalControlProblems.brachistochrone(
     ::OptimalControlScalarizedBackend,

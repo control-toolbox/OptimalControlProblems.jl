@@ -8,7 +8,7 @@ julia> insurance(OptimalControlBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:insurance)` and
-`status(:insurance)`.
+`OptimalControlProblems.status(:insurance)`.
 """
 function OptimalControlProblems.insurance(
     ::OptimalControlBackend,

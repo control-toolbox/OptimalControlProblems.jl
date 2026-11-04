@@ -8,7 +8,7 @@ julia> double_oscillator(OptimalControlScalarizedBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:double_oscillator)` and
-`status(:double_oscillator)`.
+`OptimalControlProblems.status(:double_oscillator)`.
 """
 function OptimalControlProblems.double_oscillator(
     ::OptimalControlScalarizedBackend,

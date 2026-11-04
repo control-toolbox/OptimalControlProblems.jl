@@ -8,7 +8,7 @@ julia> vanderpol(OptimalControlScalarizedBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:vanderpol)` and
-`status(:vanderpol)`.
+`OptimalControlProblems.status(:vanderpol)`.
 """
 function OptimalControlProblems.vanderpol(
     ::OptimalControlScalarizedBackend,

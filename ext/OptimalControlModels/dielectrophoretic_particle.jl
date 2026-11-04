@@ -8,7 +8,7 @@ julia> dielectrophoretic_particle(OptimalControlBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:dielectrophoretic_particle)` and
-`status(:dielectrophoretic_particle)`.
+`OptimalControlProblems.status(:dielectrophoretic_particle)`.
 """
 function OptimalControlProblems.dielectrophoretic_particle(
     ::OptimalControlBackend,

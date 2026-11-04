@@ -8,7 +8,7 @@ julia> steering(OptimalControlScalarizedBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:steering)` and
-`status(:steering)`.
+`OptimalControlProblems.status(:steering)`.
 """
 function OptimalControlProblems.steering(
     ::OptimalControlScalarizedBackend,

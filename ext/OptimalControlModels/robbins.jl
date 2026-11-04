@@ -8,7 +8,7 @@ julia> robbins(OptimalControlBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:robbins)` and
-`status(:robbins)`.
+`OptimalControlProblems.status(:robbins)`.
 """
 function OptimalControlProblems.robbins(
     ::OptimalControlBackend,

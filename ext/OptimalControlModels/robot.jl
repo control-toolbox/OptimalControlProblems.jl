@@ -8,7 +8,7 @@ julia> robot(OptimalControlBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:robot)` and
-`status(:robot)`.
+`OptimalControlProblems.status(:robot)`.
 """
 function OptimalControlProblems.robot(
     ::OptimalControlBackend,

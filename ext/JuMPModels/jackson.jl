@@ -8,7 +8,7 @@ julia> jackson(JuMPBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:jackson)` and
-`status(:jackson)`.
+`OptimalControlProblems.status(:jackson)`.
 """
 function OptimalControlProblems.jackson(
     ::JuMPBackend,

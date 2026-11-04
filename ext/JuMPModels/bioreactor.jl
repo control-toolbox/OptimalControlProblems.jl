@@ -8,7 +8,7 @@ julia> bioreactor(JuMPBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:bioreactor)` and
-`status(:bioreactor)`.
+`OptimalControlProblems.status(:bioreactor)`.
 """
 function OptimalControlProblems.bioreactor(
     ::JuMPBackend,

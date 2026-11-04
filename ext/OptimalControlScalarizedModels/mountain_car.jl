@@ -8,7 +8,7 @@ julia> mountain_car(OptimalControlScalarizedBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:mountain_car)` and
-`status(:mountain_car)`.
+`OptimalControlProblems.status(:mountain_car)`.
 """
 function OptimalControlProblems.mountain_car(
     ::OptimalControlScalarizedBackend,

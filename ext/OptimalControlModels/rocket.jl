@@ -8,7 +8,7 @@ julia> rocket(OptimalControlBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:rocket)` and
-`status(:rocket)`.
+`OptimalControlProblems.status(:rocket)`.
 """
 function OptimalControlProblems.rocket(
     ::OptimalControlBackend,

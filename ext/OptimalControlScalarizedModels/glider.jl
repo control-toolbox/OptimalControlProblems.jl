@@ -8,7 +8,7 @@ julia> glider(OptimalControlScalarizedBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:glider)` and
-`status(:glider)`.
+`OptimalControlProblems.status(:glider)`.
 """
 function OptimalControlProblems.glider(
     ::OptimalControlScalarizedBackend,

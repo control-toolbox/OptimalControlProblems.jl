@@ -8,7 +8,7 @@ julia> ducted_fan(OptimalControlScalarizedBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:ducted_fan)` and
-`status(:ducted_fan)`.
+`OptimalControlProblems.status(:ducted_fan)`.
 """
 function OptimalControlProblems.ducted_fan(
     ::OptimalControlScalarizedBackend,

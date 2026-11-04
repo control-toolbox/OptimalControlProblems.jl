@@ -8,7 +8,7 @@ julia> moonlander(JuMPBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:moonlander)` and
-`status(:moonlander)`.
+`OptimalControlProblems.status(:moonlander)`.
 """
 function OptimalControlProblems.moonlander(
     ::JuMPBackend,

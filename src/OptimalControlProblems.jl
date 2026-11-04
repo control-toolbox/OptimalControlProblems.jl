@@ -150,7 +150,7 @@ end
 for problem in PROBLEM_NAMES
     doc = """Return the `$problem` problem for a selected modeling.
 
-Available modelings and statuses are listed by `status(:$problem)`."""
+Available modelings and statuses are listed by `OptimalControlProblems.status(:$problem)`."""
     code = quote
         @doc $doc function $(problem)(
             model_backend::T, args...; kwargs...
@@ -472,7 +472,7 @@ function parameters_data(problem::Symbol, parameters::Union{Nothing,NamedTuple})
     end
 end
 
-export JuMPBackend, OptimalControlBackend, OptimalControlScalarizedBackend, problems, status
+export JuMPBackend, OptimalControlBackend, OptimalControlScalarizedBackend, problems
 export time_grid, state, costate, control, variable, iterations, objective
 export control_components,
     control_dimension,

@@ -8,7 +8,7 @@ julia> space_shuttle(OptimalControlBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:space_shuttle)` and
-`status(:space_shuttle)`.
+`OptimalControlProblems.status(:space_shuttle)`.
 """
 function OptimalControlProblems.space_shuttle(
     ::OptimalControlBackend,

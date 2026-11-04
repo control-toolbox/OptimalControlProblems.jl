@@ -8,7 +8,7 @@ julia> balanced_field(OptimalControlScalarizedBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:balanced_field)` and
-`status(:balanced_field)`.
+`OptimalControlProblems.status(:balanced_field)`.
 """
 function OptimalControlProblems.balanced_field(
     ::OptimalControlScalarizedBackend,

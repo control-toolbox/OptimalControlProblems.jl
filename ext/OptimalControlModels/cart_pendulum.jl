@@ -8,7 +8,7 @@ julia> cart_pendulum(OptimalControlBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:cart_pendulum)` and
-`status(:cart_pendulum)`.
+`OptimalControlProblems.status(:cart_pendulum)`.
 """
 function OptimalControlProblems.cart_pendulum(
     ::OptimalControlBackend,

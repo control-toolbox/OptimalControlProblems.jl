@@ -8,7 +8,7 @@ julia> beam(OptimalControlScalarizedBackend(); grid_size=100)
 ```
 
 Default parameters and the modeling status are available through `metadata(:beam)` and
-`status(:beam)`.
+`OptimalControlProblems.status(:beam)`.
 """
 function OptimalControlProblems.beam(
     ::OptimalControlScalarizedBackend,
