@@ -1,25 +1,28 @@
 module OptimalControlProblems
 
-using CTBase
-using CTDirect
-import CTModels:
-    CTModels,
-    time_grid,
-    state,
-    control,
-    costate,
-    iterations,
-    control_components,
-    control_dimension,
-    state_components,
-    state_dimension,
-    variable_components,
-    variable_dimension
-import ExaModels: ExaModels, ExaModel, variable, objective
-using DocStringExtensions
+using CTBase: CTBase
+using CTModels: CTModels
+using DocStringExtensions: TYPEDEF, TYPEDFIELDS, TYPEDSIGNATURES
 using OrderedCollections: OrderedDict
-using SolverCore
-import ADNLPModels: ADNLPModels, ADNLPModel
+
+# Accessors shared with OptimalControl, which reexports these very functions: binding them
+# here, instead of defining our own, lets `using OptimalControl, OptimalControlProblems`
+# run without a name conflict, and `state(jump_model)` and `state(sol)` call one function.
+const time_grid = CTModels.Components.time_grid
+const state = CTModels.Components.state
+const control = CTModels.Components.control
+const costate = CTModels.Components.costate
+const variable = CTModels.Components.variable
+const objective = CTModels.Components.objective
+const name = CTModels.Components.name
+const iterations = CTModels.Solutions.iterations
+const state_components = CTModels.Models.state_components
+const control_components = CTModels.Models.control_components
+const variable_components = CTModels.Models.variable_components
+const state_dimension = CTModels.Models.state_dimension
+const control_dimension = CTModels.Models.control_dimension
+const variable_dimension = CTModels.Models.variable_dimension
+const metadata = CTBase.Strategies.metadata
 
 """
 $(TYPEDEF)
@@ -59,7 +62,7 @@ const WEAKDEPS = Dict(spec.backend => spec.weakdep for spec in MODELING_SPECS)
 
 function _modeling_spec(::T) where {T<:AbstractModelBackend}
     return get(MODELING_BY_TYPE, T) do
-        return throw(CTBase.IncorrectArgument("Unknown modeling backend $(T)"))
+        return throw(CTBase.Exceptions.IncorrectArgument("Unknown modeling backend $(T)"))
     end
 end
 
@@ -83,7 +86,9 @@ end
 
 function _validate_status(status::Symbol)
     status in (:valid, :draft, :all) || throw(
-        CTBase.IncorrectArgument("status must be :valid, :draft, or :all; got $status")
+        CTBase.Exceptions.IncorrectArgument(
+            "status must be :valid, :draft, or :all; got $status"
+        ),
     )
     return status
 end
@@ -158,7 +163,7 @@ Available modelings and statuses are listed by `OptimalControlProblems.status(:$
             spec = _modeling_spec(model_backend)
             if !_problem_exists($(QuoteNode(problem)), spec)
                 throw(
-                    CTBase.IncorrectArgument(
+                    CTBase.Exceptions.IncorrectArgument(
                         string(
                             $(QuoteNode(problem)),
                             " is not available for ",
@@ -171,7 +176,7 @@ Available modelings and statuses are listed by `OptimalControlProblems.status(:$
                 )
             end
             _warn_if_draft($(QuoteNode(problem)), spec.name)
-            throw(CTBase.ExtensionError(WEAKDEPS[T]))
+            throw(CTBase.Exceptions.ExtensionError(WEAKDEPS[T]))
         end
     end
     eval(code)
@@ -186,17 +191,18 @@ Return the dictionary containing the metadata of all available optimal control p
 # Example
 
 ```julia-repl
-julia> metadata()
+julia> problem_metadata()
 ```
 """
-metadata() = METADATA_STORAGE
+problem_metadata() = METADATA_STORAGE
 
 """
 $(TYPEDSIGNATURES)
 
-Return a dictionary containing the metadata of `problem`. 
+Return a dictionary containing the metadata of `problem`, without building it.
 
-To get specific data, the following keys are valid:
+The metadata of a built problem is read with [`metadata`](@ref) on the [`Problem`](@ref).
+The following keys are valid:
 
 - `grid_size::Int`: the default number of steps. For example:
 ```julia
@@ -215,23 +221,29 @@ To get specific data, the following keys are valid:
     x₂_tf = -1,
 ),
 ```
+- `status`: the status (`:valid` or `:draft`) of the problem in each modeling.
 
 # Example
 
 ```julia-repl
-julia> data = metadata(:beam)
+julia> data = problem_metadata(:beam)
 julia> data[:grid_size]
 500
 ```
 """
-function metadata(problem::Symbol)
-    !(problem ∈ keys(METADATA_STORAGE)) && throw(
-        CTBase.IncorrectArgument(
-            "There is no problem named $problem in metadata. To get the list of available problems, make julia> metadata()",
+function problem_metadata(problem::Symbol)
+    haskey(METADATA_STORAGE, problem) || throw(
+        CTBase.Exceptions.IncorrectArgument(
+            "unknown problem";
+            got="$(problem)",
+            expected="one of the problems of the collection",
+            suggestion="list them with problems(; status=:all)",
         ),
     )
     return METADATA_STORAGE[problem]
 end
+
+include(joinpath(@__DIR__, "problem.jl"))
 
 # ------- Available Problems Function -------
 """
@@ -283,8 +295,11 @@ $(TYPEDSIGNATURES)
 Return the status of `problem` in each modeling where it exists.
 """
 function status(problem::Symbol)
-    haskey(METADATA_STORAGE, problem) ||
-        throw(CTBase.IncorrectArgument("There is no problem named $problem in metadata"))
+    haskey(METADATA_STORAGE, problem) || throw(
+        CTBase.Exceptions.IncorrectArgument(
+            "There is no problem named $problem in metadata"
+        ),
+    )
     return METADATA_STORAGE[problem][:status]
 end
 
@@ -309,7 +324,7 @@ julia> grid_size_data(:beam)
 ```
 """
 function grid_size_data(problem::Symbol)
-    return metadata(problem)[:grid_size]
+    return problem_metadata(problem)[:grid_size]
 end
 
 """
@@ -370,17 +385,22 @@ Throw an error when attempting to merge `nothing` with a `NamedTuple`.
 
 # Returns
 
-- This function always throws `CTBase.UnauthorizedCall`.
+- This function always throws `CTBase.Exceptions.PreconditionError`.
 
 # Example
 
 ```julia-repl
 julia> merge(nothing, (a=1,))
-ERROR: CTBase.UnauthorizedCall("There is nothing to merge.")
+ERROR: PreconditionError: there is nothing to merge
 ```
 """
 function merge(::Nothing, ::NamedTuple)
-    return throw(CTBase.UnauthorizedCall("There is nothing to merge."))
+    return throw(
+        CTBase.Exceptions.PreconditionError(
+            "there is nothing to merge";
+            reason="parameters are given to update, but there are no defaults to update",
+        ),
+    )
 end
 
 """
@@ -430,7 +450,7 @@ julia> parameters_data(:beam)
 ```
 """
 function parameters_data(problem::Symbol)
-    return metadata(problem)[:parameters]
+    return problem_metadata(problem)[:parameters]
 end
 
 """
@@ -447,7 +467,7 @@ Return the parameter set associated with a given problem, optionally merged with
 # Returns
 
 - `::Union{Nothing,NamedTuple}`: the merged parameters.  
-  Throws `CTBase.UnauthorizedCall` if attempting to merge with a problem that has no parameters.
+  Throws `CTBase.Exceptions.PreconditionError` if parameters are given to a problem that has none.
 
 # Example
 
@@ -460,10 +480,12 @@ function parameters_data(problem::Symbol, parameters::Union{Nothing,NamedTuple})
     try
         return merge(parameters_data(problem), parameters)
     catch e
-        if e isa CTBase.UnauthorizedCall
+        if e isa CTBase.Exceptions.PreconditionError
             throw(
-                CTBase.UnauthorizedCall(
-                    "There is no parameters to merge in problem: $problem."
+                CTBase.Exceptions.PreconditionError(
+                    "there are no parameters to merge";
+                    reason="problem $(problem) has no parameters",
+                    suggestion="call $(problem) without the parameters keyword",
                 ),
             )
         else
@@ -480,6 +502,7 @@ export control_components,
     state_dimension,
     variable_components,
     variable_dimension
-export metadata, grid_size_data, parameters_data
+export problem_metadata, grid_size_data, parameters_data
+export Problem, name, ocp, initial_guess, metadata
 
 end
