@@ -12,7 +12,7 @@ const MAX_ITER = 1000
 const MAX_WALL_TIME = 500.0
 
 # Grid of the fast tests (suite/); the slow ones (cron/) use the default grid of each problem.
-const SMALL_GRID = 20
+const SMALL_GRID = 50
 
 # Configurations per modeling. `description` is forwarded to the problem builder
 # (OptimalControl: CTDirect description), `solver` selects a `Solve<Solver>` module of

@@ -15,9 +15,9 @@ space_shuttle_meta = OrderedDict(
         b₀=0.07854,
         b₁=-0.61592e-2,
         b₂=0.621408e-3,
-        # ,
-        Δt_min=3.5,
-        Δt_max=4.5,
+        ## Bounds on the final time (sec)
+        tf_l=1500.0,
+        tf_u=2500.0,
         ## Initial conditions,
         h_t0=2.6,          # altitude (ft) / 1e5,
         ϕ_t0=deg2rad(0),   # longitude (rad),
