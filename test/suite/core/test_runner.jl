@@ -25,6 +25,21 @@ function test_runner()
             Test.@test !R.selected("test_aXb.jl", ["test_a.b"])
         end
 
+        Test.@testset "environment selection" begin
+            avail = ["JuMP", "ModelingToolkit", "OptimalControl"]
+            opt_in = ("ModelingToolkit",)
+            sel(args) = R.select_environments(args, avail, opt_in)
+            # nothing named: every environment but the opt-in ones
+            Test.@test sel(String[]) == (["JuMP", "OptimalControl"], String[])
+            Test.@test sel(["*kwargs*"]) == (["JuMP", "OptimalControl"], ["*kwargs*"])
+            # named: only those, patterns apart
+            Test.@test sel(["JuMP"]) == (["JuMP"], String[])
+            Test.@test sel(["ModelingToolkit", "beam"]) == (["ModelingToolkit"], ["beam"])
+            # `core` alone: no other environment (it always runs in-process)
+            Test.@test sel(["core"]) == (String[], String[])
+            Test.@test sel(["core", "JuMP"]) == (["JuMP"], String[])
+        end
+
         Test.@testset "discovery and run" begin
             mktempdir() do dir
                 write(joinpath(dir, "test_b.jl"), "test_b() = nothing")

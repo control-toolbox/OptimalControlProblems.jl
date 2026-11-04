@@ -81,13 +81,7 @@ args = String.(ARGS)
 cron = "cron" in args
 rest = filter(!=("cron"), args)
 available = environments()
-named = filter(a -> a == CORE || a in available, rest)
-patterns = filter(a -> !(a in named), rest)
-selected = if any(in(available), named)
-    filter(in(available), named)
-else
-    filter(e -> !(e in OPT_IN), available)
-end
+selected, patterns = LocalTestRunner.select_environments(rest, available, OPT_IN; core=CORE)
 
 Test.@testset "OptimalControlProblems tests" verbose = Main.TestOptions.VERBOSE showtiming =
     Main.TestOptions.SHOWTIMING begin

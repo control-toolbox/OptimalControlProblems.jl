@@ -77,4 +77,23 @@ function run_dir(
     return true
 end
 
+"""
+    select_environments(args, available, opt_in; core="core")
+
+Split the command-line `args` into the environments to run and the file patterns.
+Names of `available` environments (and `core`) are environment names; the rest are
+patterns. With no environment name, every available environment except the `opt_in`
+ones runs; naming only `core` runs no environment (`core` always runs in-process).
+"""
+function select_environments(args, available, opt_in; core::AbstractString="core")
+    named = filter(a -> a == core || a in available, args)
+    patterns = String[a for a in args if !(a in named)]
+    environments = if isempty(named)
+        String[e for e in available if !(e in opt_in)]
+    else
+        String[e for e in named if e in available]
+    end
+    return environments, patterns
+end
+
 end # module LocalTestRunner
