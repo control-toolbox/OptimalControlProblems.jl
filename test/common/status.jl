@@ -80,6 +80,33 @@ function status(problem::Symbol, backends)
 end
 
 """
+    select_problems!(names)
+
+Restrict the tests to the problems `names` (`problem=a,b` in the test arguments); no names:
+every problem. A name that is not in the catalogue is an error: a selection that matches
+nothing would test nothing and pass.
+"""
+function select_problems!(names)
+    if isempty(names)
+        Main.TestConfigs.PROBLEMS[] = nothing
+        return nothing
+    end
+    wanted = Symbol.(names)
+    unknown = setdiff(wanted, OptimalControlProblems.problems(; status=:all))
+    isempty(unknown) || throw(
+        ArgumentError("Unknown problems in `problem=`: $(join(unknown, ", ")); see problems(; status=:all)"),
+    )
+    Main.TestConfigs.PROBLEMS[] = wanted
+    return nothing
+end
+
+"""The problems of `problems` selected by `select_problems!`."""
+function selected(problems)
+    wanted = Main.TestConfigs.PROBLEMS[]
+    return isnothing(wanted) ? problems : [p for p in problems if p in wanted]
+end
+
+"""
     for_each_problem(f, test, backends...)
 
 Call `f(problem)` in a test set for every problem available in all the modelings of
@@ -88,7 +115,7 @@ Call `f(problem)` in a test set for every problem available in all the modelings
 """
 function for_each_problem(f, test::AbstractString, backends...)
     modelings = join(map(modeling, backends), " vs ")
-    for problem in OptimalControlProblems.problems(backends...; status=:all)
+    for problem in selected(OptimalControlProblems.problems(backends...; status=:all))
         if status(problem, backends) === :valid
             Test.@testset "$problem" begin
                 f(problem)

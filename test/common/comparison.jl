@@ -1,6 +1,11 @@
-# Comparison of the modelings of a problem (JuMP, OptimalControl, OptimalControlScalarized).
+# Comparison of the modelings of a problem (JuMP, OptimalControl, OptimalControlScalarized):
+# do they describe the same problem? Used by `suite/comparison/`, at the initial guess
+# (zero iterations): same structure, same grid, same trajectories, same objective.
 #
-# Used by `suite/comparison/` (small grid, quick) and `cron/comparison/` (default grid).
+# The solutions are deliberately not compared: after a solve, two modelings are two
+# optimization paths, and a problem with several local solutions (`glider`, `cart_pendulum`)
+# ends on one or the other depending on the platform. Model equivalence is the NLP
+# equivalence of #284; convergence is tested per modeling.
 # Numbers only: no plot. The visual comparison is left to the cron report (#310).
 isdefined(Main, :SolveJuMP) || include(joinpath(@__DIR__, "solve_jump.jl"))
 isdefined(Main, :SolveIpopt) || include(joinpath(@__DIR__, "solve_ipopt.jl"))
@@ -130,9 +135,6 @@ end
 # the report for a `:draft` one (see `Main.TestStatus`). Returns the outcome.
 check(ok::Bool) = (Test.@test ok; ok)
 
-"""`false` when the metadata says the optimal control of `problem` is not unique."""
-unique_control(problem::Symbol) = get(OCP.metadata(problem), :unique_control, true)
-
 within(a, b; rtol, atol) = abs(a - b) < max(0.5 * (abs(a) + abs(b)) * rtol, atol)
 
 function within_L2(t, a, b; rtol, atol)
@@ -162,7 +164,7 @@ function compare_grid(ref::Data, other::Data)
 end
 
 """State, control and variable of `other` against `ref` (grids must be comparable)."""
-function compare_trajectories(ref::Data, other::Data; check_control::Bool=true)
+function compare_trajectories(ref::Data, other::Data)
     t = ref.t
     for i in eachindex(ref.xnames)
         check(
@@ -171,14 +173,8 @@ function compare_trajectories(ref::Data, other::Data; check_control::Bool=true)
             ),
         )
     end
-    if check_control
-        for i in eachindex(ref.unames)
-            check(
-                within_L2(
-                    t, [s[i] for s in ref.u], [s[i] for s in other.u]; CONTROL...
-                ),
-            )
-        end
+    for i in eachindex(ref.unames)
+        check(within_L2(t, [s[i] for s in ref.u], [s[i] for s in other.u]; CONTROL...))
     end
     for i in eachindex(ref.vnames)
         check(within(ref.v[i], other.v[i]; VARIABLE...))

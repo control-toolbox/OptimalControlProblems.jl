@@ -14,6 +14,10 @@ const MAX_WALL_TIME = 500.0
 # Grid of the fast tests (suite/); the slow ones (cron/) use the default grid of each problem.
 const SMALL_GRID = 50
 
+# Problems the tests are restricted to (`problem=a,b` in the test arguments, see
+# `TestStatus.select_problems!`); `nothing`: every problem.
+const PROBLEMS = Ref{Union{Nothing,Vector{Symbol}}}(nothing)
+
 # Configurations per modeling. `description` is forwarded to the problem builder
 # (OptimalControl: CTDirect description), `solver` selects a `Solve<Solver>` module of
 # test/common/. Every model is discretized with its default scheme (trapezoidal); the

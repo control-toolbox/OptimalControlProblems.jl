@@ -31,6 +31,8 @@ Pkg.test(; test_args=["JuMP"])                          # core and one environme
 Pkg.test(; test_args=["core"])                          # core only
 Pkg.test(; test_args=["cron"])                          # slow tests (cron/), every environment
 Pkg.test(; test_args=["JuMP", "cron", "*convergence*"]) # environments, mode and file globs
+Pkg.test(; test_args=["problem=beam"])                  # one problem, in every environment
+Pkg.test(; test_args=["JuMP", "problem=beam,robot"])    # some problems, in one environment
 ```
 
 `test_args` is a list of:
@@ -38,7 +40,12 @@ Pkg.test(; test_args=["JuMP", "cron", "*convergence*"]) # environments, mode and
 - environment names: run those only; none given runs every environment except the opt-in
   ones (`OPT_IN` in `runtests.jl`);
 - `cron`: run `cron/<group>/test_*.jl` instead of `suite/<group>/test_*.jl`;
-- file patterns (`*` and `?`, with or without `test_` and `.jl`).
+- file patterns (`*` and `?`, with or without `test_` and `.jl`);
+- `problem=a,b`: test only these problems, for instance the one you add. A name that is
+  not in the catalogue is an error (a selection matching nothing would test nothing and
+  pass). `core` still runs entirely.
+
+In cron mode, an environment without a `cron/<name>/` directory is skipped.
 
 ## Statuses and report
 
@@ -54,6 +61,18 @@ Each run writes `test/reports/<environment>[-cron].md` (git-ignored): one line p
 and problem, with its status and outcome. The lines worth reading (drafts, checks that
 report instead of failing) are also printed. A draft whose line says `pass` everywhere is
 ready to become `:valid`.
+
+## What is compared, and what is not
+
+- **Per modeling**, a test checks that the problem *converges* (solver status) and that
+  the model has the expected structure (contract, methods). A new problem enters as
+  `:draft`: the report says whether it converges, and it becomes `:valid` when it does.
+- **Between modelings**, the `comparison` environment checks that they describe the same
+  problem: same structure, grid, trajectories and objective at the initial guess (zero
+  iterations). The solutions found by two solvers are **not** compared: after a solve,
+  two modelings are two optimization paths, and a problem with several local solutions
+  ends on one or the other depending on the platform. The equivalence of the models
+  themselves is the NLP equivalence of #284.
 
 ## Configurations
 

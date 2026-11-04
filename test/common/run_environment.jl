@@ -7,7 +7,8 @@ include(joinpath(@__DIR__, "runner.jl"))
 
 dir = ARGS[1]
 name = ARGS[2]
-patterns = String.(ARGS[3:end])
+problem_names, patterns = LocalTestRunner.split_problems(String.(ARGS[3:end]))
+TestStatus.select_problems!(problem_names)
 
 # A failing test makes the enclosing test set throw, hence a non-zero exit code; the report
 # of the statuses is written in any case.

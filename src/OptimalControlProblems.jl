@@ -130,11 +130,7 @@ end
 # their types. Checked here at load time and by the consistency tests.
 const METADATA_SCHEMA = (
     required=(grid_size=Int, parameters=Union{Nothing,NamedTuple}, status=NamedTuple),
-    optional=(
-        notes=AbstractString,
-        # false when the optimal control is not unique: comparisons skip the control
-        unique_control=Bool,
-    ),
+    optional=(notes=AbstractString,),
 )
 const METADATA_STORAGE = OrderedDict{Symbol,OrderedDict}()
 

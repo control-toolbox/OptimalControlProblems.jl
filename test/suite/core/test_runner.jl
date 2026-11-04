@@ -40,6 +40,14 @@ function test_runner()
             Test.@test sel(["core", "JuMP"]) == (["JuMP"], String[])
         end
 
+        Test.@testset "problem selection" begin
+            Test.@test R.split_problems(String[]) == (String[], String[])
+            Test.@test R.split_problems(["JuMP", "problem=a,b", "*solve*"]) ==
+                (["a", "b"], ["JuMP", "*solve*"])
+            # several arguments add up, duplicates and empty names go
+            Test.@test R.split_problems(["problem=a,,b", "problem=b,c"]) == (["a", "b", "c"], String[])
+        end
+
         Test.@testset "discovery and run" begin
             mktempdir() do dir
                 write(joinpath(dir, "test_b.jl"), "test_b() = nothing")
