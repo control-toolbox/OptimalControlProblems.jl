@@ -9,15 +9,14 @@ module LocalTestRunner
 using Test: Test
 
 """
-    test_files(dir; cron=false) -> Vector{String}
+    test_files(dir) -> Vector{String}
 
-Names of the test files of `dir` (`test_*.jl`), sorted, or of `dir/cron` when `cron`
-is `true`. A missing directory gives an empty list.
+Names of the test files of `dir` (`test_*.jl`), sorted. A missing directory gives an
+empty list.
 """
-function test_files(dir::AbstractString; cron::Bool=false)
-    folder = cron ? joinpath(dir, "cron") : dir
-    isdir(folder) || return String[]
-    files = filter(f -> startswith(f, "test_") && endswith(f, ".jl"), readdir(folder))
+function test_files(dir::AbstractString)
+    isdir(dir) || return String[]
+    files = filter(f -> startswith(f, "test_") && endswith(f, ".jl"), readdir(dir))
     return sort(files)
 end
 
@@ -48,31 +47,28 @@ function selected(file::AbstractString, patterns::AbstractVector{<:AbstractStrin
 end
 
 """
-    run_dir(dir; cron=false, patterns=String[], name=basename(dir)) -> Bool
+    run_dir(dir; patterns=String[], name=basename(dir)) -> Bool
 
-Include and run the selected test files of `dir` (of `dir/cron` when `cron`) in `Main`.
+Include and run the selected test files of `dir` in `Main`.
 Each file defines `test_<name>()` in `Main` (TST1). Returns `false` when no file was
 selected, `true` otherwise; a failing test makes the enclosing test set fail.
 """
 function run_dir(
     dir::AbstractString;
-    cron::Bool=false,
     patterns::AbstractVector{<:AbstractString}=String[],
     name::AbstractString=basename(dir),
 )
-    folder = cron ? joinpath(dir, "cron") : dir
-    files = filter(f -> selected(f, patterns), test_files(dir; cron=cron))
+    files = filter(f -> selected(f, patterns), test_files(dir))
     if isempty(files)
-        @info "No test selected in $name" cron patterns
+        @info "No test selected in $name" patterns
         return false
     end
     verbose = isdefined(Main, :TestOptions) ? Main.TestOptions.VERBOSE : true
     showtiming = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING : true
-    label = cron ? "$name (cron)" : name
-    Test.@testset "$label" verbose = verbose showtiming = showtiming begin
+    Test.@testset "$name" verbose = verbose showtiming = showtiming begin
         for file in files
             entry = Symbol(first(splitext(file)))
-            Base.include(Main, joinpath(folder, file))
+            Base.include(Main, joinpath(dir, file))
             Test.@testset "$entry" verbose = verbose begin
                 Base.invokelatest(Base.invokelatest(getfield, Main, entry))
             end

@@ -2,10 +2,14 @@
 # OptimalControlProblems test runner
 # ==============================================================================
 #
-# One environment per modeling: each sub-directory of `test/` with a `Project.toml`
-# (JuMP, OptimalControl, ...) is run in its own Julia process, so that an extension is
-# shown to load alone and heavy dependencies stay isolated. `core/` has no extension
-# and runs in this process, always.
+# Layout (TST1, as CTFlows.jl): `suite/<group>/test_<name>.jl` for the tests of every
+# run, `cron/<group>/test_<name>.jl` for the slow ones (cron mode).
+#
+# One environment per modeling: each group of `suite/` with a `Project.toml` (JuMP,
+# OptimalControl, ...) is run in its own Julia process, so that an extension is shown to
+# load alone and heavy dependencies stay isolated; the slow tests of `cron/<group>/` run
+# in the environment of `suite/<group>/`. `suite/core/` has no extension and runs in this
+# process, always.
 #
 # ## Running tests
 #
@@ -15,8 +19,9 @@
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["JuMP", "cron", "*beam*"])'
 #
 # `test_args` is a list of: environment names (none given: every environment except the
-# opt-in ones below), the word `cron` (run `cron/test_*.jl` instead of `test_*.jl`),
-# and file patterns (`*` and `?` allowed, with or without `test_` and `.jl`).
+# opt-in ones below), the word `cron` (run `cron/<group>/test_*.jl` instead of
+# `suite/<group>/test_*.jl`), and file patterns (`*` and `?` allowed, with or without
+# `test_` and `.jl`).
 #
 # Test files follow TST1: a module and an entry function `test_<name>()`.
 # ==============================================================================
@@ -34,25 +39,27 @@ const CORE = "core"
 # Environments that run only when named (their label, or the cron): heavy dependencies.
 const OPT_IN = ("ModelingToolkit",)
 
+const SUITE = joinpath(@__DIR__, "suite")
+const CRON = joinpath(@__DIR__, "cron")
+
 """
-Names of the test environments: the sub-directories of `test/` holding a `Project.toml`.
+Names of the test environments: the groups of `suite/` holding a `Project.toml`.
 """
 function environments()
-    return sort([
-        d for d in readdir(@__DIR__) if isfile(joinpath(@__DIR__, d, "Project.toml"))
-    ])
+    return sort([d for d in readdir(SUITE) if isfile(joinpath(SUITE, d, "Project.toml"))])
 end
 
 """
-Run the tests of one environment in a Julia subprocess. The `Project.toml` of the
-environment is copied to a temporary directory, the package under test is developed
-into it, so that no `Manifest.toml` is written in the working tree. The code coverage
-flag of this process is forwarded (`Base.julia_cmd`). Returns `true` on success.
+Run the tests of one environment in a Julia subprocess: those of `suite/<name>`, or of
+`cron/<name>` in cron mode, in the environment of `suite/<name>`. Its `Project.toml` is
+copied to a temporary directory where the package under test is developed, so that no
+`Manifest.toml` is written in the working tree. The code coverage flag of this process
+is forwarded (`Base.julia_cmd`). Returns `true` on success.
 """
 function run_environment(name::AbstractString; cron::Bool, patterns::Vector{String})
-    source = joinpath(@__DIR__, name)
+    tests = joinpath(cron ? CRON : SUITE, name)
     project = mktempdir()
-    cp(joinpath(source, "Project.toml"), joinpath(project, "Project.toml"))
+    cp(joinpath(SUITE, name, "Project.toml"), joinpath(project, "Project.toml"))
     # `Pkg.test` restricts JULIA_LOAD_PATH (and may set JULIA_PROJECT) to its own
     # temporary environment: a subprocess inheriting them would ignore `--project`.
     julia = addenv(Base.julia_cmd(), "JULIA_LOAD_PATH" => nothing, "JULIA_PROJECT" => nothing)
@@ -60,7 +67,7 @@ function run_environment(name::AbstractString; cron::Bool, patterns::Vector{Stri
         setup = "using Pkg: Pkg; Pkg.develop(path=ARGS[1]); Pkg.instantiate()"
         run(`$julia --project=$project -e $setup $ROOT`)
         script = joinpath(@__DIR__, "common", "run_environment.jl")
-        run(`$julia --project=$project $script $source $cron $patterns`)
+        run(`$julia --project=$project $script $tests $name $patterns`)
         return true
     catch err
         @error "Environment $name failed" exception = err
@@ -86,7 +93,10 @@ Test.@testset "OptimalControlProblems tests" verbose = Main.TestOptions.VERBOSE 
     Main.TestOptions.SHOWTIMING begin
     println("Environments: ", join([CORE; selected], ", "), cron ? " (cron)" : "")
 
-    LocalTestRunner.run_dir(joinpath(@__DIR__, CORE); cron=cron, patterns=patterns)
+    # `core` has no cron tests: in cron mode its directory does not exist and nothing runs.
+    LocalTestRunner.run_dir(
+        joinpath(cron ? CRON : SUITE, CORE); patterns=patterns, name=CORE
+    )
 
     for name in selected
         Test.@testset "environment $name" begin
