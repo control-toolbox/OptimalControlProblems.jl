@@ -126,9 +126,10 @@ function write_report(name::AbstractString)
     mkpath(REPORTS)
     file = joinpath(REPORTS, "$name.md")
     write(file, text)
-    drafts = filter(r -> r.status !== :valid, ROWS)
-    println("\nReport written to $file ($(length(ROWS)) lines, $(length(drafts)) not valid).")
-    for r in drafts
+    # lines worth reading: drafts, and checks that report instead of failing
+    notable = filter(r -> r.status !== :valid || r.outcome != "see the test summary", ROWS)
+    println("\nReport written to $file ($(length(ROWS)) lines, $(length(notable)) to read).")
+    for r in notable
         println("  $(r.status): $(r.problem) [$(r.modelings)] $(r.test) → $(r.outcome)")
     end
     return file
