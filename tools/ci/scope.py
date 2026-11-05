@@ -59,26 +59,26 @@ def environments(labels):
 
 
 def classify(row, catalogue):
-    """Verdict on one `status<TAB>filename` row: `(problem, reason)`, where `problem` is
-    the name of the problem the file belongs to, or None when the file forces the
-    complete catalogue (`reason` then says why)."""
+    """Verdict on one `status<TAB>filename` row: `(problem, kind, reason)`. `problem` is
+    the name of the problem the file belongs to; when it is None the file forces the
+    complete catalogue, `kind` names why in a few words and `reason` says it in full."""
     if len(row) != 2:
-        return None, f"unreadable file row {row!r}: running everything"
+        return None, "unreadable row", f"unreadable file row {row!r}: running everything"
     status, filename = row
     if status not in KEPT_STATUSES:
-        return None, f"removed or renamed file `{filename}`: running everything"
+        return None, "removed or renamed file", f"removed or renamed file `{filename}`: running everything"
     if not PER_PROBLEM.match(filename):
-        return None, f"shared change `{filename}`: running everything"
+        return None, "shared change", f"shared change `{filename}`: running everything"
     name = filename.rsplit("/", 1)[-1].rsplit(".", 1)[0]
     if not (catalogue / f"{name}.jl").is_file():
-        return None, f"`{filename}` is not the file of a problem: running everything"
-    return name, None
+        return None, "not the file of a problem", f"`{filename}` is not the file of a problem: running everything"
+    return name, None, None
 
 
 def changed_problems(rows, expected, catalogue):
     """Problems named by the changed files, or a reason to run the complete
-    catalogue, with the verdict on each file as `(row, problem, reason)`. `rows` are
-    `status<TAB>filename` pairs; `catalogue` is the directory of the problems
+    catalogue, with the verdict on each file as `(row, problem, kind, reason)`. `rows`
+    are `status<TAB>filename` pairs; `catalogue` is the directory of the problems
     (`ext/MetaData`). Every row is classified, the reason is that of the first
     row that forces the complete catalogue."""
     if expected is not None and expected != len(rows):
@@ -86,10 +86,10 @@ def changed_problems(rows, expected, catalogue):
     if not rows:
         return None, "no changed file: running everything", []
     verdicts = [(row, *classify(row, catalogue)) for row in rows]
-    for _, name, why in verdicts:
+    for _, name, _, why in verdicts:
         if name is None:
             return None, why, verdicts
-    problems = sorted({name for _, name, _ in verdicts})
+    problems = sorted({name for _, name, _, _ in verdicts})
     return problems, f"changed problems: {','.join(problems)}", verdicts
 
 
@@ -125,9 +125,9 @@ def summary(event, args, reason, verdicts):
     if verdicts:
         lines += ["", "<details><summary>Changed files</summary>", "",
                   "| Status | File | Verdict |", "| --- | --- | --- |"]
-        for row, name, why in verdicts:
+        for row, name, kind, _ in verdicts:
             status, filename = row if len(row) == 2 else ("?", " ".join(row))
-            verdict = f"problem `{name}`" if name else why.rsplit(":", 1)[0]
+            verdict = f"problem `{name}`" if name else kind
             lines.append(f"| {status} | `{filename}` | {verdict} |")
         lines += ["", "</details>"]
     return "\n".join(lines) + "\n"

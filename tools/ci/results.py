@@ -23,6 +23,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CATALOGUE = ROOT / "ext" / "MetaData"
 NOTHING_TO_SAY = "see the test summary"
+# The test that checks the selection reaches a problem asserts nothing: not a result.
+VISITED = "visited"
 
 # The report tables are read by the parser of the cron.
 _spec = importlib.util.spec_from_file_location("cron_report", ROOT / "tools" / "cron" / "report.py")
@@ -45,6 +47,7 @@ def tested_rows(rows):
 
 def render(rows, catalogue, reports_found=True):
     """Markdown report of the run: tested problems, then the problems no report names."""
+    rows = [row for row in rows if row["test"] != VISITED]
     lines = ["## Tests run", ""]
     if not rows:
         reason = "no test report was uploaded" if reports_found else "the reports directory is missing"
