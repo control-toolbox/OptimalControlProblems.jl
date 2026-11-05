@@ -112,8 +112,8 @@ jobs:
             git worktree add --detach "$RESULTS_DIR" HEAD
             backup=''
           fi
+          # `switch --orphan` already empties the index and the working tree
           git -C "$RESULTS_DIR" switch --orphan cron-results
-          git -C "$RESULTS_DIR" rm -rf .
           if [ -n "$backup" ]; then
             find "$backup" -mindepth 1 -maxdepth 1 -exec cp -a {} "$RESULTS_DIR/" \;
           fi
@@ -178,6 +178,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # nothing to publish when the results tree was not prepared
+          [ -f "$RESULTS_DIR/cron/state.json" ] || exit 0
           git -C "$RESULTS_DIR" add cron/state.json
           if ! git -C "$RESULTS_DIR" diff --cached --quiet; then
             git -C "$RESULTS_DIR" commit --amend --no-edit
