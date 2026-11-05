@@ -8,6 +8,7 @@ CTBase = "54762871-cc72-4466-b8e8-f6c8b58076cd"
 CTModels = "34c4fa32-2049-4079-8329-de33c2a22e2d"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
+TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 
 [weakdeps]
 JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
@@ -24,4 +25,5 @@ DocStringExtensions = "0.9"
 JuMP = "1"
 OptimalControl = "2.2"
 OrderedCollections = "1, 2"
+TOML = "1"
 julia = "1.10"

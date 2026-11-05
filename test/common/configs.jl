@@ -23,6 +23,10 @@ const SMALL_GRID = 50
 const SMOKE_GRID = 10
 const SMOKE_MAX_ITER = 3
 
+# Discretization scheme of every solve (the JuMP models are written with the trapezoidal
+# rule); the schemes become a dimension of the configurations with #284.
+const SCHEME = :trapeze
+
 # Problems the tests are restricted to (`problem=a,b` in the test arguments, see
 # `TestStatus.select_problems!`); `nothing`: every problem.
 const PROBLEMS = Ref{Union{Nothing,Vector{Symbol}}}(nothing)

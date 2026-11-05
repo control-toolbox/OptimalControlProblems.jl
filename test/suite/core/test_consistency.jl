@@ -51,7 +51,8 @@ function test_schema()
             end
             for (key, value) in data
                 haskey(schema.required, key) && continue
-                Test.@test haskey(schema.optional, key) && value isa schema.optional[key]
+                T = get(schema.optional, key, get(schema.generated, key, Union{}))
+                Test.@test value isa T
             end
             # a status is declared exactly for the modelings having a model file
             statuses = data[:status]
@@ -65,18 +66,40 @@ function test_schema()
 end
 
 """
-Every problem `:valid` somewhere has a reference: another modeling where it is `:valid`.
-A sourced reference objective (#306) will be the other kind of reference; until then a
-problem without reference is reported, not failed.
+Every problem `:valid` somewhere has a reference: another modeling where it is `:valid`, or
+a reference objective at its default grid (#375).
 """
 function test_comparison_rule()
     Test.@testset "comparison rule" verbose = VERBOSE begin
         for problem in OCP.problems(; status=:all)
             valid = [name for (name, s) in pairs(OCP.status(problem)) if s === :valid]
             isempty(valid) && continue
-            has_reference = length(valid) >= 2
-            has_reference || Main.TestStatus.report!(
-                "comparison rule", problem, join(valid, ", "), :valid, "no reference",
+            Test.@test length(valid) >= 2 || !isnothing(OCP.reference_objective(problem))
+        end
+    end
+end
+
+"""
+The reference objectives (#375) match the problem: computed at its default grid with its
+default parameters, otherwise they are stale and must be computed again
+(`tools/references/update.jl`). A problem `:valid` somewhere without a reference objective
+is reported, not failed (the comparison rule fails when it has no other reference).
+"""
+function test_reference_objectives()
+    Test.@testset "reference objectives" verbose = VERBOSE begin
+        for problem in OCP.problems(; status=:all)
+            data = OCP.problem_metadata(problem)
+            references = get(data, :reference_objective, (;))
+            for (scheme, entry) in pairs(references)
+                Test.@test entry.grid_size == data[:grid_size]
+                Test.@test entry.parameters == repr(data[:parameters])
+                Test.@test entry.source in (:computed,)
+                Test.@test isfinite(entry.value)
+            end
+            valid = [name for (name, s) in pairs(OCP.status(problem)) if s === :valid]
+            (isempty(valid) || !isnothing(OCP.reference_objective(problem))) && continue
+            Main.TestStatus.report!(
+                "reference objectives", problem, join(valid, ", "), :valid, "no reference objective",
             )
         end
     end
@@ -123,6 +146,7 @@ function test_consistency()
         test_files()
         test_schema()
         test_comparison_rule()
+        test_reference_objectives()
         test_no_handwritten_list()
     end
 end

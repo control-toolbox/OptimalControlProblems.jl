@@ -40,7 +40,7 @@ function solver(name::Symbol; max_iter::Int)
 end
 
 function discretizer(grid_size::Int)
-    return OptimalControl.Collocation(; grid_size=grid_size, scheme=:trapeze)
+    return OptimalControl.Collocation(; grid_size=grid_size, scheme=Main.TestConfigs.SCHEME)
 end
 
 """Solve the `Problem` `pb` with `config`; the default grid of the problem if `grid_size` is `nothing`."""
