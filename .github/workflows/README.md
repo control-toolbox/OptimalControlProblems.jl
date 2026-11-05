@@ -11,7 +11,8 @@ scope labels. They are staggered at 04:00 UTC:
 | `CronComparison.yml` | `comparison` | Friday | No |
 | `CronModelingToolkit.yml` | `ModelingToolkit` | manual only until the scope exists | No |
 
-Each thin workflow calls `cron-reusable.yml`. The reusable workflow runs the CPU tests,
+Each thin workflow calls `cron-reusable.yml`. The reusable workflow runs the CPU tests
+(Ubuntu and Windows on Julia 1.13; macOS comes back with #344),
 and, where requested, the GPU tests. It then downloads the report artifacts without
 merging them, updates the summary and regression issues, and publishes `cron/<scope>.md`
 and `cron/state.json` on the `results` branch. The first run creates `results`; each run
@@ -40,6 +41,30 @@ The workflow requires the `upload_artifact_path` and `upload_artifact_name` inpu
 the CTActions `ci.yml` and `ci-gpu.yml` reusable workflows. CTActions must be merged
 before these cron workflows are enabled or dispatched against `main`: calling a reusable
 workflow with an undeclared input fails at workflow validation.
+
+## What to do with the cron issues
+
+Three repository-wide issues, each with one section per scope (replaced by each run of that
+scope), and one `cron-bug` issue per failing (problem, modeling). All of them explain what
+to do in their own text; this is the longer version. **Nothing is changed automatically:** the
+cron only reports. A maintainer decides what to do (and may ask an agent to do it); in
+particular a draft becomes `:valid`, or a failing problem becomes `:draft`, only by a pull
+request that edits `ext/MetaData/<problem>.jl`.
+
+- **`cron-failure`** — a `:valid` problem failed in a scope (or the run failed or produced no
+  report). Open the run, read the failing configuration (platform and test), reproduce it
+  locally with `Pkg.test(; test_args=["<scope>", "cron", "problem=<problem>"])`, then fix the
+  problem or the package, report an upstream break, or — if the configuration is not
+  supported — set the problem to `:draft` in `ext/MetaData/<problem>.jl`.
+- **`cron-drafts`** — a `:draft` passed all its tests on every platform. Check it, then set
+  `:valid` for that modeling in `ext/MetaData/<problem>.jl` in a pull request.
+- **`cron-capabilities`** — a declared known failure no longer happens (inactive until the
+  `:known_failures` metadata of #306 exists).
+- **`cron-bug`** — opened per (problem, modeling) for at most 5 pairs per run (more is
+  reported in `cron-failure` as a probable upstream breakage). Updated by each run; a comment
+  is added only when the set of failing configurations changes; closed automatically after
+  two consecutive successful runs; reopened at most three times, then labelled `flaky`.
+  Closing one as *not planned* is respected: the cron leaves it alone.
 
 ## Adding a scope
 
