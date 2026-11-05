@@ -1,0 +1,54 @@
+name: Cache cleanup
+
+# Deletes the Actions caches of closed pull requests.
+#
+# A pull request saves its own copy of every Julia cache of the CI (several hundred MB per
+# job) under `refs/pull/<n>/merge`, where no other branch can restore it. Left alone, these
+# copies fill the 10 GB the repository is given and push the caches of `main`, the ones
+# every pull request restores, out of it.
+#
+# On a closed pull request (merged or not), its caches are deleted. By hand
+# (`workflow_dispatch`), the caches of every pull request that is no longer open are.
+
+on:
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    # A pull request from a fork has a read-only token and its caches are not ours to delete.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Delete the caches of the closed pull request
+        if: github.event_name == 'pull_request'
+        run: |
+          gh cache delete --all --ref "refs/pull/${{ github.event.pull_request.number }}/merge" \
+            --succeed-on-no-caches
+
+      - name: Delete the caches of every pull request that is no longer open
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          open=$(gh pr list --state open --limit 1000 --json number --jq '.[].number')
+          gh cache list --limit 1000 --json ref --jq '.[].ref | select(startswith("refs/pull/"))' \
+            | sort -u | while read -r ref; do
+              number=${ref#refs/pull/}
+              number=${number%/merge}
+              if echo "$open" | grep -qx "$number"; then
+                echo "Keep $ref: pull request #$number is open."
+              else
+                echo "Delete the caches of $ref: pull request #$number is not open."
+                gh cache delete --all --ref "$ref" --succeed-on-no-caches
+              fi
+            done
