@@ -212,7 +212,7 @@ $(TYPEDSIGNATURES)
 
 Return a dictionary containing the metadata of `problem`, without building it.
 
-The metadata of a built problem is read with [`metadata`](@ref) on the [`Problem`](@ref).
+The metadata of a built problem is read with `metadata(pb)` on the [`Problem`](@ref).
 The following keys are valid:
 
 - `grid_size::Int`: the default number of steps. For example:

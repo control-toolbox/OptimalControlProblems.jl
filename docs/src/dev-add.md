@@ -68,7 +68,7 @@ by
 
 !!! warning
 
-    The dynamics and the nonlinear constraints must be in scalar form. See the section [Dynamics (coordinatewise)](@extref OptimalControl manual-abstract-dynamics-coord) and the following section for more details.
+    The dynamics and the nonlinear constraints must be in scalar form. See the section [Dynamics (coordinatewise)](@extref OptimalControl modelling-abstract-syntax-dynamics-coord) and the following section for more details.
 
 **4.** Define the **JuMP** model of the problem in a file named `new_problem.jl` in the `ext/JuMPModels` directory, following the template:
 

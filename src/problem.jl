@@ -8,7 +8,7 @@ OptimalControl, and its initial guess. Discretizing and solving it is left to
 `OptimalControl.solve`, where the scheme, the grid, the modeler and the solver are chosen.
 
 A `Problem` is returned by a problem function for the OptimalControl modelings. Read it
-through [`model`](@ref), [`initial_guess`](@ref) and [`metadata`](@ref).
+through `model(pb)`, [`initial_guess`](@ref) and `metadata(pb)`.
 
 # Fields
 

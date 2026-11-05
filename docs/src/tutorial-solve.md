@@ -71,7 +71,7 @@ println("iterations: ", i)
     v = variable(ocp_sol)
     ```
 
-From `ocp_sol` you can also plot the state, control, and costate trajectories. For more details about plotting optimal control problems, see the [Plot Manual](@extref OptimalControl manual-plot).
+From `ocp_sol` you can also plot the state, control, and costate trajectories. For more details about plotting optimal control problems, see the [Plot](@extref OptimalControl results-plot) page.
 
 ```@example main
 using Plots
