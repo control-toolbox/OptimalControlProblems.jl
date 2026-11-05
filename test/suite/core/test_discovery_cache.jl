@@ -78,9 +78,11 @@ end
 function remove_include_dependencies(package)
     path = joinpath(package, "src", "OptimalControlProblems.jl")
     source = read(path, String)
-    @assert occursin("    Base.include_dependency(path)\n", source)
-    source = replace(source, "    Base.include_dependency(path)\n" => "")
-    directory_dependency = r"    Base\.include_dependency\(joinpath\(dirname\(@__FILE__\), \"\.\.\", \"ext\", spec\.directory\)\)\n"
+    # The checkout has CRLF line endings on Windows: `\r?\n`.
+    path_dependency = r"    Base\.include_dependency\(path\)\r?\n"
+    @assert occursin(path_dependency, source)
+    source = replace(source, path_dependency => "")
+    directory_dependency = r"    Base\.include_dependency\(joinpath\(dirname\(@__FILE__\), \"\.\.\", \"ext\", spec\.directory\)\)\r?\n"
     @assert occursin(directory_dependency, source)
     source = replace(source, directory_dependency => "";)
     return write(path, source)
