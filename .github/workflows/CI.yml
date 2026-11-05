@@ -43,8 +43,10 @@ jobs:
           startsWith(github.event.label.name, 'test ')))
     uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
     with:
-      versions: '["1.10", "1.13"]'
-      runs_on: '["ubuntu-latest", "macos-latest", "windows-latest"]'
+      # Temporary, during the reorganisation of #310: Ubuntu and Julia 1.13 only.
+      # Restore Julia 1.10 and macOS/Windows at the end (#344).
+      versions: '["1.13"]'
+      runs_on: '["ubuntu-latest"]'
       runner_type: 'github'
       use_ct_registry: true
       test_args: ${{ needs.scope.outputs.test_args }}

@@ -88,7 +88,7 @@ it runs:
 
 | Labels | Effect |
 | --- | --- |
-| `run ci github-runner` | run the CI on GitHub runners (Julia 1.10 and 1.13, three OSes) |
+| `run ci github-runner` | run the CI on GitHub runners (Ubuntu and Julia 1.13 only for now; Julia 1.10, macOS and Windows come back at the end of #310, see #344) |
 | `test <environment> backend`, `test comparison` | run core and these environments only |
 | no scope label | run core and every environment except the opt-in ones |
 
