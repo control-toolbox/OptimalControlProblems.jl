@@ -1,6 +1,6 @@
 """Tests of `tools/ci/scope.py` — the pull-request test scoping of `CI.yml`.
 
-Run: `python3 -m unittest discover -s test/ci -p 'test_*.py' -v` from the
+Run: `python3 -m unittest discover -s tools/ci/test -p 'test_*.py' -v` from the
 repository root. Every case feeds the script a label list and a
 `status<TAB>filename` file list on standard input, and checks the printed
 `test_args` and the logged reason. Narrowing to `problem=` happens only when
@@ -13,7 +13,7 @@ import sys
 import unittest
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ROOT / "tools" / "ci" / "scope.py"
 
 

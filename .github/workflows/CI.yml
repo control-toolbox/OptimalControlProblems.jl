@@ -24,7 +24,7 @@ jobs:
     outputs:
       test_args: ${{ steps.scope.outputs.test_args }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
       - id: files
         if: github.event_name == 'pull_request'
         env:
@@ -40,6 +40,12 @@ jobs:
             rm -f changed_files.tsv.new
             echo "::warning::could not list the pull request files; the complete catalogue runs"
           fi
+
+      - name: Test the CI tooling
+        run: |
+          python3 -m unittest discover -s tools/cron/test -p 'test_*.py' -v
+          python3 -m unittest discover -s tools/ci/test -p 'test_*.py' -v
+
       - id: scope
         env:
           # null outside pull_request events: the script reads it as no label.

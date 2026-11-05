@@ -57,6 +57,23 @@ function test_status()
             Test.@test (ts.pass, ts.fail) == (1, 1)
             Test.@test Main.TestStatus.outcome(ts) == "fail"
         end
+
+        Test.@testset "nested valid outcomes" begin
+            passing = Test.DefaultTestSet("outer")
+            inner_pass = Test.DefaultTestSet("inner")
+            Test.record(inner_pass, Test.Pass(:test, nothing, nothing, nothing))
+            Test.record(passing, inner_pass)
+            Test.@test Main.TestStatus.outcome(passing) == "pass"
+
+            failing = Test.DefaultTestSet("outer")
+            inner_fail = Test.DefaultTestSet("inner")
+            Test.record(
+                inner_fail,
+                Test.Fail(:test, nothing, nothing, nothing, LineNumberNode(1)),
+            )
+            Test.record(failing, inner_fail)
+            Test.@test Main.TestStatus.outcome(failing) == "fail"
+        end
     end
 end
 

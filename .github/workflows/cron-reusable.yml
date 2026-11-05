@@ -1,0 +1,195 @@
+name: Cron (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: Test environment passed to Pkg.test
+        required: true
+        type: string
+      gpu:
+        description: Run the scope on the automatic GPU runner as well
+        required: false
+        default: false
+        type: boolean
+      enabled:
+        description: Keep a future scope disabled until its environment exists
+        required: false
+        default: true
+        type: boolean
+    secrets:
+      SSH_KEY:
+        required: false
+      CT_RUNNERS_CLIENT_ID:
+        required: false
+      CT_RUNNERS_PRIVATE_KEY:
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  # The called CTActions workflows request `actions`, `contents` and `pull-requests` read
+  # (their `changes` job); a nested job cannot be granted less than it requests.
+  cpu:
+    if: inputs.enabled
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
+    with:
+      versions: '["1.13"]'
+      use_ct_registry: true
+      test_args: ${{ inputs.environment }} cron
+      upload_artifact_path: test/reports
+      upload_artifact_name: cron-${{ inputs.environment }}
+    secrets:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+
+  gpu:
+    if: inputs.enabled && inputs.gpu
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    uses: control-toolbox/CTActions/.github/workflows/ci-gpu.yml@main
+    with:
+      versions: '["1.13"]'
+      use_ct_registry: true
+      test_args: ${{ inputs.environment }} cron
+      upload_artifact_path: test/reports
+      upload_artifact_name: cron-${{ inputs.environment }}-gpu
+    secrets:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      CT_RUNNERS_CLIENT_ID: ${{ secrets.CT_RUNNERS_CLIENT_ID }}
+      CT_RUNNERS_PRIVATE_KEY: ${{ secrets.CT_RUNNERS_PRIVATE_KEY }}
+
+  publish:
+    if: always() && inputs.enabled
+    needs: [cpu, gpu]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    concurrency:
+      group: cron-results
+      cancel-in-progress: false
+    env:
+      SCOPE: ${{ inputs.environment }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      TESTS_FAILED: ${{ needs.cpu.result != 'success' || needs.gpu.result == 'failure' }}
+      RESULTS_DIR: /tmp/cron-results
+    steps:
+      - name: Checkout package
+        uses: actions/checkout@v4
+
+      - name: Download test reports
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: cron-${{ inputs.environment }}*
+          path: artifacts
+
+      - name: Ensure the reports directory exists
+        shell: bash
+        run: mkdir -p artifacts
+
+      - name: Prepare the single-commit results tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp tools/cron/report.py "$RUNNER_TEMP/cron-report.py"
+          if git ls-remote --exit-code origin results >/dev/null 2>&1; then
+            git fetch origin results
+            git worktree add --detach "$RESULTS_DIR" origin/results
+            backup="$RUNNER_TEMP/results-backup"
+            mkdir -p "$backup"
+            find "$RESULTS_DIR" -mindepth 1 -maxdepth 1 ! -name .git -exec cp -a {} "$backup/" \;
+          else
+            git worktree add --detach "$RESULTS_DIR" HEAD
+            backup=''
+          fi
+          git -C "$RESULTS_DIR" switch --orphan cron-results
+          git -C "$RESULTS_DIR" rm -rf .
+          if [ -n "$backup" ]; then
+            find "$backup" -mindepth 1 -maxdepth 1 -exec cp -a {} "$RESULTS_DIR/" \;
+          fi
+          mkdir -p "$RESULTS_DIR/cron"
+
+      - name: Write report and observed state
+        shell: bash
+        run: |
+          set -euo pipefail
+          package_version=$(sed -n 's/^version = "\(.*\)"/\1/p' Project.toml | head -1)
+          test_failed_arg=()
+          [ "$TESTS_FAILED" = "true" ] && test_failed_arg+=(--tests-failed)
+          python3 "$RUNNER_TEMP/cron-report.py" \
+            --reports-dir artifacts \
+            --scope "$SCOPE" \
+            --run-url "$RUN_URL" \
+            --state-file "$RESULTS_DIR/cron/state.json" \
+            --output "$RESULTS_DIR/cron/$SCOPE.md" \
+            --sha "$GITHUB_SHA" \
+            --julia-version '1.13' \
+            --package-version "$package_version" \
+            "${test_failed_arg[@]}"
+
+      - name: Publish report and observed state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C "$RESULTS_DIR" config user.name github-actions[bot]
+          git -C "$RESULTS_DIR" config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git -C "$RESULTS_DIR" add cron
+          git -C "$RESULTS_DIR" commit -m "ci: publish $SCOPE cron report" --allow-empty
+          if git ls-remote --exit-code origin results >/dev/null 2>&1; then
+            git -C "$RESULTS_DIR" push --force-with-lease origin HEAD:refs/heads/results
+          else
+            git -C "$RESULTS_DIR" push origin HEAD:refs/heads/results
+          fi
+
+      - name: Update cron issues
+        id: issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test_failed_arg=()
+          [ "$TESTS_FAILED" = "true" ] && test_failed_arg+=(--tests-failed)
+          python3 "$RUNNER_TEMP/cron-report.py" \
+            --reports-dir artifacts \
+            --scope "$SCOPE" \
+            --run-url "$RUN_URL" \
+            --state-file "$RESULTS_DIR/cron/state.json" \
+            --output "$RESULTS_DIR/cron/$SCOPE.md" \
+            --sha "$GITHUB_SHA" \
+            --julia-version '1.13' \
+            --package-version "$(sed -n 's/^version = \"\(.*\)\"/\1/p' Project.toml | head -1)" \
+            --issues \
+            "${test_failed_arg[@]}"
+
+      - name: Publish issue state
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C "$RESULTS_DIR" add cron/state.json
+          if ! git -C "$RESULTS_DIR" diff --cached --quiet; then
+            git -C "$RESULTS_DIR" commit --amend --no-edit
+            git -C "$RESULTS_DIR" push --force-with-lease origin HEAD:refs/heads/results
+          fi
+
+      - name: Report the run outcome
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ needs.cpu.result }}" != "success" ] || \
+             [ "${{ needs.gpu.result }}" = "failure" ] || \
+             [ "${{ steps.issues.outcome }}" != "success" ]; then
+            echo "A cron test or issue-update job failed."
+            exit 1
+          fi

@@ -1,0 +1,20 @@
+name: Cron ModelingToolkit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cron:
+    permissions:
+      actions: read
+      contents: write
+      issues: write
+      pull-requests: read
+    uses: ./.github/workflows/cron-reusable.yml
+    with:
+      environment: ModelingToolkit
+      enabled: false
+    secrets: inherit

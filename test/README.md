@@ -58,9 +58,10 @@ loop with `Main.TestStatus.for_each_problem(f, test, backends...)`:
 - a test between several modelings is `:valid` only when the problem is `:valid` in all.
 
 Each run writes `test/reports/<environment>[-cron].md` (git-ignored): one line per test
-and problem, with its status and outcome. The lines worth reading (drafts, checks that
-report instead of failing) are also printed. A draft whose line says `pass` everywhere is
-ready to become `:valid`.
+and problem, with its status and outcome (`pass`, `fail`, `error`, or `no test`). The
+lines worth reading (drafts and checks that report instead of failing) are also printed.
+A draft whose line says `pass` everywhere is ready to become `:valid`. The cron workflows
+collect these files and publish their scope-specific report on the `results` branch.
 
 ## What is compared, and what is not
 
@@ -100,7 +101,7 @@ combined with any scope labels, so `test JuMP backend` and a change to `beam` ru
 `JuMP problem=beam`. Any shared, removed, or renamed file, an unreadable or truncated
 file list, a release pull request, and the `test all problems` label run the complete
 catalogue: narrowing only happens on positive evidence. The decision is made by
-`tools/ci/scope.py`, tested by `python3 -m unittest discover -s test/ci -p 'test_*.py'`.
+`tools/ci/scope.py`, tested by `python3 -m unittest discover -s tools/ci/test -p 'test_*.py'`.
 
 `problem=` also narrows `core`: checks that loop over problems run for the selected
 problems only, while the repository-wide checks (files, metadata schema) are unaffected.
