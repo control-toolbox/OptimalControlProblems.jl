@@ -27,10 +27,8 @@
 #   instance the one you add; `core` and the environments are unchanged otherwise.
 #
 # Test files follow TST1: a module and an entry function `test_<name>()`. Their discovery,
-# their selection by the patterns and their execution are `CTBase.DevTools.run_tests`
-# (`-n` after the patterns lists the selected files without running them, in a directory of
-# `suite/` or `cron/`); the environments, `cron` and `problem=` are local
-# (`common/selection.jl`).
+# their selection by the patterns and their execution are `CTBase.DevTools.run_tests`; the
+# environments, `cron` and `problem=` are local (`common/selection.jl`).
 # ==============================================================================
 
 using Test: Test
