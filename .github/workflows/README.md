@@ -46,7 +46,10 @@ workflow with an undeclared input fails at workflow validation.
 
 Three repository-wide issues, each with one section per scope (replaced by each run of that
 scope), and one `cron-bug` issue per failing (problem, modeling). All of them explain what
-to do in their own text; this is the longer version.
+to do in their own text; this is the longer version. **Nothing is changed automatically:** the
+cron only reports. A maintainer decides what to do (and may ask an agent to do it); in
+particular a draft becomes `:valid`, or a failing problem becomes `:draft`, only by a pull
+request that edits `ext/MetaData/<problem>.jl`.
 
 - **`cron-failure`** — a `:valid` problem failed in a scope (or the run failed or produced no
   report). Open the run, read the failing configuration (platform and test), reproduce it
