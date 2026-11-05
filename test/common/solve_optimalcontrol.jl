@@ -8,7 +8,13 @@ using NLPModelsIpopt: NLPModelsIpopt # loads the Ipopt strategy of OptimalContro
 using OptimalControl: OptimalControl
 using OptimalControlProblems: OptimalControlProblems
 
-const MODELERS = Dict(:adnlp => OptimalControl.ADNLP, :exa => OptimalControl.Exa)
+# The GPU strategies need CUDA (modeler) and MadNLPGPU, CUDA, CUDSS (solver) loaded: the
+# environment `GPU` loads them.
+const MODELERS = Dict(
+    :adnlp => OptimalControl.ADNLP,
+    :exa => OptimalControl.Exa,
+    :exa_gpu => OptimalControl.Exa{OptimalControl.GPU},
+)
 
 function solver(name::Symbol; max_iter::Int)
     o = Main.TestConfigs
@@ -21,8 +27,9 @@ function solver(name::Symbol; max_iter::Int)
             max_iter=max_iter,
             max_wall_time=o.MAX_WALL_TIME,
         )
-    elseif name === :madnlp
-        return OptimalControl.MadNLP(;
+    elseif name === :madnlp || name === :madnlp_gpu
+        T = name === :madnlp ? OptimalControl.MadNLP : OptimalControl.MadNLP{OptimalControl.GPU}
+        return T(;
             print_level=MadNLP.ERROR,
             tol=o.TOL,
             max_iter=max_iter,

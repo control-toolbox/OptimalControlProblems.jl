@@ -82,3 +82,51 @@ jobs:
       test_args: ${{ needs.scope.outputs.test_args }}
     secrets:
       SSH_KEY: ${{ secrets.SSH_KEY }}
+
+  # GPU tests (environment `GPU`: Exa and MadNLP on the GPU, test/README.md) on the
+  # self-hosted runners, on a pull request with the runner label. A `labeled` event fires
+  # once per label added: react only to the label of the runner, and to the other events
+  # when the label is set.
+  test-gpu-occidata:
+    if: >
+      github.event_name == 'pull_request' &&
+      ((github.event.action == 'labeled' && github.event.label.name == 'run ci occidata-runner') ||
+      (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'run ci occidata-runner')))
+    uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
+    with:
+      versions: '["1.13"]'
+      runs_on: '[["occidata"]]'
+      runner_type: 'self-hosted'
+      use_ct_registry: true
+      test_args: 'GPU'
+    secrets:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+
+  test-gpu-kkt:
+    if: >
+      github.event_name == 'pull_request' &&
+      ((github.event.action == 'labeled' && github.event.label.name == 'run ci kkt-runner') ||
+      (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'run ci kkt-runner')))
+    uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
+    with:
+      versions: '["1.13"]'
+      runs_on: '[["kkt"]]'
+      runner_type: 'self-hosted'
+      use_ct_registry: true
+      test_args: 'GPU'
+    secrets:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+
+  # On a push (main, tags): a single GPU run, on kkt unless it is offline, else occidata
+  # (CTActions ci-gpu.yml).
+  test-gpu-main:
+    if: github.event_name != 'pull_request'
+    uses: control-toolbox/CTActions/.github/workflows/ci-gpu.yml@main
+    with:
+      versions: '["1.13"]'
+      use_ct_registry: true
+      test_args: 'GPU'
+    secrets:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      CT_RUNNERS_CLIENT_ID: ${{ secrets.CT_RUNNERS_CLIENT_ID }}
+      CT_RUNNERS_PRIVATE_KEY: ${{ secrets.CT_RUNNERS_PRIVATE_KEY }}
