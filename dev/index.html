@@ -1,317 +1,350 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Getting Started · OptimalControlProblems.jl</title><meta name="title" content="Getting Started · OptimalControlProblems.jl"/><meta property="og:title" content="Getting Started · OptimalControlProblems.jl"/><meta property="twitter:title" content="Getting Started · OptimalControlProblems.jl"/><meta name="description" content="Documentation for OptimalControlProblems.jl."/><meta property="og:description" content="Documentation for OptimalControlProblems.jl."/><meta property="twitter:description" content="Documentation for OptimalControlProblems.jl."/><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.63.2/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="search_index.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script><link href="https://control-toolbox.org/assets/css/documentation.css" rel="stylesheet" type="text/css"/><script src="https://control-toolbox.org/assets/js/documentation.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="index.html">OptimalControlProblems.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li class="is-active"><a class="tocitem" href="index.html">Getting Started</a><ul class="internal"><li><a class="tocitem" href="#Installation"><span>Installation</span></a></li><li><a class="tocitem" href="#Citing-us"><span>Citing us</span></a></li><li><a class="tocitem" href="#Contributing"><span>Contributing</span></a></li><li><a class="tocitem" href="#Credits-(not-exhaustive!)"><span>Credits (not exhaustive!)</span></a></li><li><a class="tocitem" href="#Reproducibility"><span>Reproducibility</span></a></li></ul></li><li><span class="tocitem">Problems</span><ul><li><a class="tocitem" href="problems-introduction.html">Introduction</a></li><li><a class="tocitem" href="problems_browser.html">Problems browser</a></li><li><input class="collapse-toggle" id="menuitem-2-3" type="checkbox"/><label class="tocitem" for="menuitem-2-3"><span class="docs-label">List of the problems</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="problems/balanced_field.html">Balanced field</a></li><li><a class="tocitem" href="problems/beam.html">Beam</a></li><li><a class="tocitem" href="problems/bioreactor.html">Bioreactor</a></li><li><a class="tocitem" href="problems/brachistochrone.html">Brachistochrone</a></li><li><a class="tocitem" href="problems/bryson_denham.html">Bryson denham</a></li><li><a class="tocitem" href="problems/cart_pendulum.html">Cart pendulum</a></li><li><a class="tocitem" href="problems/chain.html">Chain</a></li><li><a class="tocitem" href="problems/dielectrophoretic_particle.html">Dielectrophoretic particle</a></li><li><a class="tocitem" href="problems/double_oscillator.html">Double oscillator</a></li><li><a class="tocitem" href="problems/ducted_fan.html">Ducted fan</a></li><li><a class="tocitem" href="problems/electric_vehicle.html">Electric vehicle</a></li><li><a class="tocitem" href="problems/glider.html">Glider</a></li><li><a class="tocitem" href="problems/insurance.html">Insurance</a></li><li><a class="tocitem" href="problems/jackson.html">Jackson</a></li><li><a class="tocitem" href="problems/moonlander.html">Moonlander</a></li><li><a class="tocitem" href="problems/mountain_car.html">Mountain car</a></li><li><a class="tocitem" href="problems/robbins.html">Robbins</a></li><li><a class="tocitem" href="problems/robot.html">Robot</a></li><li><a class="tocitem" href="problems/rocket.html">Rocket</a></li><li><a class="tocitem" href="problems/space_shuttle.html">Space shuttle</a></li><li><a class="tocitem" href="problems/steering.html">Steering</a></li><li><a class="tocitem" href="problems/vanderpol.html">Vanderpol</a></li></ul></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="tutorial-get.html">Get a problem</a></li><li><a class="tocitem" href="tutorial-solve.html">Solve a problem</a></li></ul></li><li><span class="tocitem">Developers</span><ul><li><a class="tocitem" href="dev-add.html">Add a problem</a></li><li><a class="tocitem" href="dev-jump-transcription.html">JuMP transcription</a></li><li><a class="tocitem" href="dev-api.html">API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href="index.html">Getting Started</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="index.html">Getting Started</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/control-toolbox/OptimalControlProblems.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/control-toolbox/OptimalControlProblems.jl/blob/main/docs/src/index.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="OptimalControlProblems.jl"><a class="docs-heading-anchor" href="#OptimalControlProblems.jl">OptimalControlProblems.jl</a><a id="OptimalControlProblems.jl-1"></a><a class="docs-heading-anchor-permalink" href="#OptimalControlProblems.jl" title="Permalink"></a></h1><p>The <strong>OptimalControlProblems.jl</strong> package is part of the <a href="https://github.com/control-toolbox">control-toolbox ecosystem</a> and is independent of <a href="https://control-toolbox.org/OptimalControl.jl">OptimalControl.jl</a>. The control-toolbox ecosystem brings together Julia packages for mathematical control and its applications. Its purpose is to provide tools to model and solve optimal control problems governed by ordinary differential equations, using both direct and indirect methods, on CPU and GPU.  </p><p>If you would like to define and solve your own optimal control problem, please refer to the <a href="https://control-toolbox.org/OptimalControl.jl">OptimalControl.jl documentation</a>.</p><p>In <strong>OptimalControlProblems.jl</strong>, you will find a collection of optimal control problems modelled with JuMP and OptimalControl that can be used for benchmarking.</p><h2 id="Installation"><a class="docs-heading-anchor" href="#Installation">Installation</a><a id="Installation-1"></a><a class="docs-heading-anchor-permalink" href="#Installation" title="Permalink"></a></h2><p>To install <strong>OptimalControlProblems.jl</strong>, please <a href="https://docs.julialang.org/en/v1/manual/getting-started">open Julia’s interactive session (known as the REPL)</a> and use the Julia package manager:</p><pre><code class="language-julia hljs">using Pkg
-Pkg.add(&quot;OptimalControlProblems&quot;)</code></pre><h2 id="Citing-us"><a class="docs-heading-anchor" href="#Citing-us">Citing us</a><a id="Citing-us-1"></a><a class="docs-heading-anchor-permalink" href="#Citing-us" title="Permalink"></a></h2><p>If you use OptimalControlProblems.jl in your work, please cite us:</p><blockquote><p>Caillau, J.-B., Cots, O., Gergaud, J., &amp; Martinon, P. <em>OptimalControlProblems.jl: a collection of optimal control problems with ODE&#39;s in Julia</em>. <a href="https://doi.org/10.5281/zenodo.17013180">doi.org/10.5281/zenodo.17013180</a></p></blockquote><p>or in bibtex format:</p><pre><code class="language-bibtex hljs">@software{OptimalControlProblems_jl,
-author = {Caillau, Jean-Baptiste and Cots, Olivier and Gergaud, Joseph and Martinon, Pierre},
-doi = {10.5281/zenodo.17013180},
-license = {[&quot;MIT&quot;]},
-title = {{OptimalControlProblems.jl: a collection of optimal control problems with ODE&#39;s in Julia}},
-url = {https://control-toolbox.org/OptimalControlProblems.jl}
-}</code></pre><h2 id="Contributing"><a class="docs-heading-anchor" href="#Contributing">Contributing</a><a id="Contributing-1"></a><a class="docs-heading-anchor-permalink" href="#Contributing" title="Permalink"></a></h2><p>If you think you found a bug or if you have a feature request / suggestion, feel free to open an <a href="https://github.com/control-toolbox/OptimalControlProblems.jl/issues">issue</a>. Before opening a pull request, please start an issue or a discussion on the topic. </p><p>Contributions are welcomed, check out <a href="https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project">how to contribute to a Github project</a>. If it is your first contribution, you can also check <a href="https://github.com/firstcontributions/first-contributions">this first contribution tutorial</a>. You can find first good issues (if any 🙂) <a href="https://github.com/control-toolbox/OptimalControlProblems.jl/contribute">here</a>. You may find other packages to contribute to at the <a href="https://github.com/control-toolbox">control-toolbox organization</a>.</p><p>If you want to ask a question, feel free to start a discussion <a href="https://github.com/orgs/control-toolbox/discussions">here</a>. This forum is for general discussion about this repository and the <a href="https://github.com/control-toolbox">control-toolbox organization</a>.</p><div class="admonition is-info" id="Note-23f66145f5027041"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-23f66145f5027041" title="Permalink"></a></header><div class="admonition-body"><p>If you want to add an application or a package to the control-toolbox ecosystem, please follow this <a href="https://github.com/orgs/control-toolbox/discussions/65">set up tutorial</a>.</p></div></div><h2 id="Credits-(not-exhaustive!)"><a class="docs-heading-anchor" href="#Credits-(not-exhaustive!)">Credits (not exhaustive!)</a><a id="Credits-(not-exhaustive!)-1"></a><a class="docs-heading-anchor-permalink" href="#Credits-(not-exhaustive!)" title="Permalink"></a></h2><ul><li><a href="https://github.com/BaptisteCbl">BaptisteCbl</a></li><li><a href="https://github.com/0Yassine0">0Yassine0</a></li><li><a href="https://github.com/Nico77310">Nico77310</a></li><li><a href="https://github.com/frapac">frapac</a></li><li><a href="https://github.com/AmielMetier">AmielMetier</a></li><li><a href="https://github.com/HediChennoufi">HediChennoufi</a></li><li><a href="https://project.inria.fr/bocop/files/2017/05/Examples-BOCOP.pdf">BOCOP - A collection of examples</a></li><li><a href="https://www.mcs.anl.gov/~more/cops">COPS: Large-Scale Optimization Problems</a> and <a href="https://github.com/MadNLP/COPSBenchmark.jl">COPSBenchmark.jl</a></li></ul><h2 id="Reproducibility"><a class="docs-heading-anchor" href="#Reproducibility">Reproducibility</a><a id="Reproducibility-1"></a><a class="docs-heading-anchor-permalink" href="#Reproducibility" title="Permalink"></a></h2><div class="markdown"><p>You can download the exact environment used to build this documentation:</p>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>OptimalControlProblems.jl</title>
+    <meta name="description" content="Documentation for OptimalControlProblems.jl">
+    <meta name="generator" content="VitePress v1.6.4">
+    <link rel="preload stylesheet" href="/OptimalControlProblems.jl/dev/assets/style.BQMD4TvS.css" as="style">
+    <link rel="preload stylesheet" href="/OptimalControlProblems.jl/dev/vp-icons.css" as="style">
+    
+    <script type="module" src="/OptimalControlProblems.jl/dev/assets/app.ClZKZEnA.js"></script>
+    <link rel="preload" href="/OptimalControlProblems.jl/dev/assets/inter-roman-latin.Di8DUHzh.woff2" as="font" type="font/woff2" crossorigin="">
+    <link rel="modulepreload" href="/OptimalControlProblems.jl/dev/assets/chunks/theme.w-DMCX8v.js">
+    <link rel="modulepreload" href="/OptimalControlProblems.jl/dev/assets/chunks/framework.oN_wIzVc.js">
+    <link rel="modulepreload" href="/OptimalControlProblems.jl/dev/assets/index.md.CPqDNZPX.lean.js">
+    <link rel="stylesheet" href="https://control-toolbox.org/assets/css/vitepress-documentation.css">
+    <script src="/OptimalControlProblems.jl/versions.js"></script>
+    <script src="https://control-toolbox.org/assets/js/vitepress-documentation.js"></script>
+    <script src="/OptimalControlProblems.jl/dev/siteinfo.js"></script>
+    <meta name="robots" content="noindex, nofollow">
+    <script id="check-dark-mode">(()=>{const e=localStorage.getItem("vitepress-theme-appearance")||"auto",a=window.matchMedia("(prefers-color-scheme: dark)").matches;(!e||e==="auto"?a:e==="dark")&&document.documentElement.classList.add("dark")})();</script>
+    <script id="check-mac-os">document.documentElement.classList.toggle("mac",/Mac|iPhone|iPod|iPad/i.test(navigator.platform));</script>
+  </head>
+  <body>
+    <div id="app"><div class="Layout" data-v-a9a9e638><!--[--><!--]--><!--[--><span tabindex="-1" data-v-492508fc></span><a href="#VPContent" class="VPSkipLink visually-hidden" data-v-492508fc>Skip to content</a><!--]--><!----><header class="VPNav" data-v-a9a9e638 data-v-f1e365da><div class="VPNavBar" data-v-f1e365da data-v-822684d1><div class="wrapper" data-v-822684d1><div class="container" data-v-822684d1><div class="title" data-v-822684d1><div class="VPNavBarTitle has-sidebar" data-v-822684d1 data-v-0f4f798b><a class="title" href="/OptimalControlProblems.jl/dev/" data-v-0f4f798b><!--[--><!--]--><!----><span data-v-0f4f798b>OptimalControlProblems.jl</span><!--[--><!--]--></a></div></div><div class="content" data-v-822684d1><div class="content-body" data-v-822684d1><!--[--><!--[--><!--[--><button class="sidebar-drawer-btn" title="Hide sidebar" aria-label="Hide sidebar" data-v-3a10693e><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-drawer-icon" data-v-3a10693e><rect x="3" y="3" width="18" height="18" rx="2" data-v-3a10693e></rect><line x1="9" y1="3" x2="9" y2="21" data-v-3a10693e></line><polyline points="16 15 13 12 16 9" data-v-3a10693e></polyline></svg></button><!--]--><!--]--><!--]--><div class="VPNavBarSearch search" data-v-822684d1><!--[--><!----><div id="local-search"><button type="button" class="DocSearch DocSearch-Button" aria-label="Search"><span class="DocSearch-Button-Container"><span class="vp-icon DocSearch-Search-Icon"></span><span class="DocSearch-Button-Placeholder">Search</span></span><span class="DocSearch-Button-Keys"><kbd class="DocSearch-Button-Key"></kbd><kbd class="DocSearch-Button-Key">K</kbd></span></button></div><!--]--></div><nav aria-labelledby="main-nav-aria-label" class="VPNavBarMenu menu" data-v-822684d1 data-v-e6d46098><span id="main-nav-aria-label" class="visually-hidden" data-v-e6d46098> Main Navigation </span><!--[--><!--[--><a class="VPLink link VPNavBarMenuLink active" href="/OptimalControlProblems.jl/dev/" tabindex="0" data-v-e6d46098 data-v-956ec74c><!--[--><span data-v-956ec74c>Home</span><!--]--></a><!--]--><!--[--><!----><!--]--><!--]--></nav><!----><div class="VPNavBarAppearance appearance" data-v-822684d1 data-v-af096f4a><button class="VPSwitch VPSwitchAppearance" type="button" role="switch" title aria-checked="false" data-v-af096f4a data-v-e40a8bb6 data-v-4a1c76db><span class="check" data-v-4a1c76db><span class="icon" data-v-4a1c76db><!--[--><span class="vpi-sun sun" data-v-e40a8bb6></span><span class="vpi-moon moon" data-v-e40a8bb6></span><!--]--></span></span></button></div><div class="VPSocialLinks VPNavBarSocialLinks social-links" data-v-822684d1 data-v-164c457f data-v-ee7a9424><!--[--><a class="VPSocialLink no-icon" href="https://github.com/control-toolbox/OptimalControlProblems.jl" aria-label="github" target="_blank" rel="noopener" data-v-ee7a9424 data-v-d26d30cb><span class="vpi-social-github"></span></a><!--]--></div><div class="VPFlyout VPNavBarExtra extra" data-v-822684d1 data-v-925effce data-v-04f5c5e9><button type="button" class="button" aria-haspopup="true" aria-expanded="false" aria-label="extra navigation" data-v-04f5c5e9><span class="vpi-more-horizontal icon" data-v-04f5c5e9></span></button><div class="menu" data-v-04f5c5e9><div class="VPMenu" data-v-04f5c5e9 data-v-7dd3104a><!----><!--[--><!--[--><!----><div class="group" data-v-925effce><div class="item appearance" data-v-925effce><p class="label" data-v-925effce>Appearance</p><div class="appearance-action" data-v-925effce><button class="VPSwitch VPSwitchAppearance" type="button" role="switch" title aria-checked="false" data-v-925effce data-v-e40a8bb6 data-v-4a1c76db><span class="check" data-v-4a1c76db><span class="icon" data-v-4a1c76db><!--[--><span class="vpi-sun sun" data-v-e40a8bb6></span><span class="vpi-moon moon" data-v-e40a8bb6></span><!--]--></span></span></button></div></div></div><div class="group" data-v-925effce><div class="item social-links" data-v-925effce><div class="VPSocialLinks social-links-list" data-v-925effce data-v-ee7a9424><!--[--><a class="VPSocialLink no-icon" href="https://github.com/control-toolbox/OptimalControlProblems.jl" aria-label="github" target="_blank" rel="noopener" data-v-ee7a9424 data-v-d26d30cb><span class="vpi-social-github"></span></a><!--]--></div></div></div><!--]--><!--]--></div></div></div><!--[--><!--[--><!--[--><div class="VPFlyout VPNolebaseEnhancedReadabilitiesMenu VPNolebaseEnhancedReadabilitiesMenuFlyout" aria-label="Enhanced Readability" role="menuitem" data-v-04f5c5e9><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-04f5c5e9><span class="text" data-v-04f5c5e9><span class="i-icon-park-outline:book-open option-icon" data-v-04f5c5e9></span><!----><span class="vpi-chevron-down text-icon" data-v-04f5c5e9></span></span></button><div class="menu" data-v-04f5c5e9><div class="VPMenu" data-v-04f5c5e9 data-v-7dd3104a><!----><!--[--><!--]--></div></div></div><!--]--><!--]--><!--]--><button type="button" class="VPNavBarHamburger hamburger" aria-label="mobile navigation" aria-expanded="false" aria-controls="VPNavScreen" data-v-822684d1 data-v-5dea55bf><span class="container" data-v-5dea55bf><span class="top" data-v-5dea55bf></span><span class="middle" data-v-5dea55bf></span><span class="bottom" data-v-5dea55bf></span></span></button></div></div></div></div><div class="divider" data-v-822684d1><div class="divider-line" data-v-822684d1></div></div></div><!----></header><div class="VPLocalNav has-sidebar empty" data-v-a9a9e638 data-v-070ab83d><div class="container" data-v-070ab83d><button class="menu" aria-expanded="false" aria-controls="VPSidebarNav" data-v-070ab83d><span class="vpi-align-left menu-icon" data-v-070ab83d></span><span class="menu-text" data-v-070ab83d>Menu</span></button><div class="VPLocalNavOutlineDropdown" style="--vp-vh:0px;" data-v-070ab83d data-v-168ddf5d><button data-v-168ddf5d>Return to top</button><!----></div></div></div><aside class="VPSidebar" data-v-a9a9e638 data-v-18756405><div class="curtain" data-v-18756405></div><nav class="nav" id="VPSidebarNav" aria-labelledby="sidebar-aria-label" tabindex="-1" data-v-18756405><span class="visually-hidden" id="sidebar-aria-label" data-v-18756405> Sidebar Navigation </span><!--[--><!--]--><!--[--><div class="no-transition group" data-v-9e426adc><section class="VPSidebarItem level-0 collapsible" data-v-9e426adc data-v-a4b0d9bf><div class="item" role="button" tabindex="0" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><h2 class="text" data-v-a4b0d9bf>Problems</h2><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-a4b0d9bf><span class="vpi-chevron-right caret-icon" data-v-a4b0d9bf></span></div></div><div class="items" data-v-a4b0d9bf><!--[--><div class="VPSidebarItem level-1 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems-introduction" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Introduction</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-1 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems_browser" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Problems browser</p><!--]--></a><!----></div><!----></div><section class="VPSidebarItem level-1 collapsible" data-v-a4b0d9bf><div class="item" role="button" tabindex="0" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><h3 class="text" data-v-a4b0d9bf>List of the problems</h3><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-a4b0d9bf><span class="vpi-chevron-right caret-icon" data-v-a4b0d9bf></span></div></div><div class="items" data-v-a4b0d9bf><!--[--><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/balanced_field" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Balanced field</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/beam" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Beam</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/bioreactor" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Bioreactor</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/brachistochrone" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Brachistochrone</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/bryson_denham" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Bryson denham</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/cart_pendulum" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Cart pendulum</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/chain" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Chain</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/dielectrophoretic_particle" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Dielectrophoretic particle</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/double_oscillator" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Double oscillator</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/ducted_fan" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Ducted fan</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/electric_vehicle" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Electric vehicle</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/glider" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Glider</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/insurance" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Insurance</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/jackson" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Jackson</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/moonlander" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Moonlander</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/mountain_car" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Mountain car</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/robbins" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Robbins</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/robot" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Robot</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/rocket" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Rocket</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/space_shuttle" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Space shuttle</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/steering" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Steering</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/problems/vanderpol" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Vanderpol</p><!--]--></a><!----></div><!----></div><!--]--></div></section><!--]--></div></section></div><div class="no-transition group" data-v-9e426adc><section class="VPSidebarItem level-0 collapsible" data-v-9e426adc data-v-a4b0d9bf><div class="item" role="button" tabindex="0" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><h2 class="text" data-v-a4b0d9bf>Tutorials</h2><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-a4b0d9bf><span class="vpi-chevron-right caret-icon" data-v-a4b0d9bf></span></div></div><div class="items" data-v-a4b0d9bf><!--[--><div class="VPSidebarItem level-1 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/tutorial-get" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Get a problem</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-1 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/tutorial-solve" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Solve a problem</p><!--]--></a><!----></div><!----></div><!--]--></div></section></div><div class="no-transition group" data-v-9e426adc><section class="VPSidebarItem level-0 collapsible" data-v-9e426adc data-v-a4b0d9bf><div class="item" role="button" tabindex="0" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><h2 class="text" data-v-a4b0d9bf>Developers</h2><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-a4b0d9bf><span class="vpi-chevron-right caret-icon" data-v-a4b0d9bf></span></div></div><div class="items" data-v-a4b0d9bf><!--[--><div class="VPSidebarItem level-1 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/dev-add" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>Add a problem</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-1 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/dev-jump-transcription" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>JuMP transcription</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-1 is-link" data-v-a4b0d9bf><div class="item" data-v-a4b0d9bf><div class="indicator" data-v-a4b0d9bf></div><a class="VPLink link link" href="/OptimalControlProblems.jl/dev/dev-api" data-v-a4b0d9bf><!--[--><p class="text" data-v-a4b0d9bf>API</p><!--]--></a><!----></div><!----></div><!--]--></div></section></div><!--]--><!--[--><!--]--></nav></aside><div class="VPContent has-sidebar" id="VPContent" data-v-a9a9e638 data-v-91765379><div class="VPDoc has-sidebar has-aside" data-v-91765379 data-v-83890dd9><!--[--><!--]--><div class="container" data-v-83890dd9><div class="aside" data-v-83890dd9><div class="aside-curtain" data-v-83890dd9></div><div class="aside-container" data-v-83890dd9><div class="aside-content" data-v-83890dd9><div class="VPDocAside" data-v-83890dd9 data-v-6d7b3c46><!--[--><!--]--><!--[--><!--]--><nav aria-labelledby="doc-outline-aria-label" class="VPDocAsideOutline" data-v-6d7b3c46 data-v-b38bf2ff><div class="content" data-v-b38bf2ff><div class="outline-marker" data-v-b38bf2ff></div><div aria-level="2" class="outline-title" id="doc-outline-aria-label" role="heading" data-v-b38bf2ff>On this page</div><ul class="VPDocOutlineItem root" data-v-b38bf2ff data-v-3f927ebe><!--[--><!--]--></ul></div></nav><!--[--><!--]--><div class="spacer" data-v-6d7b3c46></div><!--[--><!--]--><!----><!--[--><!--]--><!--[--><!--]--></div></div></div></div><div class="content" data-v-83890dd9><div class="content-container" data-v-83890dd9><!--[--><!--]--><main class="main" data-v-83890dd9><div style="position:relative;" class="vp-doc _OptimalControlProblems_jl_dev_" data-v-83890dd9><div><h1 id="OptimalControlProblems.jl" tabindex="-1">OptimalControlProblems.jl <a class="header-anchor" href="#OptimalControlProblems.jl" aria-label="Permalink to &quot;OptimalControlProblems.jl {#OptimalControlProblems.jl}&quot;">​</a></h1><p>The <strong>OptimalControlProblems.jl</strong> package is part of the <a href="https://github.com/control-toolbox" target="_blank" rel="noreferrer">control-toolbox ecosystem</a> and is independent of <a href="https://control-toolbox.org/OptimalControl.jl" target="_blank" rel="noreferrer">OptimalControl.jl</a>. The control-toolbox ecosystem brings together Julia packages for mathematical control and its applications. Its purpose is to provide tools to model and solve optimal control problems governed by ordinary differential equations, using both direct and indirect methods, on CPU and GPU.</p><p>If you would like to define and solve your own optimal control problem, please refer to the <a href="https://control-toolbox.org/OptimalControl.jl" target="_blank" rel="noreferrer">OptimalControl.jl documentation</a>.</p><p>In <strong>OptimalControlProblems.jl</strong>, you will find a collection of optimal control problems modelled with JuMP and OptimalControl that can be used for benchmarking.</p><h2 id="Installation" tabindex="-1">Installation <a class="header-anchor" href="#Installation" aria-label="Permalink to &quot;Installation {#Installation}&quot;">​</a></h2><p>To install <strong>OptimalControlProblems.jl</strong>, please <a href="https://docs.julialang.org/en/v1/manual/getting-started" target="_blank" rel="noreferrer">open Julia’s interactive session (known as the REPL)</a> and use the Julia package manager:</p><div class="language-julia vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">julia</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">using</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> Pkg</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">Pkg</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">.</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">add</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">&quot;OptimalControlProblems&quot;</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">)</span></span></code></pre></div><h2 id="Citing-us" tabindex="-1">Citing us <a class="header-anchor" href="#Citing-us" aria-label="Permalink to &quot;Citing us {#Citing-us}&quot;">​</a></h2><p>If you use OptimalControlProblems.jl in your work, please cite us:</p><blockquote><p>Caillau, J.-B., Cots, O., Gergaud, J., &amp; Martinon, P. <em>OptimalControlProblems.jl: a collection of optimal control problems with ODE&#39;s in Julia</em>. <a href="https://doi.org/10.5281/zenodo.17013180" target="_blank" rel="noreferrer">doi.org/10.5281/zenodo.17013180</a></p></blockquote><p>or in bibtex format:</p><div class="language-bibtex vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">bibtex</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">@software</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">{</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">OptimalControlProblems_jl</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">,</span></span>
+<span class="line"><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">author</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> = </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">{</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">Caillau, Jean-Baptiste and Cots, Olivier and Gergaud, Joseph and Martinon, Pierre</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">}</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">,</span></span>
+<span class="line"><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">doi</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> = </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">{</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">10.5281/zenodo.17013180</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">}</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">,</span></span>
+<span class="line"><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">license</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> = </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">{</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">[&quot;MIT&quot;]</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">}</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">,</span></span>
+<span class="line"><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">title</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> = </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">{</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">{OptimalControlProblems.jl: a collection of optimal control problems with ODE&#39;s in Julia}</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">}</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">,</span></span>
+<span class="line"><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">url</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> = </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">{</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">https://control-toolbox.org/OptimalControlProblems.jl</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">}</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">}</span></span></code></pre></div><h2 id="Contributing" tabindex="-1">Contributing <a class="header-anchor" href="#Contributing" aria-label="Permalink to &quot;Contributing {#Contributing}&quot;">​</a></h2><p>If you think you found a bug or if you have a feature request / suggestion, feel free to open an <a href="https://github.com/control-toolbox/OptimalControlProblems.jl/issues" target="_blank" rel="noreferrer">issue</a>. Before opening a pull request, please start an issue or a discussion on the topic.</p><p>Contributions are welcomed, check out <a href="https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project" target="_blank" rel="noreferrer">how to contribute to a Github project</a>. If it is your first contribution, you can also check <a href="https://github.com/firstcontributions/first-contributions" target="_blank" rel="noreferrer">this first contribution tutorial</a>. You can find first good issues (if any 🙂) <a href="https://github.com/control-toolbox/OptimalControlProblems.jl/contribute" target="_blank" rel="noreferrer">here</a>. You may find other packages to contribute to at the <a href="https://github.com/control-toolbox" target="_blank" rel="noreferrer">control-toolbox organization</a>.</p><p>If you want to ask a question, feel free to start a discussion <a href="https://github.com/orgs/control-toolbox/discussions" target="_blank" rel="noreferrer">here</a>. This forum is for general discussion about this repository and the <a href="https://github.com/control-toolbox" target="_blank" rel="noreferrer">control-toolbox organization</a>.</p><div class="tip custom-block"><p class="custom-block-title">Note</p><p>If you want to add an application or a package to the control-toolbox ecosystem, please follow this <a href="https://github.com/orgs/control-toolbox/discussions/65" target="_blank" rel="noreferrer">set up tutorial</a>.</p></div><h2 id="Credits-not-exhaustive!" tabindex="-1">Credits (not exhaustive!) <a class="header-anchor" href="#Credits-not-exhaustive!" aria-label="Permalink to &quot;Credits (not exhaustive!) {#Credits-not-exhaustive!}&quot;">​</a></h2><ul><li><p><a href="https://github.com/BaptisteCbl" target="_blank" rel="noreferrer">BaptisteCbl</a></p></li><li><p><a href="https://github.com/0Yassine0" target="_blank" rel="noreferrer">0Yassine0</a></p></li><li><p><a href="https://github.com/Nico77310" target="_blank" rel="noreferrer">Nico77310</a></p></li><li><p><a href="https://github.com/frapac" target="_blank" rel="noreferrer">frapac</a></p></li><li><p><a href="https://github.com/AmielMetier" target="_blank" rel="noreferrer">AmielMetier</a></p></li><li><p><a href="https://github.com/HediChennoufi" target="_blank" rel="noreferrer">HediChennoufi</a></p></li><li><p><a href="https://project.inria.fr/bocop/files/2017/05/Examples-BOCOP.pdf" target="_blank" rel="noreferrer">BOCOP - A collection of examples</a></p></li><li><p><a href="https://www.mcs.anl.gov/~more/cops" target="_blank" rel="noreferrer">COPS: Large-Scale Optimization Problems</a> and <a href="https://github.com/MadNLP/COPSBenchmark.jl" target="_blank" rel="noreferrer">COPSBenchmark.jl</a></p></li></ul><h2 id="Reproducibility" tabindex="-1">Reproducibility <a class="header-anchor" href="#Reproducibility" aria-label="Permalink to &quot;Reproducibility {#Reproducibility}&quot;">​</a></h2><div class="vp-raw-html"><div class="markdown"><p>You can download the exact environment used to build this documentation:</p>
 <ul>
 <li><p>📦 <a href="assets/./Project.toml">Project.toml</a> - Package dependencies</p>
 </li>
 <li><p>📋 <a href="assets/./Manifest.toml">Manifest.toml</a> - Complete dependency tree with versions</p>
 </li>
 </ul>
-</div><details style="margin-bottom: 0.5em; margin-top: 1em;"><summary>ℹ️ Version info</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Julia Version 1.12.7
-Commit 6d172b025e4 (2026-08-15 08:05 UTC)
-Build Info:
-  Official https://julialang.org release
-Platform Info:
-  OS: Linux (x86_64-linux-gnu)
-  CPU: 4 × AMD EPYC 9V74 80-Core Processor
-  WORD_SIZE: 64
-  LLVM: libLLVM-18.1.7 (ORCJIT, znver4)
-  GC: Built with stock GC
-Threads: 1 default, 1 interactive, 1 GC (on 4 virtual cores)
-Environment:
-  JULIA_PKG_SERVER_REGISTRY_PREFERENCE = eager</code></pre></details><details style="margin-bottom: 0.5em;"><summary>📦 Package status</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Status `~/work/OptimalControlProblems.jl/OptimalControlProblems.jl/docs/Project.toml`
-⌅ [34c4fa32] CTModels v0.19.8
-  [a93c6f00] DataFrames v1.8.2
-  [e30172f5] Documenter v1.19.0
-  [d12716ef] DocumenterInterLinks v1.1.0
-  [a078cd44] DocumenterMermaid v0.2.1
-  [48062228] FilePathsBase v0.9.24
-  [b6b21f68] Ipopt v1.16.0
-  [682c06a0] JSON v1.13.4
-  [4076af6c] JuMP v1.32.1
-  [a4795742] NLPModels v0.21.12
-  [f4238b75] NLPModelsIpopt v0.11.3
-  [5f98b655] OptimalControl v2.2.1-beta
-  [59046045] OptimalControlProblems v0.5.0 `~/work/OptimalControlProblems.jl/OptimalControlProblems.jl`
-  [91a5bcdd] Plots v1.41.7
-  [bd369af6] Tables v1.14.0
-  [d6f4376e] Markdown v1.11.0
-  [de0858da] Printf v1.11.0
-  [fa267f1f] TOML v1.0.3
-Info Packages marked with ⌅ have new versions available but compatibility constraints restrict them from upgrading. To see why use `status --outdated`</code></pre></details><details style="margin-bottom: 0.5em;"><summary>📚 Complete manifest</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Status `~/work/OptimalControlProblems.jl/OptimalControlProblems.jl/docs/Manifest.toml`
-  [54578032] ADNLPModels v0.8.15
-  [47edcb42] ADTypes v1.24.0
-  [a4c015fc] ANSIColoredPrinters v0.0.1
-  [1520ce14] AbstractTrees v0.4.5
-  [79e6a3ab] Adapt v4.8.0
-  [66dad0bd] AliasTables v1.1.3
-  [a9b6321e] Atomix v1.7.0
-  [fa961155] CEnum v1.0.0
-  [54762871] CTBase v0.30.13
-  [790bbbee] CTDirect v1.1.8-beta
-⌃ [1c39547c] CTFlows v0.18.1
-⌅ [6880e05b] CTLie v0.2.3
-⌅ [34c4fa32] CTModels v0.19.8
-  [32681960] CTParser v0.9.5-beta
-⌅ [d3e8d392] CTSolvers v0.5.8
-  [d360d2e6] ChainRulesCore v1.26.8
-  [523fee87] CodecBzip2 v0.8.5
-  [944b1d66] CodecZlib v0.7.9
-  [35d6a980] ColorSchemes v3.32.0
-  [3da002f7] ColorTypes v0.12.5
-  [c3611d14] ColorVectorSpace v0.11.2
-  [5ae59095] Colors v0.13.4
-  [38540f10] CommonSolve v0.2.14
-  [bbf7d656] CommonSubexpressions v0.3.1
-  [34da2185] Compat v4.18.1
-  [d38c429a] Contour v0.6.3
-  [a8cc5b0e] Crayons v4.2.0
-  [9a962f9c] DataAPI v1.16.0
-  [a93c6f00] DataFrames v1.8.2
-  [864edb3b] DataStructures v0.19.6
-  [e2d170a0] DataValueInterfaces v1.0.0
-  [8bb1440f] DelimitedFiles v1.9.1
-  [163ba53b] DiffResults v1.1.0
-  [b552c78f] DiffRules v1.16.0
-  [a0c0ee7d] DifferentiationInterface v0.7.21
-  [43dc2714] DocInventories v1.0.0
-⌅ [ffbed154] DocStringExtensions v0.9.5
-  [e30172f5] Documenter v1.19.0
-  [d12716ef] DocumenterInterLinks v1.1.0
-  [a078cd44] DocumenterMermaid v0.2.1
-⌅ [1037b233] ExaModels v0.12.2
-  [e2ba6199] ExprTools v0.1.11
-  [c87230d0] FFMPEG v0.4.6
-  [9aa1b823] FastClosures v0.3.2
-  [48062228] FilePathsBase v0.9.24
-  [1a297f60] FillArrays v1.18.2
-⌅ [53c48c17] FixedPointNumbers v0.8.6
-  [1fa38f19] Format v1.3.7
-  [f6369f11] ForwardDiff v1.4.7
-  [069b7b12] FunctionWrappers v1.1.3
-  [46192b85] GPUArraysCore v0.2.2
-  [28b8d3ca] GR v0.73.27
-  [d7ba0133] Git v1.5.0
-  [076d061b] HashArrayMappedTries v0.2.0
-  [b5f81e59] IOCapture v1.0.0
-⌅ [842dd82b] InlineStrings v1.4.6
-  [41ab1584] InvertedIndices v1.3.1
-  [b6b21f68] Ipopt v1.16.0
-  [92d709cd] IrrationalConstants v0.2.7
-  [82899510] IteratorInterfaceExtensions v1.0.0
-  [1019f520] JLFzf v0.1.11
-  [692b3bcd] JLLWrappers v1.8.0
-  [682c06a0] JSON v1.13.4
-  [4076af6c] JuMP v1.32.1
-⌅ [63c18a36] KernelAbstractions v0.9.45
-  [929cbde3] LLVM v10.4.3
-  [b964fa9f] LaTeXStrings v1.4.1
-  [23fbe1c1] Latexify v0.16.12
-  [0e77f7df] LazilyInitializedFields v1.3.0
-  [5c8ed15e] LinearOperators v2.14.3
-  [2ab3a3ac] LogExpFunctions v1.0.3
-  [d8e11817] MLStyle v0.4.17
-  [1914dd2f] MacroTools v0.5.16
-  [d0879d2d] MarkdownAST v0.1.3
-  [b8f27783] MathOptInterface v1.54.0
-  [442fdcdd] Measures v0.3.3
-  [e1d29d7a] Missings v1.2.1
-  [d8a4904e] MutableArithmetics v1.9.3
-  [a4795742] NLPModels v0.21.12
-  [f4238b75] NLPModelsIpopt v0.11.3
-  [e01155f1] NLPModelsModifiers v0.8.0
-  [77ba4419] NaNMath v1.1.5
-  [5f98b655] OptimalControl v2.2.1-beta
-  [59046045] OptimalControlProblems v0.5.0 `~/work/OptimalControlProblems.jl/OptimalControlProblems.jl`
-  [bac558e1] OrderedCollections v2.0.3
-  [d96e819e] Parameters v0.13.1
-  [69de0a69] Parsers v3.0.6
-  [ccf2f8ad] PlotThemes v3.3.0
-  [995b91a9] PlotUtils v1.5.1
-  [91a5bcdd] Plots v1.41.7
-  [2dfb63ee] PooledArrays v1.4.3
-  [aea7be01] PrecompileTools v1.3.4
-  [21216c6a] Preferences v1.6.1
-  [08abe8d2] PrettyTables v3.5.1
-  [43287f4e] PtrArrays v1.4.0
-  [3cdcf5f2] RecipesBase v1.4.0
-  [01d81517] RecipesPipeline v0.6.12
-  [189a3867] Reexport v1.2.2
-  [2792f1a3] RegistryInstances v0.1.0
-  [05181044] RelocatableFolders v1.0.1
-  [ae029012] Requires v1.3.1
-  [37e2e3b7] ReverseDiff v1.18.7
-  [7e506255] ScopedValues v1.6.2
-  [6c6a2e73] Scratch v1.3.0
-  [91c51154] SentinelArrays v1.4.11
-  [992d4aef] Showoff v1.1.1
-  [ff4d7338] SolverCore v0.3.10
-  [a2af1166] SortingAlgorithms v1.2.3
-  [9f842d2f] SparseConnectivityTracer v1.2.4
-  [0a514795] SparseMatrixColorings v0.4.29
-  [276daf66] SpecialFunctions v2.9.1
-  [90137ffa] StaticArrays v1.9.24
-  [1e83bf80] StaticArraysCore v1.4.4
-  [10745b16] Statistics v1.11.5
-  [82ae8749] StatsAPI v1.8.0
-  [2913bbd2] StatsBase v0.34.13
-  [892a3eda] StringManipulation v0.6.1
-  [ec057cc2] StructUtils v2.12.0
-  [3783bdb8] TableTraits v1.0.1
-  [bd369af6] Tables v1.14.0
-  [62fd8b95] TensorCore v0.1.1
-  [a759f4b9] TimerOutputs v1.2.2
-  [3bb67fe8] TranscodingStreams v0.11.3
-  [3a884ed6] UnPack v1.0.2
-  [1cfade01] UnicodeFun v0.4.1
-  [013be700] UnsafeAtomics v0.4.0
-  [41fe7b60] Unzip v0.2.0
-  [ae81ac8f] ASL_jll v0.1.5+0
-  [6e34b625] Bzip2_jll v1.0.9+0
-  [83423d85] Cairo_jll v1.18.8+1
-  [ee1fde0b] Dbus_jll v1.16.2+0
-  [2702e6a9] EpollShim_jll v0.0.20230411+1
-  [2e619515] Expat_jll v2.10.0+0
-  [b22a6f82] FFMPEG_jll v9.0.2+0
-  [a3f928ae] Fontconfig_jll v2.18.3+0
-  [d7e528f0] FreeType2_jll v2.15.0+0
-  [559328eb] FriBidi_jll v1.0.19+0
-  [0656b61e] GLFW_jll v3.5.1+0
-  [d2c73de3] GR_jll v0.73.27+0
-⌅ [b0724c58] GettextRuntime_jll v0.22.4+0
-  [61579ee1] Ghostscript_jll v9.55.1+0
-  [020c3dae] Git_LFS_jll v3.8.1+0
-  [f8c6e375] Git_jll v2.56.0+0
-  [7746bdde] Glib_jll v2.90.1+0
-  [3b182d85] Graphite2_jll v1.3.16+0
-  [2e76f6c2] HarfBuzz_jll v100.15001.0+0
-  [e33a78d0] Hwloc_jll v2.15.0+0
-⌅ [9cc047cb] Ipopt_jll v300.1400.1902+0
-  [aacddb02] JpegTurbo_jll v3.2.1+0
-  [c1c5ebd0] LAME_jll v3.100.3+0
-  [88015f11] LERC_jll v4.3.0+0
-  [dad2f222] LLVMExtra_jll v0.0.56+0
-  [1d63c593] LLVMOpenMP_jll v23.1.1+0
-⌅ [e9f186c6] Libffi_jll v3.4.7+0
-  [7e76a0d4] Libglvnd_jll v1.7.1+1
-  [94ce4f54] Libiconv_jll v1.18.0+0
-  [4b2f31a3] Libmount_jll v2.42.4+0
-  [89763e89] Libtiff_jll v4.7.3+0
-  [38a345b3] Libuuid_jll v2.42.4+0
-  [d00139f3] METIS_jll v5.1.4+0
-  [d7ed1dd3] MUMPS_seq_jll v500.900.100+0
-  [e7412a2a] Ogg_jll v1.3.6+0
-  [656ef2d0] OpenBLAS32_jll v0.3.34+1
-  [9bd350c2] OpenSSH_jll v10.6.1+0
-  [efe28fd5] OpenSpecFun_jll v0.5.6+0
-  [91d4177d] Opus_jll v1.6.1+0
-  [36c8627f] Pango_jll v1.58.2+0
-  [30392449] Pixman_jll v0.46.4+0
-  [c0090381] Qt6Base_jll v6.10.2+2
-  [629bc702] Qt6Declarative_jll v6.10.2+2
-  [ce943373] Qt6ShaderTools_jll v6.10.2+1
-  [6de9746b] Qt6Svg_jll v6.10.2+0
-  [e99dba38] Qt6Wayland_jll v6.10.2+1
-  [319450e9] SPRAL_jll v2025.9.18+1
-  [a44049a8] Vulkan_Loader_jll v1.3.243+0
-  [a2964d1f] Wayland_jll v1.24.0+0
-  [02c8fc9c] XML2_jll v2.15.4+0
-  [ffd25f8a] XZ_jll v5.8.4+0
-  [f67eecfb] Xorg_libICE_jll v1.1.2+0
-  [c834827a] Xorg_libSM_jll v1.2.6+0
-  [4f6342f7] Xorg_libX11_jll v1.8.14+0
-  [0c0b7dd1] Xorg_libXau_jll v1.0.13+0
-  [935fb764] Xorg_libXcursor_jll v1.2.4+0
-  [a3789734] Xorg_libXdmcp_jll v1.1.6+0
-  [1082639a] Xorg_libXext_jll v1.3.8+0
-  [d091e8ba] Xorg_libXfixes_jll v6.0.2+0
-  [a51aa0fd] Xorg_libXi_jll v1.8.5+0
-  [d1454406] Xorg_libXinerama_jll v1.1.7+0
-  [ec84b674] Xorg_libXrandr_jll v1.5.6+0
-  [ea2f1a96] Xorg_libXrender_jll v0.9.13+0
-  [a65dc6b1] Xorg_libpciaccess_jll v0.19.0+0
-  [c7cfdc94] Xorg_libxcb_jll v1.17.1+0
-  [cc61e674] Xorg_libxkbfile_jll v1.2.0+0
-  [e920d4aa] Xorg_xcb_util_cursor_jll v0.1.6+0
-  [12413925] Xorg_xcb_util_image_jll v0.4.1+0
-  [2def613f] Xorg_xcb_util_jll v0.4.1+0
-  [975044d2] Xorg_xcb_util_keysyms_jll v0.4.1+0
-  [0d47668e] Xorg_xcb_util_renderutil_jll v0.3.10+0
-  [c22f9ab0] Xorg_xcb_util_wm_jll v0.4.2+0
-  [35661453] Xorg_xkbcomp_jll v1.5.0+0
-  [33bec58e] Xorg_xkeyboard_config_jll v2.48.0+0
-  [c5fb5394] Xorg_xtrans_jll v1.6.0+0
-  [3161d3a3] Zstd_jll v1.5.7+1
-  [35ca27e7] eudev_jll v3.2.14+0
-⌅ [214eeab7] fzf_jll v0.61.1+0
-  [a4ae2306] libaom_jll v3.15.3+0
-  [0ac62f75] libass_jll v0.17.5+0
-  [1183f4f0] libdecor_jll v0.2.2+0
-  [8e53e030] libdrm_jll v2.4.134+0
-  [2db6ffa8] libevdev_jll v1.13.4+0
-⌅ [f638f0a6] libfdk_aac_jll v2.0.4+0
-  [36db933b] libinput_jll v1.28.1+0
-  [b53b4c65] libpng_jll v1.6.59+1
-  [9a156e7d] libva_jll v2.24.1+0
-  [f27f6e37] libvorbis_jll v1.3.8+0
-  [009596ad] mtdev_jll v1.1.7+0
-⌅ [1270edf5] x264_jll v10164.0.1+0
-⌅ [dfaa095f] x265_jll v4.1.0+0
-  [d8fb68d0] xkbcommon_jll v1.13.0+0
-  [0dad84c5] ArgTools v1.1.2
-  [56f22d72] Artifacts v1.11.0
-  [2a0f44e3] Base64 v1.11.0
-  [ade2ca70] Dates v1.11.0
-  [f43a241f] Downloads v1.7.0
-  [7b1f6079] FileWatching v1.11.0
-  [9fa8497b] Future v1.11.0
-  [b77e0a4c] InteractiveUtils v1.11.0
-  [ac6e5ff7] JuliaSyntaxHighlighting v1.12.0
-  [b27032c2] LibCURL v0.6.4
-  [76f85450] LibGit2 v1.11.0
-  [8f399da3] Libdl v1.11.0
-  [37e2e46d] LinearAlgebra v1.12.0
-  [56ddb016] Logging v1.11.0
-  [d6f4376e] Markdown v1.11.0
-  [a63ad114] Mmap v1.11.0
-  [ca575930] NetworkOptions v1.3.0
-  [44cfe95a] Pkg v1.12.1
-  [de0858da] Printf v1.11.0
-  [3fa0cd96] REPL v1.11.0
-  [9a3f8284] Random v1.11.0
-  [ea8e919c] SHA v0.7.0
-  [9e88b42a] Serialization v1.11.0
-  [6462fe0b] Sockets v1.11.0
-  [2f01184e] SparseArrays v1.12.0
-  [f489334b] StyledStrings v1.11.0
-  [fa267f1f] TOML v1.0.3
-  [a4e569a6] Tar v1.10.0
-  [8dfed614] Test v1.11.0
-  [cf7118a7] UUIDs v1.11.0
-  [4ec0a83e] Unicode v1.11.0
-  [e66e0078] CompilerSupportLibraries_jll v1.3.1+2
-  [deac9b47] LibCURL_jll v8.15.0+0
-  [e37daf67] LibGit2_jll v1.9.0+0
-  [29816b5a] LibSSH2_jll v1.11.3+1
-  [14a3606d] MozillaCACerts_jll v2025.11.4
-  [4536629a] OpenBLAS_jll v0.3.29+0
-  [05823500] OpenLibm_jll v0.8.7+0
-  [458c3c95] OpenSSL_jll v3.5.6+0
-  [efcefdf7] PCRE2_jll v10.44.0+1
-  [bea87d4a] SuiteSparse_jll v7.8.3+2
-  [83775a58] Zlib_jll v1.3.1+2
-  [8e850b90] libblastrampoline_jll v5.15.0+0
-  [8e850ede] nghttp2_jll v1.64.0+1
-  [3f19e933] p7zip_jll v17.7.0+0
-Info Packages marked with ⌃ and ⌅ have new versions available. Those with ⌃ may be upgradable, but those with ⌅ are restricted by compatibility constraints from upgrading. To see why use `status --outdated -m`</code></pre></details><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/+esm';
-mermaid.initialize({
-    startOnLoad: true,
-    theme: "neutral"
-});
-</script></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="problems-introduction.html">Introduction »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Thursday 5 November 2026 22:00">Thursday 5 November 2026</span>. Using Julia version 1.12.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</div></div><details style="margin-bottom:0.5em;margin-top:1em;"><summary>ℹ️ Version info</summary><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Julia Version 1.12.7</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Commit 6d172b025e4 (2026-08-15 08:05 UTC)</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Build Info:</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  Official https://julialang.org release</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Platform Info:</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  OS: Linux (x86_64-linux-gnu)</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  CPU: 4 × AMD EPYC 7763 64-Core Processor</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  WORD_SIZE: 64</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  LLVM: libLLVM-18.1.7 (ORCJIT, znver3)</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  GC: Built with stock GC</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Threads: 1 default, 1 interactive, 1 GC (on 4 virtual cores)</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Environment:</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  JULIA_PKG_SERVER_REGISTRY_PREFERENCE = eager</span></span></code></pre></div></details><details style="margin-bottom:0.5em;"><summary>📦 Package status</summary><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Status `~/work/OptimalControlProblems.jl/OptimalControlProblems.jl/docs/Project.toml`</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [34c4fa32] CTModels v0.19.8</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a93c6f00] DataFrames v1.8.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e30172f5] Documenter v1.19.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d12716ef] DocumenterInterLinks v1.1.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a078cd44] DocumenterMermaid v0.2.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4710194d] DocumenterVitepress v0.3.9</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [48062228] FilePathsBase v0.9.24</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b6b21f68] Ipopt v1.16.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [682c06a0] JSON v1.13.4</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4076af6c] JuMP v1.32.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [16fef848] LiveServer v1.6.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a4795742] NLPModels v0.21.12</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f4238b75] NLPModelsIpopt v0.11.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [5f98b655] OptimalControl v2.2.1-beta</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [59046045] OptimalControlProblems v0.5.0 `~/work/OptimalControlProblems.jl/OptimalControlProblems.jl`</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [91a5bcdd] Plots v1.41.7</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [bd369af6] Tables v1.14.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d6f4376e] Markdown v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [de0858da] Printf v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [fa267f1f] TOML v1.0.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Info Packages marked with ⌅ have new versions available but compatibility constraints restrict them from upgrading. To see why use `status --outdated`</span></span></code></pre></div></details><details style="margin-bottom:0.5em;"><summary>📚 Complete manifest</summary><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Status `~/work/OptimalControlProblems.jl/OptimalControlProblems.jl/docs/Manifest.toml`</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [54578032] ADNLPModels v0.8.15</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [47edcb42] ADTypes v1.24.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a4c015fc] ANSIColoredPrinters v0.0.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1520ce14] AbstractTrees v0.4.5</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [79e6a3ab] Adapt v4.8.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [66dad0bd] AliasTables v1.1.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a9b6321e] Atomix v1.7.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [fa961155] CEnum v1.0.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [54762871] CTBase v0.30.13</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [790bbbee] CTDirect v1.1.8-beta</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌃ [1c39547c] CTFlows v0.18.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [6880e05b] CTLie v0.2.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [34c4fa32] CTModels v0.19.8</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [32681960] CTParser v0.9.5-beta</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [d3e8d392] CTSolvers v0.5.8</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d360d2e6] ChainRulesCore v1.26.8</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [523fee87] CodecBzip2 v0.8.5</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [944b1d66] CodecZlib v0.7.9</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [35d6a980] ColorSchemes v3.32.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3da002f7] ColorTypes v0.12.5</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [c3611d14] ColorVectorSpace v0.11.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [5ae59095] Colors v0.13.4</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [38540f10] CommonSolve v0.2.14</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [bbf7d656] CommonSubexpressions v0.3.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [34da2185] Compat v4.18.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d38c429a] Contour v0.6.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a8cc5b0e] Crayons v4.2.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [9a962f9c] DataAPI v1.16.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a93c6f00] DataFrames v1.8.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [864edb3b] DataStructures v0.19.6</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e2d170a0] DataValueInterfaces v1.0.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [8bb1440f] DelimitedFiles v1.9.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [163ba53b] DiffResults v1.1.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b552c78f] DiffRules v1.16.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a0c0ee7d] DifferentiationInterface v0.7.21</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [43dc2714] DocInventories v1.0.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [ffbed154] DocStringExtensions v0.9.5</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e30172f5] Documenter v1.19.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d12716ef] DocumenterInterLinks v1.1.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a078cd44] DocumenterMermaid v0.2.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4710194d] DocumenterVitepress v0.3.9</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4e289a0a] EnumX v1.0.7</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [1037b233] ExaModels v0.12.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e2ba6199] ExprTools v0.1.11</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [c87230d0] FFMPEG v0.4.6</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [9aa1b823] FastClosures v0.3.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [48062228] FilePathsBase v0.9.24</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1a297f60] FillArrays v1.18.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [53c48c17] FixedPointNumbers v0.8.6</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1fa38f19] Format v1.3.7</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f6369f11] ForwardDiff v1.4.7</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [069b7b12] FunctionWrappers v1.1.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [46192b85] GPUArraysCore v0.2.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [28b8d3ca] GR v0.73.27</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d7ba0133] Git v1.5.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [cd3eb016] HTTP v2.15.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [076d061b] HashArrayMappedTries v0.2.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b5f81e59] IOCapture v1.0.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [842dd82b] InlineStrings v1.4.6</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [41ab1584] InvertedIndices v1.3.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b6b21f68] Ipopt v1.16.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [92d709cd] IrrationalConstants v0.2.7</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [82899510] IteratorInterfaceExtensions v1.0.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1019f520] JLFzf v0.1.11</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [692b3bcd] JLLWrappers v1.8.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [682c06a0] JSON v1.13.4</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4076af6c] JuMP v1.32.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [63c18a36] KernelAbstractions v0.9.45</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [929cbde3] LLVM v10.4.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b964fa9f] LaTeXStrings v1.4.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [23fbe1c1] Latexify v0.16.12</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [0e77f7df] LazilyInitializedFields v1.3.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [5c8ed15e] LinearOperators v2.14.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [16fef848] LiveServer v1.6.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2ab3a3ac] LogExpFunctions v1.0.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [6c6e2e6c] MIMEs v1.1.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d8e11817] MLStyle v0.4.17</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1914dd2f] MacroTools v0.5.16</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d0879d2d] MarkdownAST v0.1.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b8f27783] MathOptInterface v1.54.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [442fdcdd] Measures v0.3.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e1d29d7a] Missings v1.2.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d8a4904e] MutableArithmetics v1.9.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a4795742] NLPModels v0.21.12</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f4238b75] NLPModelsIpopt v0.11.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e01155f1] NLPModelsModifiers v0.8.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [77ba4419] NaNMath v1.1.5</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [5f98b655] OptimalControl v2.2.1-beta</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [59046045] OptimalControlProblems v0.5.0 `~/work/OptimalControlProblems.jl/OptimalControlProblems.jl`</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [bac558e1] OrderedCollections v2.0.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d96e819e] Parameters v0.13.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [69de0a69] Parsers v3.0.6</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ccf2f8ad] PlotThemes v3.3.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [995b91a9] PlotUtils v1.5.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [91a5bcdd] Plots v1.41.7</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2dfb63ee] PooledArrays v1.4.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [aea7be01] PrecompileTools v1.3.4</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [21216c6a] Preferences v1.6.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [08abe8d2] PrettyTables v3.5.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [43287f4e] PtrArrays v1.4.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3cdcf5f2] RecipesBase v1.4.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [01d81517] RecipesPipeline v0.6.12</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [189a3867] Reexport v1.2.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2792f1a3] RegistryInstances v0.1.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [05181044] RelocatableFolders v1.0.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ae029012] Requires v1.3.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [802f3686] Reseau v1.6.6</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [37e2e3b7] ReverseDiff v1.18.7</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [7e506255] ScopedValues v1.6.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [6c6a2e73] Scratch v1.3.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [91c51154] SentinelArrays v1.4.11</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [992d4aef] Showoff v1.1.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ff4d7338] SolverCore v0.3.10</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a2af1166] SortingAlgorithms v1.2.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [9f842d2f] SparseConnectivityTracer v1.2.4</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [0a514795] SparseMatrixColorings v0.4.29</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [276daf66] SpecialFunctions v2.9.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [90137ffa] StaticArrays v1.9.24</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1e83bf80] StaticArraysCore v1.4.4</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [10745b16] Statistics v1.11.5</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [82ae8749] StatsAPI v1.8.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2913bbd2] StatsBase v0.34.13</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [892a3eda] StringManipulation v0.6.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ec057cc2] StructUtils v2.12.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3783bdb8] TableTraits v1.0.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [bd369af6] Tables v1.14.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [62fd8b95] TensorCore v0.1.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a759f4b9] TimerOutputs v1.2.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3bb67fe8] TranscodingStreams v0.11.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [5c2747f8] URIs v1.7.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3a884ed6] UnPack v1.0.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1cfade01] UnicodeFun v0.4.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [013be700] UnsafeAtomics v0.4.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [41fe7b60] Unzip v0.2.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ae81ac8f] ASL_jll v0.1.5+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [6e34b625] Bzip2_jll v1.0.9+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [83423d85] Cairo_jll v1.18.8+1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ee1fde0b] Dbus_jll v1.16.2+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2702e6a9] EpollShim_jll v0.0.20230411+1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2e619515] Expat_jll v2.10.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b22a6f82] FFMPEG_jll v9.0.2+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a3f928ae] Fontconfig_jll v2.18.3+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d7e528f0] FreeType2_jll v2.15.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [559328eb] FriBidi_jll v1.0.19+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [0656b61e] GLFW_jll v3.5.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d2c73de3] GR_jll v0.73.27+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [b0724c58] GettextRuntime_jll v0.22.4+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [61579ee1] Ghostscript_jll v9.55.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [020c3dae] Git_LFS_jll v3.8.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f8c6e375] Git_jll v2.56.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [7746bdde] Glib_jll v2.90.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3b182d85] Graphite2_jll v1.3.16+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2e76f6c2] HarfBuzz_jll v100.15001.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e33a78d0] Hwloc_jll v2.15.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [9cc047cb] Ipopt_jll v300.1400.1902+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [aacddb02] JpegTurbo_jll v3.2.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [c1c5ebd0] LAME_jll v3.100.3+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [88015f11] LERC_jll v4.3.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [dad2f222] LLVMExtra_jll v0.0.56+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1d63c593] LLVMOpenMP_jll v23.1.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [e9f186c6] Libffi_jll v3.4.7+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [7e76a0d4] Libglvnd_jll v1.7.1+1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [94ce4f54] Libiconv_jll v1.18.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4b2f31a3] Libmount_jll v2.42.4+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [89763e89] Libtiff_jll v4.7.3+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [38a345b3] Libuuid_jll v2.42.4+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d00139f3] METIS_jll v5.1.4+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d7ed1dd3] MUMPS_seq_jll v500.900.100+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [c7aee132] NodeJS_20_jll v20.12.2+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e7412a2a] Ogg_jll v1.3.6+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [656ef2d0] OpenBLAS32_jll v0.3.34+1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [9bd350c2] OpenSSH_jll v10.6.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [efe28fd5] OpenSpecFun_jll v0.5.6+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [91d4177d] Opus_jll v1.6.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [36c8627f] Pango_jll v1.58.2+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [30392449] Pixman_jll v0.46.4+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [c0090381] Qt6Base_jll v6.10.2+2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [629bc702] Qt6Declarative_jll v6.10.2+2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ce943373] Qt6ShaderTools_jll v6.10.2+1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [6de9746b] Qt6Svg_jll v6.10.2+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e99dba38] Qt6Wayland_jll v6.10.2+1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [319450e9] SPRAL_jll v2025.9.18+1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a44049a8] Vulkan_Loader_jll v1.3.243+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a2964d1f] Wayland_jll v1.24.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [02c8fc9c] XML2_jll v2.15.4+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ffd25f8a] XZ_jll v5.8.4+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f67eecfb] Xorg_libICE_jll v1.1.2+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [c834827a] Xorg_libSM_jll v1.2.6+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4f6342f7] Xorg_libX11_jll v1.8.14+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [0c0b7dd1] Xorg_libXau_jll v1.0.13+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [935fb764] Xorg_libXcursor_jll v1.2.4+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a3789734] Xorg_libXdmcp_jll v1.1.6+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1082639a] Xorg_libXext_jll v1.3.8+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d091e8ba] Xorg_libXfixes_jll v6.0.2+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a51aa0fd] Xorg_libXi_jll v1.8.5+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d1454406] Xorg_libXinerama_jll v1.1.7+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ec84b674] Xorg_libXrandr_jll v1.5.6+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ea2f1a96] Xorg_libXrender_jll v0.9.13+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a65dc6b1] Xorg_libpciaccess_jll v0.19.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [c7cfdc94] Xorg_libxcb_jll v1.17.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [cc61e674] Xorg_libxkbfile_jll v1.2.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e920d4aa] Xorg_xcb_util_cursor_jll v0.1.6+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [12413925] Xorg_xcb_util_image_jll v0.4.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2def613f] Xorg_xcb_util_jll v0.4.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [975044d2] Xorg_xcb_util_keysyms_jll v0.4.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [0d47668e] Xorg_xcb_util_renderutil_jll v0.3.10+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [c22f9ab0] Xorg_xcb_util_wm_jll v0.4.2+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [35661453] Xorg_xkbcomp_jll v1.5.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [33bec58e] Xorg_xkeyboard_config_jll v2.48.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [c5fb5394] Xorg_xtrans_jll v1.6.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3161d3a3] Zstd_jll v1.5.7+1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [35ca27e7] eudev_jll v3.2.14+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [214eeab7] fzf_jll v0.61.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a4ae2306] libaom_jll v3.15.3+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [0ac62f75] libass_jll v0.17.5+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1183f4f0] libdecor_jll v0.2.2+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [8e53e030] libdrm_jll v2.4.134+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2db6ffa8] libevdev_jll v1.13.4+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [f638f0a6] libfdk_aac_jll v2.0.4+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [36db933b] libinput_jll v1.28.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b53b4c65] libpng_jll v1.6.59+1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [9a156e7d] libva_jll v2.24.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f27f6e37] libvorbis_jll v1.3.8+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [009596ad] mtdev_jll v1.1.7+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [1270edf5] x264_jll v10164.0.1+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [dfaa095f] x265_jll v4.1.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d8fb68d0] xkbcommon_jll v1.13.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [0dad84c5] ArgTools v1.1.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [56f22d72] Artifacts v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2a0f44e3] Base64 v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ade2ca70] Dates v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f43a241f] Downloads v1.7.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [7b1f6079] FileWatching v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [9fa8497b] Future v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b77e0a4c] InteractiveUtils v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ac6e5ff7] JuliaSyntaxHighlighting v1.12.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b27032c2] LibCURL v0.6.4</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [76f85450] LibGit2 v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [8f399da3] Libdl v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [37e2e46d] LinearAlgebra v1.12.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [56ddb016] Logging v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d6f4376e] Markdown v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a63ad114] Mmap v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ca575930] NetworkOptions v1.3.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [44cfe95a] Pkg v1.12.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [de0858da] Printf v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3fa0cd96] REPL v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [9a3f8284] Random v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ea8e919c] SHA v0.7.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [9e88b42a] Serialization v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [6462fe0b] Sockets v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2f01184e] SparseArrays v1.12.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f489334b] StyledStrings v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [fa267f1f] TOML v1.0.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a4e569a6] Tar v1.10.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [8dfed614] Test v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [cf7118a7] UUIDs v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4ec0a83e] Unicode v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e66e0078] CompilerSupportLibraries_jll v1.3.1+2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [deac9b47] LibCURL_jll v8.15.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e37daf67] LibGit2_jll v1.9.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [29816b5a] LibSSH2_jll v1.11.3+1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [14a3606d] MozillaCACerts_jll v2025.11.4</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4536629a] OpenBLAS_jll v0.3.29+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [05823500] OpenLibm_jll v0.8.7+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [458c3c95] OpenSSL_jll v3.5.6+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [efcefdf7] PCRE2_jll v10.44.0+1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [bea87d4a] SuiteSparse_jll v7.8.3+2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [83775a58] Zlib_jll v1.3.1+2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [8e850b90] libblastrampoline_jll v5.15.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [8e850ede] nghttp2_jll v1.64.0+1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3f19e933] p7zip_jll v17.7.0+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Info Packages marked with ⌃ and ⌅ have new versions available. Those with ⌃ may be upgradable, but those with ⌅ are restricted by compatibility constraints from upgrading. To see why use `status --outdated -m`</span></span></code></pre></div></details><p>DocumenterMermaid.MermaidScriptBlock([...])</p></div></div></main><footer class="VPDocFooter" data-v-83890dd9 data-v-4f9813fa><!--[--><!--]--><div class="edit-info" data-v-4f9813fa><div class="edit-link" data-v-4f9813fa><a class="VPLink link vp-external-link-icon no-icon edit-link-button" href="https://github.com/control-toolbox/OptimalControlProblems.jl/edit/main/docs/src/index.md" target="_blank" rel="noreferrer" data-v-4f9813fa><!--[--><span class="vpi-square-pen edit-link-icon" data-v-4f9813fa></span> Edit this page<!--]--></a></div><!----></div><nav class="prev-next" aria-labelledby="doc-footer-aria-label" data-v-4f9813fa><span class="visually-hidden" id="doc-footer-aria-label" data-v-4f9813fa>Pager</span><div class="pager" data-v-4f9813fa><!----></div><div class="pager" data-v-4f9813fa><a class="VPLink link pager-link next" href="/OptimalControlProblems.jl/dev/problems-introduction" data-v-4f9813fa><!--[--><span class="desc" data-v-4f9813fa>Next page</span><span class="title" data-v-4f9813fa>Introduction</span><!--]--></a></div></nav></footer><!--[--><!--]--></div></div></div><!--[--><!--]--></div></div><footer class="VPFooter has-sidebar" data-v-a9a9e638 data-v-c970a860><div class="container" data-v-c970a860><p class="message" data-v-c970a860>Made with <a href="https://luxdl.github.io/DocumenterVitepress.jl/dev/" target="_blank"><strong>DocumenterVitepress.jl</strong></a><br></p><p class="copyright" data-v-c970a860>© Copyright 2026.</p></div></footer><!--[--><!--]--></div></div>
+    <script>window.__VP_HASH_MAP__=JSON.parse("{\"dev-add.md\":\"BoWyZOrX\",\"dev-api.md\":\"B1GQ20DP\",\"dev-jump-transcription.md\":\"BL_tyDpW\",\"index.md\":\"CPqDNZPX\",\"problems-introduction.md\":\"DH5_DIQ5\",\"problems_balanced_field.md\":\"CBlm-V5y\",\"problems_beam.md\":\"DfmZCkQO\",\"problems_bioreactor.md\":\"Be3UGWT_\",\"problems_brachistochrone.md\":\"bOk_oaX8\",\"problems_browser.md\":\"BXH54QST\",\"problems_bryson_denham.md\":\"Nk-MAktZ\",\"problems_cart_pendulum.md\":\"yQu0cNvE\",\"problems_chain.md\":\"CNdfHmaU\",\"problems_dielectrophoretic_particle.md\":\"DrsIqHlX\",\"problems_double_oscillator.md\":\"DBR3kwfP\",\"problems_ducted_fan.md\":\"Bw_nLpyf\",\"problems_electric_vehicle.md\":\"T4HoChZk\",\"problems_glider.md\":\"BrJIGg8c\",\"problems_insurance.md\":\"BqCcmHMB\",\"problems_jackson.md\":\"B5QswPvR\",\"problems_moonlander.md\":\"BB9o3unN\",\"problems_mountain_car.md\":\"CzBrVY2G\",\"problems_robbins.md\":\"DZKb6TeJ\",\"problems_robot.md\":\"BAx67JPt\",\"problems_rocket.md\":\"BVM64juR\",\"problems_space_shuttle.md\":\"e7FiR7TZ\",\"problems_steering.md\":\"DMA1rg5O\",\"problems_vanderpol.md\":\"BiRrFYSr\",\"tutorial-get.md\":\"BB7tKf3H\",\"tutorial-solve.md\":\"2hDTS2i8\"}");window.__VP_SITE_DATA__=JSON.parse("{\"lang\":\"en-US\",\"dir\":\"ltr\",\"title\":\"OptimalControlProblems.jl\",\"description\":\"Documentation for OptimalControlProblems.jl\",\"base\":\"/OptimalControlProblems.jl/dev/\",\"head\":[],\"router\":{\"prefetchLinks\":true},\"appearance\":true,\"themeConfig\":{\"outline\":\"deep\",\"search\":{\"provider\":\"local\",\"options\":{\"detailedView\":true}},\"nav\":[{\"text\":\"Home\",\"link\":\"/\"},{\"component\":\"VersionPicker\"}],\"sidebar\":[{\"text\":\"Problems\",\"collapsed\":false,\"items\":[{\"text\":\"Introduction\",\"link\":\"/problems-introduction\"},{\"text\":\"Problems browser\",\"link\":\"/problems_browser\"},{\"text\":\"List of the problems\",\"collapsed\":false,\"items\":[{\"text\":\"Balanced field\",\"link\":\"/problems/balanced_field\"},{\"text\":\"Beam\",\"link\":\"/problems/beam\"},{\"text\":\"Bioreactor\",\"link\":\"/problems/bioreactor\"},{\"text\":\"Brachistochrone\",\"link\":\"/problems/brachistochrone\"},{\"text\":\"Bryson denham\",\"link\":\"/problems/bryson_denham\"},{\"text\":\"Cart pendulum\",\"link\":\"/problems/cart_pendulum\"},{\"text\":\"Chain\",\"link\":\"/problems/chain\"},{\"text\":\"Dielectrophoretic particle\",\"link\":\"/problems/dielectrophoretic_particle\"},{\"text\":\"Double oscillator\",\"link\":\"/problems/double_oscillator\"},{\"text\":\"Ducted fan\",\"link\":\"/problems/ducted_fan\"},{\"text\":\"Electric vehicle\",\"link\":\"/problems/electric_vehicle\"},{\"text\":\"Glider\",\"link\":\"/problems/glider\"},{\"text\":\"Insurance\",\"link\":\"/problems/insurance\"},{\"text\":\"Jackson\",\"link\":\"/problems/jackson\"},{\"text\":\"Moonlander\",\"link\":\"/problems/moonlander\"},{\"text\":\"Mountain car\",\"link\":\"/problems/mountain_car\"},{\"text\":\"Robbins\",\"link\":\"/problems/robbins\"},{\"text\":\"Robot\",\"link\":\"/problems/robot\"},{\"text\":\"Rocket\",\"link\":\"/problems/rocket\"},{\"text\":\"Space shuttle\",\"link\":\"/problems/space_shuttle\"},{\"text\":\"Steering\",\"link\":\"/problems/steering\"},{\"text\":\"Vanderpol\",\"link\":\"/problems/vanderpol\"}]}]},{\"text\":\"Tutorials\",\"collapsed\":false,\"items\":[{\"text\":\"Get a problem\",\"link\":\"/tutorial-get\"},{\"text\":\"Solve a problem\",\"link\":\"/tutorial-solve\"}]},{\"text\":\"Developers\",\"collapsed\":false,\"items\":[{\"text\":\"Add a problem\",\"link\":\"/dev-add\"},{\"text\":\"JuMP transcription\",\"link\":\"/dev-jump-transcription\"},{\"text\":\"API\",\"link\":\"/dev-api\"}]}],\"sidebarDrawer\":true,\"editLink\":{\"pattern\":\"https://github.com/control-toolbox/OptimalControlProblems.jl/edit/main/docs/src/:path\"},\"socialLinks\":[{\"icon\":\"github\",\"link\":\"https://github.com/control-toolbox/OptimalControlProblems.jl\"}],\"footer\":{\"message\":\"Made with <a href=\\\"https://luxdl.github.io/DocumenterVitepress.jl/dev/\\\" target=\\\"_blank\\\"><strong>DocumenterVitepress.jl</strong></a><br>\",\"copyright\":\"© Copyright 2026.\"}},\"locales\":{},\"scrollOffset\":134,\"cleanUrls\":true}");</script>
+    
+  </body>
+</html>
