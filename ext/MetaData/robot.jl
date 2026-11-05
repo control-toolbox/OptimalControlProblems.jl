@@ -34,3 +34,5 @@ robot_meta = OrderedDict(
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
 )
+
+# ci-scope demo: touches only robot per-problem files
