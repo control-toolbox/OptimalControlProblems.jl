@@ -54,7 +54,8 @@ jobs:
           args=$(cat changed_files.tsv 2>/dev/null | python3 tools/ci/scope.py \
             --event "${{ github.event_name }}" \
             --labels "$LABELS" \
-            --expected-files "${{ github.event.pull_request.changed_files }}")
+            --expected-files "${{ github.event.pull_request.changed_files }}" \
+            --summary "$GITHUB_STEP_SUMMARY")
           echo "test_args=$args" >> "$GITHUB_OUTPUT"
           echo "test_args: '$args'"
 

@@ -21,6 +21,7 @@ read, the list was truncated and the run stays complete. Standard input is a
 list of ``status<TAB>filename`` rows as returned by the pull request files API.
 The arguments are printed on standard output (an empty line when nothing is
 selected); ``--catalogue`` is the directory of the problems (default ``ext/MetaData``); the reason of the decision is printed on standard error for the log.
+``--summary FILE`` appends a Markdown report of the decision to FILE (the job summary).
 """
 
 import argparse
@@ -57,34 +58,45 @@ def environments(labels):
     ]
 
 
+def classify(row, catalogue):
+    """Verdict on one `status<TAB>filename` row: `(problem, reason)`, where `problem` is
+    the name of the problem the file belongs to, or None when the file forces the
+    complete catalogue (`reason` then says why)."""
+    if len(row) != 2:
+        return None, f"unreadable file row {row!r}: running everything"
+    status, filename = row
+    if status not in KEPT_STATUSES:
+        return None, f"removed or renamed file `{filename}`: running everything"
+    if not PER_PROBLEM.match(filename):
+        return None, f"shared change `{filename}`: running everything"
+    name = filename.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+    if not (catalogue / f"{name}.jl").is_file():
+        return None, f"`{filename}` is not the file of a problem: running everything"
+    return name, None
+
+
 def changed_problems(rows, expected, catalogue):
     """Problems named by the changed files, or a reason to run the complete
-    catalogue. `rows` are `status<TAB>filename` pairs; `catalogue` is the directory
-    of the problems (`ext/MetaData`)."""
+    catalogue, with the verdict on each file as `(row, problem, reason)`. `rows` are
+    `status<TAB>filename` pairs; `catalogue` is the directory of the problems
+    (`ext/MetaData`). Every row is classified, the reason is that of the first
+    row that forces the complete catalogue."""
     if expected is not None and expected != len(rows):
-        return None, f"file list truncated ({len(rows)} of {expected} read): running everything"
+        return None, f"file list truncated ({len(rows)} of {expected} read): running everything", []
     if not rows:
-        return None, "no changed file: running everything"
-    problems = []
-    for row in rows:
-        if len(row) != 2:
-            return None, f"unreadable file row {row!r}: running everything"
-        status, filename = row
-        if status not in KEPT_STATUSES:
-            return None, f"removed or renamed file `{filename}`: running everything"
-        if not PER_PROBLEM.match(filename):
-            return None, f"shared change `{filename}`: running everything"
-        name = filename.rsplit("/", 1)[-1].rsplit(".", 1)[0]
-        if not (catalogue / f"{name}.jl").is_file():
-            return None, f"`{filename}` is not the file of a problem: running everything"
-        problems.append(name)
-    problems = sorted(set(problems))
-    return problems, f"changed problems: {','.join(problems)}"
+        return None, "no changed file: running everything", []
+    verdicts = [(row, *classify(row, catalogue)) for row in rows]
+    for _, name, why in verdicts:
+        if name is None:
+            return None, why, verdicts
+    problems = sorted({name for _, name, _ in verdicts})
+    return problems, f"changed problems: {','.join(problems)}", verdicts
 
 
 def test_args(event, labels, rows, expected, catalogue=DEFAULT_CATALOGUE):
-    """The `test_args` string and the reason of the decision."""
+    """The `test_args` string, the reason of the decision and the verdict on each file."""
     args = environments(labels)
+    verdicts = []
     if event != "pull_request":
         reason = f"{event} event: running everything"
     elif RELEASE_LABEL in labels:
@@ -92,10 +104,33 @@ def test_args(event, labels, rows, expected, catalogue=DEFAULT_CATALOGUE):
     elif OVERRIDE_LABEL in labels:
         reason = "override label: running everything"
     else:
-        problems, reason = changed_problems(rows, expected, catalogue)
+        problems, reason, verdicts = changed_problems(rows, expected, catalogue)
         if problems:
             args.append("problem=" + ",".join(problems))
-    return " ".join(args), reason
+    return " ".join(args), reason, verdicts
+
+
+def summary(event, args, reason, verdicts):
+    """Markdown report of the decision, for the job summary of the run."""
+    problems = [a[len("problem="):] for a in args.split() if a.startswith("problem=")]
+    environments = [a for a in args.split() if not a.startswith("problem=")]
+    lines = [
+        "## Test scope",
+        "",
+        f"- **Event**: `{event}`",
+        "- **Problems**: " + (", ".join(f"`{p}`" for p in ",".join(problems).split(",")) if problems else "all"),
+        "- **Environments**: " + (", ".join(f"`{e}`" for e in environments) or "all"),
+        f"- **Reason**: {reason}",
+    ]
+    if verdicts:
+        lines += ["", "<details><summary>Changed files</summary>", "",
+                  "| Status | File | Verdict |", "| --- | --- | --- |"]
+        for row, name, why in verdicts:
+            status, filename = row if len(row) == 2 else ("?", " ".join(row))
+            verdict = f"problem `{name}`" if name else why.rsplit(":", 1)[0]
+            lines.append(f"| {status} | `{filename}` | {verdict} |")
+        lines += ["", "</details>"]
+    return "\n".join(lines) + "\n"
 
 
 def main(argv=None):
@@ -103,6 +138,7 @@ def main(argv=None):
     parser.add_argument("--event", default="pull_request")
     parser.add_argument("--labels", default="[]")
     parser.add_argument("--expected-files", default="")
+    parser.add_argument("--summary", type=Path, help="file the Markdown report is appended to")
     parser.add_argument("--catalogue", type=Path, default=DEFAULT_CATALOGUE)
     ns = parser.parse_args(argv)
     try:
@@ -119,7 +155,10 @@ def main(argv=None):
         expected = int(ns.expected_files) if ns.expected_files else None
     except ValueError:
         expected = None
-    args, reason = test_args(ns.event, labels, rows, expected, ns.catalogue)
+    args, reason, verdicts = test_args(ns.event, labels, rows, expected, ns.catalogue)
+    if ns.summary:
+        with ns.summary.open("a") as handle:
+            handle.write(summary(ns.event, args, reason, verdicts))
     print(reason, file=sys.stderr)
     print(args)
     return 0

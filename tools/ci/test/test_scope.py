@@ -23,6 +23,21 @@ for name in ("beam", "beam2", "mountain_car", "new_problem", "robot"):
     Path(CATALOGUE, f"{name}.jl").touch()
 
 
+def run_summary(files=(), labels=(), event="pull_request", expected=None):
+    """Run the script with `--summary`; return the Markdown it wrote."""
+    rows = "".join(f"{status}\t{name}\n" for status, name in files)
+    with tempfile.NamedTemporaryFile("r", suffix=".md") as report:
+        command = [
+            sys.executable, str(SCRIPT), "--event", event,
+            "--labels", json.dumps(list(labels)), "--catalogue", CATALOGUE,
+            "--summary", report.name,
+        ]
+        if expected is not None:
+            command += ["--expected-files", str(expected)]
+        subprocess.run(command, input=rows, capture_output=True, text=True, check=True)
+        return report.read()
+
+
 def run_scope(files=(), labels=(), event="pull_request", expected=None):
     """Run the script on `status, filename` pairs; return (stdout, stderr)."""
     rows = "".join(f"{status}\t{name}\n" for status, name in files)
@@ -167,6 +182,45 @@ class TestScope(unittest.TestCase):
 
     def test_null_labels(self):
         out, _ = run_scope(problem(["ext/MetaData/beam.jl"]), labels=None)
+        self.assertEqual("problem=beam", out)
+
+
+class TestSummary(unittest.TestCase):
+    def test_narrowed(self):
+        md = run_summary(problem(["ext/MetaData/beam.jl", "ext/Descriptions/robot.md"]),
+                         labels=["test JuMP backend"])
+        self.assertIn("**Problems**: `beam`, `robot`", md)
+        self.assertIn("**Environments**: `JuMP`", md)
+        self.assertIn("| modified | `ext/MetaData/beam.jl` | problem `beam` |", md)
+
+    def test_shared_change_lists_every_file(self):
+        md = run_summary(problem(["src/a.jl", "ext/MetaData/beam.jl"]))
+        self.assertIn("**Problems**: all", md)
+        self.assertIn("**Environments**: all", md)
+        self.assertIn("`src/a.jl` | shared change", md)
+        self.assertIn("`ext/MetaData/beam.jl` | problem `beam`", md)
+
+    def test_removed_file(self):
+        md = run_summary([("removed", "ext/MetaData/beam.jl")])
+        self.assertIn("removed or renamed file", md)
+
+    def test_truncated_list_has_no_table(self):
+        md = run_summary(problem(["ext/MetaData/beam.jl"]), expected=5)
+        self.assertIn("truncated", md)
+        self.assertNotIn("<details>", md)
+
+    def test_push_event(self):
+        md = run_summary(event="push")
+        self.assertIn("push event: running everything", md)
+        self.assertNotIn("<details>", md)
+
+    def test_label_override_has_no_table(self):
+        md = run_summary(problem(["ext/MetaData/beam.jl"]), labels=["test all problems"])
+        self.assertIn("override label", md)
+        self.assertNotIn("<details>", md)
+
+    def test_without_summary_option_nothing_is_written(self):
+        out, _ = run_scope(problem(["ext/MetaData/beam.jl"]))
         self.assertEqual("problem=beam", out)
 
 
