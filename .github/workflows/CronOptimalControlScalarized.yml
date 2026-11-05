@@ -5,6 +5,11 @@ on:
     - cron: "0 4 * * 4"
   workflow_dispatch:
 
+permissions:
+  actions: read
+  contents: write
+  issues: write
+
 jobs:
   cron:
     uses: ./.github/workflows/cron-reusable.yml
