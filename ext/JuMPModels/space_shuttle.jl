@@ -81,137 +81,61 @@ function OptimalControlProblems.space_shuttle(
     scaling_h = 1e5
     scaling_v = 1e4
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
-
-    # metadata: required
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
-    model[:state_components] = ["scaled_h", "ϕ", "θ", "scaled_v", "γ", "ψ"]
-    model[:costate_components] = ["∂h", "∂ϕ", "∂θ", "∂v", "∂γ", "∂ψ"]
-    model[:control_components] = ["α", "β"]
-    model[:variable_components] = ["tf"]
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    # state, control and variable (final time)
-    @variables(
-        model,
-        begin
-            # state
-            scaled_h[0:N] ≥ h_l     # altitude (ft) / scaling_h
-            ϕ_l ≤ ϕ[0:N] ≤ ϕ_u      # longitude (rad)
-            θ_l ≤ θ[0:N] ≤ θ_u      # latitude (rad)
-            scaled_v[0:N] ≥ v_l     # velocity (ft/sec) / scaling_v
-            γ_l ≤ γ[0:N] ≤ γ_u      # flight path angle (rad)
-            ψ_l ≤ ψ[0:N] ≤ ψ_u      # azimuth (rad)
-
-            # control
-            α_l ≤ α[0:N] ≤ α_u      # angle of attack (rad)
-            β_l ≤ β[0:N] ≤ β_u      # bank angle (rad)
-
-            #
-            tf_l ≤ tf ≤ tf_u        # final time (sec)
-        end
-    )
-
-    # Fix initial conditions
-    ## initial and final conditions
-    @constraints(
-        model,
-        begin
-            scaled_h[0] == h_t0
-            ϕ[0] == ϕ_t0
-            θ[0] == θ_t0
-            scaled_v[0] == v_t0
-            γ[0] == γ_t0
-            ψ[0] == ψ_t0
-
-            scaled_h[N] == h_tf
-            scaled_v[N] == v_tf
-            γ[N] == γ_tf
-        end
-    )
-
     # initial guess: linear interpolation between boundary conditions
-    ## Helper function for linear interpolation
-    function linear_interpolate(x_s, x_t, n)
-        return [x_s + (i - 1) / (n - 1) * (x_t - x_s) for i in 1:n]
+    interpolate(x_s, x_t) = [x_s + i / grid_size * (x_t - x_s) for i in 0:grid_size]
+
+    # aerodynamics and motion of the vehicle, at one node; `h` and `v` at their true scale
+    function motion(x, u)
+        h, ϕ, θ, v, γ, ψ = x[1] * scaling_h, x[2], x[3], x[4] * scaling_v, x[5], x[6]
+        α, β = u
+        c_L = a₀ + a₁ * rad2deg(α)
+        c_D = b₀ + b₁ * rad2deg(α) + b₂ * rad2deg(α)^2
+        ρ = ρ₀ * exp(-h / hᵣ)
+        D = 0.5 * c_D * S * ρ * v^2
+        L = 0.5 * c_L * S * ρ * v^2
+        r = Rₑ + h
+        g = μ / r^2
+        return [
+            v * sin(γ),
+            (v / r) * cos(γ) * sin(ψ) / cos(θ),
+            (v / r) * cos(γ) * cos(ψ),
+            -(D / m) - g * sin(γ),
+            (L / (m * v)) * cos(β) + cos(γ) * ((v / r) - (g / v)),
+            (1 / (m * v * cos(γ))) * L * sin(β) + (v / (r * cos(θ))) * cos(γ) * sin(ψ) * sin(θ),
+        ]
     end
 
-    ## Interpolate each parameter separately
-    h_interp = linear_interpolate(h_t0, h_tf, N + 1)
-    ϕ_interp = linear_interpolate(ϕ_t0, ϕ_t0, N + 1) # no change in longitude
-    θ_interp = linear_interpolate(θ_t0, θ_t0, N + 1) # no change in latitude
-    v_interp = linear_interpolate(v_t0, v_tf, N + 1)
-    γ_interp = linear_interpolate(γ_t0, γ_tf, N + 1)
-    ψ_interp = linear_interpolate(ψ_t0, ψ_t0, N + 1) # no change in azimuth
-    α_interp = linear_interpolate(α_s, α_s, N + 1) # no change in angle of attack
-    β_interp = linear_interpolate(β_s, β_s, N + 1) # no change in bank angle
-
-    ## Combine all interpolated parameters into an array of arrays
-    interpolated_values = [
-        transpose([h, ϕ, θ, v, γ, ψ, α, β]) for (h, ϕ, θ, v, γ, ψ, α, β) in
-        zip(h_interp, ϕ_interp, θ_interp, v_interp, γ_interp, ψ_interp, α_interp, β_interp)
-    ]
-
-    ## Create the initial guess by summing the interpolated values
-    initial_guess = reduce(vcat, interpolated_values)
-    set_start_value.(model[:scaled_h], vec(initial_guess[:, 1]))
-    set_start_value.(model[:ϕ], vec(initial_guess[:, 2]))
-    set_start_value.(model[:θ], vec(initial_guess[:, 3]))
-    set_start_value.(model[:scaled_v], vec(initial_guess[:, 4]))
-    set_start_value.(model[:γ], vec(initial_guess[:, 5]))
-    set_start_value.(model[:ψ], vec(initial_guess[:, 6]))
-    set_start_value.(model[:α], vec(initial_guess[:, 7]))
-    set_start_value.(model[:β], vec(initial_guess[:, 8]))
-    set_start_value.(model[:tf], 2000.0) #######
-
-    # Functions to restore `h` and `v` to their true scale
-    @expression(model, h[j = 0:N], scaled_h[j] * scaling_h)
-    @expression(model, v[j = 0:N], scaled_v[j] * scaling_v)
-
-    ## Helper functions
-    @expression(model, c_L[j = 0:N], a₀ + a₁ * rad2deg(α[j]))
-    @expression(model, c_D[j = 0:N], b₀ + b₁ * rad2deg(α[j]) + b₂ * rad2deg(α[j])^2)
-    @expression(model, ρ[j = 0:N], ρ₀ * exp(-h[j] / hᵣ))
-    @expression(model, D[j = 0:N], 0.5 * c_D[j] * S * ρ[j] * v[j]^2)
-    @expression(model, L[j = 0:N], 0.5 * c_L[j] * S * ρ[j] * v[j]^2)
-    @expression(model, r[j = 0:N], Rₑ + h[j])
-    @expression(model, g[j = 0:N], μ / r[j]^2)
-
-    # Motion of the vehicle as a differential-algebraic system of equations (DAEs)
-    @expression(model, δh[j = 0:N], v[j] * sin(γ[j]))
-    @expression(model, δϕ[j = 0:N], (v[j] / r[j]) * cos(γ[j]) * sin(ψ[j]) / cos(θ[j]))
-    @expression(model, δθ[j = 0:N], (v[j] / r[j]) * cos(γ[j]) * cos(ψ[j]))
-    @expression(model, δv[j = 0:N], -(D[j] / m) - g[j] * sin(γ[j]))
-    @expression(
-        model,
-        δγ[j = 0:N],
-        (L[j] / (m * v[j])) * cos(β[j]) + cos(γ[j]) * ((v[j] / r[j]) - (g[j] / v[j]))
+    data = ProblemData(;
+        state=[
+            Component("scaled_h"; lower=h_l, start=interpolate(h_t0, h_tf)),  # altitude (ft) / scaling_h
+            Component("ϕ"; lower=ϕ_l, upper=ϕ_u, start=interpolate(ϕ_t0, ϕ_t0)),  # longitude (rad)
+            Component("θ"; lower=θ_l, upper=θ_u, start=interpolate(θ_t0, θ_t0)),  # latitude (rad)
+            Component("scaled_v"; lower=v_l, start=interpolate(v_t0, v_tf)),  # velocity (ft/sec) / scaling_v
+            Component("γ"; lower=γ_l, upper=γ_u, start=interpolate(γ_t0, γ_tf)),  # flight path angle (rad)
+            Component("ψ"; lower=ψ_l, upper=ψ_u, start=interpolate(ψ_t0, ψ_t0)),  # azimuth (rad)
+        ],
+        control=[
+            Component("α"; lower=α_l, upper=α_u, start=α_s),  # angle of attack (rad)
+            Component("β"; lower=β_l, upper=β_u, start=β_s),  # bank angle (rad)
+        ],
+        variable=[Component("tf"; lower=tf_l, upper=tf_u, start=2000.0)],  # final time (sec)
+        costate=["∂h", "∂ϕ", "∂θ", "∂v", "∂γ", "∂ψ"],
+        times=v -> (t0, v[1]),
+        dynamics=(x, u, v, t) -> motion(x, u),
+        # the dynamics are written on the true altitude and velocity
+        state_expressions=(x, v) -> [x[1] * scaling_h, x[2], x[3], x[4] * scaling_v, x[5], x[6]],
+        cost=(I, x0, xf, v) -> -xf[3],
+        boundary=[
+            (h_t0, (x0, xf, v) -> x0[1], h_t0),
+            (ϕ_t0, (x0, xf, v) -> x0[2], ϕ_t0),
+            (θ_t0, (x0, xf, v) -> x0[3], θ_t0),
+            (v_t0, (x0, xf, v) -> x0[4], v_t0),
+            (γ_t0, (x0, xf, v) -> x0[5], γ_t0),
+            (ψ_t0, (x0, xf, v) -> x0[6], ψ_t0),
+            (h_tf, (x0, xf, v) -> xf[1], h_tf),
+            (v_tf, (x0, xf, v) -> xf[4], v_tf),
+            (γ_tf, (x0, xf, v) -> xf[5], γ_tf),
+        ],
     )
-    @expression(
-        model,
-        δψ[j = 0:N],
-        (1 / (m * v[j] * cos(γ[j]))) * L[j] * sin(β[j]) +
-            (v[j] / (r[j] * cos(θ[j]))) * cos(γ[j]) * sin(ψ[j]) * sin(θ[j])
-    )
-
-    @expression(model, Δt, (tf - t0) / N)
-
-    @constraints(
-        model,
-        begin
-            ∂h[i = 1:N], h[i] == h[i - 1] + 0.5 * Δt * (δh[i - 1] + δh[i])
-            ∂ϕ[i = 1:N], ϕ[i] == ϕ[i - 1] + 0.5 * Δt * (δϕ[i - 1] + δϕ[i])
-            ∂θ[i = 1:N], θ[i] == θ[i - 1] + 0.5 * Δt * (δθ[i - 1] + δθ[i])
-            ∂v[i = 1:N], v[i] == v[i - 1] + 0.5 * Δt * (δv[i - 1] + δv[i])
-            ∂γ[i = 1:N], γ[i] == γ[i - 1] + 0.5 * Δt * (δγ[i - 1] + δγ[i])
-            ∂ψ[i = 1:N], ψ[i] == ψ[i - 1] + 0.5 * Δt * (δψ[i - 1] + δψ[i])
-        end
-    )
-
-    @objective(model, Min, -θ[N])
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end
