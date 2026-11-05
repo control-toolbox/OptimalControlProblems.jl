@@ -9,19 +9,55 @@ on:
     types: [labeled, unlabeled, synchronize, reopened]
 
 jobs:
-  # Turn the `test <environment> backend` / `test comparison` labels of a pull request into
-  # the arguments of test/runtests.jl (environment names). Without such a label, or outside
-  # a pull request, the arguments are empty and every environment runs.
+  # Turn scope labels and per-problem pull request changes into the arguments of
+  # test/runtests.jl. Without a scope label, or outside a pull request, every environment
+  # and problem runs.
   scope:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       test_args: ${{ steps.scope.outputs.test_args }}
     steps:
       - id: scope
         env:
+          GH_TOKEN: ${{ github.token }}
           LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
         run: |
-          args=$(echo "$LABELS" | jq -r '[(. // [])[] | select(startswith("test ")) | sub("^test "; "") | sub(" backend$"; "")] | join(" ")')
+          force_all=$(echo "$LABELS" | jq -r 'any(.[]?; . == "release" or . == "test all problems")')
+          args=$(echo "$LABELS" | jq -r '[.[]? | select(startswith("test ")) | select(. != "test all problems") | sub("^test "; "") | sub(" backend$"; "")] | join(" ")')
+          if [[ "${{ github.event_name }}" == "pull_request" && "$force_all" != "true" ]]; then
+            files=$(gh api --paginate \
+              "repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files" \
+              --jq '.[] | [.status, .filename] | @tsv')
+            problems=()
+            all_per_problem=true
+            while IFS=$'\t' read -r status filename; do
+              [[ -n "$filename" ]] || continue
+              if [[ "$status" != "added" && "$status" != "modified" ]]; then
+                all_per_problem=false
+                break
+              fi
+              if [[ "$filename" =~ ^ext/MetaData/([^/]+)\.jl$ ||
+                    "$filename" =~ ^ext/Descriptions/([^/]+)\.md$ ||
+                    "$filename" =~ ^ext/[^/]+Models/([^/]+)\.jl$ ]]; then
+                problems+=("${BASH_REMATCH[1]}")
+              else
+                all_per_problem=false
+                break
+              fi
+            done <<< "$files"
+            if [[ "$all_per_problem" == "true" && "${#problems[@]}" -gt 0 ]]; then
+              unique_problems=$(printf '%s\n' "${problems[@]}" | sort -u | paste -sd, -)
+              args="${args:+$args }problem=$unique_problems"
+              echo "changed problems: $unique_problems"
+            else
+              echo "shared change: running all problems"
+            fi
+          else
+            echo "override or release PR: running all problems"
+          fi
           echo "test_args=$args" >> "$GITHUB_OUTPUT"
           echo "test_args: '$args'"
 

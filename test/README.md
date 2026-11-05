@@ -89,10 +89,17 @@ it runs:
 | --- | --- |
 | `run ci github-runner` | run the CI on GitHub runners (Julia 1.10 and 1.13, three OSes) |
 | `test <environment> backend`, `test comparison` | run core and these environments only |
+| `test all problems` | force the complete problem catalogue, even for a per-problem-only change |
 | no scope label | run core and every environment except the opt-in ones |
 
 Scope labels add up. Adding or removing a label reruns the CI when a runner label is set.
-The cron ignores labels.
+On a pull request, a change touching only one or more per-problem files
+(`ext/MetaData/<p>.jl`, `ext/<modeling>Models/<p>.jl`, or `ext/Descriptions/<p>.md`)
+automatically adds `problem=<p>,...` to the test arguments. The changed problem names are
+combined with any scope labels, so `test JuMP backend` and a change to `beam` run
+`JuMP problem=beam`. Any shared, removed, or renamed file runs the complete catalogue.
+Release pull requests and the `test all problems` label always run the complete catalogue.
+The cron ignores labels and problem scoping.
 
 ## Adding a test
 
