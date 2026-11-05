@@ -3,9 +3,8 @@
 
 Each environment writes ``test/reports/<environment>.md`` (a table of
 ``test | problem | modelings | status | outcome``); the workflow downloads them
-as ``<reports>/<artifact>/<environment>.md``. The report of a ``:valid`` problem
-says ``see the test summary`` because a failure fails the job, so the table shows
-what was visited and what stayed a draft, not a pass/fail per problem.
+as ``<reports>/<artifact>/<environment>.md``. The table shows what was visited, one
+line per outcome (``pass``, ``fail``, ``no test``) with the modelings that got it.
 
 Usage:
 
@@ -32,15 +31,15 @@ _spec.loader.exec_module(_cron)
 
 
 def tested_rows(rows):
-    """One row per (platform, problem, status): modelings and outcomes merged, in order."""
+    """Modelings per (platform, problem, status, outcome), in order of appearance, so that
+    each line says which modelings got which outcome."""
     merged = {}
     for row in rows:
-        entry = merged.setdefault(
-            (row["platform"], row["problem"], row["status"]), {"modelings": [], "outcomes": []}
+        modelings = merged.setdefault(
+            (row["platform"], row["problem"], row["status"], row["outcome"]), []
         )
-        for field, value in (("modelings", row["modelings"]), ("outcomes", row["outcome"])):
-            if value not in entry[field]:
-                entry[field].append(value)
+        if row["modelings"] not in modelings:
+            modelings.append(row["modelings"])
     return merged
 
 
@@ -52,11 +51,9 @@ def render(rows, catalogue, reports_found=True):
         lines += [f"No result to show: {reason} (the tests did not run, or failed before reporting).", ""]
     else:
         lines += ["| Platform | Problem | Modelings | Status | Outcome |", "| --- | --- | --- | --- | --- |"]
-        for (platform, problem, status), entry in sorted(tested_rows(rows).items()):
-            outcome = ", ".join("tested" if o == NOTHING_TO_SAY else o for o in entry["outcomes"])
-            lines.append(
-                f"| {platform} | `{problem}` | {', '.join(entry['modelings'])} | {status} | {outcome} |"
-            )
+        for (platform, problem, status, outcome), modelings in sorted(tested_rows(rows).items()):
+            outcome = "tested" if outcome == NOTHING_TO_SAY else outcome
+            lines.append(f"| {platform} | `{problem}` | {', '.join(modelings)} | {status} | {outcome} |")
         lines.append("")
     seen = {row["problem"] for row in rows}
     missing = sorted(p.stem for p in Path(catalogue).glob("*.jl") if p.stem not in seen)

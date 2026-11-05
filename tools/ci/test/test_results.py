@@ -67,6 +67,16 @@ class TestResults(unittest.TestCase):
         self.assertIn("| ci-a | `beam` | JuMP, OptimalControl | valid | tested |", out)
         self.assertIn("| ci-b | `beam` | JuMP | valid | tested |", out)
 
+    def test_outcomes_stay_apart(self):
+        out, _ = run_results({
+            "ci-a/JuMP.md": "| visited | beam | JuMP | draft | fail |\n"
+                            "| visited | beam | JuMP vs OptimalControl | draft | no test |\n"
+                            "| visited | beam | OptimalControl | draft | pass |\n",
+        })
+        self.assertIn("| `beam` | JuMP | draft | fail |", out)
+        self.assertIn("| `beam` | JuMP vs OptimalControl | draft | no test |", out)
+        self.assertIn("| `beam` | OptimalControl | draft | pass |", out)
+
     def test_duplicate_rows_are_merged(self):
         row = "| visited | beam | JuMP | valid | see the test summary |\n"
         out, _ = run_results({"ci-a/JuMP.md": row * 3})
