@@ -31,7 +31,7 @@ function solver(name::Symbol; max_iter::Int)
         T = name === :madnlp ? OptimalControl.MadNLP : OptimalControl.MadNLP{OptimalControl.GPU}
         return T(;
             print_level=MadNLP.ERROR,
-            tol=o.TOL,
+            tol=name === :madnlp ? o.TOL : o.GPU_TOL,
             max_iter=max_iter,
             max_wall_time=o.MAX_WALL_TIME,
         )
