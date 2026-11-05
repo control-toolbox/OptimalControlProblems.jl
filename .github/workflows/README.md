@@ -26,7 +26,10 @@ those files with the CTActions artifact interface and downloads one directory pe
 artifact, so the artifact name (Julia version, runner, CPU/GPU) identifies the platform
 of every report row. The final job uses the GitHub token to:
 
-- update one repository-wide issue for each of `cron-failure` and `cron-drafts`;
+- update one repository-wide issue for each of `cron-failure`, `cron-drafts` and
+  `cron-convergence`;
+- add the results of the convergence tests (#360) to the scope report, with their change
+  since the previous run of the scope (kept in the state on the `results` branch);
 - maintain one idempotent `cron-bug` issue per failing problem and modeling;
 - reopen completed regressions at most three times, label them `flaky`, and close a
   regression after two consecutive runs where every observed valid row passes;
@@ -44,7 +47,7 @@ workflow with an undeclared input fails at workflow validation.
 
 ## What to do with the cron issues
 
-Three repository-wide issues, each with one section per scope (replaced by each run of that
+Four repository-wide issues, each with one section per scope (replaced by each run of that
 scope), and one `cron-bug` issue per failing (problem, modeling). All of them explain what
 to do in their own text; this is the longer version. **Nothing is changed automatically:** the
 cron only reports. A maintainer decides what to do (and may ask an agent to do it); in
@@ -58,6 +61,11 @@ request that edits `ext/MetaData/<problem>.jl`.
   supported — set the problem to `:draft` in `ext/MetaData/<problem>.jl`.
 - **`cron-drafts`** — a `:draft` passed all its tests on every platform. Check it, then set
   `:valid` for that modeling in `ext/MetaData/<problem>.jl` in a pull request.
+- **`cron-convergence`** — convergence is reported, not tested (#360): a solve converged in
+  the previous run of the scope and no longer does, or its objective moved by more than
+  `OBJECTIVE_CHANGE` (relative, `tools/cron/report.py`). Nothing fails. Compare the scope
+  report with the previous one on the `results` branch and decide whether the change is
+  expected (new initial guess, new solver version) or a regression to investigate.
 - **`cron-capabilities`** — a declared known failure no longer happens (inactive until the
   `:known_failures` metadata of #306 exists).
 - **`cron-bug`** — opened per (problem, modeling) for at most 5 pairs per run (more is

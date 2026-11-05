@@ -18,6 +18,7 @@ SUMMARY_LABELS = {
     "failure": "cron-failure",
     "draft": "cron-drafts",
     "capability": "cron-capabilities",
+    "convergence": "cron-convergence",
 }
 FAILURE = {"fail", "error"}
 SCOPE_MARKER = "<!-- cron-scope: {scope} -->"
@@ -63,6 +64,20 @@ HEADERS = {
         f"Details: [README]({README_URL})."
     ),
 }
+HEADERS["convergence"] = (
+    "# Convergence that got worse\n\n"
+    "Written by the weekly cron workflows, one section per scope, replaced by each run of "
+    "that scope. Convergence is reported, not tested (#360): each entry below is a solve "
+    "that converged in the previous run of the scope and no longer does, or whose objective "
+    "moved by more than the threshold of `tools/cron/report.py`.\n\n"
+    "**Who:** a maintainer looks; nothing fails and nothing changes automatically.\n\n"
+    "**What to do:** open the run, compare with the previous report on the `results` branch, "
+    "and decide whether the change is expected (new initial guess, new solver version) or a "
+    f"regression to investigate. Details: [README]({README_URL}). This issue updates itself; "
+    "close it when the sections say `No findings.`"
+)
+# A relative change of the objective above this is reported as a change of the convergence.
+OBJECTIVE_CHANGE = 1e-4
 BUG_LABEL = "cron-bug"
 MAX_BUG_ISSUES_PER_RUN = 5
 MAX_REOPENINGS = 3
@@ -97,6 +112,91 @@ def parse_reports(directory: pathlib.Path) -> list[dict[str, str]]:
                     "outcome": cells[4],
                     "platform": platform,
                     "source": str(relative),
+                }
+            )
+    return rows
+
+
+RESULT_COLUMNS = (
+    "test", "problem", "modeling", "configuration", "result", "reason", "objective",
+    "iterations", "time", "gap",
+)
+
+
+def parse_results(directory: pathlib.Path) -> list[dict[str, str]]:
+    """The results of the solves (`<report>-results.tsv`, #360), with their platform."""
+    results = []
+    for path in sorted(directory.rglob("*-results.tsv")):
+        relative = path.relative_to(directory)
+        platform = relative.parts[0] if len(relative.parts) > 1 else "local"
+        lines = path.read_text().splitlines()
+        for line in lines[1:]:
+            cells = line.split("\t")
+            if len(cells) != len(RESULT_COLUMNS):
+                continue
+            row = dict(zip(RESULT_COLUMNS, cells))
+            row["platform"] = platform
+            results.append(row)
+    return results
+
+
+def result_key(row: dict[str, str]) -> str:
+    return f"{row['platform']}|{row['problem']}|{row['modeling']}|{row['configuration']}"
+
+
+def remember_results(
+    state: dict, scope: str, results: list[dict[str, str]], run_url: str
+) -> dict[str, dict[str, str]]:
+    """Store the results of this run in `state` and return those of the previous run.
+
+    The report is written twice per run (report, then issues): the previous results are
+    kept with the run they belong to, so that both calls compare with the same run."""
+    entry = state.setdefault("convergence", {}).setdefault(scope, {})
+    if entry.get("run") != run_url:
+        entry["previous"] = entry.get("results", {})
+        entry["run"] = run_url
+    entry["results"] = {
+        result_key(row): {"result": row["result"], "objective": row["objective"]}
+        for row in results
+    }
+    return entry.get("previous", {})
+
+
+def change(row: dict[str, str], previous: dict[str, dict[str, str]]) -> str:
+    """How a result changed since the previous run: `new`, `lost`, `gained`, the relative
+    change of the objective above `OBJECTIVE_CHANGE`, or nothing."""
+    before = previous.get(result_key(row))
+    if before is None:
+        return "new"
+    if before["result"] == "converged" and row["result"] != "converged":
+        return "lost"
+    if before["result"] != "converged" and row["result"] == "converged":
+        return "gained"
+    try:
+        a, b = float(before["objective"]), float(row["objective"])
+    except ValueError:
+        return ""
+    scale = abs(a) if a != 0 else 1.0
+    delta = (b - a) / scale
+    return f"objective {delta:+.2e}" if abs(delta) > OBJECTIVE_CHANGE else ""
+
+
+def degradations(
+    results: list[dict[str, str]], previous: dict[str, dict[str, str]]
+) -> list[dict[str, str]]:
+    """Results that got worse, as rows of a summary issue: lost convergence, or a converged
+    objective that moved (a move is not better or worse without a reference)."""
+    rows = []
+    for row in results:
+        what = change(row, previous)
+        if what == "lost" or (what.startswith("objective") and row["result"] == "converged"):
+            rows.append(
+                {
+                    "platform": row["platform"],
+                    "problem": row["problem"],
+                    "modelings": row["modeling"],
+                    "test": row["configuration"],
+                    "outcome": what,
                 }
             )
     return rows
@@ -171,6 +271,8 @@ def report_markdown(
     sha: str,
     julia_version: str,
     package_version: str,
+    results: list[dict[str, str]] | None = None,
+    previous: dict[str, dict[str, str]] | None = None,
 ) -> str:
     lines = [
         f"# Cron report: {scope}",
@@ -190,6 +292,25 @@ def report_markdown(
         )
         for row in rows
     )
+    if results:
+        previous = previous or {}
+        lines.extend(
+            [
+                "",
+                "## Convergence (reported, not tested)",
+                "",
+                "| platform | problem | modeling | configuration | result | reason | objective "
+                "| iterations | time | gap | change |",
+                "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+            ]
+        )
+        lines.extend(
+            "| {platform} | {problem} | {modeling} | {configuration} | {result} | {reason} "
+            "| {objective} | {iterations} | {time} | {gap} | ".format(**row)
+            + change(row, previous)
+            + " |"
+            for row in results
+        )
     return "\n".join(lines) + "\n"
 
 
@@ -476,6 +597,13 @@ def main() -> None:
 
     now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
     rows = parse_reports(args.reports_dir)
+    results = parse_results(args.reports_dir)
+
+    state = {}
+    if args.state_file.exists():
+        state = json.loads(args.state_file.read_text())
+    previous = remember_results(state, args.scope, results, args.run_url)
+
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
         report_markdown(
@@ -486,12 +614,10 @@ def main() -> None:
             args.sha,
             args.julia_version,
             args.package_version,
+            results,
+            previous,
         )
     )
-
-    state = {}
-    if args.state_file.exists():
-        state = json.loads(args.state_file.read_text())
 
     grouped = findings(rows)
     failure_rows = grouped["failure"]
@@ -524,6 +650,14 @@ def main() -> None:
                 "capability",
                 args.scope,
                 grouped["capability"],
+                args.run_url,
+            )
+            update_summary_issue(
+                github,
+                all_issues,
+                "convergence",
+                args.scope,
+                degradations(results, previous),
                 args.run_url,
             )
             update_bug_issues(
