@@ -62,7 +62,9 @@ function run_environment(name::AbstractString; cron::Bool, patterns::Vector{Stri
     cp(joinpath(SUITE, name, "Project.toml"), joinpath(project, "Project.toml"))
     # `Pkg.test` restricts JULIA_LOAD_PATH (and may set JULIA_PROJECT) to its own
     # temporary environment: a subprocess inheriting them would ignore `--project`.
-    julia = addenv(Base.julia_cmd(), "JULIA_LOAD_PATH" => nothing, "JULIA_PROJECT" => nothing)
+    julia = addenv(
+        Base.julia_cmd(), "JULIA_LOAD_PATH" => nothing, "JULIA_PROJECT" => nothing
+    )
     try
         setup = "using Pkg: Pkg; Pkg.develop(path=ARGS[1]); Pkg.instantiate()"
         run(`$julia --project=$project -e $setup $ROOT`)

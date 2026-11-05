@@ -30,7 +30,9 @@ const REFERENCE = :JuMP
 """Problems available in the three modelings (valid status), derived from the catalogue."""
 function problems()
     return OCP.problems(
-        OCP.JuMPBackend(), OCP.OptimalControlBackend(), OCP.OptimalControlScalarizedBackend()
+        OCP.JuMPBackend(),
+        OCP.OptimalControlBackend(),
+        OCP.OptimalControlScalarizedBackend(),
     )
 end
 
@@ -182,7 +184,9 @@ function compare_grid(ref::Data, other::Data)
     same_final = check(within(ref.t[end], other.t[end]; GRID...))
     comparable = same_length && same_final
     if comparable
-        comparable &= all(i -> check(within(ref.t[i], other.t[i]; GRID...)), eachindex(ref.t))
+        comparable &= all(
+            i -> check(within(ref.t[i], other.t[i]; GRID...)), eachindex(ref.t)
+        )
     end
     return comparable
 end
@@ -191,19 +195,11 @@ end
 function compare_trajectories(ref::Data, other::Data; check_control::Bool=true)
     t = ref.t
     for i in eachindex(ref.xnames)
-        check(
-            within_L2(
-                t, [s[i] for s in ref.x], [s[i] for s in other.x]; STATE...
-            ),
-        )
+        check(within_L2(t, [s[i] for s in ref.x], [s[i] for s in other.x]; STATE...))
     end
     if check_control
         for i in eachindex(ref.unames)
-            check(
-                within_L2(
-                    t, [s[i] for s in ref.u], [s[i] for s in other.u]; CONTROL...
-                ),
-            )
+            check(within_L2(t, [s[i] for s in ref.u], [s[i] for s in other.u]; CONTROL...))
         end
     end
     for i in eachindex(ref.vnames)
@@ -212,6 +208,8 @@ function compare_trajectories(ref::Data, other::Data; check_control::Bool=true)
     return nothing
 end
 
-compare_objective(ref::Data, other::Data) = check(within(ref.objective, other.objective; OBJECTIVE...))
+function compare_objective(ref::Data, other::Data)
+    return check(within(ref.objective, other.objective; OBJECTIVE...))
+end
 
 end # module Comparison

@@ -21,8 +21,10 @@ function test_convergence()
         :max_iter => options.MAX_ITER,
         :max_wall_time => options.MAX_WALL_TIME,
     )
-    Test.@testset "OptimalControl convergence (default grid)" verbose = VERBOSE showtiming = SHOWTIMING begin
-        for problem in OptimalControlProblems.problems(OptimalControlProblems.OptimalControlBackend())
+    Test.@testset "OptimalControl convergence (default grid)" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
+        for problem in
+            OptimalControlProblems.problems(OptimalControlProblems.OptimalControlBackend())
             Test.@testset "$problem" begin
                 try
                     build = getfield(OptimalControlProblems, problem)
@@ -30,7 +32,8 @@ function test_convergence()
                     nlp = CTDirect.nlp_model(docp)
                     sol = NLPModelsIpopt.ipopt(nlp; ipopt_options...)
                     sol = NLPModelsIpopt.ipopt(nlp; ipopt_options...) # second solve
-                    Main.TestHelpers.@broken_if_false sol.status in (:first_order, :acceptable)
+                    Main.TestHelpers.@broken_if_false sol.status in
+                        (:first_order, :acceptable)
                 catch err
                     Main.TestHelpers.broken_if_domain_error(err)
                 end

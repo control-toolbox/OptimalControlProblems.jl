@@ -10,8 +10,10 @@ const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING :
 
 function test_kwargs()
     grid_size = 2
-    Test.@testset "OptimalControl keyword arguments" verbose = VERBOSE showtiming = SHOWTIMING begin
-        for problem in OptimalControlProblems.problems(OptimalControlProblems.OptimalControlBackend())
+    Test.@testset "OptimalControl keyword arguments" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
+        for problem in
+            OptimalControlProblems.problems(OptimalControlProblems.OptimalControlBackend())
             Test.@testset "$problem" begin
                 build = getfield(OptimalControlProblems, problem)
                 docp = build(

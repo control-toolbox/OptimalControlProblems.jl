@@ -1,4 +1,5 @@
-isdefined(Main, :Comparison) || include(joinpath(@__DIR__, "..", "..", "common", "comparison.jl"))
+isdefined(Main, :Comparison) ||
+    include(joinpath(@__DIR__, "..", "..", "common", "comparison.jl"))
 
 module TestInitComparison
 
@@ -14,7 +15,8 @@ const GRID_SIZE = 20
 
 function test_init()
     C = Main.Comparison
-    Test.@testset "comparison at the initial guess (0 iterations)" verbose = VERBOSE showtiming = SHOWTIMING begin
+    Test.@testset "comparison at the initial guess (0 iterations)" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         for problem in C.problems()
             Test.@testset "$problem" begin
                 try

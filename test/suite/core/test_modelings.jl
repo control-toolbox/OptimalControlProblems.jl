@@ -33,8 +33,9 @@ function test_modelings()
             ) == listed
         end
         for a in BACKENDS, b in BACKENDS
-            Test.@test OptimalControlProblems.problems(a, b) ==
-                intersect(OptimalControlProblems.problems(a), OptimalControlProblems.problems(b))
+            Test.@test OptimalControlProblems.problems(a, b) == intersect(
+                OptimalControlProblems.problems(a), OptimalControlProblems.problems(b)
+            )
         end
         Test.@test_throws CTBase.IncorrectArgument OptimalControlProblems.problems(;
             status=:unknown
@@ -47,8 +48,9 @@ function test_modelings()
             for backend in BACKENDS
                 name = OptimalControlProblems._modeling_spec(backend).name
                 # a status is declared exactly for the modelings having a model file
-                Test.@test haskey(statuses, name) ==
-                    (problem in OptimalControlProblems.problems(backend; status=:all))
+                Test.@test haskey(statuses, name) == (
+                    problem in OptimalControlProblems.problems(backend; status=:all)
+                )
             end
         end
         Test.@test_throws CTBase.IncorrectArgument OptimalControlProblems.status(
