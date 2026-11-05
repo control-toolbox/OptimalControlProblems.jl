@@ -101,7 +101,8 @@ function OptimalControlProblems.space_shuttle(
             (v / r) * cos(γ) * cos(ψ),
             -(D / m) - g * sin(γ),
             (L / (m * v)) * cos(β) + cos(γ) * ((v / r) - (g / v)),
-            (1 / (m * v * cos(γ))) * L * sin(β) + (v / (r * cos(θ))) * cos(γ) * sin(ψ) * sin(θ),
+            (1 / (m * v * cos(γ))) * L * sin(β) +
+            (v / (r * cos(θ))) * cos(γ) * sin(ψ) * sin(θ),
         ]
     end
 
@@ -123,7 +124,8 @@ function OptimalControlProblems.space_shuttle(
         times=v -> (t0, v[1]),
         dynamics=(x, u, v, t) -> motion(x, u),
         # the dynamics are written on the true altitude and velocity
-        state_expressions=(x, v) -> [x[1] * scaling_h, x[2], x[3], x[4] * scaling_v, x[5], x[6]],
+        state_expressions=(x, v) ->
+            [x[1] * scaling_h, x[2], x[3], x[4] * scaling_v, x[5], x[6]],
         cost=(I, x0, xf, v) -> -xf[3],
         boundary=[
             (h_t0, (x0, xf, v) -> x0[1], h_t0),

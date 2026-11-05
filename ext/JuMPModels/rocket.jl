@@ -52,7 +52,12 @@ function OptimalControlProblems.rocket(
         state=[
             Component("h"; lower=h_t0, start=1),
             Component("v"; lower=v_t0, start=[i / N * (1 - i / N) for i in 0:N]),
-            Component("m"; lower=m_tf, upper=m_t0, start=[(m_tf - m_t0) * (i / N) + m_t0 for i in 0:N]),
+            Component(
+                "m";
+                lower=m_tf,
+                upper=m_t0,
+                start=[(m_tf - m_t0) * (i / N) + m_t0 for i in 0:N],
+            ),
         ],
         control=[Component("T"; lower=T_l, upper=Tmax, start=Tmax / 2)],
         variable=[Component("tf"; lower=tf_l, start=1)],

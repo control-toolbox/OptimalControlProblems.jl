@@ -57,7 +57,14 @@ function OptimalControlProblems.moonlander(
             0 0 1
         ]
         F_tot = (F_r * [0; F₁ + F₂; 0])[1:2]
-        return [dp₁, dp₂, (1 / m) * F_tot[1], (1 / m) * F_tot[2] - g, dθ, (1 / I) * (D / 2) * (F₂ - F₁)]
+        return [
+            dp₁,
+            dp₂,
+            (1 / m) * F_tot[1],
+            (1 / m) * F_tot[2] - g,
+            dθ,
+            (1 / I) * (D / 2) * (F₂ - F₁),
+        ]
     end
 
     data = ProblemData(;

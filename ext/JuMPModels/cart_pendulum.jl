@@ -51,7 +51,9 @@ function OptimalControlProblems.cart_pendulum(
         J = mcart
         c = eq - J * ddx
         dv = -1 / J * c
-        return [vel, dv, ω, 1 / (I + 0.25 * m * L^2) * 0.5 * L * m * (-dv * cos(θ) - g * sin(θ))]
+        return [
+            vel, dv, ω, 1 / (I + 0.25 * m * L^2) * 0.5 * L * m * (-dv * cos(θ) - g * sin(θ))
+        ]
     end
 
     data = ProblemData(;

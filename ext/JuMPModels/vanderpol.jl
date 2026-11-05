@@ -35,7 +35,9 @@ function OptimalControlProblems.vanderpol(
         times=v -> (t0, tf),
         dynamics=(x, u, v, t) -> [x[2], ε * ω * (1 - x[1]^2) * x[2] - ω^2 * x[1] + u[1]],
         lagrange=(x, u, v, t) -> 0.5 * (x[1]^2 + x[2]^2 + u[1]^2),
-        boundary=[(x₁_t0, (x0, xf, v) -> x0[1], x₁_t0), (x₂_t0, (x0, xf, v) -> x0[2], x₂_t0)],
+        boundary=[
+            (x₁_t0, (x0, xf, v) -> x0[1], x₁_t0), (x₂_t0, (x0, xf, v) -> x0[2], x₂_t0)
+        ],
     )
     return build_trapeze(data, grid_size, args...; kwargs...)
 end

@@ -18,7 +18,11 @@ function _variable(model, c::Component, name, i)
 end
 
 function _constraint(model, lower, f, upper)
-    return lower == upper ? JuMP.@constraint(model, f == lower) : JuMP.@constraint(model, lower <= f <= upper)
+    return if lower == upper
+        JuMP.@constraint(model, f == lower)
+    else
+        JuMP.@constraint(model, lower <= f <= upper)
+    end
 end
 
 """
@@ -64,12 +68,16 @@ function build_trapeze(data::ProblemData, grid_size::Int, args...; kwargs...)
     f = [data.dynamics(x[i + 1], u[i + 1], v, t[i + 1]) for i in 0:N]
     z = [data.state_expressions(x[i + 1], v) for i in 0:N]
     D = Matrix{JuMP.ConstraintRef}(undef, length(data.state), N)
-    path(i) = for (lower, g, upper) in data.path
-        _constraint(model, lower, g(x[i + 1], u[i + 1], v, t[i + 1]), upper)
+    function path(i)
+        for (lower, g, upper) in data.path
+            _constraint(model, lower, g(x[i + 1], u[i + 1], v, t[i + 1]), upper)
+        end
     end
     for i in 1:N
         for k in eachindex(data.state)
-            D[k, i] = JuMP.@constraint(model, z[i + 1][k] == z[i][k] + 0.5 * Δt * (f[i + 1][k] + f[i][k]))
+            D[k, i] = JuMP.@constraint(
+                model, z[i + 1][k] == z[i][k] + 0.5 * Δt * (f[i + 1][k] + f[i][k])
+            )
         end
         path(i - 1)
     end

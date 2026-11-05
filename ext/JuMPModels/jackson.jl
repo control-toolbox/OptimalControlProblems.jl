@@ -40,7 +40,11 @@ function OptimalControlProblems.jackson(
 
     function dynamics(x, u)
         a, b, _ = x
-        return [-u[1] * (k1 * a - k2 * b), u[1] * (k1 * a - k2 * b) - (1 - u[1]) * k3 * b, (1 - u[1]) * k3 * b]
+        return [
+            -u[1] * (k1 * a - k2 * b),
+            u[1] * (k1 * a - k2 * b) - (1 - u[1]) * k3 * b,
+            (1 - u[1]) * k3 * b,
+        ]
     end
 
     data = ProblemData(;

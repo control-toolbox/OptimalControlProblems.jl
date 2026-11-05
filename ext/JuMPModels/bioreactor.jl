@@ -49,7 +49,11 @@ function OptimalControlProblems.bioreactor(
         days = (t - t0) / (halfperiod * 2)
         tau = (days - floor(days)) * 2π
         μ = max(0, sin(tau))^2 * μbar
-        return [μ * y / (1 + y) - (r + u[1]) * y, -μ2 * b + u[1] * β * (γ * y - s), (μ2 - u[1] * β) * b]
+        return [
+            μ * y / (1 + y) - (r + u[1]) * y,
+            -μ2 * b + u[1] * β * (γ * y - s),
+            (μ2 - u[1] * β) * b,
+        ]
     end
 
     data = ProblemData(;
