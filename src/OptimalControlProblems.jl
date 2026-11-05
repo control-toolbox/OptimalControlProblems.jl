@@ -514,6 +514,6 @@ export control_components,
     variable_components,
     variable_dimension
 export problem_metadata, grid_size_data, parameters_data
-export Problem, model, initial_guess, metadata
+export Problem, model, initial_guess, metadata, solution
 
 end

@@ -54,7 +54,8 @@ jobs:
           args=$(cat changed_files.tsv 2>/dev/null | python3 tools/ci/scope.py \
             --event "${{ github.event_name }}" \
             --labels "$LABELS" \
-            --expected-files "${{ github.event.pull_request.changed_files }}")
+            --expected-files "${{ github.event.pull_request.changed_files }}" \
+            --summary "$GITHUB_STEP_SUMMARY")
           echo "test_args=$args" >> "$GITHUB_OUTPUT"
           echo "test_args: '$args'"
 
@@ -80,8 +81,28 @@ jobs:
       runner_type: 'github'
       use_ct_registry: true
       test_args: ${{ needs.scope.outputs.test_args }}
+      upload_artifact_path: test/reports
+      upload_artifact_name: ci
     secrets:
       SSH_KEY: ${{ secrets.SSH_KEY }}
+
+  # What the run tested, from the reports of the environments (tools/ci/results.py), in
+  # the job summary next to the scope decision. Runs after a failure too: the reports are
+  # uploaded then as well.
+  results:
+    needs: call
+    if: always() && needs.call.result != 'skipped'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: ci-*
+          path: artifacts
+      - run: python3 tools/ci/results.py --reports artifacts --summary "$GITHUB_STEP_SUMMARY" > /dev/null
 
   # GPU tests (environment `GPU`: Exa and MadNLP on the GPU, test/README.md) on the
   # self-hosted runners, on a pull request with the runner label. A `labeled` event fires
