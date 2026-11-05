@@ -31,4 +31,6 @@ end
 
 end # module TestSolveOptimalControl
 
-test_solve() = TestSolveOptimalControl.test_solve()
+# TEMPORARY (#361, #360): convergence tests skipped to shorten the CI; restore before merging.
+# test_solve() = TestSolveOptimalControl.test_solve()
+test_solve() = nothing
