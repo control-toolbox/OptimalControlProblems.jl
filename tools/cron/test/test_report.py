@@ -82,7 +82,7 @@ class ReportTest(unittest.TestCase):
     def test_hidden_key_supports_modeling_names_with_spaces(self):
         row = self.rows("fail", modelings="JuMP vs OptimalControl")[0]
         key = REPORT.issue_key(row)
-        issue = {"body": f"<!-- cron-key: {key} -->", "state": "open", "labels": []}
+        issue = {"body": f"<!-- cron-key: {key} -->", "state": "open", "labels": [{"name": "cron-bug"}]}
         self.assertIs(REPORT.matching_issue([issue], key), issue)
 
     def test_bug_issue_is_idempotent_and_tracks_configuration_changes(self):
@@ -109,7 +109,7 @@ class ReportTest(unittest.TestCase):
         issue = {
             "number": 1,
             "body": "<!-- cron-key: beam|JuMP -->",
-            "labels": [],
+            "labels": [{"name": "cron-bug"}],
             "state": "open",
         }
         github = FakeGitHub([issue])
@@ -127,7 +127,7 @@ class ReportTest(unittest.TestCase):
         issue = {
             "number": 1,
             "body": "<!-- cron-key: beam|JuMP -->",
-            "labels": [],
+            "labels": [{"name": "cron-bug"}],
             "state": "open",
         }
         github = FakeGitHub([issue])
@@ -143,7 +143,7 @@ class ReportTest(unittest.TestCase):
         issue = {
             "number": 1,
             "body": "<!-- cron-key: beam|JuMP -->",
-            "labels": [],
+            "labels": [{"name": "cron-bug"}],
             "state": "closed",
             "state_reason": "not_planned",
         }
@@ -167,6 +167,43 @@ class ReportTest(unittest.TestCase):
         )
         self.assertEqual(github.data, [])
         self.assertEqual(len(REPORT.findings(rows)["failure"]), 6)
+
+    def test_summary_issue_explains_what_to_do_and_keeps_its_header(self):
+        github = FakeGitHub()
+        rows = self.rows("pass", status="draft")
+        REPORT.update_summary_issue(github, github.data, "draft", "JuMP", rows, "run-1")
+        body = github.data[0]["body"]
+        self.assertIn("What to do", body)
+        self.assertIn(REPORT.README_URL, body)
+        # an issue created by an older version (no explanation) gets the header on update
+        github.data[0]["body"] = "# Automated cron report\n\n" + body[body.index("<!-- cron-scope"):]
+        REPORT.update_summary_issue(github, github.data, "draft", "JuMP", rows, "run-2")
+        self.assertIn("What to do", github.data[0]["body"])
+        self.assertEqual(github.data[0]["body"].count("<!-- cron-scope: JuMP -->"), 1)
+
+    def test_bug_issue_body_says_how_to_reproduce(self):
+        row = self.rows("fail")[0]
+        body = REPORT.bug_body(row, ["linux: t"], "run", "date", 0)
+        self.assertIn('test_args=["JuMP", "cron", "problem=beam"]', body)
+        self.assertIn(REPORT.README_URL, body)
+        comparison = dict(row, modelings="JuMP vs OptimalControl")
+        self.assertIn('"comparison", "cron"', REPORT.bug_body(comparison, ["x"], "run", "d", 0))
+
+    def test_issue_quoting_a_key_without_the_bug_label_is_never_touched(self):
+        spec = {
+            "number": 1,
+            "title": "specification quoting <!-- cron-key: beam|JuMP -->",
+            "body": "example: <!-- cron-key: beam|JuMP -->",
+            "labels": [],
+            "state": "open",
+        }
+        github = FakeGitHub([spec])
+        rows = self.rows("fail")
+        state = {}
+        REPORT.update_bug_issues(github, github.data, rows, rows, "JuMP", "run", "date", state, False)
+        self.assertEqual(github.data[0]["body"], "example: <!-- cron-key: beam|JuMP -->")
+        self.assertEqual(len(github.data), 2)  # a real bug issue was created instead
+        self.assertEqual(github.comments, [])
 
     def test_replace_section_only_replaces_one_scope(self):
         original = (
