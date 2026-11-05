@@ -283,6 +283,15 @@ class ConvergenceTests(unittest.TestCase):
         self.assertEqual(["a", "c"], [row["problem"] for row in worse])
         self.assertEqual("solver=ipopt", worse[0]["test"])
 
+    def test_a_passing_convergence_test_does_not_make_a_draft_ready(self):
+        rows = [
+            {"test": "test_convergence solver=ipopt", "problem": "p", "modelings": "JuMP",
+             "status": "draft", "outcome": "pass", "platform": "a"},
+        ]
+        self.assertEqual([], REPORT.findings(rows)["draft"])
+        rows[0]["test"] = "test_init"
+        self.assertEqual(1, len(REPORT.findings(rows)["draft"]))
+
     def test_report_lists_the_results_with_their_change(self):
         text = REPORT.report_markdown(
             "JuMP", [], "run", "now", "sha", "1.13", "0.6.0",

@@ -76,6 +76,8 @@ HEADERS["convergence"] = (
     f"regression to investigate. Details: [README]({README_URL}). This issue updates itself; "
     "close it when the sections say `No findings.`"
 )
+# The tests that report convergence instead of testing it (`cron/<scope>/test_convergence.jl`).
+CONVERGENCE_TEST = "test_convergence"
 # A relative change of the objective above this is reported as a change of the convergence.
 OBJECTIVE_CHANGE = 1e-4
 BUG_LABEL = "cron-bug"
@@ -217,7 +219,13 @@ def findings(rows: list[dict[str, str]]) -> dict[str, list[dict[str, str]]]:
     valid_failures = [
         row for row in rows if row["status"] == "valid" and row["outcome"] in FAILURE
     ]
-    draft_rows = [row for row in rows if row["status"] == "draft"]
+    # A convergence test reports and always passes (#360): it says nothing about whether a
+    # draft is finished or equivalent, so it never makes a draft ready.
+    draft_rows = [
+        row
+        for row in rows
+        if row["status"] == "draft" and not row["test"].startswith(CONVERGENCE_TEST)
+    ]
     ready_drafts = [
         row
         for group in group_rows(draft_rows).values()
