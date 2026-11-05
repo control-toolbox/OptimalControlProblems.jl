@@ -22,7 +22,9 @@ function test_convergence()
                     # convergence is reported, not tested (#360); an exception still fails
                     Main.TestStatus.result!(
                         test, problem, OptimalControlProblems.JuMPBackend(),
-                        Main.TestConfigs.label(config); Main.SolveJuMP.outcome(model)...,
+                        Main.TestConfigs.label(config);
+                        grid_size=OptimalControlProblems.grid_size_data(problem),
+                        scheme=Main.TestConfigs.SCHEME, Main.SolveJuMP.outcome(model)...,
                         time=time,
                     )
                     Test.@test true

@@ -88,14 +88,17 @@ end
 
 """
 Result of one solve (#360): reported, never asserted. `converged` is the solver's flag;
-`gap` the relative gap of the objective to the reference objective of the problem, only
-when the problem has one (`:reference_objective` in its metadata, #306).
+`gap` the relative gap of the objective to the reference objective of the problem for the
+grid and the scheme of the solve, only when the problem has one (`:reference_objective` in
+its metadata, #375).
 """
 struct Result
     test::String
     problem::Symbol
     modelings::String
     configuration::String
+    grid_size::Int
+    scheme::Symbol
     converged::Bool
     reason::String
     objective::Float64
@@ -110,15 +113,17 @@ const RESULTS = Result[]
 gap(objective, reference) = abs(objective - reference) / (iszero(reference) ? 1 : abs(reference))
 
 """
-    result!(test, problem, backend, configuration; converged, reason, objective, iterations, time)
+    result!(test, problem, backend, configuration; grid_size, scheme, converged, reason,
+            objective, iterations, time)
 
-Record the result of a solve of `problem` in the modeling of `backend`.
+Record the result of a solve of `problem` in the modeling of `backend`, discretized on
+`grid_size` steps with `scheme`.
 """
 function result!(
-    test, problem::Symbol, backend, configuration; converged, reason, objective, iterations, time
+    test, problem::Symbol, backend, configuration;
+    grid_size, scheme, converged, reason, objective, iterations, time,
 )
-    metadata = OptimalControlProblems.problem_metadata(problem)
-    reference = get(metadata, :reference_objective, nothing)
+    reference = OptimalControlProblems.reference_objective(problem; grid_size, scheme)
     push!(
         RESULTS,
         Result(
@@ -126,6 +131,8 @@ function result!(
             problem,
             string(modeling(backend)),
             string(configuration),
+            Int(grid_size),
+            Symbol(scheme),
             converged,
             string(reason),
             Float64(objective),
@@ -234,22 +241,24 @@ function write_report(name::AbstractString)
     return file
 end
 
-# The results of the solves: a Markdown table for the report (ten columns: the cron reads only
-# the five-column table of the outcomes), and a tab-separated file for the tools.
+# The results of the solves: a Markdown table for the report (the cron reads only the
+# five-column table of the outcomes), and a tab-separated file for the tools, read by column
+# name, with the objective at full precision (the reference objectives are computed from it).
 function results_table(tsv::AbstractString)
-    fmt(x) = isnothing(x) ? "" : string(round(x; sigdigits=6))
+    short(x) = isnothing(x) ? "" : string(round(x; sigdigits=6))
+    full(x) = isnothing(x) ? "" : repr(x)
     header = [
-        "test", "problem", "modeling", "configuration", "result", "reason", "objective",
-        "iterations", "time", "gap",
+        "test", "problem", "modeling", "configuration", "grid_size", "scheme", "result",
+        "reason", "objective", "iterations", "time", "gap",
     ]
-    cells(r) = [
-        r.test, string(r.problem), r.modelings, r.configuration,
-        r.converged ? "converged" : "not_converged", r.reason, fmt(r.objective),
-        string(r.iterations), fmt(r.time), fmt(r.gap),
+    cells(r, fmt) = [
+        r.test, string(r.problem), r.modelings, r.configuration, string(r.grid_size),
+        string(r.scheme), r.converged ? "converged" : "not_converged", r.reason,
+        fmt(r.objective), string(r.iterations), short(r.time), short(r.gap),
     ]
     open(tsv, "w") do io
         println(io, join(header, "\t"))
-        foreach(r -> println(io, join(cells(r), "\t")), RESULTS)
+        foreach(r -> println(io, join(cells(r, full), "\t")), RESULTS)
     end
     lines = [
         "",
@@ -258,7 +267,7 @@ function results_table(tsv::AbstractString)
         "| " * join(header, " | ") * " |",
         "|" * repeat(" --- |", length(header)),
     ]
-    append!(lines, ["| " * join(cells(r), " | ") * " |" for r in RESULTS])
+    append!(lines, ["| " * join(cells(r, short), " | ") * " |" for r in RESULTS])
     not_converged = count(r -> !r.converged, RESULTS)
     println("\nResults: $(length(RESULTS)) solves, $not_converged not converged (reported, not tested).")
     return lines

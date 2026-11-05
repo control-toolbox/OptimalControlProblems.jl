@@ -119,6 +119,8 @@ def parse_reports(directory: pathlib.Path) -> list[dict[str, str]]:
     return rows
 
 
+# Columns of `<report>-results.tsv` the report reads, by name: the file may have more (grid and
+# scheme since #375), in any order.
 RESULT_COLUMNS = (
     "test", "problem", "modeling", "configuration", "result", "reason", "objective",
     "iterations", "time", "gap",
@@ -132,14 +134,27 @@ def parse_results(directory: pathlib.Path) -> list[dict[str, str]]:
         relative = path.relative_to(directory)
         platform = relative.parts[0] if len(relative.parts) > 1 else "local"
         lines = path.read_text().splitlines()
+        if not lines:
+            continue
+        header = lines[0].split("\t")
+        if not set(RESULT_COLUMNS) <= set(header):
+            continue
         for line in lines[1:]:
             cells = line.split("\t")
-            if len(cells) != len(RESULT_COLUMNS):
+            if len(cells) != len(header):
                 continue
-            row = dict(zip(RESULT_COLUMNS, cells))
+            row = {column: cell for column, cell in zip(header, cells) if column in RESULT_COLUMNS}
             row["platform"] = platform
             results.append(row)
     return results
+
+
+def short(value: str) -> str:
+    """A number of the results with six significant digits (the file has full precision)."""
+    try:
+        return f"{float(value):.6g}"
+    except ValueError:
+        return value
 
 
 def result_key(row: dict[str, str]) -> str:
@@ -314,7 +329,9 @@ def report_markdown(
         )
         lines.extend(
             "| {platform} | {problem} | {modeling} | {configuration} | {result} | {reason} "
-            "| {objective} | {iterations} | {time} | {gap} | ".format(**row)
+            "| {objective} | {iterations} | {time} | {gap} | ".format(
+                **{**row, "objective": short(row["objective"])}
+            )
             + change(row, previous)
             + " |"
             for row in results

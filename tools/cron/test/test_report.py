@@ -221,7 +221,10 @@ class ReportTest(unittest.TestCase):
 
 
 
-RESULT_HEADER = "test\tproblem\tmodeling\tconfiguration\tresult\treason\tobjective\titerations\ttime\tgap\n"
+RESULT_HEADER = (
+    "test\tproblem\tmodeling\tconfiguration\tgrid_size\tscheme\tresult\treason\tobjective"
+    "\titerations\ttime\tgap\n"
+)
 
 
 def result_row(problem, result="converged", objective="1.0", platform="cron-a"):
@@ -240,15 +243,29 @@ class ConvergenceTests(unittest.TestCase):
             (root / "cron-a").mkdir()
             (root / "cron-a" / "JuMP-cron-results.tsv").write_text(
                 RESULT_HEADER
-                + "test_convergence c\tbeam\tJuMP\tsolver=ipopt\tconverged\tLOCALLY_SOLVED\t8.9\t18\t0.03\t\n"
+                + "test_convergence c\tbeam\tJuMP\tsolver=ipopt\t500\ttrapeze\tconverged"
+                + "\tLOCALLY_SOLVED\t8.889275372051\t18\t0.03\t\n"
                 + "too\tfew\tcells\n"
+            )
+            # a file of before #375, without the grid and the scheme, is read too
+            (root / "cron-b").mkdir()
+            (root / "cron-b" / "JuMP-cron-results.tsv").write_text(
+                "test\tproblem\tmodeling\tconfiguration\tresult\treason\tobjective\titerations"
+                "\ttime\tgap\n"
+                + "test_convergence c\tbeam\tJuMP\tsolver=ipopt\tconverged\tLOCALLY_SOLVED\t8.9\t18\t0.03\t\n"
             )
             rows = REPORT.parse_results(root)
             # the five-column parser of the outcomes reads only `*.md`
             self.assertEqual([], REPORT.parse_reports(root))
-        self.assertEqual(1, len(rows))
+        self.assertEqual(2, len(rows))
         self.assertEqual("cron-a", rows[0]["platform"])
         self.assertEqual("converged", rows[0]["result"])
+        self.assertEqual("8.889275372051", rows[0]["objective"])
+        self.assertEqual("cron-b", rows[1]["platform"])
+
+    def test_the_report_shows_six_significant_digits_of_the_objective(self):
+        self.assertEqual("8.88928", REPORT.short("8.889275372051"))
+        self.assertEqual("", REPORT.short(""))
 
     def test_previous_results_are_those_of_the_previous_run_for_both_calls(self):
         state = {}
