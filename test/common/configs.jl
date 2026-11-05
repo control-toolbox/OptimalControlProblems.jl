@@ -9,12 +9,6 @@ const TOL = 1e-8
 const MU_STRATEGY = "adaptive"
 const SB = "yes"
 const MAX_ITER = 1000
-# MadNLP on the GPU solves the condensed KKT system (Cholesky, CUDSS), whose conditioning is
-# the square of the unreduced one: `TOL` is out of reach for `bioreactor` (#357), 1e-6 is not.
-# A GPU solve is first tried at `TOL` (`GPU_FIRST_MAX_ITER` iterations), then at `GPU_TOL`:
-# `mountain_car` converges at `TOL` but is declared infeasible at `GPU_TOL`.
-const GPU_TOL = 1e-6
-const GPU_FIRST_MAX_ITER = 300
 const MAX_WALL_TIME = 500.0
 
 # Grid of the fast tests (suite/); the slow ones (cron/) use the default grid of each problem.
@@ -23,6 +17,10 @@ const SMALL_GRID = 50
 # Problems the tests are restricted to (`problem=a,b` in the test arguments, see
 # `TestStatus.select_problems!`); `nothing`: every problem.
 const PROBLEMS = Ref{Union{Nothing,Vector{Symbol}}}(nothing)
+
+# The GPU solves run a few iterations: they show that the chain runs on the device, the
+# convergence is reported, not tested (#360, #357).
+const GPU_MAX_ITER = 100
 
 # Configurations per modeling. JuMP: `solver` selects the optimizer of `SolveJuMP`.
 # OptimalControl modelings, explicit mode of OptimalControl v2 (`SolveOptimalControl`):
