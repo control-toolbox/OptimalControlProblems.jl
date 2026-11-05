@@ -31,6 +31,8 @@ import sys
 from pathlib import Path
 
 OVERRIDE_LABEL = "test all problems"
+# Turns the convergence report on (off by default, #360): the argument `convergence`.
+CONVERGENCE_LABEL = "test convergence"
 RELEASE_LABEL = "release"
 
 # Per-problem files: one file per problem in each per-problem directory. The
@@ -54,7 +56,7 @@ def environments(labels):
     return [
         label[len("test "):].removesuffix(" backend")
         for label in labels
-        if label.startswith("test ") and label != OVERRIDE_LABEL
+        if label.startswith("test ") and label not in (OVERRIDE_LABEL, CONVERGENCE_LABEL)
     ]
 
 
@@ -96,6 +98,8 @@ def changed_problems(rows, expected, catalogue):
 def test_args(event, labels, rows, expected, catalogue=DEFAULT_CATALOGUE):
     """The `test_args` string, the reason of the decision and the verdict on each file."""
     args = environments(labels)
+    if CONVERGENCE_LABEL in labels:
+        args.append("convergence")
     verdicts = []
     if event != "pull_request":
         reason = f"{event} event: running everything"

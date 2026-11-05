@@ -30,6 +30,7 @@ Pkg.test()                                              # core and every environ
 Pkg.test(; test_args=["JuMP"])                          # core and one environment
 Pkg.test(; test_args=["core"])                          # core only
 Pkg.test(; test_args=["cron"])                          # slow tests (cron/), every environment
+Pkg.test(; test_args=["OptimalControl", "convergence"]) # suite and convergence report
 Pkg.test(; test_args=["JuMP", "cron", "*convergence*"]) # environments, mode and file globs
 Pkg.test(; test_args=["problem=beam"])                  # one problem, in every environment
 Pkg.test(; test_args=["JuMP", "problem=beam,robot"])    # some problems, in one environment
@@ -39,13 +40,37 @@ Pkg.test(; test_args=["JuMP", "problem=beam,robot"])    # some problems, in one 
 
 - environment names: run those only; none given runs every environment except the opt-in
   ones (`OPT_IN` in `runtests.jl`);
-- `cron`: run `cron/<group>/test_*.jl` instead of `suite/<group>/test_*.jl`;
+- `cron`: run `cron/<group>/test_*.jl` instead of `suite/<group>/test_*.jl` (what the
+  cron workflows run);
+- `convergence`: run `suite/<group>/test_*.jl` and then `cron/<group>/test_*.jl`, that is the
+  tests of every run plus the convergence report (off by default, see below); it cannot be
+  combined with `cron`;
 - file patterns (`*` and `?`, with or without `test_` and `.jl`);
 - `problem=a,b`: test only these problems, for instance the one you add. A name that is
   not in the catalogue is an error (a selection matching nothing would test nothing and
   pass). `core` still runs entirely.
 
 In cron mode, an environment without a `cron/<name>/` directory is skipped.
+
+## Three kinds of tests
+
+Only the first two can fail a run (#360).
+
+1. **Does not break** — every run. `suite/<modeling>/test_smoke.jl` builds every problem
+   of the modeling in each of its configurations, on a small grid (`SMOKE_GRID`), and runs
+   a few iterations (`SMOKE_MAX_ITER`): no exception, a finite objective. Convergence is
+   not checked. The contracts, methods and API tests (`test_contract`, `test_methods`,
+   `test_problem`, `core`) belong here too.
+2. **Model equivalence** — every run; the most important part, since comparing models is
+   fair only if they are the same problem. `suite/comparison/` compares them at the
+   definition, at the initial guess (see below), not at convergence.
+3. **Convergence** — off by default: in the cron, and on demand with the `convergence`
+   argument or the label `test convergence`. `cron/<group>/test_convergence.jl` solves each
+   problem on its default grid and **reports** the result without testing it: whether the
+   solver says it converged (and why not), the objective, the iterations and the time, and
+   the relative gap to the reference objective only when the problem has one. An
+   exception still fails. This is what helps tune an initial guess: look at the results and
+   adapt.
 
 ## Statuses and report
 
@@ -60,14 +85,20 @@ loop with `Main.TestStatus.for_each_problem(f, test, backends...)`:
 Each run writes `test/reports/<environment>[-cron].md` (git-ignored): one line per test
 and problem, with its status and outcome (`pass`, `fail`, `error`, or `no test`). The
 lines worth reading (drafts and checks that report instead of failing) are also printed.
+The convergence report adds a second table, `Results of the solves` (also written as
+`<environment>[-cron]-results.tsv`), one line per solve.
+
+`:draft` means that the model is not finished or not equivalent to the other modelings,
+not that it does not converge: convergence is reported, not tested.
 A draft whose line says `pass` everywhere is ready to become `:valid`. The cron workflows
 collect these files and publish their scope-specific report on the `results` branch.
 
 ## What is compared, and what is not
 
-- **Per modeling**, a test checks that the problem *converges* (solver status) and that
-  the model has the expected structure (contract, methods). A new problem enters as
-  `:draft`: the report says whether it converges, and it becomes `:valid` when it does.
+- **Per modeling**, a test checks that the problem builds and runs in each configuration
+  (`test_smoke`) and that the model has the expected structure (contract, methods). A new
+  problem enters as `:draft` and becomes `:valid` when its model is finished and equivalent
+  to the other modelings; whether it converges is reported by the convergence tests.
 - **Between modelings**, the `comparison` environment checks that they describe the same
   problem: same structure, grid, trajectories and objective at the initial guess (zero
   iterations). The solutions found by two solvers are **not** compared: after a solve,
@@ -77,8 +108,9 @@ collect these files and publish their scope-specific report on the `results` bra
 
 ## Configurations
 
-`common/configs.jl` is the single matrix of configurations: solver options, the grid of
-the fast tests, and the configurations to solve with per modeling. A test loops over
+`common/configs.jl` is the single matrix of configurations: solver options, the grid and
+iterations of the smoke solves, the grid of the comparison, and the configurations to solve
+with per modeling. A test loops over
 `Main.TestConfigs.CONFIGS.<modeling>`; it never writes solver options itself.
 
 ## Continuous integration
@@ -91,6 +123,7 @@ it runs:
 | `run ci kkt-runner`, `run ci occidata-runner` | run the GPU tests (environment `GPU`, see below) on this self-hosted runner |
 | `run ci github-runner` | run the CI on GitHub runners (Ubuntu and Julia 1.13 only for now; Julia 1.10, macOS and Windows come back at the end of #310, see #344) |
 | `test <environment> backend`, `test comparison` | run core and these environments only |
+| `test convergence` | add the convergence report (argument `convergence`): the convergence tests of the selected environments run after the others, and report without failing |
 | `test all problems` | remove the per-problem narrowing below; composes with the scope labels |
 | no scope label | run core and every environment except the opt-in ones |
 

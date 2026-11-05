@@ -65,4 +65,14 @@ end
 
 succeeded(sol) = OptimalControl.successful(sol)
 
+"""What `TestStatus.result!` records of a solution."""
+function outcome(sol)
+    return (
+        converged=OptimalControl.successful(sol),
+        reason=OptimalControl.status(sol),
+        objective=OptimalControl.objective(sol),
+        iterations=OptimalControl.iterations(sol),
+    )
+end
+
 end # module SolveOptimalControl

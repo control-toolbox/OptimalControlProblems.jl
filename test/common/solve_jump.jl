@@ -21,4 +21,14 @@ end
 
 succeeded(model) = JuMP.termination_status(model) == JuMP.MOI.LOCALLY_SOLVED
 
+"""What `TestStatus.result!` records of a solved model."""
+function outcome(model)
+    return (
+        converged=succeeded(model),
+        reason=JuMP.termination_status(model),
+        objective=JuMP.has_values(model) ? JuMP.objective_value(model) : NaN,
+        iterations=JuMP.barrier_iterations(model),
+    )
+end
+
 end # module SolveJuMP

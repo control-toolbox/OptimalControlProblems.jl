@@ -27,6 +27,24 @@ function test_runner()
             Test.@test sel(["core", "JuMP"]) == (["JuMP"], String[])
         end
 
+        Test.@testset "mode" begin
+            Test.@test R.split_mode(String[]) == (:suite, String[])
+            Test.@test R.split_mode(["JuMP", "cron"]) == (:cron, ["JuMP"])
+            Test.@test R.split_mode(["convergence", "*solve*"]) == (:convergence, ["*solve*"])
+            Test.@test_throws ArgumentError R.split_mode(["cron", "convergence"])
+            mktempdir() do root
+                suite, cron = joinpath(root, "suite"), joinpath(root, "cron")
+                mkpath(joinpath(suite, "a")); mkpath(joinpath(cron, "a")); mkpath(joinpath(suite, "b"))
+                dirs(group, mode) = R.directories(group, suite, cron; mode=mode)
+                Test.@test dirs("a", :suite) == [joinpath(suite, "a")]
+                Test.@test dirs("a", :cron) == [joinpath(cron, "a")]
+                Test.@test dirs("a", :convergence) == [joinpath(suite, "a"), joinpath(cron, "a")]
+                # no cron directory: nothing in cron mode, the suite only for convergence
+                Test.@test isempty(dirs("b", :cron))
+                Test.@test dirs("b", :convergence) == [joinpath(suite, "b")]
+            end
+        end
+
         Test.@testset "problem selection" begin
             Test.@test R.split_problems(String[]) == (String[], String[])
             Test.@test R.split_problems(["JuMP", "problem=a,b", "*solve*"]) ==

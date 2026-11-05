@@ -1,8 +1,9 @@
-# Selection of what the dispatcher runs: environments, `cron` mode and `problem=` arguments.
+# Selection of what the dispatcher runs: environments, mode (`cron`, `convergence`) and
+# `problem=` arguments.
 #
 # The discovery of the test files, their selection by patterns and their execution
 # (`test_<name>()` per file, TST1) are `CTBase.DevTools.run_tests`; what it does not know is
-# local: the environments (one Julia process each), the opt-in ones and `problem=`.
+# local: the environments (one Julia process each), the opt-in ones, the mode and `problem=`.
 module TestSelection
 
 using CTBase: CTBase
@@ -65,6 +66,39 @@ function split_problems(args)
         end
     end
     return unique!(names), rest
+end
+
+"""
+    split_mode(args) -> (mode, rest)
+
+Take the words `cron` and `convergence` out of `args`. The mode is `:suite` (neither:
+`suite/<group>`), `:cron` (`cron/<group>` only, as the cron workflows run it) or
+`:convergence` (`suite/<group>` then `cron/<group>`: the convergence report on demand,
+#360). Both words together are an error.
+"""
+function split_mode(args)
+    cron = "cron" in args
+    convergence = "convergence" in args
+    cron && convergence && throw(
+        ArgumentError(
+            "`cron` and `convergence` cannot be combined: `cron` runs the cron directories only, `convergence` the suite and the cron directories",
+        ),
+    )
+    mode = cron ? :cron : (convergence ? :convergence : :suite)
+    return mode, String[a for a in args if !(a in ("cron", "convergence"))]
+end
+
+"""
+    directories(group, suite, cron; mode) -> Vector{String}
+
+The test directories of `group` for `mode` (see [`split_mode`](@ref)), among `suite/<group>`
+and `cron/<group>`, in this order; only those that exist.
+"""
+function directories(
+    group::AbstractString, suite::AbstractString, cron::AbstractString; mode::Symbol
+)
+    roots = mode === :suite ? (suite,) : (mode === :cron ? (cron,) : (suite, cron))
+    return String[joinpath(r, group) for r in roots if isdir(joinpath(r, group))]
 end
 
 end # module TestSelection

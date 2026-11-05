@@ -8,6 +8,10 @@
 # them. Every outcome is collected and written as a report at the end of the run
 # (`test/reports/<environment>.md`, git-ignored), so that the cron (#305) can tell which
 # drafts are ready to become `:valid`.
+#
+# A solve to convergence is a result, not a test (#360): `result!` records it (solver status,
+# objective, iterations, time, gap to the reference objective when there is one) and the
+# report lists it; `:draft` means "not finished or not equivalent", not "does not converge".
 module TestStatus
 
 using Test: Test
@@ -82,6 +86,57 @@ function report!(test, problem, modelings, status, outcome)
     return nothing
 end
 
+"""
+Result of one solve (#360): reported, never asserted. `converged` is the solver's flag;
+`gap` the relative gap of the objective to the reference objective of the problem, only
+when the problem has one (`:reference_objective` in its metadata, #306).
+"""
+struct Result
+    test::String
+    problem::Symbol
+    modelings::String
+    configuration::String
+    converged::Bool
+    reason::String
+    objective::Float64
+    iterations::Int
+    time::Float64
+    gap::Union{Nothing,Float64}
+end
+
+const RESULTS = Result[]
+
+"""Relative gap of `objective` to `reference` (absolute when the reference is zero)."""
+gap(objective, reference) = abs(objective - reference) / (iszero(reference) ? 1 : abs(reference))
+
+"""
+    result!(test, problem, backend, configuration; converged, reason, objective, iterations, time)
+
+Record the result of a solve of `problem` in the modeling of `backend`.
+"""
+function result!(
+    test, problem::Symbol, backend, configuration; converged, reason, objective, iterations, time
+)
+    metadata = OptimalControlProblems.problem_metadata(problem)
+    reference = get(metadata, :reference_objective, nothing)
+    push!(
+        RESULTS,
+        Result(
+            string(test),
+            problem,
+            string(modeling(backend)),
+            string(configuration),
+            converged,
+            string(reason),
+            Float64(objective),
+            Int(iterations),
+            Float64(time),
+            isnothing(reference) ? nothing : gap(objective, reference),
+        ),
+    )
+    return nothing
+end
+
 modeling(backend) = OptimalControlProblems._modeling_spec(backend).name
 
 """
@@ -148,12 +203,15 @@ end
 const REPORTS = joinpath(dirname(@__DIR__), "reports")
 
 """
-Print the report and write it to `test/reports/<name>.md`. When there is nothing to
-report, nothing is written and the report of a previous run is removed.
+Print the report and write it to `test/reports/<name>.md`, with the results of the solves
+(#360) as a second table and as `test/reports/<name>-results.tsv`. When there is nothing to
+report, nothing is written and the files of a previous run are removed.
 """
 function write_report(name::AbstractString)
     file = joinpath(REPORTS, "$name.md")
-    isempty(ROWS) && (rm(file; force=true); return nothing)
+    tsv = joinpath(REPORTS, "$name-results.tsv")
+    rm(tsv; force=true)
+    isempty(ROWS) && isempty(RESULTS) && (rm(file; force=true); return nothing)
     lines = [
         "# Test report: $name",
         "",
@@ -163,8 +221,9 @@ function write_report(name::AbstractString)
     for r in ROWS
         push!(lines, "| $(r.test) | $(r.problem) | $(r.modelings) | $(r.status) | $(r.outcome) |")
     end
-    text = join(lines, "\n") * "\n"
     mkpath(REPORTS)
+    isempty(RESULTS) || append!(lines, results_table(tsv))
+    text = join(lines, "\n") * "\n"
     write(file, text)
     # lines worth reading: drafts, and checks that report instead of failing
     notable = filter(r -> r.status !== :valid || r.outcome != "see the test summary", ROWS)
@@ -173,6 +232,36 @@ function write_report(name::AbstractString)
         println("  $(r.status): $(r.problem) [$(r.modelings)] $(r.test) → $(r.outcome)")
     end
     return file
+end
+
+# The results of the solves: a Markdown table for the report (ten columns: the cron reads only
+# the five-column table of the outcomes), and a tab-separated file for the tools.
+function results_table(tsv::AbstractString)
+    fmt(x) = isnothing(x) ? "" : string(round(x; sigdigits=6))
+    header = [
+        "test", "problem", "modeling", "configuration", "result", "reason", "objective",
+        "iterations", "time", "gap",
+    ]
+    cells(r) = [
+        r.test, string(r.problem), r.modelings, r.configuration,
+        r.converged ? "converged" : "not_converged", r.reason, fmt(r.objective),
+        string(r.iterations), fmt(r.time), fmt(r.gap),
+    ]
+    open(tsv, "w") do io
+        println(io, join(header, "\t"))
+        foreach(r -> println(io, join(cells(r), "\t")), RESULTS)
+    end
+    lines = [
+        "",
+        "## Results of the solves",
+        "",
+        "| " * join(header, " | ") * " |",
+        "|" * repeat(" --- |", length(header)),
+    ]
+    append!(lines, ["| " * join(cells(r), " | ") * " |" for r in RESULTS])
+    not_converged = count(r -> !r.converged, RESULTS)
+    println("\nResults: $(length(RESULTS)) solves, $not_converged not converged (reported, not tested).")
+    return lines
 end
 
 end # module TestStatus

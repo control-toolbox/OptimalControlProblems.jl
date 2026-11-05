@@ -167,6 +167,16 @@ class TestScope(unittest.TestCase):
         self.assertEqual("JuMP", out)
         self.assertIn("override label", err)
 
+    def test_convergence_label(self):
+        # not an environment: the argument `convergence`, which composes with the rest
+        out, _ = run_scope(problem(["ext/MetaData/beam.jl"]), labels=["test convergence"])
+        self.assertEqual("convergence problem=beam", out)
+        out, _ = run_scope(
+            problem(["src/OptimalControlProblems.jl"]),
+            labels=["test convergence", "test JuMP backend"],
+        )
+        self.assertEqual("JuMP convergence", out)
+
     def test_release_label(self):
         out, err = run_scope(
             problem(["ext/MetaData/beam.jl"]),
