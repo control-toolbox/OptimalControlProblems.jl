@@ -42,6 +42,8 @@ jobs:
       versions: '["1.13"]'
       # macOS is left out for now (scarce runners, long queues); it comes back with #344.
       runs_on: '["ubuntu-latest", "windows-latest"]'
+      # keep every platform running after a failure: one report per platform is needed
+      fail_fast: false
       use_ct_registry: true
       test_args: ${{ inputs.environment }} cron
       upload_artifact_path: test/reports
@@ -62,6 +64,7 @@ jobs:
       test_args: ${{ inputs.environment }} cron
       upload_artifact_path: test/reports
       upload_artifact_name: cron-${{ inputs.environment }}-gpu
+      fail_fast: false
     secrets:
       SSH_KEY: ${{ secrets.SSH_KEY }}
       CT_RUNNERS_CLIENT_ID: ${{ secrets.CT_RUNNERS_CLIENT_ID }}
