@@ -31,59 +31,19 @@ function OptimalControlProblems.dielectrophoretic_particle(
     u_u = params[:u_u]
     tf_l = params[:tf_l]
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
-
-    # metadata: required
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
-    model[:state_components] = ["x", "y"]
-    model[:costate_components] = ["∂x", "∂y"]
-    model[:control_components] = ["u"]
-    model[:variable_components] = ["tf"]
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    # state, control and variable (final time)
-    @variables(
-        model,
-        begin
-            x[0:N], (start = 1)
-            y[0:N], (start = 0.5)
-            u_l ≤ u[0:N] ≤ u_u, (start = 0.5)
-            tf ≥ tf_l, (start = 8)
-        end
+    data = ProblemData(;
+        state=[Component("x"; start=1), Component("y"; start=0.5)],
+        control=[Component("u"; lower=u_l, upper=u_u, start=0.5)],
+        variable=[Component("tf"; lower=tf_l, start=8)],
+        costate=["∂x", "∂y"],
+        times=v -> (t0, v[1]),
+        dynamics=(x, u, v, t) -> [x[2] * u[1] + α * u[1]^2, -c * x[2] + u[1]],
+        cost=(I, x0, xf, v) -> v[1],
+        boundary=[
+            (x_t0, (x0, xf, v) -> x0[1], x_t0),
+            (y_t0, (x0, xf, v) -> x0[2], y_t0),
+            (x_tf, (x0, xf, v) -> xf[1], x_tf),
+        ],
     )
-
-    # Boundary constraints
-    @constraints(
-        model,
-        begin
-            x[0] == x_t0
-            y[0] == y_t0
-            x[N] == x_tf
-        end
-    )
-
-    # Dynamics
-    @expressions(
-        model,
-        begin
-            Δt, (tf - t0) / N
-            dx[k = 0:N], y[k] * u[k] + α * u[k]^2
-            dy[k = 0:N], -c * y[k] + u[k]
-        end
-    )
-    @constraints(
-        model,
-        begin
-            ∂x[k = 1:N], x[k] == x[k - 1] + 0.5 * Δt * (dx[k] + dx[k - 1])
-            ∂y[k = 1:N], y[k] == y[k - 1] + 0.5 * Δt * (dy[k] + dy[k - 1])
-        end
-    )
-
-    # Objective
-    @objective(model, Min, tf)
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end

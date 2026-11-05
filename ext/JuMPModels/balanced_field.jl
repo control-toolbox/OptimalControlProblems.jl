@@ -50,79 +50,45 @@ function OptimalControlProblems.balanced_field(
     b = span / 2.0
     K_nom = 1.0 / (pi * AR * e)
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
+    function dynamics(x, u)
+        r, v, h, γ = x
+        α = u[1]
+        q = 0.5 * ρ * v^2
+        CL = CL0 + (α / α_max) * (CL_max - CL0)
+        L = q * S * CL
+        h_eff = h + h_w
+        term_h = 33.0 * abs(h_eff / b)^1.5
+        K = K_nom * term_h / (1.0 + term_h)
+        D = q * S * (CD0 + K * CL^2)
+        return [
+            v * cos(γ),
+            (T * cos(α) - D) / m - g * sin(γ),
+            v * sin(γ),
+            (T * sin(α) + L) / (m * v) - (g * cos(γ)) / v,
+        ]
+    end
 
-    # metadata
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1)
-    model[:state_components] = ["r", "v", "h", "γ"]
-    model[:costate_components] = ["∂r", "∂v", "∂h", "∂γ"]
-    model[:control_components] = ["α"]
-    model[:variable_components] = ["tf"]
-
-    @expression(model, N, grid_size)
-
-    # variables
-    @variables(
-        model,
-        begin
-            r[0:N], (start = r_t0)
-            v[0:N] ≥ 1.0, (start = v_t0 + 10.0)
-            h[0:N] ≥ 0.0, (start = h_tf / 2.0)
-            γ[0:N], (start = γ_tf)
-            0 ≤ α[0:N] ≤ α_max_ctrl, (start = 0.1)
-            tf ≥ 0.1, (start = 10.0)
-        end
+    data = ProblemData(;
+        state=[
+            Component("r"; start=r_t0),
+            Component("v"; lower=1.0, start=v_t0 + 10.0),
+            Component("h"; lower=0.0, start=h_tf / 2.0),
+            Component("γ"; start=γ_tf),
+        ],
+        control=[Component("α"; lower=0, upper=α_max_ctrl, start=0.1)],
+        variable=[Component("tf"; lower=0.1, start=10.0)],
+        costate=["∂r", "∂v", "∂h", "∂γ"],
+        times=v -> (t0, v[1]),
+        dynamics=(x, u, v, t) -> dynamics(x, u),
+        cost=(I, x0, xf, v) -> xf[1],
+        boundary=[
+            (r_t0, (x0, xf, v) -> x0[1], r_t0),
+            (v_t0, (x0, xf, v) -> x0[2], v_t0),
+            (h_t0, (x0, xf, v) -> x0[3], h_t0),
+            (γ_t0, (x0, xf, v) -> x0[4], γ_t0),
+            (h_tf, (x0, xf, v) -> xf[3], h_tf),
+            (γ_tf, (x0, xf, v) -> xf[4], γ_tf),
+        ],
     )
-
-    # boundary constraints
-    @constraints(
-        model,
-        begin
-            r[0] == r_t0
-            v[0] == v_t0
-            h[0] == h_t0
-            γ[0] == γ_t0
-
-            h[N] == h_tf
-            γ[N] == γ_tf
-        end
-    )
-
-    # dynamics
-    @expressions(
-        model,
-        begin
-            Δt, (tf - t0) / N
-
-            q[i = 0:N], 0.5 * ρ * v[i]^2
-            CL[i = 0:N], CL0 + (α[i] / α_max) * (CL_max - CL0)
-            L[i = 0:N], q[i] * S * CL[i]
-
-            h_eff[i = 0:N], h[i] + h_w
-            term_h[i = 0:N], 33.0 * abs(h_eff[i] / b)^1.5
-            K[i = 0:N], K_nom * term_h[i] / (1.0 + term_h[i])
-            D[i = 0:N], q[i] * S * (CD0 + K[i] * CL[i]^2)
-
-            dr[i = 0:N], v[i] * cos(γ[i])
-            dv[i = 0:N], (T * cos(α[i]) - D[i]) / m - g * sin(γ[i])
-            dh[i = 0:N], v[i] * sin(γ[i])
-            dγ[i = 0:N], (T * sin(α[i]) + L[i]) / (m * v[i]) - (g * cos(γ[i])) / v[i]
-        end
-    )
-
-    @constraints(
-        model,
-        begin
-            ∂r[i = 1:N], r[i] == r[i - 1] + 0.5 * Δt * (dr[i] + dr[i - 1])
-            ∂v[i = 1:N], v[i] == v[i - 1] + 0.5 * Δt * (dv[i] + dv[i - 1])
-            ∂h[i = 1:N], h[i] == h[i - 1] + 0.5 * Δt * (dh[i] + dh[i - 1])
-            ∂γ[i = 1:N], γ[i] == γ[i - 1] + 0.5 * Δt * (dγ[i] + dγ[i - 1])
-        end
-    )
-
-    # objective
-    @objective(model, Min, r[N])
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end
