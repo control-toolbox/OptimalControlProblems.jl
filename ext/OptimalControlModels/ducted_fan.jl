@@ -4,18 +4,15 @@ Builds the `ducted_fan` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> ducted_fan(OptimalControlBackend(); grid_size=100)
+julia> ducted_fan(OptimalControlBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:ducted_fan)` and
-`OptimalControlProblems.status(:ducted_fan)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:ducted_fan)` and `OptimalControlProblems.status(:ducted_fan)`.
 """
 function OptimalControlProblems.ducted_fan(
-    ::OptimalControlBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:ducted_fan),
+    ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:ducted_fan, :OptimalControl)
 
@@ -103,16 +100,5 @@ function OptimalControlProblems.ducted_fan(
     varinit = [1.5]  # [tf] 
     init = (state=xinit, control=uinit, variable=varinit)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:ducted_fan, :OptimalControl, ocp, init, params)
 end

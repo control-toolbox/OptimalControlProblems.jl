@@ -740,33 +740,33 @@ end
 # Data collection
 # -------------------------------
 function collect_problem_data(problem_sym::Symbol)
-    ocp = ocp_model(eval(problem_sym)(OptimalControlBackend()))
+    ocp_pb = model(eval(problem_sym)(OptimalControlBackend()))
 
-    cost = if has_mayer_cost(ocp) && has_lagrange_cost(ocp)
+    cost = if has_mayer_cost(ocp_pb) && has_lagrange_cost(ocp_pb)
         "Bolza"
-    elseif has_mayer_cost(ocp)
+    elseif has_mayer_cost(ocp_pb)
         "Mayer"
     else
         "Lagrange"
     end
 
-    final_time = has_fixed_final_time(ocp) ? "fixed" : "free"
+    final_time = has_fixed_final_time(ocp_pb) ? "fixed" : "free"
 
     dims = (
-        x=CTModels.dim_state_constraints_box(ocp),
-        u=CTModels.dim_control_constraints_box(ocp),
-        v=CTModels.dim_variable_constraints_box(ocp),
-        c=CTModels.dim_path_constraints_nl(ocp),
-        b=CTModels.dim_boundary_constraints_nl(ocp),
+        x=dim_state_constraints_box(ocp_pb),
+        u=dim_control_constraints_box(ocp_pb),
+        v=dim_variable_constraints_box(ocp_pb),
+        c=dim_path_constraints_nl(ocp_pb),
+        b=dim_boundary_constraints_nl(ocp_pb),
     )
 
     total = sum_namedtuple(dims)
 
     return (
         Problem=string(problem_sym),
-        State=state_dimension(ocp),
-        Control=control_dimension(ocp),
-        Variable=variable_dimension(ocp),
+        State=state_dimension(ocp_pb),
+        Control=control_dimension(ocp_pb),
+        Variable=variable_dimension(ocp_pb),
         Cost=cost,
         FinalTime=final_time,
         DimStateConstraint=dims.x,

@@ -7,8 +7,8 @@ julia> using OptimalControlProblems
 julia> brachistochrone(JuMPBackend(); grid_size=100)
 ```
 
-Default parameters and the modeling status are available through `metadata(:brachistochrone)` and
-`OptimalControlProblems.status(:brachistochrone)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:brachistochrone)` and `OptimalControlProblems.status(:brachistochrone)`.
 """
 function OptimalControlProblems.brachistochrone(
     ::JuMPBackend,

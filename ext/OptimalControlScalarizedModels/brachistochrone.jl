@@ -4,18 +4,15 @@ Builds the `brachistochrone` problem with the OptimalControlScalarized backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> brachistochrone(OptimalControlScalarizedBackend(); grid_size=100)
+julia> brachistochrone(OptimalControlScalarizedBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:brachistochrone)` and
-`OptimalControlProblems.status(:brachistochrone)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:brachistochrone)` and `OptimalControlProblems.status(:brachistochrone)`.
 """
 function OptimalControlProblems.brachistochrone(
-    ::OptimalControlScalarizedBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:brachistochrone),
+    ::OptimalControlScalarizedBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:brachistochrone, :OptimalControlScalarized)
     params = parameters_data(:brachistochrone, parameters)
@@ -64,16 +61,5 @@ function OptimalControlProblems.brachistochrone(
         variable=tf_guess,
     )
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:brachistochrone, :OptimalControlScalarized, ocp, init, params)
 end

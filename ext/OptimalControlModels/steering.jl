@@ -4,18 +4,15 @@ Builds the `steering` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> steering(OptimalControlBackend(); grid_size=100)
+julia> steering(OptimalControlBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:steering)` and
-`OptimalControlProblems.status(:steering)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:steering)` and `OptimalControlProblems.status(:steering)`.
 """
 function OptimalControlProblems.steering(
-    ::OptimalControlBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:steering),
+    ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:steering, :OptimalControl)
 
@@ -75,16 +72,5 @@ function OptimalControlProblems.steering(
     xinit = t -> [gen_x0(t, i) for i in 1:4]
     init = (state=xinit, control=0, variable=0.6)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:steering, :OptimalControl, ocp, init, params)
 end

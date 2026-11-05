@@ -45,7 +45,7 @@ function test_schema()
     Test.@testset "metadata schema" verbose = VERBOSE begin
         schema = OCP.METADATA_SCHEMA
         for problem in OCP.problems(; status=:all)
-            data = OCP.metadata(problem)
+            data = OCP.problem_metadata(problem)
             for (key, T) in pairs(schema.required)
                 Test.@test haskey(data, key) && data[key] isa T
             end

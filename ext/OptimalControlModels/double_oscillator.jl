@@ -4,18 +4,15 @@ Builds the `double_oscillator` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> double_oscillator(OptimalControlBackend(); grid_size=100)
+julia> double_oscillator(OptimalControlBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:double_oscillator)` and
-`OptimalControlProblems.status(:double_oscillator)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:double_oscillator)` and `OptimalControlProblems.status(:double_oscillator)`.
 """
 function OptimalControlProblems.double_oscillator(
-    ::OptimalControlBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:double_oscillator),
+    ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:double_oscillator, :OptimalControl)
 
@@ -66,16 +63,5 @@ function OptimalControlProblems.double_oscillator(
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:double_oscillator, :OptimalControl, ocp, init, params)
 end

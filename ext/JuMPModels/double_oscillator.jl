@@ -7,8 +7,8 @@ julia> using OptimalControlProblems
 julia> double_oscillator(JuMPBackend(); grid_size=100)
 ```
 
-Default parameters and the modeling status are available through `metadata(:double_oscillator)` and
-`OptimalControlProblems.status(:double_oscillator)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:double_oscillator)` and `OptimalControlProblems.status(:double_oscillator)`.
 """
 function OptimalControlProblems.double_oscillator(
     ::JuMPBackend,

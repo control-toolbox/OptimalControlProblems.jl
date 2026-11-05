@@ -7,8 +7,8 @@ julia> using OptimalControlProblems
 julia> cart_pendulum(JuMPBackend(); grid_size=100)
 ```
 
-Default parameters and the modeling status are available through `metadata(:cart_pendulum)` and
-`OptimalControlProblems.status(:cart_pendulum)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:cart_pendulum)` and `OptimalControlProblems.status(:cart_pendulum)`.
 """
 function OptimalControlProblems.cart_pendulum(
     ::JuMPBackend,

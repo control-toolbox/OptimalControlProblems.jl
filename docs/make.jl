@@ -8,7 +8,6 @@ using OptimalControlProblems
 using OptimalControl
 using JuMP
 using CTModels
-using ExaModels
 include("problems.jl")    # Your problem definitions
 include("browser.jl")     # Your interactive problems browser
 
@@ -58,8 +57,8 @@ links = InterLinks(
         joinpath(@__DIR__, "inventories", "NLPModelsJuMP.toml"),
     ),
     "OptimalControl" => (
-        "https://control-toolbox.org/OptimalControl.jl/stable/",
-        "https://control-toolbox.org/OptimalControl.jl/stable/objects.inv",
+        "https://control-toolbox.org/OptimalControl.jl/dev/",
+        "https://control-toolbox.org/OptimalControl.jl/dev/objects.inv",
         joinpath(@__DIR__, "inventories", "OptimalControl.toml"),
     ),
     "Tutorials" => (

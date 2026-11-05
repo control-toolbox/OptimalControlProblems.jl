@@ -7,8 +7,8 @@ julia> using OptimalControlProblems
 julia> steering(JuMPBackend(); grid_size=100)
 ```
 
-Default parameters and the modeling status are available through `metadata(:steering)` and
-`OptimalControlProblems.status(:steering)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:steering)` and `OptimalControlProblems.status(:steering)`.
 """
 function OptimalControlProblems.steering(
     ::JuMPBackend,

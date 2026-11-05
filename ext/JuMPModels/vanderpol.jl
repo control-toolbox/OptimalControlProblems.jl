@@ -7,8 +7,8 @@ julia> using OptimalControlProblems
 julia> vanderpol(JuMPBackend(); grid_size=100)
 ```
 
-Default parameters and the modeling status are available through `metadata(:vanderpol)` and
-`OptimalControlProblems.status(:vanderpol)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:vanderpol)` and `OptimalControlProblems.status(:vanderpol)`.
 """
 function OptimalControlProblems.vanderpol(
     ::JuMPBackend,

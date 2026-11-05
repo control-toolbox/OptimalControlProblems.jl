@@ -4,18 +4,15 @@ Builds the `electric_vehicle` problem with the OptimalControlScalarized backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> electric_vehicle(OptimalControlScalarizedBackend(); grid_size=100)
+julia> electric_vehicle(OptimalControlScalarizedBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:electric_vehicle)` and
-`OptimalControlProblems.status(:electric_vehicle)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:electric_vehicle)` and `OptimalControlProblems.status(:electric_vehicle)`.
 """
 function OptimalControlProblems.electric_vehicle(
-    ::OptimalControlScalarizedBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:electric_vehicle),
+    ::OptimalControlScalarizedBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:electric_vehicle, :OptimalControlScalarized)
 
@@ -60,16 +57,5 @@ function OptimalControlProblems.electric_vehicle(
     uinit = [0.1]       # [u]
     init = (state=yinit, control=uinit)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:electric_vehicle, :OptimalControlScalarized, ocp, init, params)
 end

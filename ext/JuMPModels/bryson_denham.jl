@@ -7,8 +7,8 @@ julia> using OptimalControlProblems
 julia> bryson_denham(JuMPBackend(); grid_size=100)
 ```
 
-Default parameters and the modeling status are available through `metadata(:bryson_denham)` and
-`OptimalControlProblems.status(:bryson_denham)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:bryson_denham)` and `OptimalControlProblems.status(:bryson_denham)`.
 """
 function OptimalControlProblems.bryson_denham(
     ::JuMPBackend,
