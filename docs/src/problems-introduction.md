@@ -79,7 +79,7 @@ C_{\mathrm{lower}} \le C(X) \le C_{\mathrm{upper}}
 
 Each optimal control problem in the **OptimalControlProblems** package is modelled in [JuMP](https://jump.dev/JuMP.jl), in [OptimalControl](https://control-toolbox.org/OptimalControl.jl), or in both. The problem definitions are stored in the [OptimalControlProblems.jl/ext](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext) directory:
 
-- JuMP models are stored in the [OptimalControlProblems.jl/ext/JuMPModels](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/JuMPModels) directory. These codes implement the NLP problem directly.
+- JuMP models are stored in the [OptimalControlProblems.jl/ext/JuMPModels](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/JuMPModels) directory. Each file declares the data of the problem; the trapezoidal scheme, written once in `ext/JuMPModels/schemes/`, builds the NLP.
 - OptimalControl models are located in the [OptimalControlProblems.jl/ext/OptimalControlModels](https://github.com/control-toolbox/OptimalControlProblems.jl/tree/main/ext/OptimalControlModels) directory.  These files define the continuous OCPs themselves: each model returns a [`Problem`](@ref OptimalControlProblems.Problem), holding the OCP and its initial guess. The discretisation, the NLP modeler and the solver are chosen when solving, with `solve` from OptimalControl.
 
 For more specific details about the problems, see the following pages. We provide descriptions of the optimal control problems and compare the different models.

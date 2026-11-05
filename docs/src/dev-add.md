@@ -70,62 +70,50 @@ by
 
     The dynamics and the nonlinear constraints must be in scalar form. See the section [Dynamics (coordinatewise)](@extref OptimalControl modelling-abstract-syntax-dynamics-coord) and the following section for more details.
 
-**4.** Define the **JuMP** model of the problem in a file named `new_problem.jl` in the `ext/JuMPModels` directory, following the template:
+**4.** Define the **JuMP** model of the problem in a file named `new_problem.jl` in the `ext/JuMPModels` directory. The file declares the data of the problem only; the discretization is written once, in `ext/JuMPModels/schemes/`. Follow the template:
 
 ```julia
 """
     Documentation of the method
 """
 function OptimalControlProblems.new_problem(
-    ::JuMPBackend, args...; 
+    ::JuMPBackend, args...;
     grid_size::Int=grid_size_data(:new_problem),
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
 
     # parameters
-    params = parameters_data(:beam, parameters)
+    params = parameters_data(:new_problem, parameters)
     t0 = params[:t0]
     tf = params[:tf]
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
-
-    # metadata: required
-    model[:time_grid] = () -> range(t0, tf, grid_size+1) # tf is a fixed
-    model[:state_components] = ["x₁", "x₂"]
-    model[:costate_components] = ["∂x₁", "∂x₂"]
-    model[:control_components] = ["u"]
-    model[:variable_components] = String[]               # no variable
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    # variables and initial guess
-    @variables(
-        model,
-        begin
-            x₁[0:N],    (start = 0.5) # consistent with model[:state_components]
-            x₂[0:N],    (start = 0.1) # consistent with model[:state_components]
-            u[0:N],     (start = 0.1) # consistent with model[:control_components]
-        end
+    data = ProblemData(;
+        # names consistent with the other models; bounds and start values
+        state=[Component("x₁"; start=0.5), Component("x₂"; start=0.1)],
+        control=[Component("u"; lower=-1, upper=1, start=0.1)],
+        costate=["∂x₁", "∂x₂"],
+        times=v -> (t0, tf),
+        dynamics=(x, u, v, t) -> [x[2], u[1]],
+        lagrange=(x, u, v, t) -> u[1]^2,
+        boundary=[(0, (x0, xf, v) -> x0[1], 0), (1, (x0, xf, v) -> xf[1], 1)],
     )
-    
-    # @constraints, @objective...
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 
 end
 ```
 
 !!! warning
 
-    - The metadata in JuMP are required and must be consistent with the other models. 
-    - If `tf` is free, then define:
+    - The names of the components are the names of the JuMP containers (`model[:x₁]`) and must be consistent with the other models.
+    - If `tf` is free, declare it as a variable and return it from `times`:
 
     ```julia
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size+1) # tf is a free
+    variable=[Component("tf"; lower=0.1, start=1.0)],
+    times=v -> (t0, v[1]),
     ```
+
+    - Box constraints on the state, the control and the variable are bounds of the components; other constraints go in `path` (every node) and `boundary`, as `(lower, f, upper)`. The other fields (`cost`, `state_expressions`) are described in the docstring of `ProblemData`.
 
 !!! tip
 

@@ -141,7 +141,11 @@ with_problems_browser() do browser_file
                 "Get a problem" => "tutorial-get.md",
                 "Solve a problem" => "tutorial-solve.md",
             ],
-            "Developers" => ["Add a problem" => "dev-add.md", "API" => "dev-api.md"],
+            "Developers" => [
+                "Add a problem" => "dev-add.md",
+                "JuMP transcription" => "dev-jump-transcription.md",
+                "API" => "dev-api.md",
+            ],
         ],
         plugins=[links],
     )

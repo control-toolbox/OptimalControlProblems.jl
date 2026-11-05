@@ -30,65 +30,21 @@ function OptimalControlProblems.beam(
     x₁_tf = params[:x₁_tf]
     x₂_tf = params[:x₂_tf]
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
-
-    # metadata: required
-    model[:time_grid] = () -> range(t0, tf, grid_size + 1) # tf is a fixed
-    model[:state_components] = ["x₁", "x₂"]
-    model[:costate_components] = ["∂x₁", "∂x₂"]
-    model[:control_components] = ["u"]
-    model[:variable_components] = String[]
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    # variables and initial guess
-    @variables(
-        model,
-        begin
-            x₁_l ≤ x₁[0:N] ≤ x₁_u, (start = 0.05)
-            x₂[0:N], (start = 0.1)
-            u[0:N], (start = 0.1)
-        end
+    data = ProblemData(;
+        state=[
+            Component("x₁"; lower=x₁_l, upper=x₁_u, start=0.05), Component("x₂"; start=0.1)
+        ],
+        control=[Component("u"; start=0.1)],
+        costate=["∂x₁", "∂x₂"],
+        times=v -> (t0, tf),
+        dynamics=(x, u, v, t) -> [x[2], u[1]],
+        lagrange=(x, u, v, t) -> u[1]^2,
+        boundary=[
+            (x₁_t0, (x0, xf, v) -> x0[1], x₁_t0),
+            (x₂_t0, (x0, xf, v) -> x0[2], x₂_t0),
+            (x₁_tf, (x0, xf, v) -> xf[1], x₁_tf),
+            (x₂_tf, (x0, xf, v) -> xf[2], x₂_tf),
+        ],
     )
-
-    # boundary constraints
-    @constraints(
-        model,
-        begin
-            x₁[0] == x₁_t0
-            x₂[0] == x₂_t0
-            x₁[N] == x₁_tf
-            x₂[N] == x₂_tf
-        end
-    )
-
-    # dynamics
-    @expressions(
-        model,
-        begin
-            #
-            Δt, (tf - t0) / N
-
-            # dynamics
-            dx₁[i = 0:N], x₂[i]
-            dx₂[i = 0:N], u[i]
-
-            # objective
-            dc[i = 0:N], u[i]^2
-        end
-    )
-    @constraints(
-        model,
-        begin
-            ∂x₁[i = 1:N], x₁[i] == x₁[i - 1] + 0.5 * Δt * (dx₁[i] + dx₁[i - 1])
-            ∂x₂[i = 1:N], x₂[i] == x₂[i - 1] + 0.5 * Δt * (dx₂[i] + dx₂[i - 1])
-        end
-    )
-
-    # objective
-    @objective(model, Min, 0.5 * Δt * sum(dc[i] + dc[i - 1] for i in 1:N))
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end

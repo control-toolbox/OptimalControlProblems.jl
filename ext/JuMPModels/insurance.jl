@@ -46,93 +46,50 @@ function OptimalControlProblems.insurance(
     m_t0 = params[:m_t0]
     x₃_t0 = params[:x₃_t0]
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
+    fx(t) = λ * exp(-λ * (t - t0)) + exp(-λ * (tf - t0)) / (tf - t0)
 
-    # metadata: required
-    model[:time_grid] = () -> range(t0, tf, grid_size + 1) # tf is a fixed
-    model[:state_components] = ["I", "m", "x₃"]
-    model[:costate_components] = ["∂I", "∂m", "∂x₃"]
-    model[:control_components] = ["h", "R", "H", "U", "dUdR"]
-    model[:variable_components] = ["P"]
+    function dynamics(x, u, t)
+        I, m, _ = x
+        h, _, _, _, dUdR = u
+        vprime = α / 2 * m^(α / 2 - 1) / (1 + m^(α / 2))^2
+        return [(1 - γ * (t - t0) * vprime / dUdR) * h, h, (1 + σ) * I * fx(t)]
+    end
 
-    # N = grid_size
-    @expression(model, N, grid_size)
+    # algebraic relations between the controls, imposed at every node
+    ε(t) = k * (t - t0) / (tf - t + 1)
+    v(m) = m^(α / 2) / (1 + m^(α / 2))
 
-    # state, control and initial guess
-    @variables(
-        model,
-        begin
-            I_l ≤ I[0:N] ≤ I_u, (start = 0.1)
-            m_l ≤ m[0:N] ≤ m_u, (start = 0.1)
-            x₃[0:N], (start = 0.1)
-            h_l ≤ h[0:N] ≤ h_u, (start = 0.1)
-            R[0:N] ≥ R_l, (start = 0.1)
-            H[0:N] ≥ H_l, (start = 0.1)
-            U[0:N] ≥ U_l, (start = 0.1)
-            dUdR[0:N] ≥ dUdR_l, (start = 0.1)
-            P ≥ P_l, (start = 0.1)
-        end
+    data = ProblemData(;
+        state=[
+            Component("I"; lower=I_l, upper=I_u, start=0.1),
+            Component("m"; lower=m_l, upper=m_u, start=0.1),
+            Component("x₃"; start=0.1),
+        ],
+        control=[
+            Component("h"; lower=h_l, upper=h_u, start=0.1),
+            Component("R"; lower=R_l, start=0.1),
+            Component("H"; lower=H_l, start=0.1),
+            Component("U"; lower=U_l, start=0.1),
+            Component("dUdR"; lower=dUdR_l, start=0.1),
+        ],
+        variable=[Component("P"; lower=P_l, start=0.1)],
+        costate=["∂I", "∂m", "∂x₃"],
+        times=v -> (t0, tf),
+        dynamics=(x, u, v, t) -> dynamics(x, u, t),
+        lagrange=(x, u, v, t) -> u[4] * fx(t),
+        cost=(integral, x0, xf, v) -> -integral,
+        path=[
+            (0, (x, u, P, t) -> u[2] - (w - P[1] + x[1] - x[2] - ε(t)), 0),
+            (0, (x, u, P, t) -> u[3] - (h0 - γ * (t - t0) * (1 - v(x[2]))), 0),
+            (0, (x, u, P, t) -> u[4] - (1 - exp(-s * u[2]) + u[3]), 0),
+            (0, (x, u, P, t) -> u[5] - (s * exp(-s * u[2])), 0),
+        ],
+        boundary=[
+            (I_t0, (x0, xf, v) -> x0[1], I_t0),
+            (m_t0, (x0, xf, v) -> x0[2], m_t0),
+            (x₃_t0, (x0, xf, v) -> x0[3], x₃_t0),
+            (0, (x0, xf, v) -> v[1] - xf[3], 0),
+        ],
     )
-
-    # boundary constraints  
-    @constraints(
-        model,
-        begin
-            I[0] == I_t0
-            m[0] == m_t0
-            x₃[0] == x₃_t0
-            P - x₃[N] == 0
-        end
-    )
-
-    @expressions(
-        model,
-        begin
-            Δt, (tf - t0) / N
-            t[i = 0:N], t0 + i * Δt
-            ε[i = 0:N], k * (t[i] - t0) / (tf - t[i] + 1)
-            fx[i = 0:N], λ * exp(-λ * (t[i] - t0)) + exp(-λ * (tf - t0)) / (tf - t0)
-            v[i = 0:N], m[i]^(α / 2) / (1 + m[i]^(α / 2))
-            vprime[i = 0:N], α / 2 * m[i]^(α / 2 - 1) / (1 + m[i]^(α / 2))^2
-        end
-    )
-
-    @constraints(
-        model,
-        begin
-            cond1[i = 0:N], R[i] - (w - P + I[i] - m[i] - ε[i]) == 0
-            cond2[i = 0:N], H[i] - (h0 - γ * i * Δt * (1 - v[i])) == 0
-            cond3[i = 0:N], U[i] - (1 - exp(-s * R[i]) + H[i]) == 0
-            cond4[i = 0:N], dUdR[i] - (s * exp(-s * R[i])) == 0
-        end
-    )
-
-    # dynamics
-    @expressions(
-        model,
-        begin
-            # dynamics
-            dI[i = 0:N], (1 - γ * (t[i] - t0) * vprime[i] / dUdR[i]) * h[i]
-            dm[i = 0:N], h[i]
-            dx₃[i = 0:N], (1 + σ) * I[i] * fx[i]
-
-            # objective
-            dc[i = 0:N], U[i] * fx[i]
-        end
-    )
-
-    @constraints(
-        model,
-        begin
-            ∂I[i = 1:N], I[i] == I[i - 1] + 0.5 * Δt * (dI[i] + dI[i - 1])
-            ∂m[i = 1:N], m[i] == m[i - 1] + 0.5 * Δt * (dm[i] + dm[i - 1])
-            ∂x₃[i = 1:N], x₃[i] == x₃[i - 1] + 0.5 * Δt * (dx₃[i] + dx₃[i - 1])
-        end
-    )
-
-    # objective
-    @objective(model, Min, -0.5 * Δt * sum(dc[i] + dc[i - 1] for i in 1:N))
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end

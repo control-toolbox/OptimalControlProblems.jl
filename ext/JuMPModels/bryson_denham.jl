@@ -24,35 +24,19 @@ function OptimalControlProblems.bryson_denham(
     x1_tf, x2_tf = params[:x1_tf], params[:x2_tf]
     x1_max = params[:x1_max]
 
-    model = JuMP.Model(args...; kwargs...)
-
-    # metadata: required
-    model[:time_grid] = () -> range(t0, tf, grid_size + 1)
-    model[:state_components] = ["x1", "x2"]
-    model[:control_components] = ["u"]
-    model[:costate_components] = ["p1", "p2"]
-    model[:variable_components] = []
-
-    N = grid_size
-    Δt = (tf - t0) / N
-
-    @variable(model, x1[0:N] <= x1_max, start=0.0)
-    @variable(model, x2[0:N], start=0.0)
-    @variable(model, u[0:N], start=0.0)
-
-    @constraints(
-        model,
-        begin
-            x1[0] == x1_t0
-            x2[0] == x2_t0
-            x1[N] == x1_tf
-            x2[N] == x2_tf
-            p1[i = 1:N], x1[i] == x1[i - 1] + 0.5 * Δt * (x2[i] + x2[i - 1])
-            p2[i = 1:N], x2[i] == x2[i - 1] + 0.5 * Δt * (u[i] + u[i - 1])
-        end
+    data = ProblemData(;
+        state=[Component("x1"; upper=x1_max, start=0.0), Component("x2"; start=0.0)],
+        control=[Component("u"; start=0.0)],
+        costate=["p1", "p2"],
+        times=v -> (t0, tf),
+        dynamics=(x, u, v, t) -> [x[2], u[1]],
+        lagrange=(x, u, v, t) -> 0.5 * u[1]^2,
+        boundary=[
+            (x1_t0, (x0, xf, v) -> x0[1], x1_t0),
+            (x2_t0, (x0, xf, v) -> x0[2], x2_t0),
+            (x1_tf, (x0, xf, v) -> xf[1], x1_tf),
+            (x2_tf, (x0, xf, v) -> xf[2], x2_tf),
+        ],
     )
-
-    @objective(model, Min, 0.5 * Δt * sum(0.5 * (u[i]^2 + u[i - 1]^2) for i in 1:N))
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end
