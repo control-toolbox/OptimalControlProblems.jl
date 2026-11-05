@@ -11,7 +11,10 @@ const SB = "yes"
 const MAX_ITER = 1000
 # MadNLP on the GPU solves the condensed KKT system (Cholesky, CUDSS), whose conditioning is
 # the square of the unreduced one: `TOL` is out of reach for `bioreactor` (#357), 1e-6 is not.
+# A GPU solve is first tried at `TOL` (`GPU_FIRST_MAX_ITER` iterations), then at `GPU_TOL`:
+# `mountain_car` converges at `TOL` but is declared infeasible at `GPU_TOL`.
 const GPU_TOL = 1e-6
+const GPU_FIRST_MAX_ITER = 300
 const MAX_WALL_TIME = 500.0
 
 # Grid of the fast tests (suite/); the slow ones (cron/) use the default grid of each problem.
@@ -39,12 +42,6 @@ const GPU_CONFIGS = (
     OptimalControl=((modeler=:exa_gpu, solver=:madnlp_gpu),),
     OptimalControlScalarized=((modeler=:exa_gpu, solver=:madnlp_gpu),),
 )
-
-# Problems that do not converge on the GPU yet, per modeling: reported as broken
-# (`@test_broken`, an unexpected pass is an error), solved with a smaller `max_iter`.
-# None for now (`bioreactor`, #357, converges with `GPU_TOL`).
-const GPU_KNOWN_FAILURES = (OptimalControl=(), OptimalControlScalarized=())
-const GPU_KNOWN_FAILURE_MAX_ITER = 200
 
 """Name of a configuration, for test sets and reports."""
 label(config) = join(("$k=$(v isa Tuple ? join(v, ",") : v)" for (k, v) in pairs(config)), " ")

@@ -27,11 +27,11 @@ function solver(name::Symbol; max_iter::Int)
             max_iter=max_iter,
             max_wall_time=o.MAX_WALL_TIME,
         )
-    elseif name === :madnlp || name === :madnlp_gpu
+    elseif name in (:madnlp, :madnlp_gpu, :madnlp_gpu_relaxed)
         T = name === :madnlp ? OptimalControl.MadNLP : OptimalControl.MadNLP{OptimalControl.GPU}
         return T(;
             print_level=MadNLP.ERROR,
-            tol=name === :madnlp ? o.TOL : o.GPU_TOL,
+            tol=name === :madnlp_gpu_relaxed ? o.GPU_TOL : o.TOL,
             max_iter=max_iter,
             max_wall_time=o.MAX_WALL_TIME,
         )
@@ -53,6 +53,19 @@ function solve(pb, config; grid_size::Int, max_iter::Int=Main.TestConfigs.MAX_IT
         solver=solver(config.solver; max_iter=max_iter),
         display=false,
     )
+end
+
+"""
+Solve `pb` with a GPU configuration: at the tolerance of the tests with
+`GPU_FIRST_MAX_ITER` iterations, and, if that fails, at the relaxed tolerance `GPU_TOL`
+(the condensed KKT system of the GPU path limits the accuracy, #357).
+"""
+function solve_gpu(pb, config; grid_size::Int)
+    o = Main.TestConfigs
+    sol = solve(pb, config; grid_size=grid_size, max_iter=o.GPU_FIRST_MAX_ITER)
+    succeeded(sol) && return sol
+    relaxed = merge(config, (solver=:madnlp_gpu_relaxed,))
+    return solve(pb, relaxed; grid_size=grid_size)
 end
 
 """NLP model of the `Problem` `pb` with `config`, built as `solve` builds it."""
