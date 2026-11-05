@@ -67,6 +67,10 @@ See [BREAKING.md](BREAKING.md).
 - `Problem` type, read with `model`, `initial_guess` and `metadata`, and shown with
   its modeling, status and dimensions.
 - `using OptimalControl, OptimalControlProblems` loads without name conflict.
+- `solution(model, pb)` builds a `CTModels.Solution` from a solved JuMP model and the
+  `Problem` of the same problem: `plot(sol)`, `state(sol)`, `control(sol)`, `costate(sol)`,
+  `objective(sol)` and `iterations(sol)` work on it. The costate keeps the JuMP convention
+  (signs: #326).
 
 ### 🛠 Enhancements
 

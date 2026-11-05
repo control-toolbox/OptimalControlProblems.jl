@@ -3,6 +3,7 @@ isdefined(Main, :Comparison) || include(joinpath(@__DIR__, "..", "..", "common",
 module TestSolutionComparison
 
 using Test: Test
+using CTBase: CTBase
 using JuMP: JuMP
 using OptimalControl: OptimalControl
 using OptimalControlProblems: OptimalControlProblems
@@ -40,6 +41,18 @@ function test_solution()
             "test_solution", OCP.JuMPBackend(), OCP.OptimalControlBackend()
         ) do problem
             check_solution(problem)
+        end
+
+        Test.@testset "errors" begin
+            pb = OCP.beam(OCP.OptimalControlBackend())
+            # not solved
+            unsolved = OCP.beam(OCP.JuMPBackend(); grid_size=Main.TestConfigs.SMALL_GRID)
+            Test.@test_throws CTBase.Exceptions.PreconditionError OCP.solution(unsolved, pb)
+            # a problem of another dimension
+            model = OCP.beam(OCP.JuMPBackend(); grid_size=Main.TestConfigs.SMALL_GRID)
+            Main.SolveJuMP.solve!(model; max_iter=0)
+            other = OCP.glider(OCP.OptimalControlBackend())
+            Test.@test_throws CTBase.Exceptions.IncorrectArgument OCP.solution(model, other)
         end
 
         Test.@testset "beam, solved, against OptimalControl" begin
