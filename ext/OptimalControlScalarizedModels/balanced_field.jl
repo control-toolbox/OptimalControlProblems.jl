@@ -4,18 +4,15 @@ Builds the `balanced_field` problem with the OptimalControlScalarized backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> balanced_field(OptimalControlScalarizedBackend(); grid_size=100)
+julia> balanced_field(OptimalControlScalarizedBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:balanced_field)` and
-`OptimalControlProblems.status(:balanced_field)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:balanced_field)` and `OptimalControlProblems.status(:balanced_field)`.
 """
 function OptimalControlProblems.balanced_field(
-    ::OptimalControlScalarizedBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:balanced_field),
+    ::OptimalControlScalarizedBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:balanced_field, :OptimalControlScalarized)
 
@@ -89,15 +86,5 @@ function OptimalControlProblems.balanced_field(
     init = (state=[r_t0, v_t0 + 10.0, h_tf / 2.0, γ_tf], control=[0.1], variable=[tf_guess])
 
     # discretise
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:balanced_field, :OptimalControlScalarized, ocp, init, params)
 end

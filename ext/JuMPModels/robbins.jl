@@ -7,8 +7,8 @@ julia> using OptimalControlProblems
 julia> robbins(JuMPBackend(); grid_size=100)
 ```
 
-Default parameters and the modeling status are available through `metadata(:robbins)` and
-`OptimalControlProblems.status(:robbins)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:robbins)` and `OptimalControlProblems.status(:robbins)`.
 """
 function OptimalControlProblems.robbins(
     ::JuMPBackend,

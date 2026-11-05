@@ -2,7 +2,7 @@
 
 ```@index
 Pages   = ["dev-api.md"]
-Modules = [OptimalControlProblems, CTModels, ExaModels, OptimalControlModels, JuMPModels]
+Modules = [OptimalControlProblems, OptimalControlModels, JuMPModels]
 Order = [:module, :constant, :type, :function, :macro]
 ```
 

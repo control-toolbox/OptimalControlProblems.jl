@@ -4,18 +4,15 @@ Builds the `beam` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> beam(OptimalControlBackend(); grid_size=100)
+julia> beam(OptimalControlBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:beam)` and
-`OptimalControlProblems.status(:beam)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:beam)` and `OptimalControlProblems.status(:beam)`.
 """
 function OptimalControlProblems.beam(
-    ::OptimalControlBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:beam),
+    ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:beam, :OptimalControl)
 
@@ -48,16 +45,5 @@ function OptimalControlProblems.beam(
     # initial guess
     init = (state=[0.05, 0.1], control=0.1)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:beam, :OptimalControl, ocp, init, params)
 end

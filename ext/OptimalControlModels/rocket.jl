@@ -4,18 +4,15 @@ Builds the `rocket` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> rocket(OptimalControlBackend(); grid_size=100)
+julia> rocket(OptimalControlBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:rocket)` and
-`OptimalControlProblems.status(:rocket)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:rocket)` and `OptimalControlProblems.status(:rocket)`.
 """
 function OptimalControlProblems.rocket(
-    ::OptimalControlBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:rocket),
+    ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:rocket, :OptimalControl)
 
@@ -80,22 +77,9 @@ function OptimalControlProblems.rocket(
     end
 
     # initial guess
-    N = grid_size
     tf_init = 1
-    xinit = [[1, i / N * (1 - i / N), (m_tf - m_t0) * (i / N) + m_t0] for i in 0:N]
-    time_vec = LinRange(0, tf_init, N + 1)
-    init = (time=time_vec, state=xinit, control=Tmax / 2, variable=tf_init)
+    xinit = t -> [1, (t / tf_init) * (1 - t / tf_init), (m_tf - m_t0) * (t / tf_init) + m_t0]
+    init = (state=xinit, control=Tmax / 2, variable=tf_init)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:rocket, :OptimalControl, ocp, init, params)
 end

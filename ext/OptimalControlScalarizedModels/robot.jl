@@ -4,18 +4,15 @@ Builds the `robot` problem with the OptimalControlScalarized backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> robot(OptimalControlScalarizedBackend(); grid_size=100)
+julia> robot(OptimalControlScalarizedBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:robot)` and
-`OptimalControlProblems.status(:robot)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:robot)` and `OptimalControlProblems.status(:robot)`.
 """
 function OptimalControlProblems.robot(
-    ::OptimalControlScalarizedBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:robot),
+    ::OptimalControlScalarizedBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:robot, :OptimalControlScalarized)
 
@@ -127,16 +124,5 @@ function OptimalControlProblems.robot(
     uinit = [0.0, 0.0, 0.0]
     init = (state=xinit, control=uinit, variable=tf_guess)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:robot, :OptimalControlScalarized, ocp, init, params)
 end

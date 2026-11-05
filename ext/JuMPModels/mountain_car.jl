@@ -7,8 +7,8 @@ julia> using OptimalControlProblems
 julia> mountain_car(JuMPBackend(); grid_size=100)
 ```
 
-Default parameters and the modeling status are available through `metadata(:mountain_car)` and
-`OptimalControlProblems.status(:mountain_car)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:mountain_car)` and `OptimalControlProblems.status(:mountain_car)`.
 """
 function OptimalControlProblems.mountain_car(
     ::JuMPBackend,

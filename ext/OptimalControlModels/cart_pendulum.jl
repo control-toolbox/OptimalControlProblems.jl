@@ -4,18 +4,15 @@ Builds the `cart_pendulum` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> cart_pendulum(OptimalControlBackend(); grid_size=100)
+julia> cart_pendulum(OptimalControlBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:cart_pendulum)` and
-`OptimalControlProblems.status(:cart_pendulum)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:cart_pendulum)` and `OptimalControlProblems.status(:cart_pendulum)`.
 """
 function OptimalControlProblems.cart_pendulum(
-    ::OptimalControlBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:cart_pendulum),
+    ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:cart_pendulum, :OptimalControl)
 
@@ -99,16 +96,5 @@ function OptimalControlProblems.cart_pendulum(
     varinit = [1.0, 0.1]            # [tf, ddx]
     init = (state=xinit, control=uinit, variable=varinit)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:cart_pendulum, :OptimalControl, ocp, init, params)
 end

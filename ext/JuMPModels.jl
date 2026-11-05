@@ -2,20 +2,8 @@ module JuMPModels
 
 using OptimalControlProblems
 using JuMP
-import CTModels:
-    CTModels,
-    time_grid,
-    state,
-    control,
-    costate,
-    iterations,
-    control_components,
-    control_dimension,
-    state_components,
-    state_dimension,
-    variable_components,
-    variable_dimension
-import ExaModels: ExaModels, variable, objective
+using CTBase: CTBase
+using CTModels: CTModels
 using DocStringExtensions
 using OrderedCollections: OrderedDict
 
@@ -68,7 +56,7 @@ julia> OptimalControlProblems.state_components(model)
 ["x", "v", "θ", "ω"]
 ```
 """
-OptimalControlProblems.state_components(model::JuMP.GenericModel) = model[:state_components]
+CTModels.Models.state_components(model::JuMP.GenericModel) = model[:state_components]
 
 """
 $(TYPEDSIGNATURES)
@@ -90,7 +78,7 @@ julia> OptimalControlProblems.control_components(model)
 ["Fex"]
 ```
 """
-function OptimalControlProblems.control_components(model::JuMP.GenericModel)
+function CTModels.Models.control_components(model::JuMP.GenericModel)
     return model[:control_components]
 end
 
@@ -114,7 +102,7 @@ julia> OptimalControlProblems.variable_components(model)
 ["tf", "ddx"]
 ```
 """
-function OptimalControlProblems.variable_components(model::JuMP.GenericModel)
+function CTModels.Models.variable_components(model::JuMP.GenericModel)
     return model[:variable_components]
 end
 
@@ -138,7 +126,7 @@ julia> OptimalControlProblems.state_dimension(model)
 4
 ```
 """
-function OptimalControlProblems.state_dimension(model::JuMP.GenericModel)
+function CTModels.Models.state_dimension(model::JuMP.GenericModel)
     return length(model[:state_components])
 end
 
@@ -162,7 +150,7 @@ julia> OptimalControlProblems.control_dimension(model)
 1
 ```
 """
-function OptimalControlProblems.control_dimension(model::JuMP.GenericModel)
+function CTModels.Models.control_dimension(model::JuMP.GenericModel)
     return length(model[:control_components])
 end
 
@@ -186,7 +174,7 @@ julia> OptimalControlProblems.variable_dimension(model)
 2
 ```
 """
-function OptimalControlProblems.variable_dimension(model::JuMP.GenericModel)
+function CTModels.Models.variable_dimension(model::JuMP.GenericModel)
     return length(model[:variable_components])
 end
 
@@ -210,7 +198,7 @@ julia> tgrid = OptimalControlProblems.time_grid(model)
 0.0:0.1:1.0
 ```
 """
-OptimalControlProblems.time_grid(model::JuMP.GenericModel) = model[:time_grid]()
+CTModels.Components.time_grid(model::JuMP.GenericModel) = model[:time_grid]()
 
 """
 $(TYPEDSIGNATURES)
@@ -234,10 +222,10 @@ julia> x(0.5)
 [0.23, 0.71]
 ```
 """
-function OptimalControlProblems.state(model::JuMP.GenericModel)
+function CTModels.Components.state(model::JuMP.GenericModel)
 
     # time grid
-    T = CTModels.time_grid(model)
+    T = time_grid(model)
     N = length(T) - 1
 
     # get components and dimension
@@ -252,8 +240,8 @@ function OptimalControlProblems.state(model::JuMP.GenericModel)
 
     # interpolate
     N = size(X, 1)
-    V = CTModels.matrix2vec(X[:, 1:dim_x], 1)
-    x = CTModels.ctinterpolate(T[1:N], V)
+    V = CTBase.Core.matrix2vec(X[:, 1:dim_x], 1)
+    x = CTBase.Interpolation.ctinterpolate(T[1:N], V)
 
     # force scalar output when dimension is 1
     fx = (dim_x == 1) ? deepcopy(t -> x(t)[1]) : deepcopy(t -> x(t))
@@ -283,10 +271,10 @@ julia> u(0.25)
 0.42
 ```
 """
-function OptimalControlProblems.control(model::JuMP.GenericModel)
+function CTModels.Components.control(model::JuMP.GenericModel)
 
     # time grid
-    T = CTModels.time_grid(model)
+    T = time_grid(model)
     N = length(T) - 1
 
     # get components and dimension
@@ -301,8 +289,8 @@ function OptimalControlProblems.control(model::JuMP.GenericModel)
 
     # interpolate
     M = size(U, 1)
-    V = CTModels.matrix2vec(U[:, 1:dim_u], 1)
-    u = CTModels.ctinterpolate(T[1:M], V)
+    V = CTBase.Core.matrix2vec(U[:, 1:dim_u], 1)
+    u = CTBase.Interpolation.ctinterpolate(T[1:M], V)
 
     # force scalar output when dimension is 1
     fu = (dim_u == 1) ? deepcopy(t -> u(t)[1]) : deepcopy(t -> u(t))
@@ -332,10 +320,10 @@ julia> p(0.75)
 [-0.12, 0.05]
 ```
 """
-function OptimalControlProblems.costate(model::JuMP.GenericModel)
+function CTModels.Components.costate(model::JuMP.GenericModel)
 
     # time grid
-    T = CTModels.time_grid(model)
+    T = time_grid(model)
     N = length(T) - 1
 
     # get dimension
@@ -350,11 +338,11 @@ function OptimalControlProblems.costate(model::JuMP.GenericModel)
 
     # interpolate
     L = size(P, 1)
-    V = CTModels.matrix2vec(P[:, 1:dim_x], 1)
+    V = CTBase.Core.matrix2vec(P[:, 1:dim_x], 1)
     p = if length(T) == 2
         t -> P[1, 1:dim_x]
     else
-        CTModels.ctinterpolate(T[1:L], V)
+        CTBase.Interpolation.ctinterpolate(T[1:L], V)
     end
 
     # force scalar output when dimension is 1
@@ -386,7 +374,7 @@ julia> v = OptimalControlProblems.variable(model)
 1.5
 ```
 """
-function OptimalControlProblems.variable(model::JuMP.GenericModel)
+function CTModels.Components.variable(model::JuMP.GenericModel)
 
     # get components and dimension
     v_vars = variable_components(model)
@@ -423,7 +411,7 @@ julia> OptimalControlProblems.objective(model)
 1.5
 ```
 """
-function OptimalControlProblems.objective(model::JuMP.GenericModel)
+function CTModels.Components.objective(model::JuMP.GenericModel)
     return objective_value(model)
 end
 
@@ -443,7 +431,7 @@ julia> OptimalControlProblems.iterations(model)
 20
 ```
 """
-function OptimalControlProblems.iterations(model::JuMP.GenericModel)
+function CTModels.Solutions.iterations(model::JuMP.GenericModel)
     return barrier_iterations(model)
 end
 
