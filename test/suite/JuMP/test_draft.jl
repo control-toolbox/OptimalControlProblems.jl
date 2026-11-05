@@ -11,7 +11,7 @@ function test_draft()
     Test.@testset "JuMP draft warning" verbose = VERBOSE showtiming = SHOWTIMING begin
         problem = first(OptimalControlProblems.problems(OptimalControlProblems.JuMPBackend()))
         build = getfield(OptimalControlProblems, problem)
-        data = OptimalControlProblems.metadata(problem)
+        data = OptimalControlProblems.problem_metadata(problem)
         original = data[:status]
         # no warning for a valid problem
         Test.@test_logs build(OptimalControlProblems.JuMPBackend(); grid_size=2)

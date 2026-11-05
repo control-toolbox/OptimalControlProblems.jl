@@ -1,6 +1,6 @@
 # The single matrix of test configurations, read by every test (#304): solver options,
 # grid of the fast tests, and, per modeling, the configurations to solve with. Extended by
-# #283 (modelers, solvers of OptimalControl v2) and #284 (schemes).
+# #284 (schemes) and #330 (GPU).
 # Included at top level, so that `Main.TestConfigs` exists in every environment.
 module TestConfigs
 
@@ -18,14 +18,15 @@ const SMALL_GRID = 50
 # `TestStatus.select_problems!`); `nothing`: every problem.
 const PROBLEMS = Ref{Union{Nothing,Vector{Symbol}}}(nothing)
 
-# Configurations per modeling. `description` is forwarded to the problem builder
-# (OptimalControl: CTDirect description), `solver` selects a `Solve<Solver>` module of
-# test/common/. Every model is discretized with its default scheme (trapezoidal); the
-# schemes become a dimension of this matrix with #284.
+# Configurations per modeling. JuMP: `solver` selects the optimizer of `SolveJuMP`.
+# OptimalControl modelings, explicit mode of OptimalControl v2 (`SolveOptimalControl`):
+# `modeler` (`:adnlp`, `:exa`) and `solver` (`:ipopt`, `:madnlp`). Every model is
+# discretized with the trapezoidal rule; the schemes become a dimension of this matrix with
+# #284, the GPU with #330.
 const CONFIGS = (
     JuMP=((solver=:ipopt,),),
-    OptimalControl=((description=(), solver=:ipopt),),
-    OptimalControlScalarized=((description=(:madnlp, :exa), solver=:madnlp),),
+    OptimalControl=((modeler=:adnlp, solver=:ipopt), (modeler=:exa, solver=:madnlp)),
+    OptimalControlScalarized=((modeler=:exa, solver=:madnlp),),
 )
 
 """Name of a configuration, for test sets and reports."""

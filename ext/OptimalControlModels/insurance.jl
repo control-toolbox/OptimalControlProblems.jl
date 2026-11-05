@@ -4,18 +4,15 @@ Builds the `insurance` problem with the OptimalControl backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> insurance(OptimalControlBackend(); grid_size=100)
+julia> insurance(OptimalControlBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:insurance)` and
-`OptimalControlProblems.status(:insurance)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:insurance)` and `OptimalControlProblems.status(:insurance)`.
 """
 function OptimalControlProblems.insurance(
-    ::OptimalControlBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:insurance),
+    ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:insurance, :OptimalControl)
 
@@ -101,16 +98,5 @@ function OptimalControlProblems.insurance(
     varinit = [0.1]  # [P]
     init = (state=xinit, control=uinit, variable=varinit)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:insurance, :OptimalControl, ocp, init, params)
 end

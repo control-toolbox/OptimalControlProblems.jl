@@ -7,8 +7,8 @@ julia> using OptimalControlProblems
 julia> ducted_fan(JuMPBackend(); grid_size=100)
 ```
 
-Default parameters and the modeling status are available through `metadata(:ducted_fan)` and
-`OptimalControlProblems.status(:ducted_fan)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:ducted_fan)` and `OptimalControlProblems.status(:ducted_fan)`.
 """
 function OptimalControlProblems.ducted_fan(
     ::JuMPBackend,

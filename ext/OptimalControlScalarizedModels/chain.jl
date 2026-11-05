@@ -4,18 +4,15 @@ Builds the `chain` problem with the OptimalControlScalarized backend.
 
 ```julia-repl
 julia> using OptimalControlProblems
-julia> chain(OptimalControlScalarizedBackend(); grid_size=100)
+julia> chain(OptimalControlScalarizedBackend())
 ```
 
-Default parameters and the modeling status are available through `metadata(:chain)` and
-`OptimalControlProblems.status(:chain)`.
+Default parameters and the modeling status are available through
+`problem_metadata(:chain)` and `OptimalControlProblems.status(:chain)`.
 """
 function OptimalControlProblems.chain(
-    ::OptimalControlScalarizedBackend,
-    description::Symbol...;
-    grid_size::Int=grid_size_data(:chain),
+    ::OptimalControlScalarizedBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
-    kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:chain, :OptimalControlScalarized)
 
@@ -70,16 +67,5 @@ function OptimalControlProblems.chain(
     uinit = t -> 4 * abs(b - a) * (t / tf - tmin)
     init = (state=xinit, control=uinit)
 
-    # discretise the optimal control problem
-    docp = direct_transcription(
-        ocp,
-        description...;
-        lagrange_to_mayer=false,
-        init=init,
-        grid_size=grid_size,
-        disc_method=:trapeze,
-        kwargs...,
-    )
-
-    return docp
+    return OptimalControlProblems._problem(:chain, :OptimalControlScalarized, ocp, init, params)
 end

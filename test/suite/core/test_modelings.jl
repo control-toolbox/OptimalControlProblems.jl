@@ -2,7 +2,7 @@ module TestModelings
 
 using Test: Test
 using CTBase: CTBase
-# Since Julia 1.13 the methods of `Base.Docs.doc` are defined by REPL (as in help mode).
+# `Base.Docs.doc` has its methods in REPL since Julia 1.11; no dependency loads it any more.
 using REPL: REPL
 using OptimalControlProblems: OptimalControlProblems
 
