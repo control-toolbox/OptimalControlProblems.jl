@@ -39,7 +39,7 @@ def run_results(reports=None, summary=None):
 class TestResults(unittest.TestCase):
     def test_narrowed_run_lists_the_untested(self):
         out, written = run_results({
-            "ci-1.13-ubuntu-latest/JuMP.md": "| visited | beam | JuMP | valid | see the test summary |\n",
+            "ci-1.13-ubuntu-latest/JuMP.md": "| solve | beam | JuMP | valid | see the test summary |\n",
         })
         self.assertIn("| ci-1.13-ubuntu-latest | `beam` | JuMP | valid | tested |", out)
         self.assertIn("Not tested in this run (2)", out)
@@ -47,38 +47,59 @@ class TestResults(unittest.TestCase):
         self.assertEqual(out.strip(), written.strip())
 
     def test_complete_run_has_no_untested_block(self):
-        rows = "".join(f"| visited | {p} | JuMP | valid | see the test summary |\n"
+        rows = "".join(f"| solve | {p} | JuMP | valid | see the test summary |\n"
                        for p in ("beam", "robot", "rocket"))
         out, _ = run_results({"ci-1.13-ubuntu-latest/JuMP.md": rows})
         self.assertNotIn("Not tested", out)
 
     def test_draft_keeps_its_outcome(self):
         out, _ = run_results({
-            "ci-1.13-ubuntu-latest/JuMP.md": "| visited | robot | JuMP | draft | fail |\n",
+            "ci-1.13-ubuntu-latest/JuMP.md": "| solve | robot | JuMP | draft | fail |\n",
         })
         self.assertIn("| `robot` | JuMP | draft | fail |", out)
 
     def test_modelings_and_platforms_stay_apart(self):
         out, _ = run_results({
-            "ci-a/JuMP.md": "| visited | beam | JuMP | valid | see the test summary |\n",
-            "ci-a/OptimalControl.md": "| visited | beam | OptimalControl | valid | see the test summary |\n",
-            "ci-b/JuMP.md": "| visited | beam | JuMP | valid | see the test summary |\n",
+            "ci-a/JuMP.md": "| solve | beam | JuMP | valid | see the test summary |\n",
+            "ci-a/OptimalControl.md": "| solve | beam | OptimalControl | valid | see the test summary |\n",
+            "ci-b/JuMP.md": "| solve | beam | JuMP | valid | see the test summary |\n",
         })
         self.assertIn("| ci-a | `beam` | JuMP, OptimalControl | valid | tested |", out)
         self.assertIn("| ci-b | `beam` | JuMP | valid | tested |", out)
 
     def test_outcomes_stay_apart(self):
         out, _ = run_results({
-            "ci-a/JuMP.md": "| visited | beam | JuMP | draft | fail |\n"
-                            "| visited | beam | JuMP vs OptimalControl | draft | no test |\n"
-                            "| visited | beam | OptimalControl | draft | pass |\n",
+            "ci-a/JuMP.md": "| solve | beam | JuMP | draft | fail |\n"
+                            "| solve | beam | JuMP vs OptimalControl | draft | no test |\n"
+                            "| solve | beam | OptimalControl | draft | pass |\n",
         })
         self.assertIn("| `beam` | JuMP | draft | fail |", out)
         self.assertIn("| `beam` | JuMP vs OptimalControl | draft | no test |", out)
         self.assertIn("| `beam` | OptimalControl | draft | pass |", out)
 
+    def test_visited_rows_are_not_results(self):
+        out, _ = run_results({
+            "ci-a/JuMP.md": "| visited | beam | JuMP | valid | no test |\n"
+                            "| solve | beam | JuMP | valid | pass |\n",
+        })
+        self.assertEqual(1, out.count("`beam`"))
+        self.assertNotIn("no test", out)
+
+    def test_problem_only_visited_is_not_tested(self):
+        out, _ = run_results({
+            "ci-a/JuMP.md": "| visited | beam | JuMP | valid | no test |\n",
+        })
+        self.assertIn("No result to show", out)
+        self.assertIn("`beam`", out.split("Not tested")[1])
+
+    def test_other_test_without_assertion_stays(self):
+        out, _ = run_results({
+            "ci-a/JuMP.md": "| solve | beam | JuMP | valid | no test |\n",
+        })
+        self.assertIn("| `beam` | JuMP | valid | no test |", out)
+
     def test_duplicate_rows_are_merged(self):
-        row = "| visited | beam | JuMP | valid | see the test summary |\n"
+        row = "| solve | beam | JuMP | valid | see the test summary |\n"
         out, _ = run_results({"ci-a/JuMP.md": row * 3})
         self.assertEqual(1, out.count("`beam`"))
 

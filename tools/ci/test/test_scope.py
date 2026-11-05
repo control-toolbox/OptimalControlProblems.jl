@@ -207,7 +207,7 @@ class TestSummary(unittest.TestCase):
         md = run_summary(problem(["src/a.jl", "ext/MetaData/beam.jl"]))
         self.assertIn("**Problems**: all", md)
         self.assertIn("**Environments**: all", md)
-        self.assertIn("`src/a.jl` | shared change", md)
+        self.assertIn("| modified | `src/a.jl` | shared change |", md)
         self.assertIn("`ext/MetaData/beam.jl` | problem `beam`", md)
 
     def test_removed_file(self):

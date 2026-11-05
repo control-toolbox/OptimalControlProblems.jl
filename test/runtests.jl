@@ -44,7 +44,7 @@ const ROOT = dirname(@__DIR__)
 const CORE = "core"
 
 # Environments that run only when named (their label, or the cron): heavy dependencies.
-const OPT_IN = ("ModelingToolkit",)
+const OPT_IN = ("ModelingToolkit", "GPU")
 
 const SUITE = joinpath(@__DIR__, "suite")
 const CRON = joinpath(@__DIR__, "cron")
