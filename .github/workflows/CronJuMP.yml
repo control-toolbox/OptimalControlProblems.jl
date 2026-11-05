@@ -1,0 +1,13 @@
+name: Cron JuMP
+
+on:
+  schedule:
+    - cron: "0 4 * * 2"
+  workflow_dispatch:
+
+jobs:
+  cron:
+    uses: ./.github/workflows/cron-reusable.yml
+    with:
+      environment: JuMP
+    secrets: inherit

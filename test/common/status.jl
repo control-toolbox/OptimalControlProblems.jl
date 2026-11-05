@@ -52,6 +52,16 @@ function outcome(ts::DraftTestSet)
     return "no test"
 end
 
+function outcome(ts::Test.DefaultTestSet)
+    counts = Test.get_test_counts(ts)
+    passes = counts isa Tuple ? counts[1] : counts.passes
+    fails = counts isa Tuple ? counts[2] : counts.fails
+    errors = counts isa Tuple ? counts[3] : counts.errors
+    errors > 0 && return "error"
+    fails > 0 && return "fail"
+    passes > 0 ? "pass" : "no test"
+end
+
 """One line of the report."""
 struct Row
     test::String
@@ -117,10 +127,10 @@ function for_each_problem(f, test::AbstractString, backends...)
     modelings = join(map(modeling, backends), " vs ")
     for problem in selected(OptimalControlProblems.problems(backends...; status=:all))
         if status(problem, backends) === :valid
-            Test.@testset "$problem" begin
+            ts = Test.@testset "$problem" begin
                 f(problem)
             end
-            report!(test, problem, modelings, :valid, "see the test summary")
+            report!(test, problem, modelings, :valid, outcome(ts))
         else
             ts = Test.@testset DraftTestSet "$problem (draft)" begin
                 f(problem)

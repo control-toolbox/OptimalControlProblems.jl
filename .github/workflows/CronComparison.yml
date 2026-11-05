@@ -1,0 +1,13 @@
+name: Cron comparison
+
+on:
+  schedule:
+    - cron: "0 4 * * 5"
+  workflow_dispatch:
+
+jobs:
+  cron:
+    uses: ./.github/workflows/cron-reusable.yml
+    with:
+      environment: comparison
+    secrets: inherit

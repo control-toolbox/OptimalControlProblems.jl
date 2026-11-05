@@ -1,0 +1,119 @@
+name: Cron (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: Test environment passed to Pkg.test
+        required: true
+        type: string
+      gpu:
+        description: Run the scope on the automatic GPU runner as well
+        required: false
+        default: false
+        type: boolean
+      enabled:
+        description: Keep a future scope disabled until its environment exists
+        required: false
+        default: true
+        type: boolean
+    secrets:
+      SSH_KEY:
+        required: false
+      CT_RUNNERS_CLIENT_ID:
+        required: false
+      CT_RUNNERS_PRIVATE_KEY:
+        required: false
+
+permissions:
+  actions: read
+  contents: write
+  issues: write
+
+concurrency:
+  group: cron-results
+  cancel-in-progress: false
+
+jobs:
+  cpu:
+    if: inputs.enabled
+    uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
+    with:
+      versions: '["1.13"]'
+      use_ct_registry: true
+      test_args: ${{ inputs.environment }} cron
+      upload_artifact_path: test/reports
+      upload_artifact_name: cron-${{ inputs.environment }}
+    secrets:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+
+  gpu:
+    if: inputs.enabled && inputs.gpu
+    uses: control-toolbox/CTActions/.github/workflows/ci-gpu.yml@main
+    with:
+      versions: '["1.13"]'
+      use_ct_registry: true
+      test_args: ${{ inputs.environment }} cron
+      upload_artifact_path: test/reports
+      upload_artifact_name: cron-${{ inputs.environment }}-gpu
+    secrets:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      CT_RUNNERS_CLIENT_ID: ${{ secrets.CT_RUNNERS_CLIENT_ID }}
+      CT_RUNNERS_PRIVATE_KEY: ${{ secrets.CT_RUNNERS_PRIVATE_KEY }}
+
+  publish:
+    if: always() && inputs.enabled
+    needs: [cpu, gpu]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout package
+        uses: actions/checkout@v4
+
+      - name: Download test reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: cron-${{ inputs.environment }}*
+          path: artifacts
+          merge-multiple: true
+
+      - name: Prepare results branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp tools/cron/report.py "$RUNNER_TEMP/cron-report.py"
+          git fetch origin results || true
+          if git show-ref --verify --quiet refs/remotes/origin/results; then
+            git switch --create results --track origin/results
+          else
+            git switch --orphan results
+            git rm -rf . || true
+          fi
+          mkdir -p cron
+
+      - name: Publish report and update issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          TESTS_FAILED: ${{ needs.cpu.result != 'success' || needs.gpu.result == 'failure' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test_failed_arg=()
+          [ "$TESTS_FAILED" = "true" ] && test_failed_arg+=(--tests-failed)
+          python3 "$RUNNER_TEMP/cron-report.py" \
+            --reports-dir artifacts \
+            --scope '${{ inputs.environment }}' \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --state-file cron/state.json \
+            --output "cron/${{ inputs.environment }}.md" \
+            "${test_failed_arg[@]}"
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add cron
+          git diff --cached --quiet || git commit -m "ci: publish ${{ inputs.environment }} cron report"
+          git push origin HEAD:results
+          if [ "${{ needs.cpu.result }}" != "success" ] || \
+             [ "${{ needs.gpu.result }}" = "failure" ]; then
+            echo "A cron test job failed."
+            exit 1
+          fi

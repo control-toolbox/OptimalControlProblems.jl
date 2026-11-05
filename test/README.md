@@ -58,9 +58,10 @@ loop with `Main.TestStatus.for_each_problem(f, test, backends...)`:
 - a test between several modelings is `:valid` only when the problem is `:valid` in all.
 
 Each run writes `test/reports/<environment>[-cron].md` (git-ignored): one line per test
-and problem, with its status and outcome. The lines worth reading (drafts, checks that
-report instead of failing) are also printed. A draft whose line says `pass` everywhere is
-ready to become `:valid`.
+and problem, with its status and outcome (`pass`, `fail`, `error`, or `no test`). The
+lines worth reading (drafts and checks that report instead of failing) are also printed.
+A draft whose line says `pass` everywhere is ready to become `:valid`. The cron workflows
+collect these files and publish their scope-specific report on the `results` branch.
 
 ## What is compared, and what is not
 

@@ -1,0 +1,14 @@
+name: Cron ModelingToolkit
+
+on:
+  schedule:
+    - cron: "0 4 * * 6"
+  workflow_dispatch:
+
+jobs:
+  cron:
+    uses: ./.github/workflows/cron-reusable.yml
+    with:
+      environment: ModelingToolkit
+      enabled: false
+    secrets: inherit

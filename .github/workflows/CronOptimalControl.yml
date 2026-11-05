@@ -1,0 +1,14 @@
+name: Cron OptimalControl
+
+on:
+  schedule:
+    - cron: "0 4 * * 3"
+  workflow_dispatch:
+
+jobs:
+  cron:
+    uses: ./.github/workflows/cron-reusable.yml
+    with:
+      environment: OptimalControl
+      gpu: true
+    secrets: inherit
