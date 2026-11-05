@@ -39,7 +39,7 @@ const GPU_CONFIGS = (
 
 # Problems that do not converge on the GPU yet, per modeling: reported as broken
 # (`@test_broken`, an unexpected pass is an error), solved with a smaller `max_iter`.
-# `bioreactor`: MadNLP with CUDSS hits 1000 iterations at the small grid (130 on the CPU).
+# `bioreactor` (#357): MadNLP with CUDSS hits 1000 iterations at the small grid (130 on the CPU).
 const GPU_KNOWN_FAILURES = (OptimalControl=(:bioreactor,), OptimalControlScalarized=())
 const GPU_KNOWN_FAILURE_MAX_ITER = 200
 
