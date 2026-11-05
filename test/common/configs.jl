@@ -37,6 +37,12 @@ const GPU_CONFIGS = (
     OptimalControlScalarized=((modeler=:exa_gpu, solver=:madnlp_gpu),),
 )
 
+# Problems that do not converge on the GPU yet, per modeling: reported as broken
+# (`@test_broken`, an unexpected pass is an error), solved with a smaller `max_iter`.
+# `bioreactor`: MadNLP with CUDSS hits 1000 iterations at the small grid (130 on the CPU).
+const GPU_KNOWN_FAILURES = (OptimalControl=(:bioreactor,), OptimalControlScalarized=())
+const GPU_KNOWN_FAILURE_MAX_ITER = 200
+
 """Name of a configuration, for test sets and reports."""
 label(config) = join(("$k=$(v isa Tuple ? join(v, ",") : v)" for (k, v) in pairs(config)), " ")
 

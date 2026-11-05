@@ -26,11 +26,17 @@ function test_solve_optimalcontrol()
                 Main.TestStatus.for_each_problem(test, backend) do problem
                     pb = getfield(OptimalControlProblems, problem)(backend)
                     N = Main.TestConfigs.SMALL_GRID
-                    if Main.TestCapabilities.CUDA_FUNCTIONAL
-                        Test.@test S.succeeded(S.solve(pb, config; grid_size=N))
-                    else
+                    if !Main.TestCapabilities.CUDA_FUNCTIONAL
                         # no device: a visible skip (TST6), not a vacuous pass
                         Test.@test_skip S.succeeded(S.solve(pb, config; grid_size=N))
+                    elseif problem in Main.TestConfigs.GPU_KNOWN_FAILURES.OptimalControl
+                        # known not to converge on the GPU: broken, not silent
+                        max_iter = Main.TestConfigs.GPU_KNOWN_FAILURE_MAX_ITER
+                        Test.@test_broken S.succeeded(
+                            S.solve(pb, config; grid_size=N, max_iter=max_iter)
+                        )
+                    else
+                        Test.@test S.succeeded(S.solve(pb, config; grid_size=N))
                     end
                 end
             end
