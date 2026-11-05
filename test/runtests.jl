@@ -56,28 +56,38 @@ end
 Run the tests of one environment in a Julia subprocess: those of `suite/<name>`, or of
 `cron/<name>` in cron mode, in the environment of `suite/<name>`. Its `Project.toml` is
 copied to a temporary directory where the package under test is developed, so that no
-`Manifest.toml` is written in the working tree. The code coverage flag of this process
-is forwarded (`Base.julia_cmd`). Returns `true` on success.
+`Manifest.toml` is written in the working tree; the directory is removed afterwards, except in
+GitHub Actions (see below). The code coverage flag of this process is forwarded
+(`Base.julia_cmd`). Returns `true` on success.
 """
 function run_environment(name::AbstractString; cron::Bool, patterns::Vector{String})
     tests = joinpath(cron ? CRON : SUITE, name)
-    project = mktempdir()
+    # In GitHub Actions the project is kept (see `finally`), also past the exit of Julia.
+    keep = get(ENV, "GITHUB_ACTIONS", "false") == "true"
+    project = mktempdir(; cleanup=!keep)
     cp(joinpath(SUITE, name, "Project.toml"), joinpath(project, "Project.toml"))
     # `Pkg.test` restricts JULIA_LOAD_PATH (and may set JULIA_PROJECT) to its own
     # temporary environment: a subprocess inheriting them would ignore `--project`.
-    julia = addenv(Base.julia_cmd(), "JULIA_LOAD_PATH" => nothing, "JULIA_PROJECT" => nothing)
+    julia = addenv(
+        Base.julia_cmd(), "JULIA_LOAD_PATH" => nothing, "JULIA_PROJECT" => nothing
+    )
     try
         setup = "using Pkg: Pkg; Pkg.develop(path=ARGS[1]); Pkg.instantiate()"
         run(`$julia --project=$project -e $setup $ROOT`)
         script = joinpath(@__DIR__, "common", "run_environment.jl")
-        problem_args = isempty(problem_names) ? String[] : ["problem=" * join(problem_names, ",")]
+        problem_args =
+            isempty(problem_names) ? String[] : ["problem=" * join(problem_names, ",")]
         run(`$julia --project=$project $script $tests $name $problem_args $patterns`)
         return true
     catch err
         @error "Environment $name failed" exception = err
         return false
     finally
-        rm(project; recursive=true, force=true)
+        # Kept in GitHub Actions: the `Pkg.gc` that `julia-actions/cache` runs before saving the
+        # depot deletes the packages used only by a manifest that no longer exists, so the
+        # packages of every environment, installed and precompiled here, would be missing from
+        # the cache and rebuilt by the next run. The runner is discarded at the end of the job.
+        keep || rm(project; recursive=true, force=true)
     end
 end
 
