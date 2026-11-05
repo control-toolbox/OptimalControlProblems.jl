@@ -26,7 +26,11 @@
 # - `problem=a,b`: test only these problems (a name not in the catalogue is an error), for
 #   instance the one you add; `core` and the environments are unchanged otherwise.
 #
-# Test files follow TST1: a module and an entry function `test_<name>()`.
+# Test files follow TST1: a module and an entry function `test_<name>()`. Their discovery,
+# their selection by the patterns and their execution are `CTBase.DevTools.run_tests`
+# (`-n` after the patterns lists the selected files without running them, in a directory of
+# `suite/` or `cron/`); the environments, `cron` and `problem=` are local
+# (`common/selection.jl`).
 # ==============================================================================
 
 using Test: Test
@@ -34,7 +38,7 @@ using Test: Test
 include(joinpath(@__DIR__, "common", "options.jl"))
 include(joinpath(@__DIR__, "common", "configs.jl"))
 include(joinpath(@__DIR__, "common", "status.jl"))
-include(joinpath(@__DIR__, "common", "runner.jl"))
+include(joinpath(@__DIR__, "common", "selection.jl"))
 
 const ROOT = dirname(@__DIR__)
 const CORE = "core"
@@ -93,11 +97,11 @@ end
 
 args = String.(ARGS)
 cron = "cron" in args
-problem_names, args = LocalTestRunner.split_problems(args)
+problem_names, args = TestSelection.split_problems(args)
 TestStatus.select_problems!(problem_names)
 rest = filter(!=("cron"), args)
 available = environments()
-selected, patterns = LocalTestRunner.select_environments(rest, available, OPT_IN; core=CORE)
+selected, patterns = TestSelection.select_environments(rest, available, OPT_IN; core=CORE)
 # In cron mode, an environment without `cron/<name>/` has nothing to run: skip it (its
 # environment is instantiated for nothing otherwise).
 cron && filter!(name -> isdir(joinpath(CRON, name)), selected)
@@ -108,7 +112,7 @@ Test.@testset "OptimalControlProblems tests" verbose = Main.TestOptions.VERBOSE 
 
     # `core` has no cron tests: in cron mode its directory does not exist and nothing runs.
     try
-        LocalTestRunner.run_dir(
+        TestSelection.run_dir(
             joinpath(cron ? CRON : SUITE, CORE); patterns=patterns, name=CORE
         )
     finally

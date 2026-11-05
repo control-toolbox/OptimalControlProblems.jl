@@ -5,25 +5,12 @@ using Test: Test
 const VERBOSE = isdefined(Main, :TestOptions) ? Main.TestOptions.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING : true
 
-# The runner is a plain file shared by the dispatcher and every environment.
-include(joinpath(@__DIR__, "..", "..", "common", "runner.jl"))
+# The selection is a plain file shared by the dispatcher and every environment.
+include(joinpath(@__DIR__, "..", "..", "common", "selection.jl"))
 
 function test_runner()
-    Test.@testset "LocalTestRunner" verbose = VERBOSE showtiming = SHOWTIMING begin
-        R = LocalTestRunner
-
-        Test.@testset "selection" begin
-            Test.@test R.selected("test_runner.jl", String[])
-            Test.@test R.selected("test_runner.jl", ["runner"])
-            Test.@test R.selected("test_runner.jl", ["test_runner"])
-            Test.@test R.selected("test_runner.jl", ["test_runner.jl"])
-            Test.@test R.selected("test_runner.jl", ["*run*"])
-            Test.@test R.selected("test_runner.jl", ["nothing", "runner"])
-            Test.@test !R.selected("test_runner.jl", ["aqua"])
-            # `.` is literal in a pattern, not "any character"
-            Test.@test R.selected("test_a.b.jl", ["test_a.b"])
-            Test.@test !R.selected("test_aXb.jl", ["test_a.b"])
-        end
+    Test.@testset "TestSelection" verbose = VERBOSE showtiming = SHOWTIMING begin
+        R = TestSelection
 
         Test.@testset "environment selection" begin
             avail = ["JuMP", "ModelingToolkit", "OptimalControl"]
@@ -48,19 +35,28 @@ function test_runner()
             Test.@test R.split_problems(["problem=a,,b", "problem=b,c"]) == (["a", "b", "c"], String[])
         end
 
-        Test.@testset "discovery and run" begin
+        Test.@testset "run" begin
+            RAN = Main.TEST_RAN
             mktempdir() do dir
-                write(joinpath(dir, "test_b.jl"), "test_b() = nothing")
-                write(joinpath(dir, "test_a.jl"), "test_a() = nothing")
-                write(joinpath(dir, "helper.jl"), "")
+                write(joinpath(dir, "test_b.jl"), "test_b() = push!(Main.TEST_RAN, :b)")
+                write(joinpath(dir, "test_a.jl"), "test_a() = push!(Main.TEST_RAN, :a)")
+                empty!(RAN)
 
-                Test.@test R.test_files(dir) == ["test_a.jl", "test_b.jl"]
-                Test.@test R.test_files(joinpath(dir, "missing")) == String[]
-
-                Test.@test R.run_dir(dir)
-                Test.@test R.run_dir(dir; patterns=["a"])
-                # nothing selected: reported, not an error
-                Test.@test !R.run_dir(dir; patterns=["zzz"])
+                # `CTBase.DevTools.run_tests` discovers, selects (patterns as before) and
+                # runs the entry function of each file
+                Test.@test R.run_dir(dir; name="d")
+                Test.@test sort(RAN) == [:a, :b]
+                empty!(RAN)
+                Test.@test R.run_dir(dir; patterns=["a"], name="d")
+                Test.@test RAN == [:a]
+                empty!(RAN)
+                Test.@test R.run_dir(dir; patterns=["*b*", "zzz"], name="d")
+                Test.@test RAN == [:b]
+                empty!(RAN)
+                # nothing selected: nothing runs, no error
+                Test.@test R.run_dir(dir; patterns=["zzz"], name="d")
+                Test.@test isempty(RAN)
+                # no directory (`core` in cron mode): reported by the return value
                 Test.@test !R.run_dir(joinpath(dir, "missing"))
             end
         end
@@ -68,5 +64,8 @@ function test_runner()
 end
 
 end # module TestRunner
+
+# Filled by the files that the test runs: they are included in `Main`.
+const TEST_RAN = Symbol[]
 
 test_runner() = TestRunner.test_runner()
