@@ -81,5 +81,25 @@ jobs:
       runner_type: 'github'
       use_ct_registry: true
       test_args: ${{ needs.scope.outputs.test_args }}
+      upload_artifact_path: test/reports
+      upload_artifact_name: ci
     secrets:
       SSH_KEY: ${{ secrets.SSH_KEY }}
+
+  # What the run tested, from the reports of the environments (tools/ci/results.py), in
+  # the job summary next to the scope decision. Runs after a failure too: the reports are
+  # uploaded then as well.
+  results:
+    needs: call
+    if: always() && needs.call.result != 'skipped'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: ci-*
+          path: artifacts
+      - run: python3 tools/ci/results.py --reports artifacts --summary "$GITHUB_STEP_SUMMARY" > /dev/null
