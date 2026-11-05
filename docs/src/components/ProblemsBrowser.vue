@@ -165,8 +165,19 @@ function downloadCsv(): void {
   URL.revokeObjectURL(url)
 }
 
+const copyFeedback = ref('')
+
 async function copyCsv(): Promise<void> {
-  await navigator.clipboard.writeText(csvText())
+  try {
+    if (!navigator.clipboard) throw new Error('Clipboard API unavailable')
+    await navigator.clipboard.writeText(csvText())
+    copyFeedback.value = 'CSV copied to clipboard.'
+  } catch {
+    copyFeedback.value = 'Copy failed; download the CSV instead.'
+  }
+  setTimeout(() => {
+    copyFeedback.value = ''
+  }, 3000)
 }
 </script>
 
@@ -217,6 +228,7 @@ async function copyCsv(): Promise<void> {
           :key="column.key"
           :class="{ selected: selectedConstraints.includes(column.key) }"
           type="button"
+          :aria-pressed="selectedConstraints.includes(column.key)"
           @click="toggleConstraint(column.key)"
         >
           {{ column.key }} <span>{{ column.label }}</span>
@@ -234,6 +246,7 @@ async function copyCsv(): Promise<void> {
     <div class="actions">
       <span v-if="loading">Loading the collection…</span>
       <span v-else-if="error" class="error">{{ error }}</span>
+      <span v-else-if="copyFeedback" aria-live="polite">{{ copyFeedback }}</span>
       <span v-else>{{ filteredRows.length ? 'Select a row to inspect its constraints.' : 'No problems match these filters.' }}</span>
       <div>
         <button type="button" @click="copyCsv">Copy CSV</button>
@@ -245,13 +258,13 @@ async function copyCsv(): Promise<void> {
       <table>
         <thead>
           <tr>
-            <th><button type="button" @click="toggleSort('Problem')">Problem</button></th>
-            <th><button type="button" @click="toggleSort('State')">State</button></th>
-            <th><button type="button" @click="toggleSort('Control')">Control</button></th>
-            <th><button type="button" @click="toggleSort('Variable')">Variable</button></th>
-            <th><button type="button" @click="toggleSort('Cost')">Cost</button></th>
-            <th><button type="button" @click="toggleSort('FinalTime')">Horizon</button></th>
-            <th><button type="button" @click="toggleSort('TotalConstraints')">Constraints</button></th>
+            <th :aria-sort="sortKey === 'Problem' ? (sortAscending ? 'ascending' : 'descending') : 'none'"><button type="button" @click="toggleSort('Problem')">Problem</button></th>
+            <th :aria-sort="sortKey === 'State' ? (sortAscending ? 'ascending' : 'descending') : 'none'"><button type="button" @click="toggleSort('State')">State</button></th>
+            <th :aria-sort="sortKey === 'Control' ? (sortAscending ? 'ascending' : 'descending') : 'none'"><button type="button" @click="toggleSort('Control')">Control</button></th>
+            <th :aria-sort="sortKey === 'Variable' ? (sortAscending ? 'ascending' : 'descending') : 'none'"><button type="button" @click="toggleSort('Variable')">Variable</button></th>
+            <th :aria-sort="sortKey === 'Cost' ? (sortAscending ? 'ascending' : 'descending') : 'none'"><button type="button" @click="toggleSort('Cost')">Cost</button></th>
+            <th :aria-sort="sortKey === 'FinalTime' ? (sortAscending ? 'ascending' : 'descending') : 'none'"><button type="button" @click="toggleSort('FinalTime')">Horizon</button></th>
+            <th :aria-sort="sortKey === 'TotalConstraints' ? (sortAscending ? 'ascending' : 'descending') : 'none'"><button type="button" @click="toggleSort('TotalConstraints')">Constraints</button></th>
           </tr>
         </thead>
         <tbody>
@@ -302,6 +315,31 @@ async function copyCsv(): Promise<void> {
   --browser-accent-dark: #b74732;
   color: var(--browser-ink);
   margin: 2.5rem 0;
+}
+
+
+.dark .browser,
+.dark.browser {
+  --browser-ink: #d8e8e4;
+  --browser-muted: #9fb5b1;
+  --browser-line: #3a4a46;
+  --browser-paper: #1e2826;
+  --browser-accent: #ec8466;
+  --browser-accent-dark: #f2a48d;
+  color: var(--browser-ink);
+}
+
+.dark .browser-header {
+  background: linear-gradient(120deg, #1f2926, #2c231a);
+  border-color: var(--browser-line);
+}
+
+.dark .result-count {
+  background: #2b3a37;
+}
+
+.dark .result-count span {
+  color: #a8bdb7;
 }
 
 .browser-header {
@@ -398,6 +436,13 @@ select {
   padding: 0.45rem 0.7rem;
 }
 
+.dark input,
+.dark select {
+  background: #232d2b;
+  border-color: var(--browser-line);
+  color: var(--browser-ink);
+}
+
 .search {
   flex: 1 1 16rem;
 }
@@ -422,6 +467,20 @@ button:focus-visible {
 .actions button {
   background: var(--browser-paper);
   color: var(--browser-ink);
+}
+
+.dark .constraint-chips button,
+.dark .quiet-button,
+.dark .actions button {
+  background: #232d2b;
+  border-color: var(--browser-line);
+  color: var(--browser-muted);
+}
+
+.dark .constraint-chips button.selected {
+  background: var(--browser-ink);
+  border-color: var(--browser-ink);
+  color: #15201e;
 }
 
 .constraint-toolbar {
@@ -477,6 +536,7 @@ button:focus-visible {
 }
 
 .table-wrap {
+  background: white;
   border: 1px solid var(--browser-line);
   border-radius: 0.75rem;
   margin-top: 0.8rem;
@@ -522,6 +582,32 @@ tbody tr:not(.detail-row) {
 tbody tr:not(.detail-row):hover,
 tbody tr.expanded {
   background: #fff8ed;
+}
+
+.dark .table-wrap {
+  background: #1a2321;
+}
+
+.dark tbody tr:not(.detail-row):hover,
+.dark tbody tr.expanded {
+  background: #26352f;
+}
+
+.dark .tag {
+  background: #2a3a34;
+}
+
+.dark .constraint-summary span {
+  background: #2a3a34;
+}
+
+.dark .constraint-summary span.inactive {
+  background: var(--browser-paper);
+  color: #6b7c78;
+}
+
+.dark .detail-row td {
+  background: #26352f;
 }
 
 .problem-name a,

@@ -101,5 +101,6 @@ function with_problems_browser(f::Function)
         return f(BROWSER_FILE)
     finally
         isfile(BROWSER_PATH) && rm(BROWSER_PATH)
+        isfile(BROWSER_DATA_PATH) && rm(BROWSER_DATA_PATH)
     end
 end
