@@ -6,12 +6,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  actions: read
-  contents: write
-  issues: write
+  contents: read
 
 jobs:
   cron:
+    permissions:
+      actions: read
+      contents: write
+      issues: write
     uses: ./.github/workflows/cron-reusable.yml
     with:
       environment: OptimalControl

@@ -54,9 +54,12 @@ end
 
 function outcome(ts::Test.DefaultTestSet)
     counts = Test.get_test_counts(ts)
-    passes = counts isa Tuple ? counts[1] : counts.passes
-    fails = counts isa Tuple ? counts[2] : counts.fails
-    errors = counts isa Tuple ? counts[3] : counts.errors
+    # Julia 1.10 returns a tuple (direct counts then cumulative child counts); newer
+    # versions return a `Test.TestCounts` with named fields. Nested test sets are part
+    # of the problem outcome.
+    passes = counts isa Tuple ? counts[1] + counts[5] : counts.passes + counts.cumulative_passes
+    fails = counts isa Tuple ? counts[2] + counts[6] : counts.fails + counts.cumulative_fails
+    errors = counts isa Tuple ? counts[3] + counts[7] : counts.errors + counts.cumulative_errors
     errors > 0 && return "error"
     fails > 0 && return "fail"
     passes > 0 ? "pass" : "no test"

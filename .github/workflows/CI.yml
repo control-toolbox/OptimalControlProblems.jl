@@ -17,6 +17,11 @@ jobs:
     outputs:
       test_args: ${{ steps.scope.outputs.test_args }}
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Test the cron report tooling
+        run: python3 -m unittest discover -s tools/cron/test -p 'test_*.py' -v
+
       - id: scope
         env:
           LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}

@@ -3,35 +3,43 @@
 The cron workflows run the slow tests once per scope, independently of the pull request
 scope labels. They are staggered at 04:00 UTC:
 
-| Workflow | Scope | Day | GPU |
+| Workflow | Scope | Trigger | GPU |
 | --- | --- | --- | --- |
 | `CronJuMP.yml` | `JuMP` | Tuesday | No |
 | `CronOptimalControl.yml` | `OptimalControl` | Wednesday | Yes |
 | `CronOptimalControlScalarized.yml` | `OptimalControlScalarized` | Thursday | Yes |
 | `CronComparison.yml` | `comparison` | Friday | No |
-| `CronModelingToolkit.yml` | `ModelingToolkit` | Saturday | Not yet enabled |
+| `CronModelingToolkit.yml` | `ModelingToolkit` | manual only until the scope exists | No |
 
 Each thin workflow calls `cron-reusable.yml`. The reusable workflow runs the CPU tests,
-and, where requested, the GPU tests. It then downloads the report artifacts, updates the
-summary and regression issues, and publishes `cron/<scope>.md` and the state file on the
-`results` branch.
+and, where requested, the GPU tests. It then downloads the report artifacts without
+merging them, updates the summary and regression issues, and publishes `cron/<scope>.md`
+and `cron/state.json` on the `results` branch. The first run creates `results`; each run
+then rewrites its tip as one orphan commit containing every published result, while the
+`publish` job is serialized to keep a single writer.
 
 ## Reports and issues
 
-The test environments write reports under `test/reports/`. The reusable workflow keeps
-those files out of the package branch and uploads them as artifacts. The final job uses
-the GitHub token to:
+The test environments write reports under `test/reports/`. The reusable workflow uploads
+those files with the CTActions artifact interface and downloads one directory per
+artifact, so the artifact name (Julia version, runner, CPU/GPU) identifies the platform
+of every report row. The final job uses the GitHub token to:
 
-- update one repository-wide issue for each of `cron-failure`, `cron-drafts`, and
-  `cron-capabilities`;
+- update one repository-wide issue for each of `cron-failure` and `cron-drafts`;
 - maintain one idempotent `cron-bug` issue per failing problem and modeling;
-- reopen completed regressions, stop reopening flaky regressions after three reopenings,
-  and close a regression after two consecutive successful runs;
+- reopen completed regressions at most three times, label them `flaky`, and close a
+  regression after two consecutive runs where every observed valid row passes;
+- report a missing report artifact as a failure rather than as a success;
 - commit the scope report and state to the `results` branch.
 
+The `cron-capabilities` transition is intentionally not active yet: it depends on the
+`:known_failures` metadata added by #306. Until then no capability entries can be
+produced and the README workflow keeps the placeholder label only.
+
 The workflow requires the `upload_artifact_path` and `upload_artifact_name` inputs in
-the CTActions `ci.yml` and `ci-gpu.yml` reusable workflows. Until that CTActions change
-is merged, the cron jobs can be dispatched but their report collection is incomplete.
+the CTActions `ci.yml` and `ci-gpu.yml` reusable workflows. CTActions must be merged
+before these cron workflows are enabled or dispatched against `main`: calling a reusable
+workflow with an undeclared input fails at workflow validation.
 
 ## Adding a scope
 

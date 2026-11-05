@@ -9,6 +9,8 @@ import json
 import os
 import pathlib
 import re
+import time
+import urllib.error
 import urllib.request
 
 
@@ -17,15 +19,28 @@ SUMMARY_LABELS = {
     "draft": "cron-drafts",
     "capability": "cron-capabilities",
 }
-SUCCESS = {"pass"}
 FAILURE = {"fail", "error"}
 SCOPE_MARKER = "<!-- cron-scope: {scope} -->"
-KEY_RE = re.compile(r"<!-- cron-key: ([^ ]+) -->")
+KEY_RE = re.compile(r"<!-- cron-key: (.+?) -->")
+REOPENINGS_RE = re.compile(r"<!-- cron-reopenings: (\d+) -->")
+MAX_BUG_ISSUES_PER_RUN = 5
+MAX_REOPENINGS = 3
+
+
+def issue_key(row: dict[str, str]) -> str:
+    return f"{row['problem']}|{row['modelings']}"
+
+
+def row_configuration(row: dict[str, str]) -> str:
+    platform = row.get("platform") or "unknown platform"
+    return f"{platform}: {row['test']}"
 
 
 def parse_reports(directory: pathlib.Path) -> list[dict[str, str]]:
     rows = []
     for path in sorted(directory.rglob("*.md")):
+        relative = path.relative_to(directory)
+        platform = relative.parts[0] if len(relative.parts) > 1 else "local"
         for line in path.read_text().splitlines():
             if not line.startswith("|") or line.startswith("| ---"):
                 continue
@@ -39,41 +54,99 @@ def parse_reports(directory: pathlib.Path) -> list[dict[str, str]]:
                     "modelings": cells[2],
                     "status": cells[3],
                     "outcome": cells[4],
-                    "source": str(path),
+                    "platform": platform,
+                    "source": str(relative),
                 }
             )
     return rows
+
+
+def group_rows(rows: list[dict[str, str]]) -> dict[str, list[dict[str, str]]]:
+    grouped: dict[str, list[dict[str, str]]] = {}
+    for row in rows:
+        grouped.setdefault(issue_key(row), []).append(row)
+    return grouped
+
+
+def all_pass(rows: list[dict[str, str]]) -> bool:
+    return bool(rows) and all(row["outcome"] == "pass" for row in rows)
 
 
 def findings(rows: list[dict[str, str]]) -> dict[str, list[dict[str, str]]]:
     valid_failures = [
         row for row in rows if row["status"] == "valid" and row["outcome"] in FAILURE
     ]
-    drafts = [
-        row for row in rows if row["status"] == "draft" and row["outcome"] in SUCCESS
+    draft_rows = [row for row in rows if row["status"] == "draft"]
+    ready_drafts = [
+        row
+        for group in group_rows(draft_rows).values()
+        if all_pass(group)
+        for row in group
     ]
     capabilities = [
         row
         for row in rows
-        if row["status"] == "known_failure" and row["outcome"] in SUCCESS
+        if row["status"] == "known_failure" and row["outcome"] == "pass"
     ]
-    return {"failure": valid_failures, "draft": drafts, "capability": capabilities}
+    return {"failure": valid_failures, "draft": ready_drafts, "capability": capabilities}
+
+
+def successful_keys(rows: list[dict[str, str]]) -> set[str]:
+    valid_rows = [row for row in rows if row["status"] == "valid"]
+    return {
+        key
+        for key, group in group_rows(valid_rows).items()
+        if all_pass(group)
+    }
+
+
+def prepare_state(
+    rows: list[dict[str, str]],
+    scope: str,
+    tests_failed: bool,
+    state: dict,
+) -> dict:
+    failure_groups = group_rows(findings(rows)["failure"])
+    for key, group in failure_groups.items():
+        entry = state.setdefault(key, {"successes": 0, "reopenings": 0})
+        entry["scope"] = scope
+        entry["successes"] = 0
+
+    observed = bool(rows) and not tests_failed
+    if observed:
+        for key in successful_keys(rows) - set(failure_groups):
+            entry = state.setdefault(key, {"successes": 0, "reopenings": 0})
+            if entry.get("scope") == scope or "scope" not in entry:
+                entry["scope"] = scope
+                entry["successes"] = entry.get("successes", 0) + 1
+    return state
 
 
 def report_markdown(
-    scope: str, rows: list[dict[str, str]], run_url: str, generated: str
+    scope: str,
+    rows: list[dict[str, str]],
+    run_url: str,
+    generated: str,
+    sha: str,
+    julia_version: str,
+    package_version: str,
 ) -> str:
     lines = [
         f"# Cron report: {scope}",
         "",
         f"Generated: {generated}",
         f"Run: {run_url}",
+        f"Commit: `{sha}`",
+        f"Julia: `{julia_version}`",
+        f"Package version: `{package_version}`",
         "",
-        "| test | problem | modeling | status | outcome |",
-        "| --- | --- | --- | --- | --- |",
+        "| platform | test | problem | modelings | status | outcome |",
+        "| --- | --- | --- | --- | --- | --- |",
     ]
     lines.extend(
-        "| {test} | {problem} | {modelings} | {status} | {outcome} |".format(**row)
+        "| {platform} | {test} | {problem} | {modelings} | {status} | {outcome} |".format(
+            **row
+        )
         for row in rows
     )
     return "\n".join(lines) + "\n"
@@ -83,10 +156,14 @@ def issue_section(scope: str, title: str, rows: list[dict[str, str]], run_url: s
     lines = [SCOPE_MARKER.format(scope=scope), f"## {title}", "", f"Run: {run_url}", ""]
     if rows:
         lines.extend(
-            ["| problem | modeling | test | outcome |", "| --- | --- | --- | --- |"]
+            [
+                "| platform | problem | modeling | test | outcome |",
+                "| --- | --- | --- | --- | --- |",
+            ]
         )
         lines.extend(
-            f"| {row['problem']} | {row['modelings']} | {row['test']} | {row['outcome']} |"
+            f"| {row.get('platform', '')} | {row['problem']} | {row['modelings']} | "
+            f"{row['test']} | {row['outcome']} |"
             for row in rows
         )
     else:
@@ -108,37 +185,65 @@ class GitHub:
     def __init__(self, repository: str, token: str):
         self.base = f"https://api.github.com/repos/{repository}"
         self.token = token
+        self._issues = None
 
     def request(self, method: str, path: str, payload: object | None = None):
         data = None if payload is None else json.dumps(payload).encode()
-        request = urllib.request.Request(
-            self.base + path,
-            data=data,
-            method=method,
-            headers={
-                "Accept": "application/vnd.github+json",
-                "Authorization": f"Bearer {self.token}",
-                "X-GitHub-Api-Version": "2022-11-28",
-            },
-        )
-        with urllib.request.urlopen(request) as response:
-            return json.loads(response.read())
+        for attempt in range(4):
+            request = urllib.request.Request(
+                self.base + path,
+                data=data,
+                method=method,
+                headers={
+                    "Accept": "application/vnd.github+json",
+                    "Authorization": f"Bearer {self.token}",
+                    "X-GitHub-Api-Version": "2022-11-28",
+                },
+            )
+            try:
+                with urllib.request.urlopen(request) as response:
+                    text = response.read()
+                    return json.loads(text) if text else {}
+            except urllib.error.HTTPError as error:
+                if attempt == 3 or error.code not in (403, 429, 500, 502, 503, 504):
+                    raise
+                retry_after = error.headers.get("Retry-After")
+                delay = float(retry_after) if retry_after else 2.0**attempt
+                time.sleep(delay)
+        raise RuntimeError("unreachable")
 
     def issues(self):
-        result = []
-        page = 1
-        while True:
-            batch = self.request("GET", f"/issues?state=all&per_page=100&page={page}")
-            result.extend(issue for issue in batch if "pull_request" not in issue)
-            if len(batch) < 100:
-                return result
-            page += 1
+        if self._issues is None:
+            result = []
+            page = 1
+            while True:
+                batch = self.request("GET", f"/issues?state=all&per_page=100&page={page}")
+                result.extend(issue for issue in batch if "pull_request" not in issue)
+                if len(batch) < 100:
+                    break
+                page += 1
+            self._issues = result
+        return self._issues
 
     def create_issue(self, title: str, body: str, labels: list[str]):
-        return self.request("POST", "/issues", {"title": title, "body": body, "labels": labels})
+        issue = self.request(
+            "POST", "/issues", {"title": title, "body": body, "labels": labels}
+        )
+        if self._issues is not None:
+            self._issues.append(issue)
+        return issue
 
     def update_issue(self, number: int, **payload):
-        return self.request("PATCH", f"/issues/{number}", payload)
+        issue = self.request("PATCH", f"/issues/{number}", payload)
+        if self._issues is not None:
+            for index, current in enumerate(self._issues):
+                if current["number"] == number:
+                    self._issues[index] = issue
+                    break
+        return issue
+
+    def add_labels(self, number: int, new_labels: list[str]):
+        return self.request("POST", f"/issues/{number}/labels", {"labels": new_labels})
 
     def comment(self, number: int, body: str):
         return self.request("POST", f"/issues/{number}/comments", {"body": body})
@@ -149,16 +254,21 @@ def labels(issue: dict) -> set[str]:
 
 
 def update_summary_issue(
-    github: GitHub, kind: str, scope: str, rows: list[dict[str, str]], run_url: str
+    github: GitHub,
+    all_issues: list[dict],
+    kind: str,
+    scope: str,
+    rows: list[dict[str, str]],
+    run_url: str,
 ) -> None:
     label = SUMMARY_LABELS[kind]
     section = issue_section(scope, label, rows, run_url)
-    candidates = [issue for issue in github.issues() if label in labels(issue)]
+    candidates = [issue for issue in all_issues if label in labels(issue)]
     issue = next((item for item in candidates if item["state"] == "open"), None)
     if issue is None and not rows:
         return
     if issue is None:
-        issue = github.create_issue(
+        github.create_issue(
             f"[Cron] {label}", f"# Automated cron report\n\n{section}\n", [label]
         )
     else:
@@ -166,8 +276,10 @@ def update_summary_issue(
         github.update_issue(issue["number"], body=body)
 
 
-def issue_key(row: dict[str, str]) -> str:
-    return f"{row['problem']}|{row['modelings']}"
+def issue_reopenings(issue: dict, entry: dict) -> int:
+    marker = REOPENINGS_RE.search(issue.get("body") or "")
+    recorded = int(marker.group(1)) if marker else 0
+    return max(recorded, int(entry.get("reopenings", 0)))
 
 
 def bug_body(
@@ -175,10 +287,12 @@ def bug_body(
     configurations: list[str],
     run_url: str,
     date: str,
+    reopenings: int,
 ) -> str:
     key = issue_key(row)
     return (
         f"<!-- cron-key: {key} -->\n"
+        f"<!-- cron-reopenings: {reopenings} -->\n"
         f"# Cron regression: `{row['problem']}` ({row['modelings']})\n\n"
         f"Last run: {run_url}\n"
         f"Last observed: {date}\n\n"
@@ -187,64 +301,99 @@ def bug_body(
     )
 
 
+def matching_issue(all_issues: list[dict], key: str):
+    for issue in all_issues:
+        match = KEY_RE.search(issue.get("body") or "")
+        if match and match.group(1) == key:
+            return issue
+    return None
+
+
 def update_bug_issues(
     github: GitHub,
+    all_issues: list[dict],
     rows: list[dict[str, str]],
+    failures: list[dict[str, str]],
     scope: str,
     run_url: str,
     date: str,
     state: dict,
+    tests_failed: bool,
 ) -> None:
-    all_issues = github.issues()
-    grouped: dict[str, list[dict[str, str]]] = {}
-    for row in rows:
-        grouped.setdefault(issue_key(row), []).append(row)
-    if len(grouped) > 5:
-        return
-    for key, problem_rows in grouped.items():
-        row = problem_rows[0]
-        entry = state.setdefault(key, {"successes": 0, "reopenings": 0})
-        entry["successes"] = 0
-        entry["scope"] = scope
-        configurations = sorted(row["test"] for row in problem_rows)
-        configuration_set_changed = entry.get("configurations") != configurations
-        entry["configurations"] = configurations
-        matching = [issue for issue in all_issues if key in KEY_RE.findall(issue.get("body") or "")]
-        issue = matching[0] if matching else None
-        if issue and issue.get("state_reason") == "not_planned":
-            continue
-        body = bug_body(row, configurations, run_url, date)
-        if issue is None:
-            github.create_issue(
-                f"[Cron] Regression: {row['problem']} ({row['modelings']})",
-                body,
-                ["bug", "cron-bug"],
-            )
-        else:
-            if issue["state"] == "closed" and entry["reopenings"] < 3:
-                github.update_issue(issue["number"], state="open")
-                github.comment(issue["number"], f"Regression detected again: {run_url}")
-                entry["reopenings"] += 1
-            elif configuration_set_changed:
-                github.comment(issue["number"], f"Failing configurations changed: {run_url}")
-            if entry["reopenings"] >= 3:
-                github.update_issue(issue["number"], labels=["bug", "cron-bug", "flaky"])
-            github.update_issue(issue["number"], body=body)
+    grouped = group_rows(failures)
+    passed = successful_keys(rows) if rows and not tests_failed else set()
+    if len(grouped) <= MAX_BUG_ISSUES_PER_RUN:
+        for key, problem_rows in grouped.items():
+            row = problem_rows[0]
+            issue = matching_issue(all_issues, key)
+            if issue and issue.get("state_reason") == "not_planned":
+                continue
+            entry = state.setdefault(key, {"successes": 0, "reopenings": 0})
+            entry["scope"] = scope
+            entry["successes"] = 0
+            configurations = sorted(row_configuration(row) for row in problem_rows)
+            configurations_changed = entry.get("configurations") != configurations
+            entry["configurations"] = configurations
+            reopenings = issue_reopenings(issue, entry) if issue else entry.get("reopenings", 0)
+
+            if issue is None:
+                body = bug_body(row, configurations, run_url, date, reopenings)
+                github.create_issue(
+                    f"[Cron] Regression: {row['problem']} ({row['modelings']})",
+                    body,
+                    ["bug", "cron-bug"],
+                )
+                continue
+
+            if issue["state"] == "closed":
+                if reopenings < MAX_REOPENINGS:
+                    reopenings += 1
+                    entry["reopenings"] = reopenings
+                    github.update_issue(issue["number"], state="open")
+                    github.comment(
+                        issue["number"], f"Regression detected again: {run_url}"
+                    )
+                if reopenings >= MAX_REOPENINGS:
+                    github.add_labels(issue["number"], ["flaky"])
+                body = bug_body(row, configurations, run_url, date, reopenings)
+                github.update_issue(issue["number"], body=body)
+            else:
+                entry["reopenings"] = reopenings
+                if configurations_changed:
+                    github.comment(
+                        issue["number"], f"Failing configurations changed: {run_url}"
+                    )
+                if reopenings >= MAX_REOPENINGS:
+                    github.add_labels(issue["number"], ["flaky"])
+                body = bug_body(row, configurations, run_url, date, reopenings)
+                github.update_issue(issue["number"], body=body)
 
     for issue in all_issues:
         match = KEY_RE.search(issue.get("body") or "")
-        if not match or match.group(1) not in state:
+        if not match or issue["state"] != "open" or issue.get("state_reason") == "not_planned":
             continue
         key = match.group(1)
-        if key in grouped or issue["state"] != "open":
+        entry = state.get(key)
+        if not entry or entry.get("scope") != scope or key in grouped:
             continue
-        entry = state[key]
-        if entry.get("scope") != scope:
-            continue
-        entry["successes"] = entry.get("successes", 0) + 1
-        if entry["successes"] >= 2:
-            github.update_issue(issue["number"], state="closed", state_reason="completed")
-            github.comment(issue["number"], f"Two consecutive successful runs: {run_url}")
+        if key in passed and entry.get("successes", 0) >= 2:
+            github.update_issue(
+                issue["number"], state="closed", state_reason="completed"
+            )
+            github.comment(
+                issue["number"], f"Two consecutive successful runs: {run_url}"
+            )
+
+
+def missing_report_row(scope: str) -> dict[str, str]:
+    return {
+        "test": "report",
+        "problem": "workflow",
+        "modelings": scope,
+        "status": "valid",
+        "outcome": "error",
+        "platform": "workflow",
+    }
 
 
 def main() -> None:
@@ -254,47 +403,83 @@ def main() -> None:
     parser.add_argument("--run-url", required=True)
     parser.add_argument("--state-file", type=pathlib.Path, required=True)
     parser.add_argument("--output", type=pathlib.Path, required=True)
+    parser.add_argument("--sha", default="")
+    parser.add_argument("--julia-version", default="")
+    parser.add_argument("--package-version", default="")
     parser.add_argument("--tests-failed", action="store_true")
+    parser.add_argument("--issues", action="store_true")
     parser.add_argument("--no-github", action="store_true")
     args = parser.parse_args()
 
     now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
     rows = parse_reports(args.reports_dir)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(report_markdown(args.scope, rows, args.run_url, now))
+    args.output.write_text(
+        report_markdown(
+            args.scope,
+            rows,
+            args.run_url,
+            now,
+            args.sha,
+            args.julia_version,
+            args.package_version,
+        )
+    )
 
     state = {}
     if args.state_file.exists():
         state = json.loads(args.state_file.read_text())
+
+    grouped = findings(rows)
+    failure_rows = grouped["failure"]
+    if not rows:
+        failure_rows = [missing_report_row(args.scope)]
+    elif args.tests_failed and not failure_rows:
+        failure_rows = [missing_report_row(args.scope)]
+
+    if not args.issues:
+        prepare_state(rows, args.scope, args.tests_failed, state)
+        args.state_file.parent.mkdir(parents=True, exist_ok=True)
+        args.state_file.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n")
+        return
+
     github_token = os.environ.get("GITHUB_TOKEN")
     repository = os.environ.get("GITHUB_REPOSITORY")
     if not args.no_github and github_token and repository:
         github = GitHub(repository, github_token)
-        grouped = findings(rows)
-        failure_rows = grouped["failure"]
-        if args.tests_failed and not failure_rows:
-            failure_rows = [
-                {
-                    "test": "workflow",
-                    "problem": "workflow",
-                    "modelings": args.scope,
-                    "status": "valid",
-                    "outcome": "error",
-                }
-            ]
-        update_summary_issue(github, "failure", args.scope, failure_rows, args.run_url)
-        update_summary_issue(github, "draft", args.scope, grouped["draft"], args.run_url)
-        update_summary_issue(github, "capability", args.scope, grouped["capability"], args.run_url)
-        update_bug_issues(
-            github,
-            grouped["failure"],
-            args.scope,
-            args.run_url,
-            now,
-            state,
-        )
-    args.state_file.parent.mkdir(parents=True, exist_ok=True)
-    args.state_file.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n")
+        try:
+            all_issues = github.issues()
+            update_summary_issue(
+                github, all_issues, "failure", args.scope, failure_rows, args.run_url
+            )
+            update_summary_issue(
+                github, all_issues, "draft", args.scope, grouped["draft"], args.run_url
+            )
+            update_summary_issue(
+                github,
+                all_issues,
+                "capability",
+                args.scope,
+                grouped["capability"],
+                args.run_url,
+            )
+            update_bug_issues(
+                github,
+                all_issues,
+                rows,
+                grouped["failure"],
+                args.scope,
+                args.run_url,
+                now,
+                state,
+                args.tests_failed,
+            )
+        finally:
+            args.state_file.parent.mkdir(parents=True, exist_ok=True)
+            args.state_file.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n")
+    else:
+        args.state_file.parent.mkdir(parents=True, exist_ok=True)
+        args.state_file.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n")
 
 
 if __name__ == "__main__":
