@@ -113,7 +113,7 @@ data_re = DataFrame(            # to store data about the resolutions
     end
 
     return plt
-end</code></pre></details></div></div><pre><code class="language-julia hljs">plot_initial_guess(:dielectrophoretic_particle)</code></pre><img src="dielectrophoretic_particle-f3d5b4ff.svg" alt="Example block output"/><h2 id="Solving-the-problem"><a class="docs-heading-anchor" href="#Solving-the-problem">Solving the problem</a><a id="Solving-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Solving-the-problem" title="Permalink"></a></h2><p>To solve an optimal control problem, we can rely on two complementary formulations: the <code>OptimalControl</code> backend, which works directly with the discretised control problem, and the <code>JuMP</code> backend, which leverages JuMP’s flexible modelling framework.  </p><p>Both approaches generate equivalent NLPs that can be solved with Ipopt, and comparing them ensures consistency between the two formulations.</p><p>Before solving, we can inspect the discretisation details of the problem. We discretise it with the trapezoidal rule on its default grid and build the NLP with ADNLPModels. The table below reports the number of grid points, decision variables, and constraints associated with this formulation.  </p><pre><code class="language-julia hljs">pb = dielectrophoretic_particle(OptimalControlBackend())
+end</code></pre></details></div></div><pre><code class="language-julia hljs">plot_initial_guess(:dielectrophoretic_particle)</code></pre><img src="dielectrophoretic_particle-d8a004f3.svg" alt="Example block output"/><h2 id="Solving-the-problem"><a class="docs-heading-anchor" href="#Solving-the-problem">Solving the problem</a><a id="Solving-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Solving-the-problem" title="Permalink"></a></h2><p>To solve an optimal control problem, we can rely on two complementary formulations: the <code>OptimalControl</code> backend, which works directly with the discretised control problem, and the <code>JuMP</code> backend, which leverages JuMP’s flexible modelling framework.  </p><p>Both approaches generate equivalent NLPs that can be solved with Ipopt, and comparing them ensures consistency between the two formulations.</p><p>Before solving, we can inspect the discretisation details of the problem. We discretise it with the trapezoidal rule on its default grid and build the NLP with ADNLPModels. The table below reports the number of grid points, decision variables, and constraints associated with this formulation.  </p><pre><code class="language-julia hljs">pb = dielectrophoretic_particle(OptimalControlBackend())
 N = problem_metadata(:dielectrophoretic_particle)[:grid_size]
 docp = discretize(model(pb), OptimalControl.Collocation(grid_size=N, scheme=:trapeze))
 init = build_initial_guess(model(pb), initial_guess(pb))
@@ -158,11 +158,11 @@ Number of Iterations....: 13
 
                                    (scaled)                 (unscaled)
 Objective...............:   7.8113236809961393e+00    7.8113236809961393e+00
-Dual infeasibility......:   1.5030982192882786e-10    1.5030982192882786e-10
+Dual infeasibility......:   1.5031104317415495e-10    1.5031104317415495e-10
 Constraint violation....:   7.7736816983531298e-11    7.7736816983531298e-11
 Variable bound violation:   9.6453491860160057e-09    9.6453491860160057e-09
-Complementarity.........:   1.2621383106677594e-09    1.2621383106677594e-09
-Overall NLP error.......:   1.2621383106677594e-09    1.2621383106677594e-09
+Complementarity.........:   1.2621383106715851e-09    1.2621383106715851e-09
+Overall NLP error.......:   1.2621383106715851e-09    1.2621383106715851e-09
 
 
 Number of objective function evaluations             = 14
@@ -172,7 +172,7 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 14
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 13
-Total seconds in IPOPT                               = 0.043
+Total seconds in IPOPT                               = 0.032
 
 EXIT: Optimal Solution Found.</code></pre><h2 id="Numerical-comparisons"><a class="docs-heading-anchor" href="#Numerical-comparisons">Numerical comparisons</a><a id="Numerical-comparisons-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparisons" title="Permalink"></a></h2><p>In this section, we examine the results of the problem resolutions. We extract the solver status (flag), the number of iterations, and the objective value for each model. This provides a first overview of how each approach performs and sets the stage for a more detailed comparison of the solution trajectories.</p><pre><code class="language-julia hljs"># from OptimalControl model
 push!(data_re,(
@@ -268,10 +268,10 @@ end</code></pre></details></div></div><pre><code class="language-julia hljs">pri
 ├─  Number of Iterations
 │     OptimalControl : 13   JuMP : 13
 ├─  States (L2 Norms)
-│     x      Abs: 1.971e-15   Rel: 5.779e-16
-│     y      Abs: 1.954e-15   Rel: 7.960e-16
+│     x      Abs: 1.859e-15   Rel: 5.451e-16
+│     y      Abs: 2.336e-15   Rel: 9.515e-16
 ├─  Controls (L2 Norms)
-│     u      Abs: 3.367e-15   Rel: 1.255e-15
+│     u      Abs: 3.835e-15   Rel: 1.429e-15
 ├─  Variables
 │     tf     Abs: 4.441e-15   Rel: 5.685e-16
 ├─  Objective
@@ -309,9 +309,9 @@ end
 
 for i in 1:m # control
     plot!(plt[2n+i], t, t -&gt; u(t)[i]; color=2, linestyle=:dash, label=:none)
-end</code></pre><img src="dielectrophoretic_particle-19b5a01a.svg" alt="Example block output"/><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/+esm';
+end</code></pre><img src="dielectrophoretic_particle-d08208b5.svg" alt="Example block output"/><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/+esm';
 mermaid.initialize({
     startOnLoad: true,
     theme: "neutral"
 });
-</script></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="chain.html">« Chain</a><a class="docs-footer-nextpage" href="double_oscillator.html">Double oscillator »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Thursday 5 November 2026 13:52">Thursday 5 November 2026</span>. Using Julia version 1.12.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</script></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="chain.html">« Chain</a><a class="docs-footer-nextpage" href="double_oscillator.html">Double oscillator »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Thursday 5 November 2026 15:52">Thursday 5 November 2026</span>. Using Julia version 1.12.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
