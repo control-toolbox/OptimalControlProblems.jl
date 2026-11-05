@@ -435,4 +435,104 @@ function CTModels.Solutions.iterations(model::JuMP.GenericModel)
     return barrier_iterations(model)
 end
 
+"""
+$(TYPEDSIGNATURES)
+
+Build the `CTModels.Solution` of a solved JuMP model, from the continuous model of `pb`, the
+`Problem` of the same problem in OptimalControl. The states and the controls are given at the
+nodes of the grid of the model (trapezoidal scheme) and the controls are interpolated
+linearly; the costate is given on the intervals of the grid. The costate keeps the
+convention of the JuMP model: its signs are not yet those of OptimalControl (#326).
+
+# Arguments
+
+- `model::JuMP.GenericModel`: A solved JuMP model of the collection.
+- `pb::OptimalControlProblems.Problem`: The problem of the same name, for the OptimalControl modelings.
+
+# Throws
+
+- `CTBase.Exceptions.PreconditionError`: If the model has not been solved.
+- `CTBase.Exceptions.IncorrectArgument`: If the dimensions of the model and of `pb` differ.
+
+# Example
+
+```julia-repl
+julia> using JuMP, Ipopt, OptimalControl, OptimalControlProblems
+julia> model = beam(JuMPBackend(); grid_size=100)
+julia> set_optimizer(model, Ipopt.Optimizer); optimize!(model)
+julia> sol = solution(model, beam(OptimalControlBackend()))
+julia> plot(sol)
+```
+"""
+function OptimalControlProblems.solution(
+    model::JuMP.GenericModel, pb::OptimalControlProblems.Problem
+)
+    JuMP.has_values(model) || throw(
+        CTBase.Exceptions.PreconditionError(
+            "The JuMP model has no solution";
+            reason="the model has not been solved (termination status $(JuMP.termination_status(model)))",
+            suggestion="call JuMP.optimize! on the model before building its solution",
+            context="OptimalControlProblems.solution",
+        ),
+    )
+    ocp = CTModels.Solutions.model(pb)
+    dims = (
+        state=(length(state_components(model)), CTModels.Models.state_dimension(ocp)),
+        control=(length(control_components(model)), CTModels.Models.control_dimension(ocp)),
+        variable=(
+            length(variable_components(model)), CTModels.Models.variable_dimension(ocp)
+        ),
+    )
+    for (name, (n_jump, n_ocp)) in pairs(dims)
+        n_jump == n_ocp || throw(
+            CTBase.Exceptions.IncorrectArgument(
+                "The JuMP model and the problem differ in the dimension of the $name";
+                got="$n_jump in the JuMP model",
+                expected="$n_ocp, as in the problem $(pb.name)",
+                suggestion="give the Problem of the same problem as the model",
+                context="OptimalControlProblems.solution",
+            ),
+        )
+    end
+
+    T = collect(Float64, time_grid(model))
+    N = length(T) - 1
+    X = _values(model, state_components(model), JuMP.value)
+    U = _values(model, control_components(model), JuMP.value)
+    P = _values(model, costate_components(model), JuMP.dual)
+    v = Float64[JuMP.value(model[Symbol(c)]) for c in variable_components(model)]
+
+    status = JuMP.termination_status(model)
+    iterations = try
+        Int(JuMP.barrier_iterations(model))
+    catch err
+        err isa JuMP.MOI.UnsupportedAttribute || rethrow()
+        CTBase.Core.NotProvided
+    end
+    return CTModels.Solutions.build_solution(
+        ocp,
+        T,
+        T,
+        T[1:N],
+        T,
+        X,
+        U,
+        v,
+        P;
+        objective=JuMP.objective_value(model),
+        iterations=iterations,
+        message=JuMP.raw_status(model),
+        status=Symbol(lowercase(string(status))),
+        successful=status in (JuMP.MOI.OPTIMAL, JuMP.MOI.LOCALLY_SOLVED),
+        control_interpolation=:linear,
+    )
+end
+
+# Values of the variables or constraints `names` of the model, one column each.
+function _values(model::JuMP.GenericModel, names, f)
+    return reduce(
+        hcat, [Float64[f(x) for x in collect(model[Symbol(name)])] for name in names]
+    )
+end
+
 end

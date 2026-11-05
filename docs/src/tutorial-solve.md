@@ -165,3 +165,18 @@ plt # hide
 !!! note
 
     The costate from JuMP is the opposite of the costate from OptimalControl, that is why we plot $-p(t)$.
+
+### As an OptimalControl solution
+
+When the problem also exists for OptimalControl, [`solution`](@ref) builds a `CTModels.Solution` from the solved JuMP model and the [`Problem`](@ref) of the same problem. It is then used as any OptimalControl solution: `state(sol)`, `control(sol)`, `costate(sol)`, `objective(sol)`, `iterations(sol)` and `plot(sol)`.
+
+```@example main
+jump_sol = solution(nlp, beam(OptimalControlBackend()))
+println("objective:  ", objective(jump_sol))
+println("iterations: ", iterations(jump_sol))
+plot(jump_sol; color=2, size=(700, 600))
+```
+
+!!! note
+
+    The costate keeps the convention of the JuMP model, whose signs differ from OptimalControl's ([#326](https://github.com/control-toolbox/OptimalControlProblems.jl/issues/326)).
