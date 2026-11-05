@@ -65,7 +65,9 @@ request that edits `ext/MetaData/<problem>.jl`.
   the previous run of the scope and no longer does, or its objective moved by more than
   `OBJECTIVE_CHANGE` (relative, `tools/cron/report.py`). Nothing fails. Compare the scope
   report with the previous one on the `results` branch and decide whether the change is
-  expected (new initial guess, new solver version) or a regression to investigate.
+  expected (new initial guess, new solver version) or a regression to investigate. An
+  expected change of objective means computing the reference objectives again
+  ([`tools/references/README.md`](../../tools/references/README.md)).
 - **`cron-capabilities`** — a declared known failure no longer happens (inactive until the
   `:known_failures` metadata of #306 exists).
 - **`cron-bug`** — opened per (problem, modeling) for at most 5 pairs per run (more is

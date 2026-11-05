@@ -72,6 +72,11 @@ Only the first two can fail a run (#360).
    exception still fails. This is what helps tune an initial guess: look at the results and
    adapt.
 
+The reference objectives are computed from these results, never typed: see
+[`tools/references/README.md`](../tools/references/README.md). `core/test_consistency.jl`
+fails when a reference no longer matches the default grid or parameters of its problem, or
+when a problem `:valid` in one modeling only has no reference.
+
 ## Statuses and report
 
 Every problem has a status per modeling (`:valid` or `:draft`, in its metadata). Tests
@@ -86,7 +91,8 @@ Each run writes `test/reports/<environment>[-cron].md` (git-ignored): one line p
 and problem, with its status and outcome (`pass`, `fail`, `error`, or `no test`). The
 lines worth reading (drafts and checks that report instead of failing) are also printed.
 The convergence report adds a second table, `Results of the solves` (also written as
-`<environment>[-cron]-results.tsv`), one line per solve.
+`<environment>[-cron]-results.tsv`, objective at full precision), one line per solve, with
+its grid size and scheme.
 
 `:draft` means that the model is not finished or not equivalent to the other modelings,
 not that it does not converge: convergence is reported, not tested.
