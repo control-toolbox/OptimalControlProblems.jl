@@ -1,15 +1,20 @@
-# ==============================
-# --- Import Packages & Modules ---
-# ==============================
+# To generate the documentation: `julia --project=docs docs/make.jl`
+# To serve it: `npx serve docs/build/1 --listen 5173`
+# Or, with Julia only:
+# `julia --project=docs -e 'using LiveServer; LiveServer.serve(dir="docs/build/1", single_page=true)'`
+
+push!(LOAD_PATH, joinpath(@__DIR__))
+push!(LOAD_PATH, joinpath(@__DIR__, ".."))
+
 using Documenter           # Core package to generate documentation
 using DocumenterInterLinks # For linking to other package docs
 using DocumenterMermaid    # For Mermaid diagrams in docs
+using DocumenterVitepress  # VitePress backend and deployment
 using OptimalControlProblems
 using OptimalControl
 using JuMP
 using CTModels
 include("problems.jl")    # Your problem definitions
-include("browser.jl")     # Your interactive problems browser
 
 # ==============================
 # --- Add Docstrings from external packages ---
@@ -72,17 +77,20 @@ links = InterLinks(
 # --- Copy Project Assets for reproducibility ---
 # ==============================
 mkpath(joinpath(@__DIR__, "src", "assets"))  # Ensure assets folder exists
+mkpath(joinpath(@__DIR__, "src", "public", "assets"))
 
-cp(
-    joinpath(@__DIR__, "Manifest.toml"),
-    joinpath(@__DIR__, "src", "assets", "Manifest.toml");
-    force=true,
-)
-cp(
-    joinpath(@__DIR__, "Project.toml"),
-    joinpath(@__DIR__, "src", "assets", "Project.toml");
-    force=true,
-)
+for file in ("Manifest.toml", "Project.toml")
+    cp(
+        joinpath(@__DIR__, file),
+        joinpath(@__DIR__, "src", "assets", file);
+        force=true,
+    )
+    cp(
+        joinpath(@__DIR__, file),
+        joinpath(@__DIR__, "src", "public", "assets", file);
+        force=true,
+    )
+end
 
 # Repository URL (used for links in docs)
 repo_url = "github.com/control-toolbox/OptimalControlProblems.jl"
@@ -110,39 +118,41 @@ PROBLEMS_PAGES = generate_documentation_problems(;
 Draft = false
 ```
 =#
-with_problems_browser() do browser_file # generates the problems browser and remove it at the end
-    return makedocs(;
-        draft=draft,
-        #remotes=nothing,
-        warnonly=:cross_references,
-        sitename="OptimalControlProblems.jl",
-        format=Documenter.HTML(;
-            repolink="https://" * repo_url,
-            prettyurls=false,
-            size_threshold_ignore=["dev-api.md", PROBLEMS_PAGES...],
-            assets=[
-                asset("https://control-toolbox.org/assets/css/documentation.css"),
-                asset("https://control-toolbox.org/assets/js/documentation.js"),
-            ],
-        ),
-        pages=[
-            "Getting Started" => "index.md",
-            "Problems" => [
-                "problems-introduction.md",
-                browser_file,
-                "List of the problems" => PROBLEMS_PAGES,
-            ],
-            "Tutorials" => [
-                "Get a problem" => "tutorial-get.md",
-                "Solve a problem" => "tutorial-solve.md",
-            ],
-            "Developers" => ["Add a problem" => "dev-add.md", "API" => "dev-api.md"],
+makedocs(;
+    draft=draft,
+    #remotes=nothing,
+    warnonly=:cross_references,
+    sitename="OptimalControlProblems.jl",
+    format=DocumenterVitepress.MarkdownVitepress(;
+        repo=repo_url,
+        devbranch="main",
+        devurl="dev",
+        sidebar_drawer=true,
+    ),
+    pages=[
+        "Problems" => [
+            "problems-introduction.md",
+            "List of the problems" => PROBLEMS_PAGES,
         ],
-        plugins=[links],
-    )
-end
+        "Tutorials" => [
+            "Get a problem" => "tutorial-get.md",
+            "Solve a problem" => "tutorial-solve.md",
+        ],
+        "Developers" => ["Add a problem" => "dev-add.md", "API" => "dev-api.md"],
+    ],
+    plugins=[links],
+)
 
 # ==============================
 # --- Deploy Documentation ---
 # ==============================
-deploydocs(; repo=repo_url * ".git", devbranch="main", push_preview=true)
+bases_file = joinpath(@__DIR__, "build", "bases.txt")
+if isfile(bases_file)
+    DocumenterVitepress.deploydocs(;
+        repo=repo_url * ".git",
+        devbranch="main",
+        push_preview=get(ENV, "DOCUMENTER_PUSH_PREVIEW", "false") == "true",
+    )
+else
+    @info "Skipping deployment: no bases were built."
+end
