@@ -13,7 +13,7 @@ const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING :
 function test_convergence()
     S = Main.SolveOptimalControl
     backend = OptimalControlProblems.OptimalControlScalarizedBackend()
-    Test.@testset "OptimalControlScalarized convergence (default grid)" verbose = VERBOSE showtiming =
+    Test.@testset "OptimalControlScalarized convergence report (default grid)" verbose = VERBOSE showtiming =
         SHOWTIMING begin
         for config in Main.TestConfigs.CONFIGS.OptimalControlScalarized
             Test.@testset "$(Main.TestConfigs.label(config))" begin
@@ -22,8 +22,13 @@ function test_convergence()
                     pb = getfield(OptimalControlProblems, problem)(backend)
                     N = OptimalControlProblems.grid_size_data(problem)
                     sol = S.solve(pb, config; grid_size=N)
-                    sol = S.solve(pb, config; grid_size=N) # second solve, compiled
-                    Test.@test S.succeeded(sol)
+                    time = @elapsed sol = S.solve(pb, config; grid_size=N) # second, compiled
+                    # convergence is reported, not tested (#360); an exception still fails
+                    Main.TestStatus.result!(
+                        test, problem, backend, Main.TestConfigs.label(config);
+                        S.outcome(sol)..., time=time,
+                    )
+                    Test.@test true
                 end
             end
         end

@@ -11,8 +11,16 @@ const SB = "yes"
 const MAX_ITER = 1000
 const MAX_WALL_TIME = 500.0
 
-# Grid of the fast tests (suite/); the slow ones (cron/) use the default grid of each problem.
+# Grid of the comparison at the initial guess (suite/comparison); the convergence report
+# (cron/) uses the default grid of each problem.
 const SMALL_GRID = 50
+
+# Smoke solves (`test_smoke`, #360): a small grid and a few iterations show that a problem
+# builds, evaluates and runs in each configuration; whether it converges is not checked.
+# Measured on every problem, modeling and configuration: grids 5, 10, 20 and 1, 3, 5
+# iterations all run, with at least one iteration (and the Hessian evaluated for ADNLP).
+const SMOKE_GRID = 10
+const SMOKE_MAX_ITER = 3
 
 # Problems the tests are restricted to (`problem=a,b` in the test arguments, see
 # `TestStatus.select_problems!`); `nothing`: every problem.
