@@ -29,8 +29,14 @@ permissions:
   contents: read
 
 jobs:
+  # The called CTActions workflows request `actions`, `contents` and `pull-requests` read
+  # (their `changes` job); a nested job cannot be granted less than it requests.
   cpu:
     if: inputs.enabled
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
     uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
     with:
       versions: '["1.13"]'
@@ -43,6 +49,10 @@ jobs:
 
   gpu:
     if: inputs.enabled && inputs.gpu
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
     uses: control-toolbox/CTActions/.github/workflows/ci-gpu.yml@main
     with:
       versions: '["1.13"]'

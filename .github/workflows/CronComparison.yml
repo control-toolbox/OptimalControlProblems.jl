@@ -14,6 +14,7 @@ jobs:
       actions: read
       contents: write
       issues: write
+      pull-requests: read
     uses: ./.github/workflows/cron-reusable.yml
     with:
       environment: comparison
