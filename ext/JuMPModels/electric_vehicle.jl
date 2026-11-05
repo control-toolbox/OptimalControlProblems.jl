@@ -37,67 +37,25 @@ function OptimalControlProblems.electric_vehicle(
     x_tf = params[:x_tf]
     v_tf = params[:v_tf]
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
+    function dynamics(x, u)
+        X, v = x
+        road = α0 + α1 * X + α2 * X^2 + α3 * X^3
+        return [v, h1 * u[1] - h2 * v^2 - h0 - road]
+    end
 
-    # metadata: required
-    model[:time_grid] = () -> range(t0, tf, grid_size + 1) # tf is a fixed
-    model[:state_components] = ["x", "v"]
-    model[:costate_components] = ["∂x", "∂v"]
-    model[:control_components] = ["u"]
-    model[:variable_components] = String[]
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    # state, control and initial guess
-    @variables(
-        model,
-        begin
-            x[0:N], (start = 0.1)
-            v[0:N], (start = 0.1)
-            u[0:N], (start = 0.1)
-        end
+    data = ProblemData(;
+        state=[Component("x"; start=0.1), Component("v"; start=0.1)],
+        control=[Component("u"; start=0.1)],
+        costate=["∂x", "∂v"],
+        times=v -> (t0, tf),
+        dynamics=(x, u, v, t) -> dynamics(x, u),
+        lagrange=(x, u, v, t) -> b1 * u[1] * x[2] + b2 * u[1]^2,
+        boundary=[
+            (x_t0, (x0, xf, v) -> x0[1], x_t0),
+            (v_t0, (x0, xf, v) -> x0[2], v_t0),
+            (x_tf, (x0, xf, v) -> xf[1], x_tf),
+            (v_tf, (x0, xf, v) -> xf[2], v_tf),
+        ],
     )
-
-    # boundary constraints
-    @constraints(
-        model,
-        begin
-            x[0] == x_t0
-            v[0] == v_t0
-            x[N] == x_tf
-            v[N] == v_tf
-        end
-    )
-
-    # dynamics
-    @expressions(
-        model,
-        begin
-            #
-            Δt, (tf - t0) / N
-            road[k = 0:N], α0 + α1 * x[k] + α2 * x[k]^2 + α3 * x[k]^3
-
-            # dynamics
-            dx[k = 0:N], v[k]
-            dv[k = 0:N], h1 * u[k] - h2 * v[k]^2 - h0 - road[k]
-
-            # objective
-            dc[k = 0:N], b1 * u[k] * v[k] + b2 * u[k]^2
-        end
-    )
-
-    @constraints(
-        model,
-        begin
-            ∂x[k = 1:N], x[k] == x[k - 1] + 0.5 * Δt * (dx[k - 1] + dx[k])
-            ∂v[k = 1:N], v[k] == v[k - 1] + 0.5 * Δt * (dv[k - 1] + dv[k])
-        end
-    )
-
-    # objective
-    @objective(model, Min, 0.5 * Δt * sum(dc[k] + dc[k - 1] for k in 1:N))
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end

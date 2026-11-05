@@ -35,82 +35,30 @@ function OptimalControlProblems.chain(
     #
     tmin = b > a ? 1 / 4 : 3 / 4
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
+    # initial guess, on the time grid
+    N = grid_size
+    τ = [(t0 + k * (tf - t0) / N - t0) / (tf - t0) for k in 0:N]
+    u_start = [4 * abs(b - a) * (s - tmin) for s in τ]
+    x₁_start = [4 * abs(b - a) * s * (0.5 * s - tmin) + a for s in τ]
 
-    # metadata: required
-    model[:time_grid] = () -> range(t0, tf, grid_size + 1) # tf is a fixed
-    model[:state_components] = ["x₁", "x₂", "x₃"]
-    model[:costate_components] = ["∂x₁", "∂x₂", "∂x₃"]
-    model[:control_components] = ["u"]
-    model[:variable_components] = String[]
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    # time
-    @expressions(
-        model,
-        begin
-            t[k = 0:N], t0 + k * (tf - t0) / N
-        end
+    data = ProblemData(;
+        state=[
+            Component("x₁"; start=x₁_start),
+            Component("x₂"; start=x₁_start .* u_start),
+            Component("x₃"; start=u_start),
+        ],
+        control=[Component("u"; start=u_start)],
+        costate=["∂x₁", "∂x₂", "∂x₃"],
+        times=v -> (t0, tf),
+        dynamics=(x, u, v, t) -> [u[1], x[1] * √(1 + u[1]^2), √(1 + u[1]^2)],
+        cost=(I, x0, xf, v) -> xf[2],
+        boundary=[
+            (x₁_t0, (x0, xf, v) -> x0[1], x₁_t0),
+            (x₂_t0, (x0, xf, v) -> x0[2], x₂_t0),
+            (x₃_t0, (x0, xf, v) -> x0[3], x₃_t0),
+            (x₁_tf, (x0, xf, v) -> xf[1], x₁_tf),
+            (x₃_tf, (x0, xf, v) -> xf[3], x₃_tf),
+        ],
     )
-
-    # variables and initial guess
-    @variables(
-        model,
-        begin
-            u[k = 0:N], (start = 4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
-            x₁[k = 0:N],
-            (
-                start =
-                    4 * abs(b - a) * (t[k] - t0) / (tf - t0) *
-                    (0.5 * (t[k] - t0) / (tf - t0) - tmin) + a
-            )
-            x₂[k = 0:N],
-            (
-                start =
-                    (
-                        4 * abs(b - a) * (t[k] - t0) / (tf - t0) *
-                        (0.5 * (t[k] - t0) / (tf - t0) - tmin) + a
-                    ) * (4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
-            )
-            x₃[k = 0:N], (start = 4 * abs(b - a) * ((t[k] - t0) / (tf - t0) - tmin))
-        end
-    )
-
-    @constraints(
-        model,
-        begin
-            x₁[0] == x₁_t0
-            x₂[0] == x₂_t0
-            x₃[0] == x₃_t0
-            x₁[N] == x₁_tf
-            x₃[N] == x₃_tf
-        end
-    )
-
-    # dynamics
-    @expressions(
-        model,
-        begin
-            Δt, (tf - t0) / N
-            dx₁[k = 0:N], u[k]
-            dx₂[k = 0:N], x₁[k] * √(1 + u[k]^2)
-            dx₃[k = 0:N], √(1 + u[k]^2)
-        end
-    )
-
-    @constraints(
-        model,
-        begin
-            ∂x₁[k = 1:N], x₁[k] == x₁[k - 1] + 0.5 * Δt * (dx₁[k] + dx₁[k - 1])
-            ∂x₂[k = 1:N], x₂[k] == x₂[k - 1] + 0.5 * Δt * (dx₂[k] + dx₂[k - 1])
-            ∂x₃[k = 1:N], x₃[k] == x₃[k - 1] + 0.5 * Δt * (dx₃[k] + dx₃[k - 1])
-        end
-    )
-
-    @objective(model, Min, x₂[N])
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end

@@ -43,77 +43,32 @@ function OptimalControlProblems.bioreactor(
     b_t0_l = params[:b_t0_l]
     b_t0_u = params[:b_t0_u]
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
+    function dynamics(x, u, t)
+        y, s, b = x
+        μ2 = μ2m * s / (s + Ks)
+        days = (t - t0) / (halfperiod * 2)
+        tau = (days - floor(days)) * 2π
+        μ = max(0, sin(tau))^2 * μbar
+        return [μ * y / (1 + y) - (r + u[1]) * y, -μ2 * b + u[1] * β * (γ * y - s), (μ2 - u[1] * β) * b]
+    end
 
-    # metadata: required
-    model[:time_grid] = () -> range(t0, tf, grid_size + 1) # tf is a fixed
-    model[:state_components] = ["y", "s", "b"]
-    model[:costate_components] = ["∂y", "∂s", "∂b"]
-    model[:control_components] = ["u"]
-    model[:variable_components] = String[]
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    # variables and initial guess
-    @variables(
-        model,
-        begin
-            y[0:N] ≥ y_l, (start = 50)
-            s[0:N] ≥ s_l, (start = 50)
-            b[0:N] ≥ b_l, (start = 50)
-            u_l ≤ u[0:N] ≤ u_u, (start = 0.5)
-        end
+    data = ProblemData(;
+        state=[
+            Component("y"; lower=y_l, start=50),
+            Component("s"; lower=s_l, start=50),
+            Component("b"; lower=b_l, start=50),
+        ],
+        control=[Component("u"; lower=u_l, upper=u_u, start=0.5)],
+        costate=["∂y", "∂s", "∂b"],
+        times=v -> (t0, tf),
+        dynamics=(x, u, v, t) -> dynamics(x, u, t),
+        lagrange=(x, u, v, t) -> μ2m * x[2] / (x[2] + Ks) * x[3] / (β + c),
+        cost=(I, x0, xf, v) -> -I,
+        boundary=[
+            (y_t0_l, (x0, xf, v) -> x0[1], y_t0_u),
+            (s_t0_l, (x0, xf, v) -> x0[2], s_t0_u),
+            (b_t0_l, (x0, xf, v) -> x0[3], b_t0_u),
+        ],
     )
-
-    # boundary constraints
-    @constraints(
-        model,
-        begin
-            y_t0_l ≤ y[0] ≤ y_t0_u
-            s_t0_l ≤ s[0] ≤ s_t0_u
-            b_t0_l ≤ b[0] ≤ b_t0_u
-        end
-    )
-
-    # dynamics
-    @expressions(
-        model,
-        begin
-            #
-            Δt, (tf - t0) / N
-
-            # intermediate variables
-            growth[k = 0:N], μ2m * s[k] / (s[k] + Ks)
-            μ2[k = 0:N], growth[k]
-
-            days[k = 0:N], (k * Δt) / (halfperiod * 2)
-            tau[k = 0:N], (days[k] - floor(days[k])) * 2π
-            light[k = 0:N], max(0, sin(tau[k]))^2
-            μ[k = 0:N], light[k] * μbar
-
-            # dynamics
-            dy[k = 0:N], μ[k] * y[k] / (1 + y[k]) - (r + u[k]) * y[k]
-            ds[k = 0:N], -μ2[k] * b[k] + u[k] * β * (γ * y[k] - s[k])
-            db[k = 0:N], (μ2[k] - u[k] * β) * b[k]
-
-            # objective
-            dc[k = 0:N], μ2[k] * b[k] / (β + c)
-        end
-    )
-
-    @constraints(
-        model,
-        begin
-            ∂y[k = 1:N], y[k] == y[k - 1] + 0.5 * Δt * (dy[k] + dy[k - 1])
-            ∂s[k = 1:N], s[k] == s[k - 1] + 0.5 * Δt * (ds[k] + ds[k - 1])
-            ∂b[k = 1:N], b[k] == b[k - 1] + 0.5 * Δt * (db[k] + db[k - 1])
-        end
-    )
-
-    # objective
-    @objective(model, Min, -0.5 * Δt * sum(dc[k] + dc[k - 1] for k in 1:N))
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end
