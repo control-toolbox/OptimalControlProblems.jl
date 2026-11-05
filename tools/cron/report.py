@@ -63,6 +63,7 @@ HEADERS = {
         f"Details: [README]({README_URL})."
     ),
 }
+BUG_LABEL = "cron-bug"
 MAX_BUG_ISSUES_PER_RUN = 5
 MAX_REOPENINGS = 3
 
@@ -361,6 +362,8 @@ def bug_body(
 
 def matching_issue(all_issues: list[dict], key: str):
     for issue in all_issues:
+        if BUG_LABEL not in labels(issue):
+            continue  # an issue that merely quotes a key (e.g. a specification) is not ours
         match = KEY_RE.search(issue.get("body") or "")
         if match and match.group(1) == key:
             return issue
@@ -427,6 +430,8 @@ def update_bug_issues(
                 github.update_issue(issue["number"], body=body)
 
     for issue in all_issues:
+        if BUG_LABEL not in labels(issue):
+            continue
         match = KEY_RE.search(issue.get("body") or "")
         if not match or issue["state"] != "open" or issue.get("state_reason") == "not_planned":
             continue

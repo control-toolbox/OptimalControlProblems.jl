@@ -82,7 +82,7 @@ class ReportTest(unittest.TestCase):
     def test_hidden_key_supports_modeling_names_with_spaces(self):
         row = self.rows("fail", modelings="JuMP vs OptimalControl")[0]
         key = REPORT.issue_key(row)
-        issue = {"body": f"<!-- cron-key: {key} -->", "state": "open", "labels": []}
+        issue = {"body": f"<!-- cron-key: {key} -->", "state": "open", "labels": [{"name": "cron-bug"}]}
         self.assertIs(REPORT.matching_issue([issue], key), issue)
 
     def test_bug_issue_is_idempotent_and_tracks_configuration_changes(self):
@@ -109,7 +109,7 @@ class ReportTest(unittest.TestCase):
         issue = {
             "number": 1,
             "body": "<!-- cron-key: beam|JuMP -->",
-            "labels": [],
+            "labels": [{"name": "cron-bug"}],
             "state": "open",
         }
         github = FakeGitHub([issue])
@@ -127,7 +127,7 @@ class ReportTest(unittest.TestCase):
         issue = {
             "number": 1,
             "body": "<!-- cron-key: beam|JuMP -->",
-            "labels": [],
+            "labels": [{"name": "cron-bug"}],
             "state": "open",
         }
         github = FakeGitHub([issue])
@@ -143,7 +143,7 @@ class ReportTest(unittest.TestCase):
         issue = {
             "number": 1,
             "body": "<!-- cron-key: beam|JuMP -->",
-            "labels": [],
+            "labels": [{"name": "cron-bug"}],
             "state": "closed",
             "state_reason": "not_planned",
         }
@@ -188,6 +188,22 @@ class ReportTest(unittest.TestCase):
         self.assertIn(REPORT.README_URL, body)
         comparison = dict(row, modelings="JuMP vs OptimalControl")
         self.assertIn('"comparison", "cron"', REPORT.bug_body(comparison, ["x"], "run", "d", 0))
+
+    def test_issue_quoting_a_key_without_the_bug_label_is_never_touched(self):
+        spec = {
+            "number": 1,
+            "title": "specification quoting <!-- cron-key: beam|JuMP -->",
+            "body": "example: <!-- cron-key: beam|JuMP -->",
+            "labels": [],
+            "state": "open",
+        }
+        github = FakeGitHub([spec])
+        rows = self.rows("fail")
+        state = {}
+        REPORT.update_bug_issues(github, github.data, rows, rows, "JuMP", "run", "date", state, False)
+        self.assertEqual(github.data[0]["body"], "example: <!-- cron-key: beam|JuMP -->")
+        self.assertEqual(len(github.data), 2)  # a real bug issue was created instead
+        self.assertEqual(github.comments, [])
 
     def test_replace_section_only_replaces_one_scope(self):
         original = (
