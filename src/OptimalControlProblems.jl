@@ -126,24 +126,35 @@ for problem in PROBLEM_NAMES
     include(joinpath(METADATA_PATH, "$problem.jl"))
 end
 
-const METADATA_INFOS = (:grid_size, :parameters)
-const METADATA_TYPES = (Int, Union{Nothing,NamedTuple})
+# Metadata schema: the required and optional fields of `ext/MetaData/<problem>.jl`, with
+# their types. Checked here at load time and by the consistency tests.
+const METADATA_SCHEMA = (
+    required=(grid_size=Int, parameters=Union{Nothing,NamedTuple}, status=NamedTuple),
+    optional=(notes=AbstractString,),
+)
 const METADATA_STORAGE = OrderedDict{Symbol,OrderedDict}()
 
 for problem in PROBLEM_NAMES
     raw = eval(Symbol(problem, :_meta))
-    statuses = get(raw, :status, NamedTuple())
-    METADATA_STORAGE[problem] = OrderedDict{Symbol,Any}(
-        :grid_size => raw[:grid_size], :parameters => raw[:parameters], :status => statuses
-    )
-    if haskey(raw, :notes)
-        METADATA_STORAGE[problem][:notes] = raw[:notes]
+    data = OrderedDict{Symbol,Any}()
+    for (key, T) in pairs(METADATA_SCHEMA.required)
+        haskey(raw, key) || error("Missing metadata $(key) for $(problem)")
+        raw[key] isa T || error(
+            "Type mismatch: Expected $(T) for $(key) of $(problem), but got $(typeof(raw[key]))",
+        )
+        data[key] = raw[key]
     end
-    for (data, T) in zip(METADATA_INFOS, METADATA_TYPES)
-        value = METADATA_STORAGE[problem][data]
-        value isa T ||
-            error("Type mismatch: Expected $(T) for $(data), but got $(typeof(value))")
+    for (key, value) in raw
+        haskey(METADATA_SCHEMA.required, key) && continue
+        haskey(METADATA_SCHEMA.optional, key) ||
+            error("Unknown metadata $(key) for $(problem)")
+        T = METADATA_SCHEMA.optional[key]
+        value isa T || error(
+            "Type mismatch: Expected $(T) for $(key) of $(problem), but got $(typeof(value))",
+        )
+        data[key] = value
     end
+    METADATA_STORAGE[problem] = data
 end
 
 # Generic methods are installed before weak-dependency extensions load.

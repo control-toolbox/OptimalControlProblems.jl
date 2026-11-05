@@ -96,4 +96,23 @@ function select_environments(args, available, opt_in; core::AbstractString="core
     return environments, patterns
 end
 
+"""
+    split_problems(args) -> (problems, rest)
+
+Take the `problem=a,b` arguments out of `args`: the names they list (as strings) and the
+other arguments. Several `problem=` arguments add up.
+"""
+function split_problems(args)
+    names = String[]
+    rest = String[]
+    for arg in args
+        if startswith(arg, "problem=")
+            append!(names, filter(!isempty, split(chopprefix(arg, "problem="), ',')))
+        else
+            push!(rest, arg)
+        end
+    end
+    return unique!(names), rest
+end
+
 end # module LocalTestRunner

@@ -1,16 +1,21 @@
-# Comparison of the modelings of a problem (JuMP, OptimalControl, OptimalControlScalarized).
+# Comparison of the modelings of a problem (JuMP, OptimalControl, OptimalControlScalarized):
+# do they describe the same problem? Used by `suite/comparison/`, at the initial guess
+# (zero iterations): same structure, same grid, same trajectories, same objective.
 #
-# Used by `suite/comparison/` (small grid, quick) and `cron/comparison/` (default grid).
+# The solutions are deliberately not compared: after a solve, two modelings are two
+# optimization paths, and a problem with several local solutions (`glider`, `cart_pendulum`)
+# ends on one or the other depending on the platform. Model equivalence is the NLP
+# equivalence of #284; convergence is tested per modeling.
 # Numbers only: no plot. The visual comparison is left to the cron report (#310).
+isdefined(Main, :SolveJuMP) || include(joinpath(@__DIR__, "solve_jump.jl"))
+isdefined(Main, :SolveIpopt) || include(joinpath(@__DIR__, "solve_ipopt.jl"))
+isdefined(Main, :SolveMadNLP) || include(joinpath(@__DIR__, "solve_madnlp.jl"))
+
 module Comparison
 
 using Test: Test
 using CTDirect: CTDirect
-using Ipopt: Ipopt
 using JuMP: JuMP
-using MadNLP: MadNLP
-using MadNLPMumps: MadNLPMumps
-using NLPModelsIpopt: NLPModelsIpopt
 using OptimalControl: OptimalControl # loads the OptimalControlModels extension
 using OptimalControlProblems: OptimalControlProblems
 
@@ -23,16 +28,9 @@ const STATE = (rtol=1e-1, atol=1e-6)
 const CONTROL = (rtol=1e-1, atol=1e-6)
 const VARIABLE = (rtol=1e-1, atol=1e-6)
 
-"""Modelings compared, in the order of `reference` first."""
-const MODELINGS = (:JuMP, :OptimalControl, :OptimalControlScalarized)
-const REFERENCE = :JuMP
-
-"""Problems available in the three modelings (valid status), derived from the catalogue."""
-function problems()
-    return OCP.problems(
-        OCP.JuMPBackend(), OCP.OptimalControlBackend(), OCP.OptimalControlScalarizedBackend()
-    )
-end
+"""Every modeling is compared with the reference one."""
+const REFERENCE = OCP.JuMPBackend()
+const OTHERS = (OCP.OptimalControlBackend(), OCP.OptimalControlScalarizedBackend())
 
 """L² norm of a one-dimensional signal `X` on the time grid `T` (trapezoidal rule)."""
 function L2_norm(T, X)
@@ -78,19 +76,11 @@ function from_solution(sol, ocp, nlp)
     )
 end
 
-"""Solve `problem` with JuMP and Ipopt, at most `max_iter` iterations."""
-function solve_jump(problem::Symbol; grid_size::Int, max_iter::Int)
-    o = Main.TestSolverOptions
+"""Solve `problem` with JuMP (solver of the first JuMP configuration)."""
+function solve(::OCP.JuMPBackend, problem::Symbol; grid_size::Int, max_iter::Int)
+    config = first(Main.TestConfigs.CONFIGS.JuMP)
     model = getfield(OCP, problem)(OCP.JuMPBackend(); grid_size=grid_size)
-    JuMP.set_optimizer(model, Ipopt.Optimizer)
-    JuMP.set_silent(model)
-    JuMP.set_optimizer_attribute(model, "tol", o.TOL)
-    JuMP.set_optimizer_attribute(model, "max_iter", max_iter)
-    JuMP.set_optimizer_attribute(model, "mu_strategy", o.MU_STRATEGY)
-    JuMP.set_optimizer_attribute(model, "linear_solver", "mumps")
-    JuMP.set_optimizer_attribute(model, "max_wall_time", o.MAX_WALL_TIME)
-    JuMP.set_optimizer_attribute(model, "sb", o.SB)
-    JuMP.optimize!(model)
+    Main.SolveJuMP.solve!(model; solver=config.solver, max_iter=max_iter)
     t = collect(Float64, OCP.time_grid(model))
     return Data(
         t,
@@ -107,57 +97,43 @@ function solve_jump(problem::Symbol; grid_size::Int, max_iter::Int)
     )
 end
 
-"""Solve `problem` with the OptimalControl modeling and Ipopt."""
-function solve_optimalcontrol(problem::Symbol; grid_size::Int, max_iter::Int)
-    o = Main.TestSolverOptions
-    docp = getfield(OCP, problem)(OCP.OptimalControlBackend(); grid_size=grid_size)
+const SOLVER_MODULES = Dict(:ipopt => :SolveIpopt, :madnlp => :SolveMadNLP)
+
+"""Solve `problem` with an OptimalControl modeling (first configuration of the modeling)."""
+function solve(backend::OCP.AbstractModelBackend, problem::Symbol; grid_size::Int, max_iter::Int)
+    config = first(getfield(Main.TestConfigs.CONFIGS, Main.TestStatus.modeling(backend)))
+    docp = getfield(OCP, problem)(backend, config.description...; grid_size=grid_size)
     nlp = CTDirect.nlp_model(docp)
-    stats = NLPModelsIpopt.ipopt(
-        nlp;
-        print_level=0,
-        tol=o.TOL,
-        mu_strategy=o.MU_STRATEGY,
-        sb=o.SB,
-        max_iter=max_iter,
-        max_wall_time=o.MAX_WALL_TIME,
-    )
+    stats = getfield(Main, SOLVER_MODULES[config.solver]).solve(nlp; max_iter=max_iter)
     sol = CTDirect.build_OCP_solution(docp, stats)
     return from_solution(sol, CTDirect.ocp_model(docp), nlp)
 end
 
-"""Solve `problem` with the scalarized OptimalControl modeling and MadNLP."""
-function solve_scalarized(problem::Symbol; grid_size::Int, max_iter::Int)
-    o = Main.TestSolverOptions
-    docp = getfield(OCP, problem)(
-        OCP.OptimalControlScalarizedBackend(), :madnlp, :exa; grid_size=grid_size
-    )
-    nlp = CTDirect.nlp_model(docp)
-    stats = MadNLP.madnlp(
-        nlp;
-        print_level=MadNLP.ERROR,
-        tol=o.TOL,
-        max_iter=max_iter,
-        max_wall_time=o.MAX_WALL_TIME,
-        linear_solver=MadNLPMumps.MumpsSolver,
-    )
-    sol = CTDirect.build_OCP_solution(docp, stats)
-    return from_solution(sol, CTDirect.ocp_model(docp), nlp)
+"""
+    for_each_comparison(f, test; grid_size, max_iter)
+
+For every other modeling and every problem available in it and in the reference one,
+solve both and call `f(problem, reference_data, other_data)`. A comparison is `:valid`
+(a failure fails the run) only when the problem is `:valid` in both modelings.
+"""
+function for_each_comparison(f, test::AbstractString; grid_size, max_iter::Int)
+    for other in OTHERS
+        name = "$(Main.TestStatus.modeling(REFERENCE)) vs $(Main.TestStatus.modeling(other))"
+        Test.@testset "$name" begin
+            Main.TestStatus.for_each_problem(test, REFERENCE, other) do problem
+                N = grid_size isa Function ? grid_size(problem) : grid_size
+                ref = solve(REFERENCE, problem; grid_size=N, max_iter=max_iter)
+                cmp = solve(other, problem; grid_size=N, max_iter=max_iter)
+                f(problem, ref, cmp)
+            end
+        end
+    end
+    return nothing
 end
 
-const SOLVERS = (
-    JuMP=solve_jump,
-    OptimalControl=solve_optimalcontrol,
-    OptimalControlScalarized=solve_scalarized,
-)
-
-"""Solve `problem` with every modeling; returns a `NamedTuple` of `Data`."""
-function solve_all(problem::Symbol; grid_size::Int, max_iter::Int)
-    return map(f -> f(problem; grid_size=grid_size, max_iter=max_iter), SOLVERS)
-end
-
-# Broken (not failed) when a comparison is not met: the status-aware loop of #303/#304 will
-# turn the broken ones of `:valid` problems into failures. Same as the former `@my_test_broken`.
-check(ok::Bool) = Main.TestHelpers.@broken_if_false ok
+# A comparison is a test: a failure fails the run for a `:valid` problem, and is recorded in
+# the report for a `:draft` one (see `Main.TestStatus`). Returns the outcome.
+check(ok::Bool) = (Test.@test ok; ok)
 
 within(a, b; rtol, atol) = abs(a - b) < max(0.5 * (abs(a) + abs(b)) * rtol, atol)
 
@@ -188,7 +164,7 @@ function compare_grid(ref::Data, other::Data)
 end
 
 """State, control and variable of `other` against `ref` (grids must be comparable)."""
-function compare_trajectories(ref::Data, other::Data; check_control::Bool=true)
+function compare_trajectories(ref::Data, other::Data)
     t = ref.t
     for i in eachindex(ref.xnames)
         check(
@@ -197,14 +173,8 @@ function compare_trajectories(ref::Data, other::Data; check_control::Bool=true)
             ),
         )
     end
-    if check_control
-        for i in eachindex(ref.unames)
-            check(
-                within_L2(
-                    t, [s[i] for s in ref.u], [s[i] for s in other.u]; CONTROL...
-                ),
-            )
-        end
+    for i in eachindex(ref.unames)
+        check(within_L2(t, [s[i] for s in ref.u], [s[i] for s in other.u]; CONTROL...))
     end
     for i in eachindex(ref.vnames)
         check(within(ref.v[i], other.v[i]; VARIABLE...))
@@ -212,6 +182,20 @@ function compare_trajectories(ref::Data, other::Data; check_control::Bool=true)
     return nothing
 end
 
-compare_objective(ref::Data, other::Data) = check(within(ref.objective, other.objective; OBJECTIVE...))
+"""
+Objectives agree. Written as one comparison so that a failure shows both values; the
+iterations are logged then (a gap with many iterations means a solver that did not
+converge or another local minimum).
+"""
+function compare_objective(ref::Data, other::Data)
+    a, b = ref.objective, other.objective
+    bound = max(0.5 * (abs(a) + abs(b)) * OBJECTIVE.rtol, OBJECTIVE.atol)
+    ok = abs(a - b) < bound
+    ok || @warn "Objectives differ" reference = a other = b gap = abs(a - b) bound iterations = (
+        ref.iterations, other.iterations
+    )
+    Test.@test abs(a - b) < bound
+    return ok
+end
 
 end # module Comparison
