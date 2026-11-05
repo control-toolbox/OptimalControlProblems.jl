@@ -39,71 +39,33 @@ function OptimalControlProblems.rocket(
     Dc = 0.5 * vc * (m_t0 / g0)
     Tmax = Tc * m_t0 * g0
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
+    function dynamics(x, u)
+        h, v, m = x
+        T = u[1]
+        D = Dc * v^2 * exp(-hc * (h - h_t0)) / h_t0
+        g = g0 * (h_t0 / h)^2
+        return [v, (T - D - m * g) / m, -T / c]
+    end
 
-    # metadata
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
-    model[:state_components] = ["h", "v", "m"]
-    model[:costate_components] = ["∂h", "∂v", "∂m"]
-    model[:control_components] = ["T"]
-    model[:variable_components] = ["tf"]
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    # state, control, variable (final time) and initial guess
-    @variables(
-        model,
-        begin
-            h[i = 0:N] ≥ h_t0, (start = 1)
-            v[i = 0:N] ≥ v_t0, (start = i / N * (1 - i / N))
-            m_tf ≤ m[i = 0:N] ≤ m_t0, (start = (m_tf - m_t0) * (i / N) + m_t0)
-            T_l ≤ T[i = 0:N] ≤ Tmax, (start = Tmax / 2)
-            tf ≥ tf_l, (start = 1)
-        end
+    N = grid_size
+    data = ProblemData(;
+        state=[
+            Component("h"; lower=h_t0, start=1),
+            Component("v"; lower=v_t0, start=[i / N * (1 - i / N) for i in 0:N]),
+            Component("m"; lower=m_tf, upper=m_t0, start=[(m_tf - m_t0) * (i / N) + m_t0 for i in 0:N]),
+        ],
+        control=[Component("T"; lower=T_l, upper=Tmax, start=Tmax / 2)],
+        variable=[Component("tf"; lower=tf_l, start=1)],
+        costate=["∂h", "∂v", "∂m"],
+        times=v -> (t0, v[1]),
+        dynamics=(x, u, v, t) -> dynamics(x, u),
+        cost=(I, x0, xf, v) -> -xf[1],
+        boundary=[
+            (h_t0, (x0, xf, v) -> x0[1], h_t0),
+            (v_t0, (x0, xf, v) -> x0[2], v_t0),
+            (m_t0, (x0, xf, v) -> x0[3], m_t0),
+            (m_tf, (x0, xf, v) -> xf[3], m_tf),
+        ],
     )
-
-    # boundary constraints
-    @constraints(
-        model,
-        begin
-            h[0] == h_t0
-            v[0] == v_t0
-            m[0] == m_t0
-            m[N] == m_tf
-        end
-    )
-
-    # dynamics
-    @expressions(
-        model,
-        begin
-            #
-            Δt, (tf - t0) / N
-
-            #
-            D[i = 0:N], Dc * v[i]^2 * exp(-hc * (h[i] - h_t0)) / h_t0
-            g[i = 0:N], g0 * (h_t0 / h[i])^2
-
-            #
-            dh[i = 0:N], v[i]
-            dv[i = 0:N], (T[i] - D[i] - m[i] * g[i]) / m[i]
-            dm[i = 0:N], -T[i] / c
-        end
-    )
-
-    @constraints(
-        model,
-        begin
-            ∂h[i = 1:N], h[i] == h[i - 1] + 0.5 * Δt * (dh[i] + dh[i - 1])
-            ∂v[i = 1:N], v[i] == v[i - 1] + 0.5 * Δt * (dv[i] + dv[i - 1])
-            ∂m[i = 1:N], m[i] == m[i - 1] + 0.5 * Δt * (dm[i] + dm[i - 1])
-        end
-    )
-
-    # objective
-    @objective(model, Min, -h[N])
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end

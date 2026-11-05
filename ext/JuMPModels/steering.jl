@@ -36,6 +36,7 @@ function OptimalControlProblems.steering(
 
     #
     tf_start = 0.6
+    N = grid_size
     function gen_x0(k, i)
         if i == 1 || i == 4
             return 0.0
@@ -46,62 +47,23 @@ function OptimalControlProblems.steering(
         end
     end
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
-
-    # metadata: required
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
-    model[:state_components] = ["x₁", "x₂", "x₃", "x₄"]
-    model[:costate_components] = ["∂x₁", "∂x₂", "∂x₃", "∂x₄"]
-    model[:control_components] = ["u"]
-    model[:variable_components] = ["tf"]
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    # state, control and variable (final time)
-    @variables(
-        model,
-        begin
-            u_min ≤ u[i = 0:N] ≤ u_max, (start = 0)
-            x₁[i = 0:N], (start = gen_x0(i, 1))
-            x₂[i = 0:N], (start = gen_x0(i, 2))
-            x₃[i = 0:N], (start = gen_x0(i, 3))
-            x₄[i = 0:N], (start = gen_x0(i, 4))
-            tf ≥ tf_l, (start = tf_start)
-        end
+    data = ProblemData(;
+        state=[Component("x$(c)"; start=[gen_x0(i, k) for i in 0:grid_size]) for (k, c) in enumerate("₁₂₃₄")],
+        control=[Component("u"; lower=u_min, upper=u_max, start=0)],
+        variable=[Component("tf"; lower=tf_l, start=tf_start)],
+        costate=["∂x₁", "∂x₂", "∂x₃", "∂x₄"],
+        times=v -> (t0, v[1]),
+        dynamics=(x, u, v, t) -> [x[3], x[4], a * cos(u[1]), a * sin(u[1])],
+        cost=(I, x0, xf, v) -> v[1],
+        boundary=[
+            (x₁_t0, (x0, xf, v) -> x0[1], x₁_t0),
+            (x₂_t0, (x0, xf, v) -> x0[2], x₂_t0),
+            (x₃_t0, (x0, xf, v) -> x0[3], x₃_t0),
+            (x₄_t0, (x0, xf, v) -> x0[4], x₄_t0),
+            (x₂_tf, (x0, xf, v) -> xf[2], x₂_tf),
+            (x₃_tf, (x0, xf, v) -> xf[3], x₃_tf),
+            (x₄_tf, (x0, xf, v) -> xf[4], x₄_tf),
+        ],
     )
-
-    # boundary conditions
-    @constraints(
-        model,
-        begin
-            x₁[0] == x₁_t0
-            x₂[0] == x₂_t0
-            x₃[0] == x₃_t0
-            x₄[0] == x₄_t0
-            x₂[N] == x₂_tf
-            x₃[N] == x₃_tf
-            x₄[N] == x₄_tf
-        end
-    )
-
-    # dynamics
-    @expression(model, Δt, (tf - t0) / N) # Δt size
-    @constraints(
-        model,
-        begin
-            ∂x₁[i = 1:N], x₁[i] == x₁[i - 1] + 0.5 * Δt * (x₃[i - 1] + x₃[i])
-            ∂x₂[i = 1:N], x₂[i] == x₂[i - 1] + 0.5 * Δt * (x₄[i - 1] + x₄[i])
-            ∂x₃[i = 1:N],
-            x₃[i] == x₃[i - 1] + 0.5 * Δt * (a * cos(u[i - 1]) + a * cos(u[i]))
-            ∂x₄[i = 1:N],
-            x₄[i] == x₄[i - 1] + 0.5 * Δt * (a * sin(u[i - 1]) + a * sin(u[i]))
-        end
-    )
-
-    # objective
-    @objective(model, Min, tf)
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end

@@ -48,101 +48,48 @@ function OptimalControlProblems.moonlander(
     dp₁_tf = params[:dp₁_tf]
     dp₂_tf = params[:dp₂_tf]
 
-    # define the problem
-    model = JuMP.Model(args...; kwargs...)
+    function dynamics(x, u)
+        p₁, p₂, dp₁, dp₂, θ, dθ = x
+        F₁, F₂ = u
+        F_r = [
+            cos(θ) -sin(θ) p₁
+            sin(θ) cos(θ) p₂
+            0 0 1
+        ]
+        F_tot = (F_r * [0; F₁ + F₂; 0])[1:2]
+        return [dp₁, dp₂, (1 / m) * F_tot[1], (1 / m) * F_tot[2] - g, dθ, (1 / I) * (D / 2) * (F₂ - F₁)]
+    end
 
-    # metadata: required
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
-    model[:state_components] = ["p₁", "p₂", "dp₁", "dp₂", "θ", "dθ"]
-    model[:costate_components] = ["∂p₁", "∂p₂", "∂dp₁", "∂dp₂", "∂θ", "∂dθ"]
-    model[:control_components] = ["F₁", "F₂"]
-    model[:variable_components] = ["tf"]
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    # state, control and final time variables
-    @variables(
-        model,
-        begin
-            # final time
-            tf_l ≤ tf ≤ tf_u, (start = 0.5)
-
-            # state variables
-            p₁[k = 0:N], (start = 0.1)
-            p₂[k = 0:N], (start = 0.1)
-            dp₁[k = 0:N], (start = 0.1)
-            dp₂[k = 0:N], (start = 0.1)
-            θ[k = 0:N], (start = 0.1)
-            dθ[k = 0:N], (start = 0.1)
-
-            # control variables
-            F₁_l ≤ F₁[k = 0:N] ≤ F₁_u, (start = 5.0)
-            F₂_l ≤ F₂[k = 0:N] ≤ F₂_u, (start = 5.0)
-        end
+    data = ProblemData(;
+        state=[
+            Component("p₁"; start=0.1),
+            Component("p₂"; start=0.1),
+            Component("dp₁"; start=0.1),
+            Component("dp₂"; start=0.1),
+            Component("θ"; start=0.1),
+            Component("dθ"; start=0.1),
+        ],
+        control=[
+            Component("F₁"; lower=F₁_l, upper=F₁_u, start=5.0),
+            Component("F₂"; lower=F₂_l, upper=F₂_u, start=5.0),
+        ],
+        variable=[Component("tf"; lower=tf_l, upper=tf_u, start=0.5)],
+        costate=["∂p₁", "∂p₂", "∂dp₁", "∂dp₂", "∂θ", "∂dθ"],
+        times=v -> (t0, v[1]),
+        dynamics=(x, u, v, t) -> dynamics(x, u),
+        cost=(integral, x0, xf, v) -> v[1],
+        boundary=[
+            (p₁_t0, (x0, xf, v) -> x0[1], p₁_t0),
+            (p₂_t0, (x0, xf, v) -> x0[2], p₂_t0),
+            (dp₁_t0, (x0, xf, v) -> x0[3], dp₁_t0),
+            (dp₂_t0, (x0, xf, v) -> x0[4], dp₂_t0),
+            (θ_t0, (x0, xf, v) -> x0[5], θ_t0),
+            (dθ_t0, (x0, xf, v) -> x0[6], dθ_t0),
+            (p₁_tf, (x0, xf, v) -> xf[1], p₁_tf),
+            (p₂_tf, (x0, xf, v) -> xf[2], p₂_tf),
+            (dp₁_tf, (x0, xf, v) -> xf[3], dp₁_tf),
+            (dp₂_tf, (x0, xf, v) -> xf[4], dp₂_tf),
+        ],
     )
-
-    # initial and final conditions
-    @constraints(
-        model,
-        begin
-            p₁[0] == p₁_t0
-            p₂[0] == p₂_t0
-            dp₁[0] == dp₁_t0
-            dp₂[0] == dp₂_t0
-            θ[0] == θ_t0
-            dθ[0] == dθ_t0
-
-            p₁[N] == p₁_tf
-            p₂[N] == p₂_tf
-            dp₁[N] == dp₁_tf
-            dp₂[N] == dp₂_tf
-        end
-    )
-
-    # dynamics
-    @expressions(
-        model,
-        begin
-            F_r[k = 0:N], [
-                cos(θ[k]) -sin(θ[k]) p₁[k]
-                sin(θ[k]) cos(θ[k]) p₂[k]
-                0 0 1
-            ]
-        end
-    )
-    @expressions(
-        model,
-        begin
-            F_tot[k = 0:N], (F_r[k] * [0; F₁[k] + F₂[k]; 0])[1:2]
-        end
-    )
-    @expressions(
-        model,
-        begin
-            #
-            Δt, (tf - t0) / N
-
-            #
-            ddp₁[k = 0:N], (1 / m) * F_tot[k][1]
-            ddp₂[k = 0:N], (1 / m) * F_tot[k][2] - g
-            ddθ[k = 0:N], (1 / I) * (D / 2) * (F₂[k] - F₁[k])
-        end
-    )
-
-    @constraints(
-        model,
-        begin
-            ∂p₁[k = 1:N], p₁[k] == p₁[k - 1] + 0.5 * Δt * (dp₁[k] + dp₁[k - 1])
-            ∂p₂[k = 1:N], p₂[k] == p₂[k - 1] + 0.5 * Δt * (dp₂[k] + dp₂[k - 1])
-            ∂dp₁[k = 1:N], dp₁[k] == dp₁[k - 1] + 0.5 * Δt * (ddp₁[k] + ddp₁[k - 1])
-            ∂dp₂[k = 1:N], dp₂[k] == dp₂[k - 1] + 0.5 * Δt * (ddp₂[k] + ddp₂[k - 1])
-            ∂θ[k = 1:N], θ[k] == θ[k - 1] + 0.5 * Δt * (dθ[k] + dθ[k - 1])
-            ∂dθ[k = 1:N], dθ[k] == dθ[k - 1] + 0.5 * Δt * (ddθ[k] + ddθ[k - 1])
-        end
-    )
-
-    @objective(model, Min, tf)
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end
