@@ -10,7 +10,8 @@ using OrderedCollections: OrderedDict
 # The schemes, written once for every problem. They live in a subdirectory: every file
 # directly under `JuMPModels/` is a problem.
 include(joinpath("JuMPModels", "schemes", "data.jl"))
-include(joinpath("JuMPModels", "schemes", "trapeze.jl"))
+include(joinpath("JuMPModels", "schemes", "tableaux.jl"))
+include(joinpath("JuMPModels", "schemes", "build.jl"))
 
 # Include only files belonging to this modeling. The file presence is the
 # source of truth for availability.

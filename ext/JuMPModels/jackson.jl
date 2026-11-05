@@ -14,6 +14,7 @@ function OptimalControlProblems.jackson(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:jackson),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -64,5 +65,5 @@ function OptimalControlProblems.jackson(
             (x₃_t0, (x0, xf, v) -> x0[3], x₃_t0),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

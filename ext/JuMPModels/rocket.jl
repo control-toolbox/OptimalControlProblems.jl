@@ -14,6 +14,7 @@ function OptimalControlProblems.rocket(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:rocket),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -72,5 +73,5 @@ function OptimalControlProblems.rocket(
             (m_tf, (x0, xf, v) -> xf[3], m_tf),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

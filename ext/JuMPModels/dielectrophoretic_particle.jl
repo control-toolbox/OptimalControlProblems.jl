@@ -14,6 +14,7 @@ function OptimalControlProblems.dielectrophoretic_particle(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:dielectrophoretic_particle),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -45,5 +46,5 @@ function OptimalControlProblems.dielectrophoretic_particle(
             (x_tf, (x0, xf, v) -> xf[1], x_tf),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

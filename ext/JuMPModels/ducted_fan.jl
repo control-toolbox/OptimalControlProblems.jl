@@ -14,6 +14,7 @@ function OptimalControlProblems.ducted_fan(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:ducted_fan),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -94,5 +95,5 @@ function OptimalControlProblems.ducted_fan(
             (vα_tf, (x0, xf, v) -> xf[6], vα_tf),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

@@ -14,6 +14,7 @@ function OptimalControlProblems.brachistochrone(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:brachistochrone),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -55,5 +56,5 @@ function OptimalControlProblems.brachistochrone(
             (yf, (s0, sf, v) -> sf[2], yf),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

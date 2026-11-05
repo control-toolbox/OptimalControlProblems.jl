@@ -14,6 +14,7 @@ function OptimalControlProblems.mountain_car(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:mountain_car),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -56,5 +57,5 @@ function OptimalControlProblems.mountain_car(
             (vel_tf_min, (x0, xf, v) -> xf[2], Inf),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

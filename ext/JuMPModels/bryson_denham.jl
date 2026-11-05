@@ -14,6 +14,7 @@ function OptimalControlProblems.bryson_denham(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:bryson_denham),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -38,5 +39,5 @@ function OptimalControlProblems.bryson_denham(
             (x2_tf, (x0, xf, v) -> xf[2], x2_tf),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

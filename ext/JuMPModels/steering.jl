@@ -14,6 +14,7 @@ function OptimalControlProblems.steering(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:steering),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -68,5 +69,5 @@ function OptimalControlProblems.steering(
             (x₄_tf, (x0, xf, v) -> xf[4], x₄_tf),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

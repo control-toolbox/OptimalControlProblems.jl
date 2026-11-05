@@ -14,6 +14,7 @@ function OptimalControlProblems.robot(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:robot),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -106,5 +107,5 @@ function OptimalControlProblems.robot(
             (dϕ_tf, (x0, xf, v) -> xf[6], dϕ_tf),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

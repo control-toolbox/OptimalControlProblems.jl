@@ -14,6 +14,7 @@ function OptimalControlProblems.insurance(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:insurance),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -91,5 +92,5 @@ function OptimalControlProblems.insurance(
             (0, (x0, xf, v) -> v[1] - xf[3], 0),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

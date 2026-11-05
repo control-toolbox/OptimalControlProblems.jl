@@ -14,6 +14,7 @@ function OptimalControlProblems.space_shuttle(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:space_shuttle),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -139,5 +140,5 @@ function OptimalControlProblems.space_shuttle(
             (γ_tf, (x0, xf, v) -> xf[5], γ_tf),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

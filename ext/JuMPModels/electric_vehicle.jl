@@ -14,6 +14,7 @@ function OptimalControlProblems.electric_vehicle(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:electric_vehicle),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -57,5 +58,5 @@ function OptimalControlProblems.electric_vehicle(
             (v_tf, (x0, xf, v) -> xf[2], v_tf),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

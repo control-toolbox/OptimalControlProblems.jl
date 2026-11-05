@@ -14,6 +14,7 @@ function OptimalControlProblems.vanderpol(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:vanderpol),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -39,5 +40,5 @@ function OptimalControlProblems.vanderpol(
             (x₁_t0, (x0, xf, v) -> x0[1], x₁_t0), (x₂_t0, (x0, xf, v) -> x0[2], x₂_t0)
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end
