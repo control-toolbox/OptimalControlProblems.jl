@@ -98,7 +98,8 @@ On a pull request, a change touching only one or more per-problem files
 (`ext/MetaData/<p>.jl`, `ext/<modeling>Models/<p>.jl`, or `ext/Descriptions/<p>.md`)
 automatically adds `problem=<p>,...` to the test arguments. The changed problem names are
 combined with any scope labels, so `test JuMP backend` and a change to `beam` run
-`JuMP problem=beam`. Any shared, removed, or renamed file, an unreadable or truncated
+`JuMP problem=beam`. Any shared, removed, or renamed file (a file of those directories whose name is not
+a problem of `ext/MetaData/`, such as a helper, is a shared file), an unreadable or truncated
 file list, a release pull request, and the `test all problems` label run the complete
 catalogue: narrowing only happens on positive evidence. The decision is made by
 `tools/ci/scope.py`, tested by `python3 -m unittest discover -s tools/ci/test -p 'test_*.py'`.

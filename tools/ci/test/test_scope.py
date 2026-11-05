@@ -10,11 +10,17 @@ every changed file is an added or modified per-problem file.
 import json
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ROOT / "tools" / "ci" / "scope.py"
+
+# The problems of the fixtures: one `<problem>.jl` each, as in `ext/MetaData`.
+CATALOGUE = tempfile.mkdtemp(prefix="scope-catalogue-")
+for name in ("beam", "beam2", "mountain_car", "new_problem", "robot"):
+    Path(CATALOGUE, f"{name}.jl").touch()
 
 
 def run_scope(files=(), labels=(), event="pull_request", expected=None):
@@ -24,6 +30,7 @@ def run_scope(files=(), labels=(), event="pull_request", expected=None):
         sys.executable, str(SCRIPT),
         "--event", event,
         "--labels", json.dumps(None if labels is None else list(labels)),
+        "--catalogue", CATALOGUE,
     ]
     if expected is not None:
         command += ["--expected-files", str(expected)]
@@ -101,6 +108,14 @@ class TestScope(unittest.TestCase):
 
     def test_unexpected_name_under_ext(self):
         out, _ = run_scope(problem(["ext/helper.jl"]))
+        self.assertEqual("", out)
+
+    def test_helper_file_in_a_problem_directory(self):
+        # `ext/JuMPModels/schemes.jl` is not a problem: it would give `problem=schemes`
+        out, err = run_scope(problem(["ext/JuMPModels/schemes.jl"]))
+        self.assertEqual("", out)
+        self.assertIn("not the file of a problem", err)
+        out, _ = run_scope(problem(["ext/JuMPModels/beam.jl", "ext/JuMPModels/schemes.jl"]))
         self.assertEqual("", out)
 
     def test_shared_file(self):

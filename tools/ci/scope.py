@@ -20,13 +20,14 @@ count reported by the event payload; when it does not match the number of rows
 read, the list was truncated and the run stays complete. Standard input is a
 list of ``status<TAB>filename`` rows as returned by the pull request files API.
 The arguments are printed on standard output (an empty line when nothing is
-selected); the reason of the decision is printed on standard error for the log.
+selected); ``--catalogue`` is the directory of the problems (default ``ext/MetaData``); the reason of the decision is printed on standard error for the log.
 """
 
 import argparse
 import json
 import re
 import sys
+from pathlib import Path
 
 OVERRIDE_LABEL = "test all problems"
 RELEASE_LABEL = "release"
@@ -41,6 +42,11 @@ PER_PROBLEM = re.compile(
 )
 KEPT_STATUSES = ("added", "modified")
 
+# The problems of the collection: one `<problem>.jl` per problem in `ext/MetaData`. A file
+# of a per-problem directory whose stem is not one (a helper such as
+# `ext/JuMPModels/schemes.jl`) is a shared file.
+DEFAULT_CATALOGUE = Path(__file__).resolve().parents[2] / "ext" / "MetaData"
+
 
 def environments(labels):
     """Turn `test <environment> backend` / `test comparison` labels into arguments."""
@@ -51,9 +57,10 @@ def environments(labels):
     ]
 
 
-def changed_problems(rows, expected):
+def changed_problems(rows, expected, catalogue):
     """Problems named by the changed files, or a reason to run the complete
-    catalogue. `rows` are `status<TAB>filename` pairs."""
+    catalogue. `rows` are `status<TAB>filename` pairs; `catalogue` is the directory
+    of the problems (`ext/MetaData`)."""
     if expected is not None and expected != len(rows):
         return None, f"file list truncated ({len(rows)} of {expected} read): running everything"
     if not rows:
@@ -67,12 +74,15 @@ def changed_problems(rows, expected):
             return None, f"removed or renamed file `{filename}`: running everything"
         if not PER_PROBLEM.match(filename):
             return None, f"shared change `{filename}`: running everything"
-        problems.append(filename.rsplit("/", 1)[-1].rsplit(".", 1)[0])
+        name = filename.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+        if not (catalogue / f"{name}.jl").is_file():
+            return None, f"`{filename}` is not the file of a problem: running everything"
+        problems.append(name)
     problems = sorted(set(problems))
     return problems, f"changed problems: {','.join(problems)}"
 
 
-def test_args(event, labels, rows, expected):
+def test_args(event, labels, rows, expected, catalogue=DEFAULT_CATALOGUE):
     """The `test_args` string and the reason of the decision."""
     args = environments(labels)
     if event != "pull_request":
@@ -82,7 +92,7 @@ def test_args(event, labels, rows, expected):
     elif OVERRIDE_LABEL in labels:
         reason = "override label: running everything"
     else:
-        problems, reason = changed_problems(rows, expected)
+        problems, reason = changed_problems(rows, expected, catalogue)
         if problems:
             args.append("problem=" + ",".join(problems))
     return " ".join(args), reason
@@ -93,6 +103,7 @@ def main(argv=None):
     parser.add_argument("--event", default="pull_request")
     parser.add_argument("--labels", default="[]")
     parser.add_argument("--expected-files", default="")
+    parser.add_argument("--catalogue", type=Path, default=DEFAULT_CATALOGUE)
     ns = parser.parse_args(argv)
     try:
         labels = json.loads(ns.labels) or []
@@ -108,7 +119,7 @@ def main(argv=None):
         expected = int(ns.expected_files) if ns.expected_files else None
     except ValueError:
         expected = None
-    args, reason = test_args(ns.event, labels, rows, expected)
+    args, reason = test_args(ns.event, labels, rows, expected, ns.catalogue)
     print(reason, file=sys.stderr)
     print(args)
     return 0
