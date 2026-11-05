@@ -168,6 +168,27 @@ class ReportTest(unittest.TestCase):
         self.assertEqual(github.data, [])
         self.assertEqual(len(REPORT.findings(rows)["failure"]), 6)
 
+    def test_summary_issue_explains_what_to_do_and_keeps_its_header(self):
+        github = FakeGitHub()
+        rows = self.rows("pass", status="draft")
+        REPORT.update_summary_issue(github, github.data, "draft", "JuMP", rows, "run-1")
+        body = github.data[0]["body"]
+        self.assertIn("What to do", body)
+        self.assertIn(REPORT.README_URL, body)
+        # an issue created by an older version (no explanation) gets the header on update
+        github.data[0]["body"] = "# Automated cron report\n\n" + body[body.index("<!-- cron-scope"):]
+        REPORT.update_summary_issue(github, github.data, "draft", "JuMP", rows, "run-2")
+        self.assertIn("What to do", github.data[0]["body"])
+        self.assertEqual(github.data[0]["body"].count("<!-- cron-scope: JuMP -->"), 1)
+
+    def test_bug_issue_body_says_how_to_reproduce(self):
+        row = self.rows("fail")[0]
+        body = REPORT.bug_body(row, ["linux: t"], "run", "date", 0)
+        self.assertIn('test_args=["JuMP", "cron", "problem=beam"]', body)
+        self.assertIn(REPORT.README_URL, body)
+        comparison = dict(row, modelings="JuMP vs OptimalControl")
+        self.assertIn('"comparison", "cron"', REPORT.bug_body(comparison, ["x"], "run", "d", 0))
+
     def test_replace_section_only_replaces_one_scope(self):
         original = (
             "# Report\n\n"

@@ -42,6 +42,27 @@ the CTActions `ci.yml` and `ci-gpu.yml` reusable workflows. CTActions must be me
 before these cron workflows are enabled or dispatched against `main`: calling a reusable
 workflow with an undeclared input fails at workflow validation.
 
+## What to do with the cron issues
+
+Three repository-wide issues, each with one section per scope (replaced by each run of that
+scope), and one `cron-bug` issue per failing (problem, modeling). All of them explain what
+to do in their own text; this is the longer version.
+
+- **`cron-failure`** — a `:valid` problem failed in a scope (or the run failed or produced no
+  report). Open the run, read the failing configuration (platform and test), reproduce it
+  locally with `Pkg.test(; test_args=["<scope>", "cron", "problem=<problem>"])`, then fix the
+  problem or the package, report an upstream break, or — if the configuration is not
+  supported — set the problem to `:draft` in `ext/MetaData/<problem>.jl`.
+- **`cron-drafts`** — a `:draft` passed all its tests on every platform. Check it, then set
+  `:valid` for that modeling in `ext/MetaData/<problem>.jl` in a pull request.
+- **`cron-capabilities`** — a declared known failure no longer happens (inactive until the
+  `:known_failures` metadata of #306 exists).
+- **`cron-bug`** — opened per (problem, modeling) for at most 5 pairs per run (more is
+  reported in `cron-failure` as a probable upstream breakage). Updated by each run; a comment
+  is added only when the set of failing configurations changes; closed automatically after
+  two consecutive successful runs; reopened at most three times, then labelled `flaky`.
+  Closing one as *not planned* is respected: the cron leaves it alone.
+
 ## Adding a scope
 
 1. Add a `test/suite/<scope>/Project.toml` environment and, when appropriate, a

@@ -23,6 +23,42 @@ FAILURE = {"fail", "error"}
 SCOPE_MARKER = "<!-- cron-scope: {scope} -->"
 KEY_RE = re.compile(r"<!-- cron-key: (.+?) -->")
 REOPENINGS_RE = re.compile(r"<!-- cron-reopenings: (\d+) -->")
+README_URL = (
+    "https://github.com/control-toolbox/OptimalControlProblems.jl/blob/main/"
+    ".github/workflows/README.md#what-to-do-with-the-cron-issues"
+)
+HEADERS = {
+    "failure": (
+        "# Cron failures\n\n"
+        "Written by the weekly cron workflows, one section per scope, replaced by each run of "
+        "that scope. A `:valid` problem failed its slow tests (or the run itself failed).\n\n"
+        "**What to do:** open the run linked in the section, find the failing problem and "
+        "configuration in the table, and decide: fix the problem or the package; report an "
+        "upstream break; or, if the configuration is not supported, set the problem to "
+        "`:draft` in `ext/MetaData/<problem>.jl`. A `cron-bug` issue per (problem, modeling) is "
+        "opened for up to 5 failing pairs per run; more than 5 is reported here only, as a "
+        f"probable upstream breakage. Details: [README]({README_URL}). "
+        "This issue updates itself; close it when the sections say `No findings.`"
+    ),
+    "draft": (
+        "# Drafts ready to become valid\n\n"
+        "Written by the weekly cron workflows, one section per scope, replaced by each run of "
+        "that scope. Each problem below is a `:draft` that **passed all its tests on every "
+        "platform of the run**.\n\n"
+        "**What to do:** check the problem, then change its status to `:valid` in "
+        "`ext/MetaData/<problem>.jl` (`:status => (JuMP=:valid, ...)`, the modeling named in "
+        "the table) in a pull request; from then on a failure fails the CI and the cron. "
+        f"Details: [README]({README_URL}). This issue updates itself; the problem leaves the "
+        "list once it is `:valid`."
+    ),
+    "capability": (
+        "# Declared known failures that no longer happen\n\n"
+        "Written by the weekly cron workflows, one section per scope. Each entry below is a "
+        "known failure declared in the metadata that now passes.\n\n"
+        "**What to do:** remove the entry from `:known_failures` in `ext/MetaData/<problem>.jl`. "
+        f"Details: [README]({README_URL})."
+    ),
+}
 MAX_BUG_ISSUES_PER_RUN = 5
 MAX_REOPENINGS = 3
 
@@ -171,6 +207,13 @@ def issue_section(scope: str, title: str, rows: list[dict[str, str]], run_url: s
     return "\n".join(lines)
 
 
+def with_header(body: str, header: str) -> str:
+    """`body` with its text before the first scope section replaced by `header`."""
+    start = body.find("<!-- cron-scope:")
+    rest = body[start:] if start >= 0 else ""
+    return header + "\n\n" + rest
+
+
 def replace_section(body: str, scope: str, section: str) -> str:
     marker = SCOPE_MARKER.format(scope=scope)
     start = body.find(marker)
@@ -269,17 +312,22 @@ def update_summary_issue(
         return
     if issue is None:
         github.create_issue(
-            f"[Cron] {label}", f"# Automated cron report\n\n{section}\n", [label]
+            f"[Cron] {label}", f"{HEADERS[kind]}\n\n{section}\n", [label]
         )
     else:
-        body = replace_section(issue.get("body") or "# Automated cron report", scope, section)
-        github.update_issue(issue["number"], body=body)
+        body = replace_section(issue.get("body") or "", scope, section)
+        github.update_issue(issue["number"], body=with_header(body, HEADERS[kind]))
 
 
 def issue_reopenings(issue: dict, entry: dict) -> int:
     marker = REOPENINGS_RE.search(issue.get("body") or "")
     recorded = int(marker.group(1)) if marker else 0
     return max(recorded, int(entry.get("reopenings", 0)))
+
+
+def scope_of(row: dict[str, str]) -> str:
+    """The test environment to run for `row` (the first modeling of the key)."""
+    return "comparison" if " vs " in row["modelings"] else row["modelings"]
 
 
 def bug_body(
@@ -298,6 +346,12 @@ def bug_body(
         f"Last observed: {date}\n\n"
         "Failing configurations:\n\n"
         + "".join(f"- `{configuration}`\n" for configuration in configurations)
+        + "\n**What to do:** open the run, reproduce locally with "
+        f"`Pkg.test(; test_args=[\"{scope_of(row)}\", \"cron\", \"problem={row['problem']}\"])`, "
+        "then fix the problem or the package, or set the problem to `:draft` in "
+        "`ext/MetaData/<problem>.jl` if the configuration is not supported. This issue is "
+        "updated by each cron run and closed automatically after two consecutive successful "
+        f"runs. Details: [README]({README_URL}).\n"
     )
 
 
