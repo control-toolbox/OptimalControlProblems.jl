@@ -66,3 +66,4 @@ These cases illustrate how second-order state inequality constraints can yield u
 
 - BOCOP examples: Clamped Beam problem. [Examples-BOCOP.pdf](https://project.inria.fr/bocop/files/2017/05/Examples-BOCOP.pdf)  
   This example illustrates the practical implementation of the clamped beam problem in BOCOP, providing a benchmark for testing optimal control methods under state inequality constraints.
+<!-- demo #361: throwaway, do not merge -->
