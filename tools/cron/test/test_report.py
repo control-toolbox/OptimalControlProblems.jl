@@ -220,5 +220,89 @@ class ReportTest(unittest.TestCase):
         self.assertNotIn("## old", result)
 
 
+
+RESULT_HEADER = "test\tproblem\tmodeling\tconfiguration\tresult\treason\tobjective\titerations\ttime\tgap\n"
+
+
+def result_row(problem, result="converged", objective="1.0", platform="cron-a"):
+    return {
+        "test": "test_convergence c", "problem": problem, "modeling": "JuMP",
+        "configuration": "solver=ipopt", "result": result, "reason": "LOCALLY_SOLVED",
+        "objective": objective, "iterations": "10", "time": "0.1", "gap": "",
+        "platform": platform,
+    }
+
+
+class ConvergenceTests(unittest.TestCase):
+    def test_parse_results_reads_the_tsv_with_its_platform(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            (root / "cron-a").mkdir()
+            (root / "cron-a" / "JuMP-cron-results.tsv").write_text(
+                RESULT_HEADER
+                + "test_convergence c\tbeam\tJuMP\tsolver=ipopt\tconverged\tLOCALLY_SOLVED\t8.9\t18\t0.03\t\n"
+                + "too\tfew\tcells\n"
+            )
+            rows = REPORT.parse_results(root)
+            # the five-column parser of the outcomes reads only `*.md`
+            self.assertEqual([], REPORT.parse_reports(root))
+        self.assertEqual(1, len(rows))
+        self.assertEqual("cron-a", rows[0]["platform"])
+        self.assertEqual("converged", rows[0]["result"])
+
+    def test_previous_results_are_those_of_the_previous_run_for_both_calls(self):
+        state = {}
+        self.assertEqual({}, REPORT.remember_results(state, "JuMP", [result_row("beam")], "run1"))
+        second = [result_row("beam", result="not_converged")]
+        previous = REPORT.remember_results(state, "JuMP", second, "run2")
+        self.assertEqual("converged", previous[REPORT.result_key(second[0])]["result"])
+        # the issues call of the same run compares with the same previous run
+        again = REPORT.remember_results(state, "JuMP", second, "run2")
+        self.assertEqual(previous, again)
+        # another scope keeps its own history
+        self.assertEqual({}, REPORT.remember_results(state, "OptimalControl", second, "run2"))
+
+    def test_change_and_degradations(self):
+        before = {
+            REPORT.result_key(result_row(p)): {"result": r, "objective": o}
+            for p, r, o in (("a", "converged", "1.0"), ("b", "not_converged", "1.0"),
+                            ("c", "converged", "1.0"), ("d", "converged", "1.0"))
+        }
+        now = [
+            result_row("a", result="not_converged"),
+            result_row("b"),
+            result_row("c", objective="1.01"),
+            result_row("d", objective="1.00000001"),
+            result_row("e"),
+        ]
+        self.assertEqual(
+            ["lost", "gained", "objective +1.00e-02", "", "new"],
+            [REPORT.change(row, before) for row in now],
+        )
+        worse = REPORT.degradations(now, before)
+        self.assertEqual(["a", "c"], [row["problem"] for row in worse])
+        self.assertEqual("solver=ipopt", worse[0]["test"])
+
+    def test_a_passing_convergence_test_does_not_make_a_draft_ready(self):
+        rows = [
+            {"test": "test_convergence solver=ipopt", "problem": "p", "modelings": "JuMP",
+             "status": "draft", "outcome": "pass", "platform": "a"},
+        ]
+        self.assertEqual([], REPORT.findings(rows)["draft"])
+        rows[0]["test"] = "test_init"
+        self.assertEqual(1, len(REPORT.findings(rows)["draft"]))
+
+    def test_report_lists_the_results_with_their_change(self):
+        text = REPORT.report_markdown(
+            "JuMP", [], "run", "now", "sha", "1.13", "0.6.0",
+            [result_row("beam", result="not_converged")],
+            {REPORT.result_key(result_row("beam")): {"result": "converged", "objective": "1.0"}},
+        )
+        self.assertIn("## Convergence (reported, not tested)", text)
+        self.assertIn("| beam | JuMP | solver=ipopt | not_converged |", text)
+        self.assertTrue(text.rstrip().endswith("| lost |"))
+        # no results: no section
+        self.assertNotIn("Convergence", REPORT.report_markdown("JuMP", [], "r", "n", "s", "j", "p"))
+
 if __name__ == "__main__":
     unittest.main()
