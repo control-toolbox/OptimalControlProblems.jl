@@ -9,30 +9,59 @@ on:
     types: [labeled, unlabeled, synchronize, reopened]
 
 jobs:
-  # Turn the `test <environment> backend` / `test comparison` labels of a pull request into
-  # the arguments of test/runtests.jl (environment names). Without such a label, or outside
-  # a pull request, the arguments are empty and every environment runs.
+  # Turn scope labels and per-problem pull request changes into the arguments of
+  # test/runtests.jl (tools/ci/scope.py). Without a scope label, or outside a pull
+  # request, every environment and problem runs. A pull request whose files are all
+  # per-problem files narrows the run to those problems (`problem=`); narrowing only
+  # happens on positive evidence: the `release` or `test all problems` label, a shared
+  # change, a removed or renamed file and any unreadable or truncated file list run
+  # everything.
   scope:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       test_args: ${{ steps.scope.outputs.test_args }}
     steps:
       - uses: actions/checkout@v4
+      - id: files
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Written only on success: a failed call leaves no list and the scope step
+          # runs the complete catalogue.
+          if gh api --paginate \
+              "repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files" \
+              --jq '.[] | [.status, .filename] | @tsv' > changed_files.tsv.new; then
+            mv changed_files.tsv.new changed_files.tsv
+          else
+            rm -f changed_files.tsv.new
+            echo "::warning::could not list the pull request files; the complete catalogue runs"
+          fi
 
-      - name: Test the cron report tooling
-        run: python3 -m unittest discover -s tools/cron/test -p 'test_*.py' -v
+      - name: Test the CI tooling
+        run: |
+          python3 -m unittest discover -s tools/cron/test -p 'test_*.py' -v
+          python3 -m unittest discover -s tools/ci/test -p 'test_*.py' -v
 
       - id: scope
         env:
+          # null outside pull_request events: the script reads it as no label.
           LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
         run: |
-          args=$(echo "$LABELS" | jq -r '[(. // [])[] | select(startswith("test ")) | sub("^test "; "") | sub(" backend$"; "")] | join(" ")')
+          args=$(cat changed_files.tsv 2>/dev/null | python3 tools/ci/scope.py \
+            --event "${{ github.event_name }}" \
+            --labels "$LABELS" \
+            --expected-files "${{ github.event.pull_request.changed_files }}")
           echo "test_args=$args" >> "$GITHUB_OUTPUT"
           echo "test_args: '$args'"
 
   # On a pull request, run when the runner label is set: on a push, on the runner label
-  # being added, or on a scope label (`test ...`) being added or removed, which changes what
-  # runs. Other label events do not rerun the CI.
+  # being added, or on a label that changes what runs being added or removed (the scope
+  # labels `test ...`, including `test all problems`, and `release`). Other label events
+  # do not rerun the CI.
   call:
     needs: scope
     if: >
@@ -40,6 +69,7 @@ jobs:
       (contains(github.event.pull_request.labels.*.name, 'run ci github-runner') &&
         ((github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
           github.event.label.name == 'run ci github-runner' ||
+          github.event.label.name == 'release' ||
           startsWith(github.event.label.name, 'test ')))
     uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
     with:

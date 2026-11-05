@@ -44,3 +44,6 @@ docs/src/problems
 
 # reports of the test statuses (test/common/status.jl)
 test/reports/
+
+# Python bytecode of the CI tool tests
+__pycache__/

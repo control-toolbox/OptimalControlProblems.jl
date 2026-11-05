@@ -90,10 +90,25 @@ it runs:
 | --- | --- |
 | `run ci github-runner` | run the CI on GitHub runners (Ubuntu and Julia 1.13 only for now; Julia 1.10, macOS and Windows come back at the end of #310, see #344) |
 | `test <environment> backend`, `test comparison` | run core and these environments only |
+| `test all problems` | remove the per-problem narrowing below; composes with the scope labels |
 | no scope label | run core and every environment except the opt-in ones |
 
 Scope labels add up. Adding or removing a label reruns the CI when a runner label is set.
-The cron ignores labels.
+On a pull request, a change touching only one or more per-problem files
+(`ext/MetaData/<p>.jl`, `ext/<modeling>Models/<p>.jl`, or `ext/Descriptions/<p>.md`)
+automatically adds `problem=<p>,...` to the test arguments. The changed problem names are
+combined with any scope labels, so `test JuMP backend` and a change to `beam` run
+`JuMP problem=beam`. Any shared, removed, or renamed file (a file of those directories whose name is not
+a problem of `ext/MetaData/`, such as a helper, is a shared file), an unreadable or truncated
+file list, a release pull request, and the `test all problems` label run the complete
+catalogue: narrowing only happens on positive evidence. The decision is made by
+`tools/ci/scope.py`, tested by `python3 -m unittest discover -s tools/ci/test -p 'test_*.py'`.
+
+`problem=` also narrows `core`: checks that loop over problems run for the selected
+problems only, while the repository-wide checks (files, metadata schema) are unaffected.
+An edited draft problem runs as draft: it cannot fail the run. Coverage is unaffected —
+`Coverage.yml` runs on pushes to `main` and tags, never on a narrowed pull request. The
+cron ignores labels and problem scoping.
 
 ## Adding a test
 
