@@ -15,6 +15,7 @@ using OptimalControl
 using JuMP
 using CTModels
 include("problems.jl")    # Your problem definitions
+include("browser.jl")     # The interactive problems browser
 
 # ==============================
 # --- Add Docstrings from external packages ---
@@ -118,30 +119,33 @@ PROBLEMS_PAGES = generate_documentation_problems(;
 Draft = false
 ```
 =#
-makedocs(;
-    draft=draft,
-    #remotes=nothing,
-    warnonly=:cross_references,
-    sitename="OptimalControlProblems.jl",
-    format=DocumenterVitepress.MarkdownVitepress(;
-        repo=repo_url,
-        devbranch="main",
-        devurl="dev",
-        sidebar_drawer=true,
-    ),
-    pages=[
-        "Problems" => [
-            "problems-introduction.md",
-            "List of the problems" => PROBLEMS_PAGES,
+with_problems_browser() do browser_file
+    makedocs(;
+        draft=draft,
+        #remotes=nothing,
+        warnonly=:cross_references,
+        sitename="OptimalControlProblems.jl",
+        format=DocumenterVitepress.MarkdownVitepress(;
+            repo=repo_url,
+            devbranch="main",
+            devurl="dev",
+            sidebar_drawer=true,
+        ),
+        pages=[
+            "Problems" => [
+                "problems-introduction.md",
+                browser_file,
+                "List of the problems" => PROBLEMS_PAGES,
+            ],
+            "Tutorials" => [
+                "Get a problem" => "tutorial-get.md",
+                "Solve a problem" => "tutorial-solve.md",
+            ],
+            "Developers" => ["Add a problem" => "dev-add.md", "API" => "dev-api.md"],
         ],
-        "Tutorials" => [
-            "Get a problem" => "tutorial-get.md",
-            "Solve a problem" => "tutorial-solve.md",
-        ],
-        "Developers" => ["Add a problem" => "dev-add.md", "API" => "dev-api.md"],
-    ],
-    plugins=[links],
-)
+        plugins=[links],
+    )
+end
 
 # ==============================
 # --- Deploy Documentation ---

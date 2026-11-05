@@ -13,6 +13,7 @@ import VersionPicker from "@/VersionPicker.vue"
 import AuthorBadge from '@/AuthorBadge.vue'
 import Authors from '@/Authors.vue'
 import SidebarDrawerToggle from '@/SidebarDrawerToggle.vue'
+import ProblemsBrowser from '@/ProblemsBrowser.vue'
 // __DV_PLUGIN_COMPONENT_IMPORTS__
 
 import { enhanceAppWithTabs } from 'vitepress-plugin-tabs/client'
@@ -61,6 +62,7 @@ export const Theme: ThemeConfig = {
     app.component('VersionPicker', VersionPicker);
     app.component('AuthorBadge', AuthorBadge)
     app.component('Authors', Authors)
+    app.component('ProblemsBrowser', ProblemsBrowser)
 
     // Execute the scripts inside interactive `text/html` outputs (WGLMakie/Bonito, Plotly, …)
     // once their `<ClientOnly>` wrapper has mounted on the client. `mounted` fires on the
