@@ -40,6 +40,8 @@ jobs:
     uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
     with:
       versions: '["1.13"]'
+      # macOS is left out for now (scarce runners, long queues); it comes back with #344.
+      runs_on: '["ubuntu-latest", "windows-latest"]'
       use_ct_registry: true
       test_args: ${{ inputs.environment }} cron
       upload_artifact_path: test/reports

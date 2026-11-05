@@ -11,7 +11,8 @@ scope labels. They are staggered at 04:00 UTC:
 | `CronComparison.yml` | `comparison` | Friday | No |
 | `CronModelingToolkit.yml` | `ModelingToolkit` | manual only until the scope exists | No |
 
-Each thin workflow calls `cron-reusable.yml`. The reusable workflow runs the CPU tests,
+Each thin workflow calls `cron-reusable.yml`. The reusable workflow runs the CPU tests
+(Ubuntu and Windows on Julia 1.13; macOS comes back with #344),
 and, where requested, the GPU tests. It then downloads the report artifacts without
 merging them, updates the summary and regression issues, and publishes `cron/<scope>.md`
 and `cron/state.json` on the `results` branch. The first run creates `results`; each run
