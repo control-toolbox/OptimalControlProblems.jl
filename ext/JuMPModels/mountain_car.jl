@@ -38,61 +38,23 @@ function OptimalControlProblems.mountain_car(
     b = params[:b]
     c = params[:c]
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
-
-    # metadata
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1)
-    model[:state_components] = ["pos", "vel"]
-    model[:costate_components] = ["∂pos", "∂vel"]
-    model[:control_components] = ["u"]
-    model[:variable_components] = ["tf"]
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    # variables
-    @variables(
-        model,
-        begin
-            pos_min ≤ pos[0:N] ≤ pos_max, (start = pos_t0)
-            vel_min ≤ vel[0:N] ≤ vel_max, (start = vel_t0)
-            u_min ≤ u[0:N] ≤ u_max, (start = 0.0)
-            tf ≥ tf_min, (start = tf_start)
-        end
+    data = ProblemData(;
+        state=[
+            Component("pos"; lower=pos_min, upper=pos_max, start=pos_t0),
+            Component("vel"; lower=vel_min, upper=vel_max, start=vel_t0),
+        ],
+        control=[Component("u"; lower=u_min, upper=u_max, start=0.0)],
+        variable=[Component("tf"; lower=tf_min, start=tf_start)],
+        costate=["∂pos", "∂vel"],
+        times=v -> (t0, v[1]),
+        dynamics=(x, u, v, t) -> [x[2], a * u[1] - b * cos(c * x[1])],
+        cost=(I, x0, xf, v) -> v[1],
+        boundary=[
+            (pos_t0, (x0, xf, v) -> x0[1], pos_t0),
+            (vel_t0, (x0, xf, v) -> x0[2], vel_t0),
+            (pos_tf, (x0, xf, v) -> xf[1], pos_tf),
+            (vel_tf_min, (x0, xf, v) -> xf[2], Inf),
+        ],
     )
-
-    # boundary constraints
-    @constraints(
-        model,
-        begin
-            pos[0] == pos_t0
-            vel[0] == vel_t0
-            pos[N] == pos_tf
-            vel[N] ≥ vel_tf_min
-        end
-    )
-
-    # dynamics
-    @expressions(
-        model,
-        begin
-            Δt, (tf - t0) / N
-            dpos[i = 0:N], vel[i]
-            dvel[i = 0:N], a * u[i] - b * cos(c * pos[i])
-        end
-    )
-
-    @constraints(
-        model,
-        begin
-            ∂pos[i = 1:N], pos[i] == pos[i - 1] + 0.5 * Δt * (dpos[i] + dpos[i - 1])
-            ∂vel[i = 1:N], vel[i] == vel[i - 1] + 0.5 * Δt * (dvel[i] + dvel[i - 1])
-        end
-    )
-
-    # objective
-    @objective(model, Min, tf)
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end

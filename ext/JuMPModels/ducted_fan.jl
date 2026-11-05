@@ -47,93 +47,52 @@ function OptimalControlProblems.ducted_fan(
     α_tf = params[:α_tf]
     vα_tf = params[:vα_tf]
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
+    function dynamics(x, u)
+        _, v₁, _, v₂, α, vα = x
+        u₁, u₂ = u
+        return [
+            v₁,
+            (u₁ * cos(α) - u₂ * sin(α)) / m,
+            v₂,
+            (-mg + u₁ * sin(α) + u₂ * cos(α)) / m,
+            vα,
+            r * u₁ / J,
+        ]
+    end
 
-    # metadata: required
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
-    model[:state_components] = ["x₁", "v₁", "x₂", "v₂", "α", "vα"]
-    model[:costate_components] = ["∂x₁", "∂v₁", "∂x₂", "∂v₂", "∂α", "∂vα"]
-    model[:control_components] = ["u₁", "u₂"]
-    model[:variable_components] = ["tf"]
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    # state, control, variable (final time) and initial guess
-    @variables(
-        model,
-        begin
-            x₁[0:N], (start = 0.1)
-            v₁[0:N], (start = 0.1)
-            x₂[0:N], (start = -0.1)
-            v₂[0:N], (start = 0.1)
-            α_l ≤ α[0:N] ≤ α_u, (start = 0.1)     # radian
-            vα[0:N], (start = 0.1)
-            u₁_l ≤ u₁[0:N] ≤ u₁_u, (start = 0.1)     # [N]
-            u₂_l ≤ u₂[0:N] ≤ u₂_u, (start = 1)       # [N]
-            tf ≥ tf_l, (start = 1.5)
-        end
+    data = ProblemData(;
+        state=[
+            Component("x₁"; start=0.1),
+            Component("v₁"; start=0.1),
+            Component("x₂"; start=-0.1),
+            Component("v₂"; start=0.1),
+            Component("α"; lower=α_l, upper=α_u, start=0.1),  # radian
+            Component("vα"; start=0.1),
+        ],
+        control=[
+            Component("u₁"; lower=u₁_l, upper=u₁_u, start=0.1),  # [N]
+            Component("u₂"; lower=u₂_l, upper=u₂_u, start=1),  # [N]
+        ],
+        variable=[Component("tf"; lower=tf_l, start=1.5)],
+        costate=["∂x₁", "∂v₁", "∂x₂", "∂v₂", "∂α", "∂vα"],
+        times=v -> (t0, v[1]),
+        dynamics=(x, u, v, t) -> dynamics(x, u),
+        lagrange=(x, u, v, t) -> 2 * u[1]^2 + u[2]^2,
+        cost=(I, x0, xf, v) -> (1 / v[1]) * I + (μ * v[1]),
+        boundary=[
+            (x₁_t0, (x0, xf, v) -> x0[1], x₁_t0),
+            (v₁_t0, (x0, xf, v) -> x0[2], v₁_t0),
+            (x₂_t0, (x0, xf, v) -> x0[3], x₂_t0),
+            (v₂_t0, (x0, xf, v) -> x0[4], v₂_t0),
+            (α_t0, (x0, xf, v) -> x0[5], α_t0),
+            (vα_t0, (x0, xf, v) -> x0[6], vα_t0),
+            (x₁_tf, (x0, xf, v) -> xf[1], x₁_tf),
+            (v₁_tf, (x0, xf, v) -> xf[2], v₁_tf),
+            (x₂_tf, (x0, xf, v) -> xf[3], x₂_tf),
+            (v₂_tf, (x0, xf, v) -> xf[4], v₂_tf),
+            (α_tf, (x0, xf, v) -> xf[5], α_tf),
+            (vα_tf, (x0, xf, v) -> xf[6], vα_tf),
+        ],
     )
-
-    # Boundary constraints
-    @constraints(
-        model,
-        begin
-            # initial
-            x₁[0] == x₁_t0
-            v₁[0] == v₁_t0
-            x₂[0] == x₂_t0
-            v₂[0] == v₂_t0
-            α[0] == α_t0
-            vα[0] == vα_t0
-
-            # final
-            x₁[N] == x₁_tf
-            v₁[N] == v₁_tf
-            x₂[N] == x₂_tf
-            v₂[N] == v₂_tf
-            α[N] == α_tf
-            vα[N] == vα_tf
-        end
-    )
-
-    # dynamics
-    @expressions(
-        model,
-        begin
-            #
-            Δt, (tf - t0) / N
-
-            # dynamics
-            dx₁[k = 0:N], v₁[k]
-            dv₁[k = 0:N], (u₁[k] * cos(α[k]) - u₂[k] * sin(α[k])) / m
-            dx₂[k = 0:N], v₂[k]
-            dv₂[k = 0:N], (-mg + u₁[k] * sin(α[k]) + u₂[k] * cos(α[k])) / m
-            dα[k = 0:N], vα[k]
-            dvα[k = 0:N], r * u₁[k] / J
-
-            # objective
-            dc[k = 0:N], 2 * u₁[k]^2 + u₂[k]^2
-        end
-    )
-
-    @constraints(
-        model,
-        begin
-            ∂x₁[k = 1:N], x₁[k] == x₁[k - 1] + 0.5 * Δt * (dx₁[k] + dx₁[k - 1])
-            ∂v₁[k = 1:N], v₁[k] == v₁[k - 1] + 0.5 * Δt * (dv₁[k] + dv₁[k - 1])
-            ∂x₂[k = 1:N], x₂[k] == x₂[k - 1] + 0.5 * Δt * (dx₂[k] + dx₂[k - 1])
-            ∂v₂[k = 1:N], v₂[k] == v₂[k - 1] + 0.5 * Δt * (dv₂[k] + dv₂[k - 1])
-            ∂α[k = 1:N], α[k] == α[k - 1] + 0.5 * Δt * (dα[k] + dα[k - 1])
-            ∂vα[k = 1:N], vα[k] == vα[k - 1] + 0.5 * Δt * (dvα[k] + dvα[k - 1])
-        end
-    )
-
-    # objective
-    @objective(
-        model, Min, (1 / tf) * 0.5 * Δt * sum(dc[k] + dc[k - 1] for k in 1:N) + (μ * tf)
-    )
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end

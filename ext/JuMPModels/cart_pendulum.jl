@@ -40,85 +40,42 @@ function OptimalControlProblems.cart_pendulum(
     θ_tf = params[:θ_tf]
     ω_tf = params[:ω_tf]
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
+    function dynamics(x, u, v)
+        _, vel, θ, ω = x
+        Fex = u[1]
+        ddx = v[2]
+        α_ddx = 1 / (I + 0.25 * m * L^2) * 0.5 * L * m * (-ddx * cos(θ) - g * sin(θ))
+        ddCOG_1 = -L * sin(θ) * ω + L / 2 * cos(θ) * α_ddx + ddx
+        FXFY_1 = m * ddCOG_1
+        eq = -FXFY_1 + Fex - mcart * ddx
+        J = mcart
+        c = eq - J * ddx
+        dv = -1 / J * c
+        return [
+            vel, dv, ω, 1 / (I + 0.25 * m * L^2) * 0.5 * L * m * (-dv * cos(θ) - g * sin(θ))
+        ]
+    end
 
-    # metadata: required
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
-    model[:state_components] = ["x", "v", "θ", "ω"]
-    model[:costate_components] = ["∂x", "∂v", "∂θ", "∂ω"]
-    model[:control_components] = ["Fex"]
-    model[:variable_components] = ["tf", "ddx"]
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    # variables and initial guess
-    @variables(
-        model,
-        begin
-            tf ≥ tf_l, (start = 1.0)
-            ddx, (start = 0.1)
-            x_l ≤ x[0:N] ≤ x_u, (start = 0.1)
-            v_l ≤ v[0:N] ≤ v_u, (start = 0.1)
-            θ[0:N], (start = 0.1)
-            ω[0:N], (start = 0.1)
-            Fex_l ≤ Fex[0:N] ≤ Fex_u, (start = 0.1)
-        end
+    data = ProblemData(;
+        state=[
+            Component("x"; lower=x_l, upper=x_u, start=0.1),
+            Component("v"; lower=v_l, upper=v_u, start=0.1),
+            Component("θ"; start=0.1),
+            Component("ω"; start=0.1),
+        ],
+        control=[Component("Fex"; lower=Fex_l, upper=Fex_u, start=0.1)],
+        variable=[Component("tf"; lower=tf_l, start=1.0), Component("ddx"; start=0.1)],
+        costate=["∂x", "∂v", "∂θ", "∂ω"],
+        times=v -> (t0, v[1]),
+        dynamics=(x, u, v, t) -> dynamics(x, u, v),
+        cost=(integral, x0, xf, v) -> v[1],
+        boundary=[
+            (x_t0, (x0, xf, v) -> x0[1], x_t0),
+            (θ_t0, (x0, xf, v) -> x0[3], θ_t0),
+            (ω_t0, (x0, xf, v) -> x0[4], ω_t0),
+            (θ_tf, (x0, xf, v) -> xf[3], θ_tf),
+            (ω_tf, (x0, xf, v) -> xf[4], ω_tf),
+        ],
     )
-
-    # boundary constraints
-    @constraints(
-        model,
-        begin
-            x[0] == x_t0
-            θ[0] == θ_t0
-            ω[0] == ω_t0
-            θ[N] == θ_tf
-            ω[N] == ω_tf
-        end
-    )
-
-    # dynamics
-    @expressions(
-        model,
-        begin
-            Δt, (tf - t0) / N
-
-            α_ddx[i = 0:N],
-            1 / (I + 0.25 * m * L^2) * 0.5 * L * m * (-ddx * cos(θ[i]) - g * sin(θ[i]))
-
-            ddCOG_1[i = 0:N], - L * sin(θ[i]) * ω[i] + L / 2 * cos(θ[i]) * α_ddx[i] + ddx
-            ddCOG_2[i = 0:N], L * cos(θ[i]) * ω[i] + L / 2 * sin(θ[i]) * α_ddx[i]
-
-            FXFY_1[i = 0:N], m * ddCOG_1[i]
-            #FXFY_2[i=0:N], m * ddCOG_2[i] + m * g
-
-            eq[i = 0:N], -FXFY_1[i] + Fex[i] - mcart * ddx
-
-            J, mcart
-            c[i = 0:N], eq[i] - J * ddx
-
-            dx[i = 0:N], v[i]
-            dv[i = 0:N], -1 / J * c[i]
-            dθ[i = 0:N], ω[i]
-            dω[i = 0:N],
-            1 / (I + 0.25 * m * L^2) * 0.5 * L * m * (-dv[i] * cos(θ[i]) - g * sin(θ[i]))
-        end
-    )
-
-    @constraints(
-        model,
-        begin
-            ∂x[k = 1:N], x[k] == x[k - 1] + 0.5 * Δt * (dx[k] + dx[k - 1])
-            ∂v[k = 1:N], v[k] == v[k - 1] + 0.5 * Δt * (dv[k] + dv[k - 1])
-            ∂θ[k = 1:N], θ[k] == θ[k - 1] + 0.5 * Δt * (dθ[k] + dθ[k - 1])
-            ∂ω[k = 1:N], ω[k] == ω[k - 1] + 0.5 * Δt * (dω[k] + dω[k - 1])
-        end
-    )
-
-    # objective
-    @objective(model, Min, tf)
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end

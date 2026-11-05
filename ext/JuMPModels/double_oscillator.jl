@@ -33,72 +33,27 @@ function OptimalControlProblems.double_oscillator(
     x₁_t0 = params[:x₁_t0]
     x₂_t0 = params[:x₂_t0]
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
+    function dynamics(x, u, t)
+        x₁, x₂, x₃, x₄ = x
+        F = sin((t - t0) * 2π / (tf - t0))
+        return [
+            x₃,
+            x₄,
+            -(k1 + k2) / m1 * x₁ + k2 / m1 * x₂ + 1 / m1 * F,
+            k2 / m2 * x₁ - k2 / m2 * x₂ - c * (1 - u[1]) / m2 * x₄,
+        ]
+    end
 
-    # metadata: required
-    model[:time_grid] = () -> range(t0, tf, grid_size + 1) # tf is a fixed
-    model[:state_components] = ["x₁", "x₂", "x₃", "x₄"]
-    model[:costate_components] = ["∂x₁", "∂x₂", "∂x₃", "∂x₄"]
-    model[:control_components] = ["u"]
-    model[:variable_components] = String[]
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    # state, control and initial guess
-    @variables(
-        model,
-        begin
-            x₁[0:N], (start = 0.1)
-            x₂[0:N], (start = 0.1)
-            x₃[0:N], (start = 0.1)
-            x₄[0:N], (start = 0.1)
-            u_l ≤ u[0:N] ≤ u_u, (start = 0.1)
-        end
+    data = ProblemData(;
+        state=[Component("x$(c)"; start=0.1) for c in "₁₂₃₄"],
+        control=[Component("u"; lower=u_l, upper=u_u, start=0.1)],
+        costate=["∂x₁", "∂x₂", "∂x₃", "∂x₄"],
+        times=v -> (t0, tf),
+        dynamics=(x, u, v, t) -> dynamics(x, u, t),
+        lagrange=(x, u, v, t) -> 0.5 * (x[1]^2 + x[2]^2 + u[1]^2),
+        boundary=[
+            (x₁_t0, (x0, xf, v) -> x0[1], x₁_t0), (x₂_t0, (x0, xf, v) -> x0[2], x₂_t0)
+        ],
     )
-
-    # boundary conditions
-    @constraints(
-        model,
-        begin
-            x₁[0] == x₁_t0
-            x₂[0] == x₂_t0
-        end
-    )
-
-    # dynamics
-    @expressions(
-        model,
-        begin
-            #
-            Δt, (tf - t0) / N
-            t[k = 0:N], t0 + k * (tf - t0) / N
-            F[k = 0:N], sin((t[k] - t0) * 2π / (tf - t0))
-
-            # dynamics
-            dx₁[k = 0:N], x₃[k]
-            dx₂[k = 0:N], x₄[k]
-            dx₃[k = 0:N], -(k1 + k2) / m1 * x₁[k] + k2 / m1 * x₂[k] + 1 / m1 * F[k]
-            dx₄[k = 0:N], k2 / m2 * x₁[k] - k2 / m2 * x₂[k] - c * (1 - u[k]) / m2 * x₄[k]
-
-            # objective
-            dc[k = 0:N], 0.5 * (x₁[k]^2 + x₂[k]^2 + u[k]^2)
-        end
-    )
-
-    @constraints(
-        model,
-        begin
-            ∂x₁[k = 1:N], x₁[k] == x₁[k - 1] + 0.5 * Δt * (dx₁[k] + dx₁[k - 1])
-            ∂x₂[k = 1:N], x₂[k] == x₂[k - 1] + 0.5 * Δt * (dx₂[k] + dx₂[k - 1])
-            ∂x₃[k = 1:N], x₃[k] == x₃[k - 1] + 0.5 * Δt * (dx₃[k] + dx₃[k - 1])
-            ∂x₄[k = 1:N], x₄[k] == x₄[k - 1] + 0.5 * Δt * (dx₄[k] + dx₄[k - 1])
-        end
-    )
-
-    # objective: trapeze rule
-    @objective(model, Min, 0.5 * Δt * sum(dc[k] + dc[k - 1] for k in 1:N))
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end

@@ -43,79 +43,40 @@ function OptimalControlProblems.glider(
     x_l = params[:x_l]
     vx_l = params[:vx_l]
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
+    function dynamics(x, u)
+        X, _, vx, vy = x
+        cL = u[1]
+        r = (X / r_t0 - 2.5)^2
+        w = vy - u_c * (1 - r) * exp(-r)
+        v = √(vx^2 + w^2)
+        D = 0.5 * (c0 + c1 * cL^2) * ρ * S * v^2
+        L = 0.5 * cL * ρ * S * v^2
+        return [vx, vy, -(L * w + D * vx) / (m * v), (L * vx - D * w) / (m * v) - g]
+    end
 
-    # metadata: required
-    model[:time_grid] = () -> range(t0, value(model[:tf]), grid_size + 1) # tf is a free
-    model[:state_components] = ["x", "y", "vx", "vy"]
-    model[:costate_components] = ["∂x", "∂y", "∂vx", "∂vy"]
-    model[:control_components] = ["cL"]
-    model[:variable_components] = ["tf"]
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    # state, control, variable (final time) and initial guess
-    @variables(
-        model,
-        begin
-            tf ≥ tf_l, (start = 100.0)  ####
-            x[k = 0:N] ≥ x_l, (start = x_t0 + (k / N) * 1248.0) ####
-            y[k = 0:N], (start = y_t0 + (k / N) * (y_tf - y_t0))
-            vx[k = 0:N] ≥ vx_l, (start = vx_t0)
-            vy[k = 0:N], (start = vy_t0)
-            cL_min ≤ cL[k = 0:N] ≤ cL_max, (start = 1.0) ####
-        end
+    N = grid_size
+    data = ProblemData(;
+        state=[
+            Component("x"; lower=x_l, start=[x_t0 + (k / N) * 1248.0 for k in 0:N]),
+            Component("y"; start=[y_t0 + (k / N) * (y_tf - y_t0) for k in 0:N]),
+            Component("vx"; lower=vx_l, start=vx_t0),
+            Component("vy"; start=vy_t0),
+        ],
+        control=[Component("cL"; lower=cL_min, upper=cL_max, start=1.0)],
+        variable=[Component("tf"; lower=tf_l, start=100.0)],
+        costate=["∂x", "∂y", "∂vx", "∂vy"],
+        times=v -> (t0, v[1]),
+        dynamics=(x, u, v, t) -> dynamics(x, u),
+        cost=(I, x0, xf, v) -> -xf[1],
+        boundary=[
+            (x_t0, (x0, xf, v) -> x0[1], x_t0),
+            (y_t0, (x0, xf, v) -> x0[2], y_t0),
+            (vx_t0, (x0, xf, v) -> x0[3], vx_t0),
+            (vy_t0, (x0, xf, v) -> x0[4], vy_t0),
+            (y_tf, (x0, xf, v) -> xf[2], y_tf),
+            (vx_tf, (x0, xf, v) -> xf[3], vx_tf),
+            (vy_tf, (x0, xf, v) -> xf[4], vy_tf),
+        ],
     )
-
-    # boundary constraints
-    @constraints(
-        model,
-        begin
-            x[0] == x_t0
-            y[0] == y_t0
-            vx[0] == vx_t0
-            vy[0] == vy_t0
-            y[N] == y_tf
-            vx[N] == vx_tf
-            vy[N] == vy_tf
-        end
-    )
-
-    # dynamics
-    @expressions(
-        model,
-        begin
-            #
-            Δt, (tf - t0) / N
-
-            #
-            r[k = 0:N], (x[k] / r_t0 - 2.5)^2
-            u[k = 0:N], u_c * (1 - r[k]) * exp(-r[k])
-            w[k = 0:N], vy[k] - u[k]
-            v[k = 0:N], √(vx[k]^2 + w[k]^2)
-            D[k = 0:N], 0.5 * (c0 + c1 * cL[k]^2) * ρ * S * v[k]^2
-            L[k = 0:N], 0.5 * cL[k] * ρ * S * v[k]^2
-
-            #
-            dvx[k = 0:N], -(L[k] * w[k] + D[k] * vx[k]) / (m * v[k])
-            dvy[k = 0:N], (L[k] * vx[k] - D[k] * w[k]) / (m * v[k]) - g
-        end
-    )
-
-    @constraints(
-        model,
-        begin
-            ∂x[k = 1:N], x[k] == x[k - 1] + 0.5 * Δt * (vx[k] + vx[k - 1])
-            ∂y[k = 1:N], y[k] == y[k - 1] + 0.5 * Δt * (vy[k] + vy[k - 1])
-            ∂vx[k = 1:N], vx[k] == vx[k - 1] + 0.5 * Δt * (dvx[k] + dvx[k - 1])
-            ∂vy[k = 1:N], vy[k] == vy[k - 1] + 0.5 * Δt * (dvy[k] + dvy[k - 1])
-        end
-    )
-
-    # objective
-    @objective(model, Min, -x[N])
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end

@@ -38,61 +38,31 @@ function OptimalControlProblems.jackson(
     b_t0 = params[:b_t0]
     x₃_t0 = params[:x₃_t0]
 
-    # model
-    model = JuMP.Model(args...; kwargs...)
+    function dynamics(x, u)
+        a, b, _ = x
+        return [
+            -u[1] * (k1 * a - k2 * b),
+            u[1] * (k1 * a - k2 * b) - (1 - u[1]) * k3 * b,
+            (1 - u[1]) * k3 * b,
+        ]
+    end
 
-    # metadata: required
-    model[:time_grid] = () -> range(t0, tf, grid_size + 1) # tf is a fixed
-    model[:state_components] = ["a", "b", "x₃"]
-    model[:costate_components] = ["∂a", "∂b", "∂x₃"]
-    model[:control_components] = ["u"]
-    model[:variable_components] = String[]
-
-    # N = grid_size
-    @expression(model, N, grid_size)
-
-    @variables(
-        model,
-        begin
-            a_l ≤ a[0:N] ≤ a_u, (start = 0.1)
-            b_l ≤ b[0:N] ≤ b_u, (start = 0.1)
-            x₃_l ≤ x₃[0:N] ≤ x₃_u, (start = 0.1)
-            u_l ≤ u[0:N] ≤ u_u, (start = 0.1)
-        end
+    data = ProblemData(;
+        state=[
+            Component("a"; lower=a_l, upper=a_u, start=0.1),
+            Component("b"; lower=b_l, upper=b_u, start=0.1),
+            Component("x₃"; lower=x₃_l, upper=x₃_u, start=0.1),
+        ],
+        control=[Component("u"; lower=u_l, upper=u_u, start=0.1)],
+        costate=["∂a", "∂b", "∂x₃"],
+        times=v -> (t0, tf),
+        dynamics=(x, u, v, t) -> dynamics(x, u),
+        cost=(I, x0, xf, v) -> -xf[3],
+        boundary=[
+            (a_t0, (x0, xf, v) -> x0[1], a_t0),
+            (b_t0, (x0, xf, v) -> x0[2], b_t0),
+            (x₃_t0, (x0, xf, v) -> x0[3], x₃_t0),
+        ],
     )
-
-    # boundary constraints
-    @constraints(
-        model,
-        begin
-            a[0] == a_t0
-            b[0] == b_t0
-            x₃[0] == x₃_t0
-        end
-    )
-
-    # dynamics
-    @expressions(
-        model,
-        begin
-            Δt, (tf - t0) / N
-            da[i = 0:N], -u[i] * (k1 * a[i] - k2 * b[i])
-            db[i = 0:N], u[i] * (k1 * a[i] - k2 * b[i]) - (1 - u[i]) * k3 * b[i]
-            dx₃[i = 0:N], (1 - u[i]) * k3 * b[i]
-        end
-    )
-
-    @constraints(
-        model,
-        begin
-            ∂a[i = 1:N], a[i] == a[i - 1] + 0.5 * Δt * (da[i] + da[i - 1])
-            ∂b[i = 1:N], b[i] == b[i - 1] + 0.5 * Δt * (db[i] + db[i - 1])
-            ∂x₃[i = 1:N], x₃[i] == x₃[i - 1] + 0.5 * Δt * (dx₃[i] + dx₃[i - 1])
-        end
-    )
-
-    # objective
-    @objective(model, Min, -x₃[N])
-
-    return model
+    return build_trapeze(data, grid_size, args...; kwargs...)
 end
