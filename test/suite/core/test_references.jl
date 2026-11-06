@@ -34,6 +34,7 @@ function results_dir()
                 row("test_convergence c=1", "alpha", "C", "100", "not_converged", "1.0"), # not converged
                 row("test_convergence c=1", "alpha", "D", "10", "converged", "1.5"), # not the default grid
                 row("test_smoke c=1", "alpha", "E", "100", "converged", "1.0"), # not a convergence test
+                row("test_robustness c=1 mu=1", "alpha", "F", "100", "converged", "2.00001"), # same solution
                 row("test_convergence c=1", "omega", "A", "50", "converged", "3.0"),
                 row("test_convergence c=1", "omega", "B", "50", "converged", "3.3"),
                 row("test_convergence c=1", "gamma", "A", "50", "converged", "1.0"), # unknown problem
@@ -49,23 +50,29 @@ function test_references()
     Test.@testset "reference objectives" verbose = VERBOSE showtiming = SHOWTIMING begin
         R = ReferenceObjectives
         rows = R.read_results([results_dir()])
-        Test.@test length(rows) == 9
-        Test.@test count(r -> r["platform"] == "cron-ubuntu", rows) == 8
+        Test.@test length(rows) == 10
+        Test.@test count(r -> r["platform"] == "cron-ubuntu", rows) == 9
         Test.@test count(r -> r["platform"] == "local", rows) == 1
 
         tables = R.references(rows, DEFAULTS; run="https://run")
         Test.@test sort!(collect(keys(tables))) == [:alpha, :omega]
         alpha = tables[:alpha]["trapeze"]
-        # the best converged objective at the default grid, from convergence tests only
+        # the best converged objective at the default grid, from convergence and robustness tests
         Test.@test alpha["value"] == 2.0
-        Test.@test length(alpha["results"]) == 2
+        Test.@test length(alpha["results"]) == 3
+        # within SAME_SOLUTION (1e-5): one solution, the configurations agree
+        Test.@test length(alpha["solutions"]) == 1
+        Test.@test alpha["solutions"][1]["solves"] == 3
         Test.@test alpha["agreement"]
         Test.@test alpha["grid_size"] == 100 && alpha["parameters"] == "(a = 1,)"
         omega = tables[:omega]["trapeze"]
         Test.@test omega["value"] == 3.0
         Test.@test omega["spread"] ≈ 0.1
+        # 3.0 twice and 3.3: two solutions, best first
+        Test.@test [s["objective"] for s in omega["solutions"]] == [3.0, 3.3]
+        Test.@test omega["solutions"][1]["configurations"] == ["A c=1", "C c=1"]
         Test.@test !omega["agreement"]
-        Test.@test any(contains("configurations disagree"), R.summary(tables))
+        Test.@test any(contains("2 solutions"), R.summary(tables))
 
         # written, then read back by the package as its metadata reads it
         dir = mktempdir()
@@ -76,6 +83,8 @@ function test_references()
         Test.@test read_back.trapeze.value == 2.0
         Test.@test read_back.trapeze.source === :computed
         Test.@test read_back.trapeze.run == "https://run"
+        Test.@test read_back.trapeze.solutions == [2.0]
+        Test.@test OCP._references(:omega, files[2]).trapeze.solutions == [3.0, 3.3]
         # a scheme not recomputed is kept
         R.write_references(dir, Dict(:alpha => Dict{String,Any}("midpoint" => alpha)))
         Test.@test keys(OCP._references(:alpha, files[1])) ⊇ (:trapeze, :midpoint)
