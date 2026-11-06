@@ -120,6 +120,23 @@ docp = discretize(model(pb), OptimalControl.Collocation(grid_size=200, scheme=:t
 get_nvar(nlp_model(docp, init, OptimalControl.ADNLP()))
 ```
 
+## Initial guess
+
+Every problem has **one initial guess**, shared by all its modelings, written in its metadata as a function of the parameters: `(state=…, control=…, variable=…)`, each component a constant, a vector, or a function of the time `t`. For the default parameters, or for other ones:
+
+```@example main_oc
+OptimalControlProblems.initial_guess_data(:beam)
+```
+
+The OptimalControl modelings pass it as is (`initial_guess(pb)`); JuMP evaluates it at the nodes of the scheme to set the start values. To start from another guess, give it when you build the problem, in any modeling:
+
+```julia
+pb = beam(OptimalControlBackend(); init=(state=[0.0, 0.0], control=0.0))
+model = beam(JuMPBackend(); init=(state=t -> [0.1 * t, 0.1], control=0.0))
+```
+
+or, with OptimalControl, directly to `solve` (`init=…`). A guess is chosen to make the solvers converge without being too close to the solution; how robust it is to the solver options is measured by the monthly robustness report (`test/README.md`).
+
 ## Get a JuMP model
 
 To get a JuMP model, [install](https://jump.dev/JuMP.jl/stable/installation/#Installation-Guide) JuMP and import the package:
