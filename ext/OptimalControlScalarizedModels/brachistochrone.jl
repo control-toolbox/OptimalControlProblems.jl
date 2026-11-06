@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.brachistochrone(
     ::OptimalControlScalarizedBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:brachistochrone, :OptimalControlScalarized)
     params = parameters_data(:brachistochrone, parameters)
@@ -49,17 +50,8 @@ function OptimalControlProblems.brachistochrone(
         tf → min
     end
 
-    # initial guess: linear interpolation to match JuMP
-    tf_guess = 2.0
-    init = (
-        state=t -> [
-            x0 + (t - t0) / (tf_guess - t0) * (xf - x0),
-            y0 + (t - t0) / (tf_guess - t0) * (yf - y0),
-            v0 + (t - t0) / (tf_guess - t0) * 10.0,
-        ],
-        control=1.57,
-        variable=tf_guess,
-    )
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:brachistochrone, params, init)
 
     return OptimalControlProblems._problem(:brachistochrone, :OptimalControlScalarized, ocp, init, params)
 end

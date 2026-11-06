@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.electric_vehicle(
     ::OptimalControlScalarizedBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:electric_vehicle, :OptimalControlScalarized)
 
@@ -52,10 +53,8 @@ function OptimalControlProblems.electric_vehicle(
         ∫(b1 * u(t) * v(t) + b2 * u(t)^2) → min
     end
 
-    # initial guess
-    yinit = [0.1, 0.1]  # [x, v]
-    uinit = [0.1]       # [u]
-    init = (state=yinit, control=uinit)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:electric_vehicle, params, init)
 
     return OptimalControlProblems._problem(:electric_vehicle, :OptimalControlScalarized, ocp, init, params)
 end

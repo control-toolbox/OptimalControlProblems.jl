@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.bioreactor(
     ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:bioreactor, :OptimalControl)
 
@@ -80,8 +81,8 @@ function OptimalControlProblems.bioreactor(
         return max(0, sin(tau))^2
     end
 
-    # initial guess
-    init = (state=[50, 50, 50], control=0.5)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:bioreactor, params, init)
 
     return OptimalControlProblems._problem(:bioreactor, :OptimalControl, ocp, init, params)
 end

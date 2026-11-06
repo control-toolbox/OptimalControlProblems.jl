@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.glider(
     ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:glider, :OptimalControl)
 
@@ -89,17 +90,8 @@ function OptimalControlProblems.glider(
         return [∂x, ∂y, ∂vx, ∂vy]
     end
 
-    # initial guess
-    tfinit = 100.0
-    xinit =
-        t -> [
-            x_t0 + (t / tfinit) * 1248.0,
-            y_t0 + (t / tfinit) * (y_tf - y_t0),
-            vx_t0 + (t / tfinit) * (vx_tf - vx_t0),
-            vy_t0 + (t / tfinit) * (vy_tf - vy_t0),
-        ]
-    uinit = 1.0
-    init = (state=xinit, control=uinit, variable=tfinit)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:glider, params, init)
 
     return OptimalControlProblems._problem(:glider, :OptimalControl, ocp, init, params)
 end

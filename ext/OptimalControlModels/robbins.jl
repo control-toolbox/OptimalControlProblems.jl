@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.robbins(
     ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:robbins, :OptimalControl)
 
@@ -47,10 +48,8 @@ function OptimalControlProblems.robbins(
         ∫(α * x[1](t) + β * x[1](t)^2 + γ * u(t)^2) → min
     end
 
-    # initial guess
-    xinit = [0.1, 0.1, 0.1]  # [x₁, x₂, x₃]
-    uinit = [0.1]  # [u]
-    init = (state=xinit, control=uinit)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:robbins, params, init)
 
     return OptimalControlProblems._problem(:robbins, :OptimalControl, ocp, init, params)
 end

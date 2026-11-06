@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.jackson(
     ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:jackson, :OptimalControl)
 
@@ -55,10 +56,8 @@ function OptimalControlProblems.jackson(
         -x[3](tf) → min
     end
 
-    # initial guess
-    xinit = [0.1, 0.1, 0.1]  # [a, b, x₃]
-    uinit = [0.1]  # [u]
-    init = (state=xinit, control=uinit)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:jackson, params, init)
 
     return OptimalControlProblems._problem(:jackson, :OptimalControl, ocp, init, params)
 end

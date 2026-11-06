@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.space_shuttle(
     ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:space_shuttle, :OptimalControl)
 
@@ -154,20 +155,8 @@ function OptimalControlProblems.space_shuttle(
         return [h_dot / scaling_h, dϕ, dθ, v_dot / scaling_v, γ_dot, ψ_dot]
     end
 
-    # initial guess: linear interpolation for h, v, gamma (NB. t0 = 0), constant for the rest
-    # variable time step seems to be initialized at 1 in jump
-    # note that ipopt will project the initial guess inside the bounds anyway.
-    tf_init = 2000
-    x_init =
-        t -> [
-            h_t0 + (t - t0) / (tf_init - t0) * (h_tf - h_t0),
-            ϕ_t0,
-            θ_t0,
-            v_t0 + (t - t0) / (tf_init - t0) * (v_tf - v_t0),
-            γ_t0 + (t - t0) / (tf_init - t0) * (γ_tf - γ_t0),
-            ψ_t0,
-        ]
-    init = (state=x_init, control=[α_s, β_s], variable=[tf_init])
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:space_shuttle, params, init)
 
     return OptimalControlProblems._problem(:space_shuttle, :OptimalControl, ocp, init, params)
 end

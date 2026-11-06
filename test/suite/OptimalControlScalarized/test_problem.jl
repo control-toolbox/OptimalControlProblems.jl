@@ -45,6 +45,11 @@ function test_problem()
                 Test.@test OCP.parameters_data(problem) == params
             end
 
+            # The initial guess is the one of the metadata (#377), unless another one is given.
+            Test.@test OCP.initial_guess(pb) == OCP.initial_guess_data(problem)
+            other = (state=OCP.initial_guess_data(problem).state, control=0)
+            Test.@test OCP.initial_guess(getfield(OCP, problem)(backend; init=other)) === other
+
             # Shown with its name, modeling, status and dimensions.
             shown = sprint(show, MIME("text/plain"), pb)
             Test.@test occursin(string(problem), shown)
