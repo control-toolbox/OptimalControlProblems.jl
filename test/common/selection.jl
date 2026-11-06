@@ -71,33 +71,42 @@ end
 """
     split_mode(args) -> (mode, rest)
 
-Take the words `cron` and `convergence` out of `args`. The mode is `:suite` (neither:
-`suite/<group>`), `:cron` (`cron/<group>` only, as the cron workflows run it) or
+Take the words `cron`, `convergence` and `robustness` out of `args`. The mode is `:suite`
+(none: `suite/<group>`), `:cron` (`cron/<group>` only, as the cron workflows run it),
 `:convergence` (`suite/<group>` then `cron/<group>`: the convergence report on demand,
-#360). Both words together are an error.
+#360) or `:robustness` (`robustness/<group>` only: the robustness report, #378). Two words
+together are an error.
 """
 function split_mode(args)
-    cron = "cron" in args
-    convergence = "convergence" in args
-    cron && convergence && throw(
+    words = [w for w in MODES if w in args]
+    length(words) > 1 && throw(
         ArgumentError(
-            "`cron` and `convergence` cannot be combined: `cron` runs the cron directories only, `convergence` the suite and the cron directories",
+            "`$(join(words, "` and `"))` cannot be combined: `cron` runs the cron directories only, `convergence` the suite and the cron directories, `robustness` the robustness directories only",
         ),
     )
-    mode = cron ? :cron : (convergence ? :convergence : :suite)
-    return mode, String[a for a in args if !(a in ("cron", "convergence"))]
+    mode = isempty(words) ? :suite : Symbol(only(words))
+    return mode, String[a for a in args if !(a in MODES)]
 end
 
-"""
-    directories(group, suite, cron; mode) -> Vector{String}
+const MODES = ("cron", "convergence", "robustness")
 
-The test directories of `group` for `mode` (see [`split_mode`](@ref)), among `suite/<group>`
-and `cron/<group>`, in this order; only those that exist.
+"""
+    directories(group, suite, cron, robustness; mode) -> Vector{String}
+
+The test directories of `group` for `mode` (see [`split_mode`](@ref)), among `suite/<group>`,
+`cron/<group>` and `robustness/<group>`, in this order; only those that exist.
 """
 function directories(
-    group::AbstractString, suite::AbstractString, cron::AbstractString; mode::Symbol
+    group::AbstractString,
+    suite::AbstractString,
+    cron::AbstractString,
+    robustness::AbstractString;
+    mode::Symbol,
 )
-    roots = mode === :suite ? (suite,) : (mode === :cron ? (cron,) : (suite, cron))
+    roots = Dict(
+        :suite => (suite,), :cron => (cron,), :convergence => (suite, cron),
+        :robustness => (robustness,),
+    )[mode]
     return String[joinpath(r, group) for r in roots if isdir(joinpath(r, group))]
 end
 
