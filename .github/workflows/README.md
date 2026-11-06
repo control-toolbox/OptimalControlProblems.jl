@@ -10,8 +10,10 @@ scope labels. They are staggered at 04:00 UTC:
 | `CronOptimalControlScalarized.yml` | `OptimalControlScalarized` | Thursday | Yes |
 | `CronComparison.yml` | `comparison` | Friday | No |
 | `CronModelingToolkit.yml` | `ModelingToolkit` | manual only until the scope exists | No |
+| `CronRobustness.yml` | `JuMP-robustness`, `OptimalControl-robustness` | 1st of the month | No |
 
-Each thin workflow calls `cron-reusable.yml`. The reusable workflow runs the CPU tests
+Each thin workflow calls `cron-reusable.yml` (inputs `mode`: `cron`, or `robustness` for
+`test/robustness/`, #378; `scope`: the environment by default). The reusable workflow runs the CPU tests
 (Ubuntu and Windows on Julia 1.13; macOS comes back with #344),
 and, where requested, the GPU tests. It then downloads the report artifacts without
 merging them, updates the summary and regression issues, and publishes `cron/<scope>.md`
@@ -62,8 +64,10 @@ request that edits `ext/MetaData/<problem>.jl`.
 - **`cron-drafts`** — a `:draft` passed all its tests on every platform. Check it, then set
   `:valid` for that modeling in `ext/MetaData/<problem>.jl` in a pull request.
 - **`cron-convergence`** — convergence is reported, not tested (#360): a solve converged in
-  the previous run of the scope and no longer does, or its objective moved by more than
-  `OBJECTIVE_CHANGE` (relative, `tools/cron/report.py`). Nothing fails. Compare the scope
+  the previous run of the scope and no longer does, its objective moved by more than
+  `OBJECTIVE_CHANGE` (relative, `tools/cron/report.py`), or it reached a solution that is not
+  known yet (`new solution`, #378: a new local solution, or one better than the reference;
+  compute the references again if it is to be kept). Nothing fails. Compare the scope
   report with the previous one on the `results` branch and decide whether the change is
   expected (new initial guess, new solver version) or a regression to investigate. An
   expected change of objective means computing the reference objectives again

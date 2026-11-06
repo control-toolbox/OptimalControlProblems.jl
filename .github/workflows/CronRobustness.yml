@@ -1,0 +1,31 @@
+name: Cron robustness
+
+# Robustness of the initial guess (#378): every problem solved on its default grid under other
+# solver options (`TestConfigs.ROBUSTNESS`), in `test/robustness/<environment>/`. Reported,
+# never tested; monthly, since it multiplies the solves of the weekly convergence crons.
+
+on:
+  schedule:
+    - cron: "0 4 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cron:
+    strategy:
+      fail-fast: false # the publish jobs queue on the results branch (concurrency group)
+      matrix:
+        environment: [JuMP, OptimalControl]
+    permissions:
+      actions: read
+      contents: write
+      issues: write
+      pull-requests: read
+    uses: ./.github/workflows/cron-reusable.yml
+    with:
+      environment: ${{ matrix.environment }}
+      mode: robustness
+      scope: ${{ matrix.environment }}-robustness
+    secrets: inherit

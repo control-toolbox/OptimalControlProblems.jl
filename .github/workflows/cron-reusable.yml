@@ -17,6 +17,16 @@ on:
         required: false
         default: true
         type: boolean
+      mode:
+        description: Test mode passed to Pkg.test (cron, or robustness for the monthly report of #378)
+        required: false
+        default: cron
+        type: string
+      scope:
+        description: Name of the scope in the reports, the state and the issues; the environment by default
+        required: false
+        default: ''
+        type: string
     secrets:
       SSH_KEY:
         required: false
@@ -45,9 +55,9 @@ jobs:
       # keep every platform running after a failure: one report per platform is needed
       fail_fast: false
       use_ct_registry: true
-      test_args: ${{ inputs.environment }} cron
+      test_args: ${{ inputs.environment }} ${{ inputs.mode }}
       upload_artifact_path: test/reports
-      upload_artifact_name: cron-${{ inputs.environment }}
+      upload_artifact_name: cron-${{ inputs.scope || inputs.environment }}
     secrets:
       SSH_KEY: ${{ secrets.SSH_KEY }}
 
@@ -61,9 +71,9 @@ jobs:
     with:
       versions: '["1.13"]'
       use_ct_registry: true
-      test_args: ${{ inputs.environment }} cron
+      test_args: ${{ inputs.environment }} ${{ inputs.mode }}
       upload_artifact_path: test/reports
-      upload_artifact_name: cron-${{ inputs.environment }}-gpu
+      upload_artifact_name: cron-${{ inputs.scope || inputs.environment }}-gpu
       fail_fast: false
     secrets:
       SSH_KEY: ${{ secrets.SSH_KEY }}
@@ -81,7 +91,7 @@ jobs:
       group: cron-results
       cancel-in-progress: false
     env:
-      SCOPE: ${{ inputs.environment }}
+      SCOPE: ${{ inputs.scope || inputs.environment }}
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       TESTS_FAILED: ${{ needs.cpu.result != 'success' || needs.gpu.result == 'failure' }}
       RESULTS_DIR: /tmp/cron-results
@@ -93,7 +103,7 @@ jobs:
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
-          pattern: cron-${{ inputs.environment }}*
+          pattern: cron-${{ inputs.scope || inputs.environment }}*
           path: artifacts
 
       - name: Ensure the reports directory exists
