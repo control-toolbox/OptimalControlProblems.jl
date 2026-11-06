@@ -91,7 +91,8 @@ function OptimalControlProblems.space_shuttle(
     # initial guess: linear interpolation between boundary conditions
     interpolate(x_s, x_t) = [x_s + i / grid_size * (x_t - x_s) for i in 0:grid_size]
 
-    # aerodynamics and motion of the vehicle, at one node; `h` and `v` at their true scale
+    # aerodynamics and motion of the vehicle, at one node, on the scaled state as in the
+    # OptimalControl model: `h` and `v` at their true scale inside, their derivatives scaled
     function motion(x, u)
         h, ϕ, θ, v, γ, ψ = x[1] * scaling_h, x[2], x[3], x[4] * scaling_v, x[5], x[6]
         α, β = u
@@ -103,10 +104,10 @@ function OptimalControlProblems.space_shuttle(
         r = Rₑ + h
         g = μ / r^2
         return [
-            v * sin(γ),
+            v * sin(γ) / scaling_h,
             (v / r) * cos(γ) * sin(ψ) / cos(θ),
             (v / r) * cos(γ) * cos(ψ),
-            -(D / m) - g * sin(γ),
+            (-(D / m) - g * sin(γ)) / scaling_v,
             (L / (m * v)) * cos(β) + cos(γ) * ((v / r) - (g / v)),
             (1 / (m * v * cos(γ))) * L * sin(β) +
             (v / (r * cos(θ))) * cos(γ) * sin(ψ) * sin(θ),
@@ -130,9 +131,6 @@ function OptimalControlProblems.space_shuttle(
         costate=["∂h", "∂ϕ", "∂θ", "∂v", "∂γ", "∂ψ"],
         times=v -> (t0, v[1]),
         dynamics=(x, u, v, t) -> motion(x, u),
-        # the dynamics are written on the true altitude and velocity
-        state_expressions=(x, v) ->
-            [x[1] * scaling_h, x[2], x[3], x[4] * scaling_v, x[5], x[6]],
         cost=(I, x0, xf, v) -> -xf[3],
         boundary=[
             (h_t0, (x0, xf, v) -> x0[1], h_t0),
