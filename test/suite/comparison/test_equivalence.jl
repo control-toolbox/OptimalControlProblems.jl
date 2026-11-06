@@ -12,7 +12,7 @@ const E = Main.Equivalence
 const VERBOSE = isdefined(Main, :TestOptions) ? Main.TestOptions.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING : true
 
-# Fast selection (the full matrix is in `cron/comparison/`, about 40 minutes): the
+# Fast selection (the full matrix is in `cron/comparison/`, about 20 minutes): the
 # trapezoidal rule for every problem, the four schemes for two problems chosen by their
 # properties, the first one with nonlinear path constraints and the first one with a
 # variable (e.g. a free final time).
