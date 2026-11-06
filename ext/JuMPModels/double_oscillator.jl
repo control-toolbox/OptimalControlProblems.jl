@@ -9,6 +9,8 @@ julia> double_oscillator(JuMPBackend(); grid_size=100)
 
 The keyword `scheme` chooses the discretization: `:trapeze` (default), `:euler`,
 `:euler_implicit` or `:midpoint`, as in `OptimalControl.Collocation`.
+The keyword `ordering` chooses the order of the variables and constraints:
+`:interleaved` (default, as in CTDirect) or `:blocks` (grouped by kind).
 
 Default parameters and the modeling status are available through
 `problem_metadata(:double_oscillator)` and `OptimalControlProblems.status(:double_oscillator)`.
@@ -18,6 +20,7 @@ function OptimalControlProblems.double_oscillator(
     args...;
     grid_size::Int=grid_size_data(:double_oscillator),
     scheme::Symbol=:trapeze,
+    ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -59,5 +62,5 @@ function OptimalControlProblems.double_oscillator(
             (x₁_t0, (x0, xf, v) -> x0[1], x₁_t0), (x₂_t0, (x0, xf, v) -> x0[2], x₂_t0)
         ],
     )
-    return build(data, grid_size, scheme, args...; kwargs...)
+    return build(data, grid_size, scheme, ordering, args...; kwargs...)
 end

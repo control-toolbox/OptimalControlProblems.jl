@@ -9,6 +9,8 @@ julia> electric_vehicle(JuMPBackend(); grid_size=100)
 
 The keyword `scheme` chooses the discretization: `:trapeze` (default), `:euler`,
 `:euler_implicit` or `:midpoint`, as in `OptimalControl.Collocation`.
+The keyword `ordering` chooses the order of the variables and constraints:
+`:interleaved` (default, as in CTDirect) or `:blocks` (grouped by kind).
 
 Default parameters and the modeling status are available through
 `problem_metadata(:electric_vehicle)` and `OptimalControlProblems.status(:electric_vehicle)`.
@@ -18,6 +20,7 @@ function OptimalControlProblems.electric_vehicle(
     args...;
     grid_size::Int=grid_size_data(:electric_vehicle),
     scheme::Symbol=:trapeze,
+    ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -61,5 +64,5 @@ function OptimalControlProblems.electric_vehicle(
             (v_tf, (x0, xf, v) -> xf[2], v_tf),
         ],
     )
-    return build(data, grid_size, scheme, args...; kwargs...)
+    return build(data, grid_size, scheme, ordering, args...; kwargs...)
 end

@@ -9,6 +9,8 @@ julia> cart_pendulum(JuMPBackend(); grid_size=100)
 
 The keyword `scheme` chooses the discretization: `:trapeze` (default), `:euler`,
 `:euler_implicit` or `:midpoint`, as in `OptimalControl.Collocation`.
+The keyword `ordering` chooses the order of the variables and constraints:
+`:interleaved` (default, as in CTDirect) or `:blocks` (grouped by kind).
 
 Default parameters and the modeling status are available through
 `problem_metadata(:cart_pendulum)` and `OptimalControlProblems.status(:cart_pendulum)`.
@@ -18,6 +20,7 @@ function OptimalControlProblems.cart_pendulum(
     args...;
     grid_size::Int=grid_size_data(:cart_pendulum),
     scheme::Symbol=:trapeze,
+    ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -81,5 +84,5 @@ function OptimalControlProblems.cart_pendulum(
             (ω_tf, (x0, xf, v) -> xf[4], ω_tf),
         ],
     )
-    return build(data, grid_size, scheme, args...; kwargs...)
+    return build(data, grid_size, scheme, ordering, args...; kwargs...)
 end

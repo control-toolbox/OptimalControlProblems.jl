@@ -80,6 +80,7 @@ function OptimalControlProblems.new_problem(
     ::JuMPBackend, args...;
     grid_size::Int=grid_size_data(:new_problem),
     scheme::Symbol=:trapeze,
+    ordering::Symbol=:interleaved,
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -99,7 +100,7 @@ function OptimalControlProblems.new_problem(
         lagrange=(x, u, v, t) -> u[1]^2,
         boundary=[(0, (x0, xf, v) -> x0[1], 0), (1, (x0, xf, v) -> xf[1], 1)],
     )
-    return build(data, grid_size, scheme, args...; kwargs...)
+    return build(data, grid_size, scheme, ordering, args...; kwargs...)
 
 end
 ```

@@ -18,6 +18,7 @@ const GRID_SIZE = 10
 # here independently of the tableaux: one per node for the trapezoidal rule, one per step
 # otherwise.
 const SCHEMES = (trapeze=N -> N + 1, euler=N -> N, euler_implicit=N -> N, midpoint=N -> N)
+const ORDERINGS = (:interleaved, :blocks)
 
 # Information every JuMP model carries for the solution accessors (`state`, `costate`, ...).
 const COMPONENTS = (
@@ -28,9 +29,9 @@ const COMPONENTS = (
 Number of entries of the variable or constraint `name`: the containers of the models are
 indexed by the time steps (`0:N`, `0:N-1` or `1:N`), a variable of the problem is a scalar.
 """
-entries(model, name) = (
-    c = model[Symbol(name)]; c isa JuMP.AbstractJuMPScalar ? 1 : length(c)
-)
+function entries(model, name)
+    return (c=model[Symbol(name)]; c isa JuMP.AbstractJuMPScalar ? 1 : length(c))
+end
 
 """
 Time grid of the model. A free final time is a variable of the model: its value, hence the
@@ -53,16 +54,23 @@ function test_contract()
             "contract", OptimalControlProblems.JuMPBackend()
         ) do problem
             build = getfield(OptimalControlProblems, problem)
-            for (scheme, controls) in pairs(SCHEMES)
+            for (scheme, controls) in pairs(SCHEMES), ordering in ORDERINGS
                 model = build(
-                    OptimalControlProblems.JuMPBackend(); grid_size=N, scheme=scheme
+                    OptimalControlProblems.JuMPBackend();
+                    grid_size=N,
+                    scheme=scheme,
+                    ordering=ordering,
                 )
                 names = keys(JuMP.object_dictionary(model))
 
-                Test.@testset "$scheme: information" begin
+                Test.@testset "$scheme, $ordering: information" begin
                     Test.@test :time_grid ∈ names
                     Test.@test model[:time_grid] isa Function
                     Test.@test model[:scheme] === scheme
+                    Test.@test model[:ordering] === ordering
+                    Test.@test length(model[:constraints]) == JuMP.num_constraints(
+                        model; count_variable_in_set_constraints=false
+                    )
                     for key in COMPONENTS
                         Test.@test key ∈ names
                         Test.@test model[key] isa Vector{String}
@@ -72,7 +80,7 @@ function test_contract()
                         length(model[:state_components])
                 end
 
-                Test.@testset "$scheme: names resolve" begin
+                Test.@testset "$scheme, $ordering: names resolve" begin
                     for key in COMPONENTS, name in model[key]
                         Test.@test Symbol(name) ∈ names
                     end
@@ -80,7 +88,7 @@ function test_contract()
 
                 # state at the N+1 nodes, controls per scheme, one costate (dual of a
                 # dynamics constraint) per step
-                Test.@testset "$scheme: lengths" begin
+                Test.@testset "$scheme, $ordering: lengths" begin
                     for name in model[:state_components]
                         Test.@test entries(model, name) == N + 1
                     end
@@ -95,18 +103,21 @@ function test_contract()
                     end
                 end
 
-                Test.@testset "$scheme: time grid" begin
+                Test.@testset "$scheme, $ordering: time grid" begin
                     T = time_grid(model)
                     Test.@test length(T) == N + 1
                     Test.@test issorted(T) && T[1] < T[end]
                 end
             end
 
-            Test.@testset "unknown scheme" begin
+            Test.@testset "unknown scheme or ordering" begin
                 Test.@test_throws CTBase.Exceptions.IncorrectArgument build(
                     OptimalControlProblems.JuMPBackend();
                     grid_size=N,
                     scheme=:gauss_legendre_2,
+                )
+                Test.@test_throws CTBase.Exceptions.IncorrectArgument build(
+                    OptimalControlProblems.JuMPBackend(); grid_size=N, ordering=:random
                 )
             end
         end

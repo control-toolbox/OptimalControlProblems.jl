@@ -23,17 +23,26 @@ function problems()
 end
 
 const SCHEMES = (:trapeze, :euler, :euler_implicit, :midpoint)
+const ORDERINGS = (:interleaved, :blocks)
 const GRID_SIZE = 4
 const TOL = 1e-10
 
 close_to(a, b) = all(@. isequal(a, b) | (abs(a - b) <= TOL * max(1, abs(a), abs(b))))
 
 """
-The JuMP and CTDirect (ADNLP) NLPs of `problem` for `scheme`, and a point. Both have the
-variables in CTDirect's interleaved order.
+The CTDirect (ADNLP) and JuMP NLPs of `problem` for `scheme`, a point `x` in CTDirect's
+order and `p`: the variable `k` of the JuMP model is the variable `p[k]` of CTDirect. The
+permutation is read from the names of the variables, those of the interleaved JuMP model
+being in CTDirect's order (`p` is the identity for `:interleaved`).
 """
-function nlps(problem::Symbol, scheme::Symbol)
-    model = getfield(OCP, problem)(OCP.JuMPBackend(); grid_size=GRID_SIZE, scheme=scheme)
+function nlps(problem::Symbol, scheme::Symbol, ordering::Symbol)
+    build(o) = getfield(OCP, problem)(
+        OCP.JuMPBackend(); grid_size=GRID_SIZE, scheme=scheme, ordering=o
+    )
+    model, reference = build(ordering), build(:interleaved)
+    names(m) = JuMP.name.(JuMP.all_variables(m))
+    position = Dict(n => k for (k, n) in enumerate(names(reference)))
+    p = [position[n] for n in names(model)]
     jump = NLPModelsJuMP.MathOptNLPModel(model)
     pb = getfield(OCP, problem)(OCP.OptimalControlBackend())
     ocp = OCP.model(pb)
@@ -42,7 +51,7 @@ function nlps(problem::Symbol, scheme::Symbol)
     init = OptimalControl.build_initial_guess(ocp, OCP.initial_guess(pb))
     adnlp = OptimalControl.nlp_model(docp, init, OptimalControl.ADNLP())
     x = [0.6 + 0.8 * ((7919 * i) % 1009) / 1009 for i in 1:(adnlp.meta.nvar)]
-    return adnlp, jump, x
+    return adnlp, jump, x, p
 end
 
 """
@@ -60,16 +69,17 @@ function test_schemes()
         SHOWTIMING begin
         selected = problems()
         Test.@test length(selected) == 2
-        for problem in selected, scheme in SCHEMES
-            Test.@testset "$problem, $scheme" begin
-                a, b, x = nlps(problem, scheme)
+        for problem in selected, scheme in SCHEMES, ordering in ORDERINGS
+            Test.@testset "$problem, $scheme, $ordering" begin
+                a, b, x, p = nlps(problem, scheme, ordering)
                 Test.@test a.meta.nvar == b.meta.nvar
                 Test.@test a.meta.ncon == b.meta.ncon
-                Test.@test close_to(a.meta.lvar, b.meta.lvar)
-                Test.@test close_to(a.meta.uvar, b.meta.uvar)
-                Test.@test close_to(NLPModels.obj(a, x), NLPModels.obj(b, x))
-                Test.@test close_to(NLPModels.grad(a, x), NLPModels.grad(b, x))
-                ma, mb = margins(a, x), margins(b, x)
+                Test.@test ordering == :blocks || p == 1:(a.meta.nvar)
+                Test.@test close_to(a.meta.lvar[p], b.meta.lvar)
+                Test.@test close_to(a.meta.uvar[p], b.meta.uvar)
+                Test.@test close_to(NLPModels.obj(a, x), NLPModels.obj(b, x[p]))
+                Test.@test close_to(NLPModels.grad(a, x)[p], NLPModels.grad(b, x[p]))
+                ma, mb = margins(a, x), margins(b, x[p])
                 Test.@test close_to(first.(ma), first.(mb))
                 Test.@test close_to(last.(ma), last.(mb))
             end

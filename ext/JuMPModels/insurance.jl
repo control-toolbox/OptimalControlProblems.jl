@@ -9,6 +9,8 @@ julia> insurance(JuMPBackend(); grid_size=100)
 
 The keyword `scheme` chooses the discretization: `:trapeze` (default), `:euler`,
 `:euler_implicit` or `:midpoint`, as in `OptimalControl.Collocation`.
+The keyword `ordering` chooses the order of the variables and constraints:
+`:interleaved` (default, as in CTDirect) or `:blocks` (grouped by kind).
 
 Default parameters and the modeling status are available through
 `problem_metadata(:insurance)` and `OptimalControlProblems.status(:insurance)`.
@@ -18,6 +20,7 @@ function OptimalControlProblems.insurance(
     args...;
     grid_size::Int=grid_size_data(:insurance),
     scheme::Symbol=:trapeze,
+    ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -95,5 +98,5 @@ function OptimalControlProblems.insurance(
             (0, (x0, xf, v) -> v[1] - xf[3], 0),
         ],
     )
-    return build(data, grid_size, scheme, args...; kwargs...)
+    return build(data, grid_size, scheme, ordering, args...; kwargs...)
 end

@@ -9,6 +9,8 @@ julia> chain(JuMPBackend(); grid_size=100)
 
 The keyword `scheme` chooses the discretization: `:trapeze` (default), `:euler`,
 `:euler_implicit` or `:midpoint`, as in `OptimalControl.Collocation`.
+The keyword `ordering` chooses the order of the variables and constraints:
+`:interleaved` (default, as in CTDirect) or `:blocks` (grouped by kind).
 
 Default parameters and the modeling status are available through
 `problem_metadata(:chain)` and `OptimalControlProblems.status(:chain)`.
@@ -18,6 +20,7 @@ function OptimalControlProblems.chain(
     args...;
     grid_size::Int=grid_size_data(:chain),
     scheme::Symbol=:trapeze,
+    ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -64,5 +67,5 @@ function OptimalControlProblems.chain(
             (x₃_tf, (x0, xf, v) -> xf[3], x₃_tf),
         ],
     )
-    return build(data, grid_size, scheme, args...; kwargs...)
+    return build(data, grid_size, scheme, ordering, args...; kwargs...)
 end
