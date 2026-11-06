@@ -22,6 +22,7 @@ function OptimalControlProblems.insurance(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:insurance, :JuMP)
@@ -68,18 +69,18 @@ function OptimalControlProblems.insurance(
 
     data = ProblemData(;
         state=[
-            Component("I"; lower=I_l, upper=I_u, start=0.1),
-            Component("m"; lower=m_l, upper=m_u, start=0.1),
-            Component("x₃"; start=0.1),
+            Component("I"; lower=I_l, upper=I_u),
+            Component("m"; lower=m_l, upper=m_u),
+            Component("x₃"),
         ],
         control=[
-            Component("h"; lower=h_l, upper=h_u, start=0.1),
-            Component("R"; lower=R_l, start=0.1),
-            Component("H"; lower=H_l, start=0.1),
-            Component("U"; lower=U_l, start=0.1),
-            Component("dUdR"; lower=dUdR_l, start=0.1),
+            Component("h"; lower=h_l, upper=h_u),
+            Component("R"; lower=R_l),
+            Component("H"; lower=H_l),
+            Component("U"; lower=U_l),
+            Component("dUdR"; lower=dUdR_l),
         ],
-        variable=[Component("P"; lower=P_l, start=0.1)],
+        variable=[Component("P"; lower=P_l)],
         costate=["∂I", "∂m", "∂x₃"],
         times=v -> (t0, tf),
         dynamics=(x, u, v, t) -> dynamics(x, u, t),
@@ -98,5 +99,7 @@ function OptimalControlProblems.insurance(
             (0, (x0, xf, v) -> v[1] - xf[3], 0),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:insurance, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

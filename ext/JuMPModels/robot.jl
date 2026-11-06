@@ -22,6 +22,7 @@ function OptimalControlProblems.robot(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:robot, :JuMP)
@@ -66,11 +67,6 @@ function OptimalControlProblems.robot(
     ϕ_u = params[:ϕ_u]
     tf_l = params[:tf_l]
 
-    # initial guess: linear interpolation between the boundary conditions, ϕ kept away
-    # from zero (division by sin(ϕ)²)
-    interpolate(a, b) = [a + (k / grid_size) * (b - a) for k in 0:grid_size]
-    ϕ_start = [abs(ϕ) < 1e-6 ? 1e-6 : ϕ for ϕ in interpolate(ϕ_t0, ϕ_tf)]
-
     function dynamics(x, u)
         ρ, dρ, θ, dθ, ϕ, dϕ = x
         uρ, uθ, uϕ = u
@@ -81,19 +77,19 @@ function OptimalControlProblems.robot(
 
     data = ProblemData(;
         state=[
-            Component("ρ"; lower=ρ_l, upper=ρ_u, start=interpolate(ρ_t0, ρ_tf)),
-            Component("dρ"; start=0.0),
-            Component("θ"; lower=θ_l, upper=θ_u, start=interpolate(θ_t0, θ_tf)),
-            Component("dθ"; start=0.0),
-            Component("ϕ"; lower=ϕ_l, upper=ϕ_u, start=ϕ_start),
-            Component("dϕ"; start=0.0),
+            Component("ρ"; lower=ρ_l, upper=ρ_u),
+            Component("dρ"),
+            Component("θ"; lower=θ_l, upper=θ_u),
+            Component("dθ"),
+            Component("ϕ"; lower=ϕ_l, upper=ϕ_u),
+            Component("dϕ"),
         ],
         control=[
-            Component("uρ"; lower=uρ_l, upper=uρ_u, start=0.0),
-            Component("uθ"; lower=uθ_l, upper=uθ_u, start=0.0),
-            Component("uϕ"; lower=uϕ_l, upper=uϕ_u, start=0.0),
+            Component("uρ"; lower=uρ_l, upper=uρ_u),
+            Component("uθ"; lower=uθ_l, upper=uθ_u),
+            Component("uϕ"; lower=uϕ_l, upper=uϕ_u),
         ],
-        variable=[Component("tf"; lower=tf_l, start=9.1)],
+        variable=[Component("tf"; lower=tf_l)],
         costate=["∂ρ", "∂dρ", "∂θ", "∂dθ", "∂ϕ", "∂dϕ"],
         times=v -> (t0, v[1]),
         dynamics=(x, u, v, t) -> dynamics(x, u),
@@ -113,5 +109,7 @@ function OptimalControlProblems.robot(
             (dϕ_tf, (x0, xf, v) -> xf[6], dϕ_tf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:robot, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

@@ -22,6 +22,7 @@ function OptimalControlProblems.cart_pendulum(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:cart_pendulum, :JuMP)
@@ -65,13 +66,13 @@ function OptimalControlProblems.cart_pendulum(
 
     data = ProblemData(;
         state=[
-            Component("x"; lower=x_l, upper=x_u, start=0.1),
-            Component("v"; lower=v_l, upper=v_u, start=0.1),
-            Component("θ"; start=0.1),
-            Component("ω"; start=0.1),
+            Component("x"; lower=x_l, upper=x_u),
+            Component("v"; lower=v_l, upper=v_u),
+            Component("θ"),
+            Component("ω"),
         ],
-        control=[Component("Fex"; lower=Fex_l, upper=Fex_u, start=0.1)],
-        variable=[Component("tf"; lower=tf_l, start=1.0), Component("ddx"; start=0.1)],
+        control=[Component("Fex"; lower=Fex_l, upper=Fex_u)],
+        variable=[Component("tf"; lower=tf_l), Component("ddx")],
         costate=["∂x", "∂v", "∂θ", "∂ω"],
         times=v -> (t0, v[1]),
         dynamics=(x, u, v, t) -> dynamics(x, u, v),
@@ -84,5 +85,7 @@ function OptimalControlProblems.cart_pendulum(
             (ω_tf, (x0, xf, v) -> xf[4], ω_tf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:cart_pendulum, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

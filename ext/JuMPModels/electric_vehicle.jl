@@ -22,6 +22,7 @@ function OptimalControlProblems.electric_vehicle(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:electric_vehicle, :JuMP)
@@ -51,8 +52,8 @@ function OptimalControlProblems.electric_vehicle(
     end
 
     data = ProblemData(;
-        state=[Component("x"; start=0.1), Component("v"; start=0.1)],
-        control=[Component("u"; start=0.1)],
+        state=[Component("x"), Component("v")],
+        control=[Component("u")],
         costate=["∂x", "∂v"],
         times=v -> (t0, tf),
         dynamics=(x, u, v, t) -> dynamics(x, u),
@@ -64,5 +65,7 @@ function OptimalControlProblems.electric_vehicle(
             (v_tf, (x0, xf, v) -> xf[2], v_tf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:electric_vehicle, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

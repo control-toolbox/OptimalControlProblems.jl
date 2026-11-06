@@ -22,6 +22,7 @@ function OptimalControlProblems.ducted_fan(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:ducted_fan, :JuMP)
@@ -69,18 +70,18 @@ function OptimalControlProblems.ducted_fan(
 
     data = ProblemData(;
         state=[
-            Component("x₁"; start=0.1),
-            Component("v₁"; start=0.1),
-            Component("x₂"; start=-0.1),
-            Component("v₂"; start=0.1),
-            Component("α"; lower=α_l, upper=α_u, start=0.1),  # radian
-            Component("vα"; start=0.1),
+            Component("x₁"),
+            Component("v₁"),
+            Component("x₂"),
+            Component("v₂"),
+            Component("α"; lower=α_l, upper=α_u),  # radian
+            Component("vα"),
         ],
         control=[
-            Component("u₁"; lower=u₁_l, upper=u₁_u, start=0.1),  # [N]
-            Component("u₂"; lower=u₂_l, upper=u₂_u, start=1),  # [N]
+            Component("u₁"; lower=u₁_l, upper=u₁_u),  # [N]
+            Component("u₂"; lower=u₂_l, upper=u₂_u),  # [N]
         ],
-        variable=[Component("tf"; lower=tf_l, start=1.5)],
+        variable=[Component("tf"; lower=tf_l)],
         costate=["∂x₁", "∂v₁", "∂x₂", "∂v₂", "∂α", "∂vα"],
         times=v -> (t0, v[1]),
         dynamics=(x, u, v, t) -> dynamics(x, u),
@@ -101,5 +102,7 @@ function OptimalControlProblems.ducted_fan(
             (vα_tf, (x0, xf, v) -> xf[6], vα_tf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:ducted_fan, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

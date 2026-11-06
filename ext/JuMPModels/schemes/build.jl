@@ -105,15 +105,21 @@ $(TYPEDSIGNATURES)
 
 Build the JuMP model of `data` discretized on `grid_size` steps by `scheme` (`:trapeze`,
 `:euler`, `:euler_implicit` or `:midpoint`), with the variables and constraints in the
-order `ordering` (`:interleaved` or `:blocks`). `args` and `kwargs` are passed to
-`JuMP.Model`.
+order `ordering` (`:interleaved` or `:blocks`), with the start values of the initial guess
+`init` (see `_start!`). `args` and `kwargs` are passed to `JuMP.Model`.
 
 # Throws
 
 - `CTBase.Exceptions.IncorrectArgument`: If `scheme` or `ordering` is not one of them.
 """
 function build(
-    data::ProblemData, grid_size::Int, scheme::Symbol, ordering::Symbol, args...; kwargs...
+    data::ProblemData,
+    grid_size::Int,
+    scheme::Symbol,
+    ordering::Symbol,
+    args...;
+    init::NamedTuple=(;),
+    kwargs...,
 )
     tab = tableau(scheme)
     _check_ordering(ordering)
@@ -201,6 +207,8 @@ function build(
     end
     JuMP.@objective(model, Min, data.cost(I, x[1], x[N + 1], v))
 
+    _start!(X, U, v, init, data, N, M)
+
     # metadata read by the accessors
     model[:scheme] = scheme
     model[:ordering] = ordering
@@ -210,4 +218,36 @@ function build(
     model[:control_components] = [c.name for c in data.control]
     model[:variable_components] = [c.name for c in data.variable]
     return model
+end
+
+# The value of a component of the initial guess (#377) at time `t`: a constant, a vector, or
+# a function of `t`; `k` is the index of the component (a one-dimensional one is a scalar).
+_guess(g, t) = g isa Function ? g(t) : g
+_component(y, k) = y isa Number ? y : y[k]
+
+"""
+Set the start values from the initial guess `init` (`(state=…, control=…, variable=…)`, any
+of them may be missing), as CTDirect does: the state at the `N+1` nodes, the control at the
+nodes of its `M` values, the variable once; the time grid is the one of the initial guess of
+the variable when the final time is free.
+"""
+function _start!(X, U, v, init, data::ProblemData, N, M)
+    vguess = haskey(init, :variable) ? init.variable : nothing
+    for k in eachindex(v)
+        isnothing(vguess) || JuMP.set_start_value(v[k], _component(vguess, k))
+    end
+    vnum = Float64[isnothing(vguess) ? 0.0 : _component(vguess, k) for k in eachindex(v)]
+    t0, tf = data.times(vnum)
+    t(i) = t0 + i * (tf - t0) / N
+    if haskey(init, :state)
+        for i in 0:N, k in axes(X, 1)
+            JuMP.set_start_value(X[k, i + 1], _component(_guess(init.state, t(i)), k))
+        end
+    end
+    if haskey(init, :control)
+        for i in 0:(M - 1), k in axes(U, 1)
+            JuMP.set_start_value(U[k, i + 1], _component(_guess(init.control, t(i)), k))
+        end
+    end
+    return nothing
 end

@@ -22,6 +22,7 @@ function OptimalControlProblems.jackson(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:jackson, :JuMP)
@@ -56,11 +57,11 @@ function OptimalControlProblems.jackson(
 
     data = ProblemData(;
         state=[
-            Component("a"; lower=a_l, upper=a_u, start=0.1),
-            Component("b"; lower=b_l, upper=b_u, start=0.1),
-            Component("x₃"; lower=x₃_l, upper=x₃_u, start=0.1),
+            Component("a"; lower=a_l, upper=a_u),
+            Component("b"; lower=b_l, upper=b_u),
+            Component("x₃"; lower=x₃_l, upper=x₃_u),
         ],
-        control=[Component("u"; lower=u_l, upper=u_u, start=0.1)],
+        control=[Component("u"; lower=u_l, upper=u_u)],
         costate=["∂a", "∂b", "∂x₃"],
         times=v -> (t0, tf),
         dynamics=(x, u, v, t) -> dynamics(x, u),
@@ -71,5 +72,7 @@ function OptimalControlProblems.jackson(
             (x₃_t0, (x0, xf, v) -> x0[3], x₃_t0),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:jackson, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

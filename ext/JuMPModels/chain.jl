@@ -22,6 +22,7 @@ function OptimalControlProblems.chain(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:chain, :JuMP)
@@ -39,22 +40,13 @@ function OptimalControlProblems.chain(
     x₁_tf = b
     x₃_tf = L
 
-    #
-    tmin = b > a ? 1 / 4 : 3 / 4
-
-    # initial guess, on the time grid
-    N = grid_size
-    τ = [(t0 + k * (tf - t0) / N - t0) / (tf - t0) for k in 0:N]
-    u_start = [4 * abs(b - a) * (s - tmin) for s in τ]
-    x₁_start = [4 * abs(b - a) * s * (0.5 * s - tmin) + a for s in τ]
-
     data = ProblemData(;
         state=[
-            Component("x₁"; start=x₁_start),
-            Component("x₂"; start=x₁_start .* u_start),
-            Component("x₃"; start=u_start),
+            Component("x₁"),
+            Component("x₂"),
+            Component("x₃"),
         ],
-        control=[Component("u"; start=u_start)],
+        control=[Component("u")],
         costate=["∂x₁", "∂x₂", "∂x₃"],
         times=v -> (t0, tf),
         dynamics=(x, u, v, t) -> [u[1], x[1] * √(1 + u[1]^2), √(1 + u[1]^2)],
@@ -67,5 +59,7 @@ function OptimalControlProblems.chain(
             (x₃_tf, (x0, xf, v) -> xf[3], x₃_tf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:chain, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

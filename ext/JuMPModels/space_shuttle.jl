@@ -22,6 +22,7 @@ function OptimalControlProblems.space_shuttle(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:space_shuttle, :JuMP)
@@ -88,8 +89,6 @@ function OptimalControlProblems.space_shuttle(
     scaling_h = 1e5
     scaling_v = 1e4
 
-    # initial guess: linear interpolation between boundary conditions
-    interpolate(x_s, x_t) = [x_s + i / grid_size * (x_t - x_s) for i in 0:grid_size]
 
     # aerodynamics and motion of the vehicle, at one node, on the scaled state as in the
     # OptimalControl model: `h` and `v` at their true scale inside, their derivatives scaled
@@ -116,18 +115,18 @@ function OptimalControlProblems.space_shuttle(
 
     data = ProblemData(;
         state=[
-            Component("scaled_h"; lower=h_l, start=interpolate(h_t0, h_tf)),  # altitude (ft) / scaling_h
-            Component("ϕ"; lower=ϕ_l, upper=ϕ_u, start=interpolate(ϕ_t0, ϕ_t0)),  # longitude (rad)
-            Component("θ"; lower=θ_l, upper=θ_u, start=interpolate(θ_t0, θ_t0)),  # latitude (rad)
-            Component("scaled_v"; lower=v_l, start=interpolate(v_t0, v_tf)),  # velocity (ft/sec) / scaling_v
-            Component("γ"; lower=γ_l, upper=γ_u, start=interpolate(γ_t0, γ_tf)),  # flight path angle (rad)
-            Component("ψ"; lower=ψ_l, upper=ψ_u, start=interpolate(ψ_t0, ψ_t0)),  # azimuth (rad)
+            Component("scaled_h"; lower=h_l),  # altitude (ft) / scaling_h
+            Component("ϕ"; lower=ϕ_l, upper=ϕ_u),  # longitude (rad)
+            Component("θ"; lower=θ_l, upper=θ_u),  # latitude (rad)
+            Component("scaled_v"; lower=v_l),  # velocity (ft/sec) / scaling_v
+            Component("γ"; lower=γ_l, upper=γ_u),  # flight path angle (rad)
+            Component("ψ"; lower=ψ_l, upper=ψ_u),  # azimuth (rad)
         ],
         control=[
-            Component("α"; lower=α_l, upper=α_u, start=α_s),  # angle of attack (rad)
-            Component("β"; lower=β_l, upper=β_u, start=β_s),  # bank angle (rad)
+            Component("α"; lower=α_l, upper=α_u),  # angle of attack (rad)
+            Component("β"; lower=β_l, upper=β_u),  # bank angle (rad)
         ],
-        variable=[Component("tf"; lower=tf_l, upper=tf_u, start=2000.0)],  # final time (sec)
+        variable=[Component("tf"; lower=tf_l, upper=tf_u)],  # final time (sec)
         costate=["∂h", "∂ϕ", "∂θ", "∂v", "∂γ", "∂ψ"],
         times=v -> (t0, v[1]),
         dynamics=(x, u, v, t) -> motion(x, u),
@@ -144,5 +143,7 @@ function OptimalControlProblems.space_shuttle(
             (γ_tf, (x0, xf, v) -> xf[5], γ_tf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:space_shuttle, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

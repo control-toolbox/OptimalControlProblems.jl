@@ -22,6 +22,7 @@ function OptimalControlProblems.rocket(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:rocket, :JuMP)
@@ -54,20 +55,14 @@ function OptimalControlProblems.rocket(
         return [v, (T - D - m * g) / m, -T / c]
     end
 
-    N = grid_size
     data = ProblemData(;
         state=[
-            Component("h"; lower=h_t0, start=1),
-            Component("v"; lower=v_t0, start=[i / N * (1 - i / N) for i in 0:N]),
-            Component(
-                "m";
-                lower=m_tf,
-                upper=m_t0,
-                start=[(m_tf - m_t0) * (i / N) + m_t0 for i in 0:N],
-            ),
+            Component("h"; lower=h_t0),
+            Component("v"; lower=v_t0),
+            Component("m"; lower=m_tf, upper=m_t0),
         ],
-        control=[Component("T"; lower=T_l, upper=Tmax, start=Tmax / 2)],
-        variable=[Component("tf"; lower=tf_l, start=1)],
+        control=[Component("T"; lower=T_l, upper=Tmax)],
+        variable=[Component("tf"; lower=tf_l)],
         costate=["∂h", "∂v", "∂m"],
         times=v -> (t0, v[1]),
         dynamics=(x, u, v, t) -> dynamics(x, u),
@@ -79,5 +74,7 @@ function OptimalControlProblems.rocket(
             (m_tf, (x0, xf, v) -> xf[3], m_tf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:rocket, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

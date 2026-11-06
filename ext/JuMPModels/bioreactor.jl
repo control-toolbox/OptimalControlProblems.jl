@@ -22,6 +22,7 @@ function OptimalControlProblems.bioreactor(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:bioreactor, :JuMP)
@@ -65,11 +66,11 @@ function OptimalControlProblems.bioreactor(
 
     data = ProblemData(;
         state=[
-            Component("y"; lower=y_l, start=50),
-            Component("s"; lower=s_l, start=50),
-            Component("b"; lower=b_l, start=50),
+            Component("y"; lower=y_l),
+            Component("s"; lower=s_l),
+            Component("b"; lower=b_l),
         ],
-        control=[Component("u"; lower=u_l, upper=u_u, start=0.5)],
+        control=[Component("u"; lower=u_l, upper=u_u)],
         costate=["∂y", "∂s", "∂b"],
         times=v -> (t0, tf),
         dynamics=(x, u, v, t) -> dynamics(x, u, t),
@@ -81,5 +82,7 @@ function OptimalControlProblems.bioreactor(
             (b_t0_l, (x0, xf, v) -> x0[3], b_t0_u),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:bioreactor, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

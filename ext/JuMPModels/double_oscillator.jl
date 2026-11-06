@@ -22,6 +22,7 @@ function OptimalControlProblems.double_oscillator(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:double_oscillator, :JuMP)
@@ -52,8 +53,8 @@ function OptimalControlProblems.double_oscillator(
     end
 
     data = ProblemData(;
-        state=[Component("x$(c)"; start=0.1) for c in "₁₂₃₄"],
-        control=[Component("u"; lower=u_l, upper=u_u, start=0.1)],
+        state=[Component("x$(c)") for c in "₁₂₃₄"],
+        control=[Component("u"; lower=u_l, upper=u_u)],
         costate=["∂x₁", "∂x₂", "∂x₃", "∂x₄"],
         times=v -> (t0, tf),
         dynamics=(x, u, v, t) -> dynamics(x, u, t),
@@ -62,5 +63,7 @@ function OptimalControlProblems.double_oscillator(
             (x₁_t0, (x0, xf, v) -> x0[1], x₁_t0), (x₂_t0, (x0, xf, v) -> x0[2], x₂_t0)
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:double_oscillator, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

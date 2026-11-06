@@ -22,6 +22,7 @@ function OptimalControlProblems.robbins(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:robbins, :JuMP)
@@ -43,11 +44,11 @@ function OptimalControlProblems.robbins(
 
     data = ProblemData(;
         state=[
-            Component("x₁"; lower=x₁_l, start=0.1),
-            Component("x₂"; start=0.1),
-            Component("x₃"; start=0.1),
+            Component("x₁"; lower=x₁_l),
+            Component("x₂"),
+            Component("x₃"),
         ],
-        control=[Component("u"; start=0.1)],
+        control=[Component("u")],
         costate=["∂x₁", "∂x₂", "∂x₃"],
         times=v -> (t0, tf),
         dynamics=(x, u, v, t) -> [x[2], x[3], u[1]],
@@ -61,5 +62,7 @@ function OptimalControlProblems.robbins(
             (x₃_tf, (x0, xf, v) -> xf[3], x₃_tf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:robbins, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end
