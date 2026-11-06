@@ -7,6 +7,9 @@ julia> using OptimalControlProblems
 julia> bioreactor(JuMPBackend(); grid_size=100)
 ```
 
+The keyword `scheme` chooses the discretization: `:trapeze` (default), `:euler`,
+`:euler_implicit` or `:midpoint`, as in `OptimalControl.Collocation`.
+
 Default parameters and the modeling status are available through
 `problem_metadata(:bioreactor)` and `OptimalControlProblems.status(:bioreactor)`.
 """
@@ -14,6 +17,7 @@ function OptimalControlProblems.bioreactor(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:bioreactor),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -74,5 +78,5 @@ function OptimalControlProblems.bioreactor(
             (b_t0_l, (x0, xf, v) -> x0[3], b_t0_u),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

@@ -79,6 +79,7 @@ by
 function OptimalControlProblems.new_problem(
     ::JuMPBackend, args...;
     grid_size::Int=grid_size_data(:new_problem),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing, NamedTuple}=nothing,
     kwargs...
 )
@@ -98,7 +99,7 @@ function OptimalControlProblems.new_problem(
         lagrange=(x, u, v, t) -> u[1]^2,
         boundary=[(0, (x0, xf, v) -> x0[1], 0), (1, (x0, xf, v) -> xf[1], 1)],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 
 end
 ```
@@ -114,6 +115,7 @@ end
     ```
 
     - Box constraints on the state, the control and the variable are bounds of the components; other constraints go in `path` (every node) and `boundary`, as `(lower, f, upper)`. The other fields (`cost`, `state_expressions`) are described in the docstring of `ProblemData`.
+    - The functions of `ProblemData` are written once for every scheme (`scheme`, see the page *JuMP transcription*): never assume that the dynamics are evaluated at the nodes only.
 
 !!! tip
 

@@ -7,6 +7,9 @@ julia> using OptimalControlProblems
 julia> steering(JuMPBackend(); grid_size=100)
 ```
 
+The keyword `scheme` chooses the discretization: `:trapeze` (default), `:euler`,
+`:euler_implicit` or `:midpoint`, as in `OptimalControl.Collocation`.
+
 Default parameters and the modeling status are available through
 `problem_metadata(:steering)` and `OptimalControlProblems.status(:steering)`.
 """
@@ -14,6 +17,7 @@ function OptimalControlProblems.steering(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:steering),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -68,5 +72,5 @@ function OptimalControlProblems.steering(
             (x₄_tf, (x0, xf, v) -> xf[4], x₄_tf),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

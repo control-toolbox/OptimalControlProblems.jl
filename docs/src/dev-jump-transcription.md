@@ -57,11 +57,13 @@ no control "at ``t_f``". With the trapezoidal rule the control is a value at eac
 Everything that reads the controls back (accessors, plots, the construction of a
 solution) has to know which case applies.
 
-!!! note "Availability in this package"
+The scheme of a JuMP model is chosen when it is built, with the names of
+`OptimalControl.Collocation`; the default is the trapezoidal rule:
 
-    The JuMP models implement the **trapezoidal rule**. The three other schemes are
-    described here as the reference conventions of CTDirect; they come to the JuMP
-    models with [#369](https://github.com/control-toolbox/OptimalControlProblems.jl/issues/369).
+```julia
+model = beam(JuMPBackend(); grid_size=100, scheme=:midpoint)
+model[:scheme]      # :midpoint
+```
 
 ## Dynamics and cost, scheme by scheme
 
@@ -76,6 +78,61 @@ Write ``f_i = f(t_i, X_i, U_i, v)`` and ``f^0_i`` likewise. For ``i = 0, \dots, 
 
 The Lagrange cost is added to the objective directly, by the quadrature of the scheme: no
 extra state is introduced. The Mayer term is ``g(X_0, X_N, v)``.
+
+## The schemes as Butcher tableaux
+
+The four schemes are Runge–Kutta methods, each given by its Butcher tableau
+``(A, b, c)`` with ``s`` stages. A step reads
+
+```math
+Z_j = X_i + h \sum_{k=1}^{s} a_{jk}\, f(t_i + c_k h, Z_k, \cdot), \qquad
+X_{i+1} = X_i + h \sum_{j=1}^{s} b_j\, f(t_i + c_j h, Z_j, \cdot),
+```
+
+and the Lagrange cost uses the same quadrature, ``h \sum_i \sum_j b_j f^0_{ij}``.
+
+| Scheme | ``A`` | ``b`` | ``c`` |
+| :--- | :--- | :--- | :--- |
+| `:euler` | ``[0]`` | ``[1]`` | ``[0]`` |
+| `:euler_implicit` | ``[1]`` | ``[1]`` | ``[1]`` |
+| `:midpoint` | ``[\frac12]`` | ``[1]`` | ``[\frac12]`` |
+| `:trapeze` | ``\begin{bmatrix} 0 & 0 \\ \frac12 & \frac12 \end{bmatrix}`` | ``[\frac12, \frac12]`` | ``[0, 1]`` |
+
+The JuMP models have **no stage unknowns**: each stage is written with the nodes of its
+step, ``Z_j = X_i + \theta_j (X_{i+1} - X_i)``. For a one-stage tableau,
+``\theta = a_{11} / b_1``, which gives ``X_i``, ``X_{i+1}`` and ``\frac{X_i + X_{i+1}}{2}``
+for the explicit Euler, implicit Euler and midpoint rules; for a tableau of several stages,
+every stage must be a node of the step. A tableau with a stage inside the step
+(Hermite–Simpson, Gauss–Legendre, Radau) would need stage unknowns and is not supported.
+
+Two properties of the tableau decide the rest:
+
+- **stiffly accurate**: the last row of ``A`` is ``b`` and ``c_s = 1``, so the last stage
+  is ``X_{i+1}``;
+- **explicit first stage**: the first row of ``A`` is zero and ``c_1 = 0``, so the first
+  stage is ``X_i``.
+
+A tableau with both is **FSAL** (*First Same As Last*): the last stage of a step is the
+first stage of the next one. Among the four schemes, only the trapezoidal rule is FSAL.
+
+| Scheme | Stiffly accurate | Explicit first stage | FSAL |
+| :--- | :--- | :--- | :--- |
+| `:euler` | no | yes | no |
+| `:euler_implicit` | yes | no | no |
+| `:midpoint` | no | no | no |
+| `:trapeze` | yes | yes | yes |
+
+With FSAL, the dynamics and the Lagrange integrand are evaluated **once per node**,
+``N+1`` evaluations instead of ``2N``, and the control of a stage is the control of its
+node, shared by the two steps around it: hence ``N+1`` controls. Without FSAL, each step
+has its own control: ``N`` controls. The node used by the path constraints follows: the
+control of the step that starts at the node, except for a scheme whose only stage ends the
+step (implicit Euler), which takes the control of the step that ends at the node.
+
+These properties are computed from the tableau, not declared, in
+`ext/JuMPModels/schemes/tableaux.jl`; the names follow the roadmap of CTDirect
+([CTDirect.jl#610](https://github.com/control-toolbox/CTDirect.jl/issues/610)), where the
+same tableaux, traits and specializations are planned.
 
 ## Constraints
 
@@ -108,8 +165,9 @@ they fix a component of the state (the variable is not fixed).
 The JuMP models follow CTDirect's **interleaved** order, which matters for the sparsity
 pattern seen by the linear solver:
 
-- **unknowns**: node by node, the state then the control,
-  ``X_0, U_0, X_1, U_1, \dots, X_N, U_N``, then ``v``;
+- **unknowns**: node by node, the state then the control while there is one,
+  ``X_0, U_0, X_1, U_1, \dots, X_N, U_N`` (trapezoidal rule) or
+  ``X_0, U_0, \dots, X_{N-1}, U_{N-1}, X_N`` (one control per step), then ``v``;
 - **constraints**: for each step ``i = 0, \dots, N-1``, the dynamics of the step then the
   path constraints at node ``i``; then the path constraints at node ``N``; then the
   boundary conditions.
@@ -131,7 +189,7 @@ data = ProblemData(;
     lagrange=(x, u, v, t) -> u[1]^2,
     boundary=[(x₁_t0, (x0, xf, v) -> x0[1], x₁_t0), (x₁_tf, (x0, xf, v) -> xf[1], x₁_tf)],
 )
-return build_trapeze(data, grid_size, args...; kwargs...)
+return build(data, grid_size, scheme, args...; kwargs...)
 ```
 
 | Field | Mathematical object |
@@ -146,25 +204,28 @@ return build_trapeze(data, grid_size, args...; kwargs...)
 | `state_expressions(x, v)` | what the dynamics constrain (default: ``x``), see below |
 
 The functions receive the vectors of JuMP variables of one node and return JuMP
-expressions: the scheme evaluates them at the nodes it needs.
+expressions: the scheme evaluates them at its stages (nodes or, for the midpoint rule,
+``\frac{X_i + X_{i+1}}{2}``).
 
 **Scaled models.** Some models are written on scaled variables but keep the dynamics of
 the true quantities, for instance `space_shuttle` with ``h = 10^5\, \tilde h``. Writing
 the scheme on ``\tilde h`` would divide those rows by ``10^5`` and change the NLP seen by
 the solver. `state_expressions` returns the quantities the dynamics constrain, here
 ``(10^5 \tilde h, \dots)``, so that the scheme writes
-``z(X_{i+1}) = z(X_i) + \frac{h}{2}(f_i + f_{i+1})``.
+``z(X_{i+1}) = z(X_i) + h \sum_j b_j f(Z_j)``.
 
 ### What the model stores
 
-Besides the NLP, `build_trapeze` stores in the JuMP model what is needed to read a
+Besides the NLP, `build` stores in the JuMP model what is needed to read a
 solution back:
 
 | Key | Content | Used by |
 | --- | --- | --- |
-| `model[:x₁]`, … (one per state and control component) | the unknowns of the component, a container indexed by `0:N` | `state`, `control` |
+| `model[:x₁]`, … (one per state component) | the unknowns of the component, a container indexed by `0:N` | `state` |
+| `model[:u]`, … (one per control component) | the unknowns of the component, indexed by `0:N` (trapezoidal rule) or `0:N-1` (one control per step, ``U_i`` on ``[t_i, t_{i+1}]``) | `control` |
 | `model[:tf]`, … (one per variable component) | the unknown | `variable`, the time grid |
 | `model[:∂x₁]`, … (one per costate name) | the dynamics constraints of the component, indexed by `1:N` | `costate` (their duals) |
+| `model[:scheme]` | the scheme, `:trapeze`, `:euler`, `:euler_implicit` or `:midpoint` | `control`, `solution` |
 | `model[:time_grid]` | a function returning ``t_0, \dots, t_N``, evaluated after the solve when ``t_f`` is free | `time_grid` |
 | `model[:state_components]`, `model[:control_components]`, `model[:variable_components]`, `model[:costate_components]` | the names above, in order | every accessor |
 
@@ -177,7 +238,7 @@ JuMP.optimize!(model)
 
 T = time_grid(model)          # t_0, …, t_N
 x = state(model)              # function of t, interpolating X_0, …, X_N
-u = control(model)            # function of t, interpolating the controls
+u = control(model)            # function of t: linear (trapeze) or piecewise constant
 p = costate(model)            # function of t, from the duals of the dynamics constraints
 objective(model), iterations(model)
 ```
@@ -188,3 +249,7 @@ one per step: its sign and time conventions are not yet aligned with OptimalCont
 the problem also exists in OptimalControl, `solution(model, pb)` builds a full
 `CTModels.Solution` from these values, which can be plotted like an OptimalControl
 solution.
+
+With one control per step, the control is reported as CTDirect reports it: ``U_i`` on
+``[t_i, t_{i+1})``, and ``U_{N-1}`` again at ``t_N``, so that it is given at the ``N+1``
+nodes of the grid.

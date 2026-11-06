@@ -7,6 +7,9 @@ julia> using OptimalControlProblems
 julia> glider(JuMPBackend(); grid_size=100)
 ```
 
+The keyword `scheme` chooses the discretization: `:trapeze` (default), `:euler`,
+`:euler_implicit` or `:midpoint`, as in `OptimalControl.Collocation`.
+
 Default parameters and the modeling status are available through
 `problem_metadata(:glider)` and `OptimalControlProblems.status(:glider)`.
 """
@@ -14,6 +17,7 @@ function OptimalControlProblems.glider(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:glider),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -78,5 +82,5 @@ function OptimalControlProblems.glider(
             (vy_tf, (x0, xf, v) -> xf[4], vy_tf),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

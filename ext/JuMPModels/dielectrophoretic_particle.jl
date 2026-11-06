@@ -7,6 +7,9 @@ julia> using OptimalControlProblems
 julia> dielectrophoretic_particle(JuMPBackend(); grid_size=100)
 ```
 
+The keyword `scheme` chooses the discretization: `:trapeze` (default), `:euler`,
+`:euler_implicit` or `:midpoint`, as in `OptimalControl.Collocation`.
+
 Default parameters and the modeling status are available through
 `problem_metadata(:dielectrophoretic_particle)` and `OptimalControlProblems.status(:dielectrophoretic_particle)`.
 """
@@ -14,6 +17,7 @@ function OptimalControlProblems.dielectrophoretic_particle(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:dielectrophoretic_particle),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -45,5 +49,5 @@ function OptimalControlProblems.dielectrophoretic_particle(
             (x_tf, (x0, xf, v) -> xf[1], x_tf),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end

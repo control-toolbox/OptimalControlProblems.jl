@@ -7,6 +7,9 @@ julia> using OptimalControlProblems
 julia> beam(JuMPBackend(); grid_size=100)
 ```
 
+The keyword `scheme` chooses the discretization: `:trapeze` (default), `:euler`,
+`:euler_implicit` or `:midpoint`, as in `OptimalControl.Collocation`.
+
 Default parameters and the modeling status are available through
 `problem_metadata(:beam)` and `OptimalControlProblems.status(:beam)`.
 """
@@ -14,6 +17,7 @@ function OptimalControlProblems.beam(
     ::JuMPBackend,
     args...;
     grid_size::Int=grid_size_data(:beam),
+    scheme::Symbol=:trapeze,
     parameters::Union{Nothing,NamedTuple}=nothing,
     kwargs...,
 )
@@ -46,5 +50,5 @@ function OptimalControlProblems.beam(
             (x₂_tf, (x0, xf, v) -> xf[2], x₂_tf),
         ],
     )
-    return build_trapeze(data, grid_size, args...; kwargs...)
+    return build(data, grid_size, scheme, args...; kwargs...)
 end
