@@ -68,6 +68,12 @@ function test_modelings()
         end
     end
 
+    Test.@testset "features without OptimalControl" verbose = VERBOSE showtiming = SHOWTIMING begin
+        # computed from the OptimalControl model: the extension is needed (#376)
+        problem = first(OptimalControlProblems.problems(OptimalControlProblems.OptimalControlBackend()))
+        Test.@test_throws CTBase.Exceptions.ExtensionError OptimalControlProblems.features(problem)
+    end
+
     Test.@testset "generated documentation" verbose = VERBOSE showtiming = SHOWTIMING begin
         for problem in OptimalControlProblems.problems(; status=:all)
             documentation = string(Base.Docs.doc(getfield(OptimalControlProblems, problem)))
