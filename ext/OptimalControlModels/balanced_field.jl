@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:balanced_field)` and `OptimalControlProblems.status(:balanced_field)`.
 """
 function OptimalControlProblems.balanced_field(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:balanced_field, :OptimalControl)
 
@@ -100,5 +99,7 @@ function OptimalControlProblems.balanced_field(
     init = (state=xinit, control=uinit, variable=vinit)
 
     # discretise
-    return OptimalControlProblems._problem(:balanced_field, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :balanced_field, :OptimalControl, ocp, init, params
+    )
 end

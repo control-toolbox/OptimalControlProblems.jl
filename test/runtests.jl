@@ -66,11 +66,14 @@ GitHub Actions (see below). The code coverage flag of this process is forwarded
 (`Base.julia_cmd`). Returns `true` on success.
 """
 function run_environment(
-    name::AbstractString; dirs::Vector{String}, report::AbstractString, patterns::Vector{String}
+    name::AbstractString;
+    dirs::Vector{String},
+    report::AbstractString,
+    patterns::Vector{String},
 )
     # In GitHub Actions the project is kept (see `finally`), also past the exit of Julia.
     keep = get(ENV, "GITHUB_ACTIONS", "false") == "true"
-    project = mktempdir(; cleanup=!keep)
+    project = mktempdir(; cleanup=(!keep))
     cp(joinpath(SUITE, name, "Project.toml"), joinpath(project, "Project.toml"))
     # `Pkg.test` restricts JULIA_LOAD_PATH (and may set JULIA_PROJECT) to its own
     # temporary environment: a subprocess inheriting them would ignore `--project`.
@@ -84,7 +87,9 @@ function run_environment(
         problem_args =
             isempty(problem_names) ? String[] : ["problem=" * join(problem_names, ",")]
         tests = join(dirs, "|")
-        run(`$julia --project=$project $script $tests $name $report $problem_args $patterns`)
+        run(
+            `$julia --project=$project $script $tests $name $report $problem_args $patterns`
+        )
         return true
     catch err
         @error "Environment $name failed" exception = err
@@ -110,7 +115,9 @@ filter!(name -> !isempty(dirs(name)), selected)
 
 Test.@testset "OptimalControlProblems tests" verbose = Main.TestOptions.VERBOSE showtiming =
     Main.TestOptions.SHOWTIMING begin
-    println("Environments: ", join([CORE; selected], ", "), mode === :suite ? "" : " ($mode)")
+    println(
+        "Environments: ", join([CORE; selected], ", "), mode === :suite ? "" : " ($mode)"
+    )
 
     # `core` has no cron tests: in cron mode it has no directory and nothing runs.
     try
@@ -124,7 +131,9 @@ Test.@testset "OptimalControlProblems tests" verbose = Main.TestOptions.VERBOSE 
     for name in selected
         Test.@testset "environment $name" begin
             report = mode === :cron ? "$name-cron" : name
-            Test.@test run_environment(name; dirs=dirs(name), report=report, patterns=patterns)
+            Test.@test run_environment(
+                name; dirs=dirs(name), report=report, patterns=patterns
+            )
         end
     end
 end

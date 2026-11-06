@@ -78,7 +78,9 @@ function generate_problems_browser!(path::AbstractString)
     mkpath(dirname(path))
     mkpath(dirname(BROWSER_DATA_PATH))
     write(BROWSER_DATA_PATH, collect_problems_data_json())
-    write(path, """# [Problems browser](@id problems-browser)
+    write(
+        path,
+        """# [Problems browser](@id problems-browser)
 
 Explore the collection by searching, sorting, and filtering the problem characteristics.
 Select a row to reveal its constraint breakdown and follow the problem link for details.
@@ -86,7 +88,8 @@ Select a row to reveal its constraint breakdown and follow the problem link for 
 ```@raw html
 <ProblemsBrowser></ProblemsBrowser>
 ```
-""")
+""",
+    )
     return path
 end
 

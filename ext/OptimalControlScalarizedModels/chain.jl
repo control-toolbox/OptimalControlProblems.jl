@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:chain)` and `OptimalControlProblems.status(:chain)`.
 """
 function OptimalControlProblems.chain(
-    ::OptimalControlScalarizedBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlScalarizedBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:chain, :OptimalControlScalarized)
 
@@ -67,5 +66,7 @@ function OptimalControlProblems.chain(
     uinit = t -> 4 * abs(b - a) * (t / tf - tmin)
     init = (state=xinit, control=uinit)
 
-    return OptimalControlProblems._problem(:chain, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :chain, :OptimalControlScalarized, ocp, init, params
+    )
 end

@@ -81,11 +81,7 @@ mkpath(joinpath(@__DIR__, "src", "assets"))  # Ensure assets folder exists
 mkpath(joinpath(@__DIR__, "src", "public", "assets"))
 
 for file in ("Manifest.toml", "Project.toml")
-    cp(
-        joinpath(@__DIR__, file),
-        joinpath(@__DIR__, "src", "assets", file);
-        force=true,
-    )
+    cp(joinpath(@__DIR__, file), joinpath(@__DIR__, "src", "assets", file); force=true)
     cp(
         joinpath(@__DIR__, file),
         joinpath(@__DIR__, "src", "public", "assets", file);
@@ -120,16 +116,13 @@ Draft = false
 ```
 =#
 with_problems_browser() do browser_file
-    makedocs(;
+    return makedocs(;
         draft=draft,
         #remotes=nothing,
         warnonly=:cross_references,
         sitename="OptimalControlProblems.jl",
         format=DocumenterVitepress.MarkdownVitepress(;
-            repo=repo_url,
-            devbranch="main",
-            devurl="dev",
-            sidebar_drawer=true,
+            repo=repo_url, devbranch="main", devurl="dev", sidebar_drawer=true
         ),
         pages=[
             "Problems" => [

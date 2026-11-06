@@ -7,7 +7,7 @@ _value(a) = a isa Number ? a : JuMP.value(a)
 
 # One JuMP variable, named as a container element (`x₁[3]`) or a scalar (`tf`).
 function _variable(model, c::Component, name, i)
-    x = JuMP.@variable(model, base_name = name)
+    x = JuMP.@variable(model, base_name=name)
     lower = isnothing(i) ? c.lower : _at(c.lower, i)
     upper = isnothing(i) ? c.upper : _at(c.upper, i)
     start = isnothing(i) ? c.start : _at(c.start, i)

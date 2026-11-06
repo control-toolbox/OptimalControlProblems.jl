@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:insurance)` and `OptimalControlProblems.status(:insurance)`.
 """
 function OptimalControlProblems.insurance(
-    ::OptimalControlScalarizedBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlScalarizedBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:insurance, :OptimalControlScalarized)
 
@@ -100,5 +99,7 @@ function OptimalControlProblems.insurance(
     varinit = [0.1]  # [P]
     init = (state=xinit, control=uinit, variable=varinit)
 
-    return OptimalControlProblems._problem(:insurance, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :insurance, :OptimalControlScalarized, ocp, init, params
+    )
 end

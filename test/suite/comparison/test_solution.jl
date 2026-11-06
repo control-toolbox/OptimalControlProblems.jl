@@ -1,4 +1,5 @@
-isdefined(Main, :Comparison) || include(joinpath(@__DIR__, "..", "..", "common", "comparison.jl"))
+isdefined(Main, :Comparison) ||
+    include(joinpath(@__DIR__, "..", "..", "common", "comparison.jl"))
 
 module TestSolutionComparison
 
@@ -31,12 +32,15 @@ function check_solution(problem::Symbol)
     Test.@test vec1(OCP.variable(sol)) == vec1(OCP.variable(model))
     Test.@test all(t -> vec1(OCP.state(sol)(t)) ≈ vec1(OCP.state(model)(t)), T)
     Test.@test all(t -> vec1(OCP.control(sol)(t)) ≈ vec1(OCP.control(model)(t)), T)
-    Test.@test all(t -> vec1(OCP.costate(sol)(t)) ≈ vec1(OCP.costate(model)(t)), T[1:(end - 1)])
+    Test.@test all(
+        t -> vec1(OCP.costate(sol)(t)) ≈ vec1(OCP.costate(model)(t)), T[1:(end - 1)]
+    )
     return nothing
 end
 
 function test_solution()
-    Test.@testset "JuMP solution as a CTModels.Solution" verbose = VERBOSE showtiming = SHOWTIMING begin
+    Test.@testset "JuMP solution as a CTModels.Solution" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         Main.TestStatus.for_each_problem(
             "test_solution", OCP.JuMPBackend(), OCP.OptimalControlBackend()
         ) do problem

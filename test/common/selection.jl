@@ -79,11 +79,13 @@ Take the words `cron` and `convergence` out of `args`. The mode is `:suite` (nei
 function split_mode(args)
     cron = "cron" in args
     convergence = "convergence" in args
-    cron && convergence && throw(
-        ArgumentError(
-            "`cron` and `convergence` cannot be combined: `cron` runs the cron directories only, `convergence` the suite and the cron directories",
-        ),
-    )
+    cron &&
+        convergence &&
+        throw(
+            ArgumentError(
+                "`cron` and `convergence` cannot be combined: `cron` runs the cron directories only, `convergence` the suite and the cron directories",
+            ),
+        )
     mode = cron ? :cron : (convergence ? :convergence : :suite)
     return mode, String[a for a in args if !(a in ("cron", "convergence"))]
 end

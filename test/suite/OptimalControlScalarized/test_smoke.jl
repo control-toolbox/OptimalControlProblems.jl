@@ -15,15 +15,17 @@ const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING :
 function test_smoke()
     S = Main.SolveOptimalControl
     backend = OptimalControlProblems.OptimalControlScalarizedBackend()
-    Test.@testset "OptimalControlScalarized smoke (small grid, few iterations)" verbose = VERBOSE showtiming =
-        SHOWTIMING begin
+    Test.@testset "OptimalControlScalarized smoke (small grid, few iterations)" verbose =
+        VERBOSE showtiming = SHOWTIMING begin
         for config in Main.TestConfigs.CONFIGS.OptimalControlScalarized
             Test.@testset "$(Main.TestConfigs.label(config))" begin
                 test = "test_smoke $(Main.TestConfigs.label(config))"
                 Main.TestStatus.for_each_problem(test, backend) do problem
                     pb = getfield(OptimalControlProblems, problem)(backend)
                     o = Main.TestConfigs
-                    sol = S.solve(pb, config; grid_size=o.SMOKE_GRID, max_iter=o.SMOKE_MAX_ITER)
+                    sol = S.solve(
+                        pb, config; grid_size=o.SMOKE_GRID, max_iter=o.SMOKE_MAX_ITER
+                    )
                     Test.@test isfinite(OptimalControl.objective(sol))
                 end
             end

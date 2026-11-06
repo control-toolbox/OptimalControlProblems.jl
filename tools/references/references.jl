@@ -33,7 +33,9 @@ function read_results(dirs)
         for line in lines[2:end]
             cells = split(line, '\t')
             length(cells) == length(header) || continue
-            row = Dict{String,String}(String(h) => String(c) for (h, c) in zip(header, cells))
+            row = Dict{String,String}(
+                String(h) => String(c) for (h, c) in zip(header, cells)
+            )
             row["platform"] = platform
             push!(rows, row)
         end
@@ -75,7 +77,8 @@ function references(rows, defaults; run::AbstractString)
                 "configuration" => r["configuration"],
                 "platform" => r["platform"],
                 "objective" => parse(Float64, r["objective"]),
-            ) for r in sort(group; by=r -> (r["modeling"], r["configuration"], r["platform"]))
+            ) for
+            r in sort(group; by=r -> (r["modeling"], r["configuration"], r["platform"]))
         ]
         get!(tables, problem, Dict{String,Any}())[scheme] = Dict{String,Any}(
             "value" => minimum(objectives),
@@ -111,7 +114,7 @@ function write_references(dir, tables)
         merge!(data, schemes)
         open(file, "w") do io
             print(io, HEADER, "\n")
-            TOML.print(io, data; sorted=true)
+            return TOML.print(io, data; sorted=true)
         end
         push!(written, file)
     end
@@ -121,7 +124,9 @@ end
 """Lines of the summary printed by the script: one per problem and scheme."""
 function summary(tables)
     lines = String[]
-    for problem in sort!(collect(keys(tables))), scheme in sort!(collect(keys(tables[problem])))
+    for problem in sort!(collect(keys(tables))),
+        scheme in sort!(collect(keys(tables[problem])))
+
         t = tables[problem][scheme]
         flag = t["agreement"] ? "" : "  <-- configurations disagree"
         push!(

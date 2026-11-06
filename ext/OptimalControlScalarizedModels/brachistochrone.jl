@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:brachistochrone)` and `OptimalControlProblems.status(:brachistochrone)`.
 """
 function OptimalControlProblems.brachistochrone(
-    ::OptimalControlScalarizedBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlScalarizedBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:brachistochrone, :OptimalControlScalarized)
     params = parameters_data(:brachistochrone, parameters)
@@ -61,5 +60,7 @@ function OptimalControlProblems.brachistochrone(
         variable=tf_guess,
     )
 
-    return OptimalControlProblems._problem(:brachistochrone, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :brachistochrone, :OptimalControlScalarized, ocp, init, params
+    )
 end

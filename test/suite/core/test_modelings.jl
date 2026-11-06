@@ -35,8 +35,9 @@ function test_modelings()
             ) == listed
         end
         for a in BACKENDS, b in BACKENDS
-            Test.@test OptimalControlProblems.problems(a, b) ==
-                intersect(OptimalControlProblems.problems(a), OptimalControlProblems.problems(b))
+            Test.@test OptimalControlProblems.problems(a, b) == intersect(
+                OptimalControlProblems.problems(a), OptimalControlProblems.problems(b)
+            )
         end
         Test.@test_throws CTBase.IncorrectArgument OptimalControlProblems.problems(;
             status=:unknown

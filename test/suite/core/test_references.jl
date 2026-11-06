@@ -7,7 +7,9 @@ const VERBOSE = isdefined(Main, :TestOptions) ? Main.TestOptions.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING : true
 
 const OCP = OptimalControlProblems
-const TOOL = joinpath(pkgdir(OptimalControlProblems), "tools", "references", "references.jl")
+const TOOL = joinpath(
+    pkgdir(OptimalControlProblems), "tools", "references", "references.jl"
+)
 isdefined(@__MODULE__, :ReferenceObjectives) || include(TOOL)
 
 # Fake problems: the tool is tested on its own, apart from the collection.
@@ -17,9 +19,25 @@ const DEFAULTS = Dict(
 )
 const HEADER = "test\tproblem\tmodeling\tconfiguration\tgrid_size\tscheme\tresult\treason\tobjective\titerations\ttime\tgap"
 
-row(test, problem, modeling, grid, result, objective) = join(
-    (test, problem, modeling, "c=1", grid, "trapeze", result, "R", objective, "3", "0.1", ""), "\t"
-)
+function row(test, problem, modeling, grid, result, objective)
+    return join(
+        (
+            test,
+            problem,
+            modeling,
+            "c=1",
+            grid,
+            "trapeze",
+            result,
+            "R",
+            objective,
+            "3",
+            "0.1",
+            "",
+        ),
+        "\t",
+    )
+end
 
 function results_dir()
     dir = mktempdir()
@@ -29,7 +47,9 @@ function results_dir()
         join(
             [
                 HEADER,
-                row("test_convergence c=1", "alpha", "A", "100", "converged", "2.0000000001"),
+                row(
+                    "test_convergence c=1", "alpha", "A", "100", "converged", "2.0000000001"
+                ),
                 row("test_convergence c=1", "alpha", "B", "100", "converged", "2.0"),
                 row("test_convergence c=1", "alpha", "C", "100", "not_converged", "1.0"), # not converged
                 row("test_convergence c=1", "alpha", "D", "10", "converged", "1.5"), # not the default grid
@@ -41,7 +61,13 @@ function results_dir()
             "\n",
         ) * "\n",
     )
-    write(joinpath(dir, "local-results.tsv"), HEADER * "\n" * row("test_convergence c=1", "omega", "C", "50", "converged", "3.0") * "\n")
+    write(
+        joinpath(dir, "local-results.tsv"),
+        HEADER *
+        "\n" *
+        row("test_convergence c=1", "omega", "C", "50", "converged", "3.0") *
+        "\n",
+    )
     return dir
 end
 

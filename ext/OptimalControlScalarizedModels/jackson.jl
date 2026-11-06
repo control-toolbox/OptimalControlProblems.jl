@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:jackson)` and `OptimalControlProblems.status(:jackson)`.
 """
 function OptimalControlProblems.jackson(
-    ::OptimalControlScalarizedBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlScalarizedBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:jackson, :OptimalControlScalarized)
 
@@ -58,5 +57,7 @@ function OptimalControlProblems.jackson(
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 
-    return OptimalControlProblems._problem(:jackson, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :jackson, :OptimalControlScalarized, ocp, init, params
+    )
 end

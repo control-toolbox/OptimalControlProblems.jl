@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:moonlander)` and `OptimalControlProblems.status(:moonlander)`.
 """
 function OptimalControlProblems.moonlander(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:moonlander, :OptimalControl)
 

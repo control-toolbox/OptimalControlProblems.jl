@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:vanderpol)` and `OptimalControlProblems.status(:vanderpol)`.
 """
 function OptimalControlProblems.vanderpol(
-    ::OptimalControlScalarizedBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlScalarizedBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:vanderpol, :OptimalControlScalarized)
 
@@ -44,5 +43,7 @@ function OptimalControlProblems.vanderpol(
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 
-    return OptimalControlProblems._problem(:vanderpol, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :vanderpol, :OptimalControlScalarized, ocp, init, params
+    )
 end

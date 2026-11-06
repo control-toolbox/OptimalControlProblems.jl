@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:double_oscillator)` and `OptimalControlProblems.status(:double_oscillator)`.
 """
 function OptimalControlProblems.double_oscillator(
-    ::OptimalControlScalarizedBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlScalarizedBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:double_oscillator, :OptimalControlScalarized)
 
@@ -54,5 +53,7 @@ function OptimalControlProblems.double_oscillator(
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 
-    return OptimalControlProblems._problem(:double_oscillator, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :double_oscillator, :OptimalControlScalarized, ocp, init, params
+    )
 end

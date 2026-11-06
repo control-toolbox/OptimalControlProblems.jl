@@ -28,7 +28,11 @@ function solver(name::Symbol; max_iter::Int)
             max_wall_time=o.MAX_WALL_TIME,
         )
     elseif name in (:madnlp, :madnlp_gpu)
-        T = name === :madnlp ? OptimalControl.MadNLP : OptimalControl.MadNLP{OptimalControl.GPU}
+        T = if name === :madnlp
+            OptimalControl.MadNLP
+        else
+            OptimalControl.MadNLP{OptimalControl.GPU}
+        end
         return T(;
             print_level=MadNLP.ERROR,
             tol=o.TOL,

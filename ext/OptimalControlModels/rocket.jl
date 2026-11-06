@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:rocket)` and `OptimalControlProblems.status(:rocket)`.
 """
 function OptimalControlProblems.rocket(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:rocket, :OptimalControl)
 
@@ -78,7 +77,8 @@ function OptimalControlProblems.rocket(
 
     # initial guess
     tf_init = 1
-    xinit = t -> [1, (t / tf_init) * (1 - t / tf_init), (m_tf - m_t0) * (t / tf_init) + m_t0]
+    xinit =
+        t -> [1, (t / tf_init) * (1 - t / tf_init), (m_tf - m_t0) * (t / tf_init) + m_t0]
     init = (state=xinit, control=Tmax / 2, variable=tf_init)
 
     return OptimalControlProblems._problem(:rocket, :OptimalControl, ocp, init, params)

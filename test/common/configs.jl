@@ -51,6 +51,8 @@ const GPU_CONFIGS = (
 )
 
 """Name of a configuration, for test sets and reports."""
-label(config) = join(("$k=$(v isa Tuple ? join(v, ",") : v)" for (k, v) in pairs(config)), " ")
+function label(config)
+    return join(("$k=$(v isa Tuple ? join(v, ",") : v)" for (k, v) in pairs(config)), " ")
+end
 
 end # module TestConfigs

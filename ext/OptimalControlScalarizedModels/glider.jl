@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:glider)` and `OptimalControlProblems.status(:glider)`.
 """
 function OptimalControlProblems.glider(
-    ::OptimalControlScalarizedBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlScalarizedBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:glider, :OptimalControlScalarized)
 
@@ -95,5 +94,7 @@ function OptimalControlProblems.glider(
     uinit = 1.0
     init = (state=xinit, control=uinit, variable=tfinit)
 
-    return OptimalControlProblems._problem(:glider, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :glider, :OptimalControlScalarized, ocp, init, params
+    )
 end

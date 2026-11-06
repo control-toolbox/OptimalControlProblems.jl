@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:electric_vehicle)` and `OptimalControlProblems.status(:electric_vehicle)`.
 """
 function OptimalControlProblems.electric_vehicle(
-    ::OptimalControlScalarizedBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlScalarizedBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:electric_vehicle, :OptimalControlScalarized)
 
@@ -57,5 +56,7 @@ function OptimalControlProblems.electric_vehicle(
     uinit = [0.1]       # [u]
     init = (state=yinit, control=uinit)
 
-    return OptimalControlProblems._problem(:electric_vehicle, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :electric_vehicle, :OptimalControlScalarized, ocp, init, params
+    )
 end

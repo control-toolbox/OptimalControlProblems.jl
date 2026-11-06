@@ -1,4 +1,5 @@
-isdefined(Main, :SolveJuMP) || include(joinpath(@__DIR__, "..", "..", "common", "solve_jump.jl"))
+isdefined(Main, :SolveJuMP) ||
+    include(joinpath(@__DIR__, "..", "..", "common", "solve_jump.jl"))
 
 module TestContractJuMP
 
@@ -22,7 +23,9 @@ const COMPONENTS = (
 Number of entries of the variable or constraint `name`: the containers of the models are
 indexed by the time steps (`0:N` or `1:N`), a variable of the problem is a scalar.
 """
-entries(model, name) = (c = model[Symbol(name)]; c isa JuMP.AbstractJuMPScalar ? 1 : length(c))
+function entries(model, name)
+    return (c=model[Symbol(name)]; c isa JuMP.AbstractJuMPScalar ? 1 : length(c))
+end
 
 """
 Time grid of the model. A free final time is a variable of the model: its value, hence the
@@ -41,7 +44,9 @@ end
 function test_contract()
     N = GRID_SIZE
     Test.@testset "JuMP model contract (no solve)" verbose = VERBOSE showtiming = SHOWTIMING begin
-        Main.TestStatus.for_each_problem("contract", OptimalControlProblems.JuMPBackend()) do problem
+        Main.TestStatus.for_each_problem(
+            "contract", OptimalControlProblems.JuMPBackend()
+        ) do problem
             build = getfield(OptimalControlProblems, problem)
             model = build(OptimalControlProblems.JuMPBackend(); grid_size=N)
             names = keys(JuMP.object_dictionary(model))
@@ -54,7 +59,8 @@ function test_contract()
                     Test.@test model[key] isa Vector{String}
                 end
                 Test.@test !isempty(model[:state_components])
-                Test.@test length(model[:costate_components]) == length(model[:state_components])
+                Test.@test length(model[:costate_components]) ==
+                    length(model[:state_components])
             end
 
             Test.@testset "names resolve" begin
