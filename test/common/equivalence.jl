@@ -388,7 +388,8 @@ function test_exact(reference, other, cols, ref; allowed=Symbol[])
     Test.@test setdiff(differences(c), allowed) == Symbol[]
     setdiff(differences(c), allowed) == Symbol[] || return tolerated
     n, m = reference.meta.nvar, reference.meta.ncon
-    # the initial point becomes 1, not 0: its rounding errors are compared relatively
+    # the initial point becomes 1, not 0: `consistent_meta` compares it with a relative
+    # tolerance only (JuliaSmoothOptimizers/NLPModelsTest.jl#150)
     scale = 0.001
     center = reference.meta.x0 .- scale
     recentred = PermutedNLP(reference, collect(1:n), collect(1:m), zeros(m), center, scale)
