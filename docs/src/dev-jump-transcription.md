@@ -162,15 +162,37 @@ they fix a component of the state (the variable is not fixed).
 
 ## Order of the unknowns and of the constraints
 
-The JuMP models follow CTDirect's **interleaved** order, which matters for the sparsity
-pattern seen by the linear solver:
+The order of the unknowns and of the constraints changes the sparsity pattern seen by the
+linear solver. It is chosen when the model is built, with `ordering`:
 
-- **unknowns**: node by node, the state then the control while there is one,
-  ``X_0, U_0, X_1, U_1, \dots, X_N, U_N`` (trapezoidal rule) or
-  ``X_0, U_0, \dots, X_{N-1}, U_{N-1}, X_N`` (one control per step), then ``v``;
-- **constraints**: for each step ``i = 0, \dots, N-1``, the dynamics of the step then the
-  path constraints at node ``i``; then the path constraints at node ``N``; then the
-  boundary conditions.
+- **`:interleaved`** (default), CTDirect's order:
+  - **unknowns**: node by node, the state then the control while there is one,
+    ``X_0, U_0, X_1, U_1, \dots, X_N, U_N`` (trapezoidal rule) or
+    ``X_0, U_0, \dots, X_{N-1}, U_{N-1}, X_N`` (one control per step), then ``v``;
+  - **constraints**: for each step ``i = 0, \dots, N-1``, the dynamics of the step then
+    the path constraints at node ``i``; then the path constraints at node ``N``; then the
+    boundary conditions.
+- **`:blocks`**, the same pieces grouped by kind:
+  - **unknowns**: ``X_0, \dots, X_N``, then all the controls, then ``v``;
+  - **constraints**: all the dynamics, then the path constraints at the nodes
+    ``0, \dots, N``, then the boundary conditions.
+
+```julia
+model = beam(JuMPBackend(); grid_size=100, ordering=:blocks)
+model[:ordering]    # :blocks
+```
+
+The NLP is the same in both orders, up to a permutation of the unknowns and of the
+constraints. The unknowns keep their names (`x₁[3]`), and `model[:constraints]` lists the
+constraints in CTDirect's order for both orderings, so the permutation can be computed
+from the model.
+
+!!! note "MOI groups the constraints by type"
+
+    JuMP passes the constraints to the solver grouped by type: function (affine,
+    quadratic, nonlinear) and set (equality, interval). The order of creation is kept only
+    within a type. The dynamics, path constraints and boundary conditions of a problem are
+    often of different types, so `:blocks` mostly changes the order of the unknowns.
 
 ## In the code
 
@@ -189,7 +211,7 @@ data = ProblemData(;
     lagrange=(x, u, v, t) -> u[1]^2,
     boundary=[(x₁_t0, (x0, xf, v) -> x0[1], x₁_t0), (x₁_tf, (x0, xf, v) -> xf[1], x₁_tf)],
 )
-return build(data, grid_size, scheme, args...; kwargs...)
+return build(data, grid_size, scheme, ordering, args...; kwargs...)
 ```
 
 | Field | Mathematical object |
@@ -226,6 +248,8 @@ solution back:
 | `model[:tf]`, … (one per variable component) | the unknown | `variable`, the time grid |
 | `model[:∂x₁]`, … (one per costate name) | the dynamics constraints of the component, indexed by `1:N` | `costate` (their duals) |
 | `model[:scheme]` | the scheme, `:trapeze`, `:euler`, `:euler_implicit` or `:midpoint` | `control`, `solution` |
+| `model[:ordering]` | the order of the unknowns and constraints, `:interleaved` or `:blocks` | the comparisons with CTDirect |
+| `model[:constraints]` | the constraints, in CTDirect's order whatever the ordering | the comparisons with CTDirect |
 | `model[:time_grid]` | a function returning ``t_0, \dots, t_N``, evaluated after the solve when ``t_f`` is free | `time_grid` |
 | `model[:state_components]`, `model[:control_components]`, `model[:variable_components]`, `model[:costate_components]` | the names above, in order | every accessor |
 

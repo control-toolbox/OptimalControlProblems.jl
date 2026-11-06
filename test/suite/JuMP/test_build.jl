@@ -2,6 +2,7 @@ module TestBuildJuMP
 
 using Test: Test
 using JuMP: JuMP
+using CTBase: CTBase
 using OptimalControlProblems: OptimalControlProblems
 
 const VERBOSE = isdefined(Main, :TestOptions) ? Main.TestOptions.VERBOSE : true
@@ -9,6 +10,7 @@ const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING :
 
 const EXT = Base.get_extension(OptimalControlProblems, :JuMPModels)
 const SCHEMES = (:trapeze, :euler, :euler_implicit, :midpoint)
+const ORDERINGS = (:interleaved, :blocks)
 
 # -----------------------------------------------------------------------------
 # A fake problem, small enough to write its NLP by hand: free final time `T`,
@@ -87,9 +89,9 @@ end
 
 function test_by_hand()
     Test.@testset "the NLP of a fake problem, written by hand" begin
-        for scheme in SCHEMES
-            Test.@testset "$scheme" begin
-                model = EXT.build(FAKE, 2, scheme)
+        for scheme in SCHEMES, ordering in ORDERINGS
+            Test.@testset "$scheme, $ordering" begin
+                model = EXT.build(FAKE, 2, scheme, ordering)
                 e = by_hand(scheme)
                 Test.@test JuMP.num_variables(model) == e.nvar
                 dyn = [constraint_value(model, r) for r in collect(model[:∂x])]
@@ -134,7 +136,7 @@ const EXACT = EXT.ProblemData(;
 )
 
 function errors(scheme, N)
-    model = EXT.build(EXACT, N, scheme)
+    model = EXT.build(EXACT, N, scheme, :interleaved)
     values = Dict{JuMP.VariableRef,Float64}()
     for (k, x) in enumerate(collect(model[:x]))
         values[x] = exp(((k - 1) / N)^2 / 2)
@@ -162,11 +164,88 @@ function test_order()
     end
 end
 
+# -----------------------------------------------------------------------------
+# Orderings (#370), written by hand for N = 2. MOI groups the constraints by type, so the
+# order of creation shows only between constraints of the same type: in this linear fake
+# problem the dynamics, the second path constraint and the boundary condition are all
+# affine equalities.
+# -----------------------------------------------------------------------------
+const LINEAR = EXT.ProblemData(;
+    state=[EXT.Component("x")],
+    control=[EXT.Component("u")],
+    variable=[EXT.Component("T")],
+    costate=["∂x"],
+    times=v -> (0, 1),
+    dynamics=(x, u, v, t) -> [u[1]],
+    path=[(-10, (x, u, v, t) -> x[1] + u[1], 10), (0, (x, u, v, t) -> x[1] - u[1], 0)],
+    boundary=[(1, (x0, xf, v) -> x0[1], 1)],
+)
+
+function variable_names(scheme, ordering)
+    x = ["x[0]", "x[1]", "x[2]"]
+    u = scheme == :trapeze ? ["u[0]", "u[1]", "u[2]"] : ["u[0]", "u[1]"]
+    ordering == :blocks && return [x; u; "T"]
+    interleaved = if scheme == :trapeze
+        ["x[0]", "u[0]", "x[1]", "u[1]", "x[2]", "u[2]"]
+    else
+        ["x[0]", "u[0]", "x[1]", "u[1]", "x[2]"]
+    end
+    return [interleaved; "T"]
+end
+
+# `model[:constraints]` lists, in CTDirect's order: the dynamics of step 1 (1), the path
+# constraints at node 0 (2, 3), the dynamics of step 2 (4), the path constraints at nodes 1
+# and 2 (5 to 8), the boundary condition (9). The positions in the order of creation:
+const CREATED = (interleaved=1:9, blocks=[1, 4, 2, 3, 5, 6, 7, 8, 9])
+
+"""Value of the function of the constraint `ref` at a point given by the variable names."""
+function by_name(ref)
+    point(v) = 0.1 * findfirst(==(JuMP.name(v)), variable_names(:trapeze, :blocks))
+    return JuMP.value(point, JuMP.constraint_object(ref).func)
+end
+
+function test_orderings()
+    Test.@testset "orderings" begin
+        for scheme in SCHEMES
+            reference = EXT.build(LINEAR, 2, scheme, :interleaved)
+            for ordering in ORDERINGS
+                Test.@testset "$scheme, $ordering" begin
+                    model = EXT.build(LINEAR, 2, scheme, ordering)
+                    Test.@test model[:ordering] === ordering
+                    Test.@test JuMP.name.(JuMP.all_variables(model)) ==
+                        variable_names(scheme, ordering)
+                    C = model[:constraints]
+                    Test.@test length(C) == 9
+                    Test.@test length(C) == JuMP.num_constraints(
+                        model; count_variable_in_set_constraints=false
+                    )
+                    created = C[CREATED[ordering]]
+                    for (F, S) in JuMP.list_of_constraint_types(model)
+                        F <: JuMP.VariableRef && continue
+                        Test.@test JuMP.all_constraints(model, F, S) == filter(
+                            r -> r in JuMP.all_constraints(model, F, S), created
+                        )
+                    end
+                    # the same constraints as the interleaved model, in CTDirect's order
+                    Test.@test [JuMP.constraint_object(r).set for r in C] == [
+                        JuMP.constraint_object(r).set for r in reference[:constraints]
+                    ]
+                    Test.@test by_name.(C) ≈ by_name.(reference[:constraints]) atol = 1e-14
+                end
+            end
+        end
+        Test.@test_throws CTBase.Exceptions.IncorrectArgument EXT.build(
+            LINEAR, 2, :trapeze, :random
+        )
+    end
+end
+
 function test_build()
     Test.@testset "JuMP schemes: the discretization" verbose = VERBOSE showtiming =
         SHOWTIMING begin
         test_by_hand()
         test_order()
+        test_orderings()
     end
 end
 
