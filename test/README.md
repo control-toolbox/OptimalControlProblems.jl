@@ -11,7 +11,8 @@ test/
 ├── Project.toml    # light environment of the dispatcher and of core (Test, Aqua, CTBase)
 ├── common/         # shared code, included by the tests (configurations, statuses, solvers)
 ├── suite/<group>/  # fast tests, run on every pull request
-└── cron/<group>/   # slow tests of the same group, run by the cron
+├── cron/<group>/   # slow tests of the same group, run by the weekly cron
+└── robustness/<group>/ # robustness report of the group, run by the monthly cron (#378)
 ```
 
 - `suite/core/` has no extension loaded and runs in the dispatcher's process, always.
@@ -20,7 +21,14 @@ test/
   own Julia process, in a temporary copy of its `Project.toml` where the package is
   developed, so that each extension is shown to load alone.
 - `cron/<group>/` holds the slow tests of a group; they run in the environment of
-  `suite/<group>/`.
+  `suite/<group>/`, as `robustness/<group>/` does.
+- `robustness/<group>/test_robustness.jl` solves every problem on its default grid under
+  other options of each solver (`TestConfigs.ROBUSTNESS`): does the initial guess still
+  lead to the best known solution? Reported, never tested. Run it with the word
+  `robustness` (`Pkg.test(; test_args=["OptimalControl", "robustness"])`); it runs only
+  then. MadNLP 0.10 reads the barrier parameter from its `barrier` option only, which the
+  MadNLP strategy of OptimalControl does not know: `SolveOptimalControl` passes it with
+  `bypass`.
 
 ## Running the tests
 
@@ -68,7 +76,8 @@ Only the first two can fail a run (#360).
    argument or the label `test convergence`. `cron/<group>/test_convergence.jl` solves each
    problem on its default grid and **reports** the result without testing it: whether the
    solver says it converged (and why not), the objective, the iterations and the time, and
-   the relative gap to the reference objective only when the problem has one. An
+   the relative gap to the reference objective only when the problem has one, with which
+   known solution it reached (`best`, `local` or `new`, #378). An
    exception still fails. This is what helps tune an initial guess: look at the results and
    adapt.
 

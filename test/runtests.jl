@@ -17,13 +17,15 @@
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["JuMP"])'   # core + one environment
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["cron"])'   # slow tests (cron/ dirs)
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["convergence"])' # suite + cron/ dirs
+#   julia --project -e 'using Pkg; Pkg.test(; test_args=["robustness"])'  # robustness/ dirs
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["JuMP", "cron", "*beam*"])'
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["JuMP", "problem=beam,robot"])'
 #
 # `test_args` is a list of: environment names (none given: every environment except the
 # opt-in ones below), the word `cron` (run `cron/<group>/test_*.jl` instead of
-# `suite/<group>/test_*.jl`) or the word `convergence` (run both: the convergence report,
-# off by default, #360), and file patterns (`*` and `?` allowed, with or without
+# `suite/<group>/test_*.jl`), the word `convergence` (run both: the convergence report,
+# off by default, #360) or the word `robustness` (run `robustness/<group>/test_*.jl` only:
+# the robustness report of the monthly cron, #378), and file patterns (`*` and `?` allowed, with or without
 # `test_` and `.jl`);
 # - `problem=a,b`: test only these problems (a name not in the catalogue is an error), for
 #   instance the one you add; `core` and the environments are unchanged otherwise.
@@ -48,6 +50,7 @@ const OPT_IN = ("ModelingToolkit", "GPU")
 
 const SUITE = joinpath(@__DIR__, "suite")
 const CRON = joinpath(@__DIR__, "cron")
+const ROBUSTNESS = joinpath(@__DIR__, "robustness")
 
 """
 Names of the test environments: the groups of `suite/` holding a `Project.toml`.
@@ -103,7 +106,7 @@ problem_names, rest = TestSelection.split_problems(args)
 TestStatus.select_problems!(problem_names)
 available = environments()
 selected, patterns = TestSelection.select_environments(rest, available, OPT_IN; core=CORE)
-dirs(name) = TestSelection.directories(name, SUITE, CRON; mode=mode)
+dirs(name) = TestSelection.directories(name, SUITE, CRON, ROBUSTNESS; mode=mode)
 # An environment with no directory to run in this mode (no `cron/<name>/` in cron mode) is
 # skipped: its environment would be instantiated for nothing.
 filter!(name -> !isempty(dirs(name)), selected)
@@ -123,7 +126,7 @@ Test.@testset "OptimalControlProblems tests" verbose = Main.TestOptions.VERBOSE 
 
     for name in selected
         Test.@testset "environment $name" begin
-            report = mode === :cron ? "$name-cron" : name
+            report = mode in (:cron, :robustness) ? "$name-$mode" : name
             Test.@test run_environment(name; dirs=dirs(name), report=report, patterns=patterns)
         end
     end

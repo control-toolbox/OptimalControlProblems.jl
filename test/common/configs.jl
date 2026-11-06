@@ -42,6 +42,16 @@ const CONFIGS = (
     OptimalControlScalarized=((modeler=:exa, solver=:madnlp),),
 )
 
+# Robustness of the initial guess (#378; `robustness/<group>/`, monthly cron): each
+# configuration of `CONFIGS` solved again under other options of its solver, on the default
+# grid. The options of the convergence report (above) are not repeated here.
+# MadNLP: `mu_init` (monotone barrier update) and `barrier=:loqo` (adaptive one), turned into
+# MadNLP's `barrier` option by `SolveOptimalControl.solver`.
+const ROBUSTNESS = (
+    ipopt=((mu_strategy="monotone",), (mu_init=1e-3,), (mu_strategy="monotone", mu_init=1e-3)),
+    madnlp=((mu_init=1e-3,), (mu_init=1e-5,), (barrier=:loqo,)),
+)
+
 # GPU configurations of the OptimalControl modelings (environment `GPU`, run on the GPU
 # runners only): Exa and MadNLP on the GPU, `SolveOptimalControl` builds them. Apart from
 # `CONFIGS`, so that the CPU environments never see them.

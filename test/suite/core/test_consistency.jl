@@ -95,6 +95,16 @@ function test_reference_objectives()
                 Test.@test entry.parameters == repr(data[:parameters])
                 Test.@test entry.source in (:computed,)
                 Test.@test isfinite(entry.value)
+                # known solutions (#378): best first, distinct, the reference is the best
+                Test.@test first(entry.solutions) == entry.value
+                Test.@test issorted(entry.solutions)
+                Test.@test entry.agreement == (length(entry.solutions) == 1)
+                kind(x) = OCP.solution_kind(problem, x; grid_size=entry.grid_size, scheme=scheme)
+                Test.@test kind(entry.value) === :best
+                Test.@test all(s -> kind(s) in (:best, :local), entry.solutions)
+                Test.@test all(s -> kind(s) === :local, entry.solutions[2:end])
+                far = maximum(abs, entry.solutions) * 10 + 1
+                Test.@test kind(far) === :new
             end
             valid = [name for (name, s) in pairs(OCP.status(problem)) if s === :valid]
             (isempty(valid) || !isnothing(OCP.reference_objective(problem))) && continue

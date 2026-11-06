@@ -146,6 +146,7 @@ const METADATA_STORAGE = OrderedDict{Symbol,OrderedDict}()
 # written by `tools/references/update.jl` from the results of the convergence tests, one
 # table per scheme. Read into the field `:reference_objective` of the metadata.
 const REFERENCES_PATH = joinpath(METADATA_PATH, "references")
+# The fields of a table, and how each is read: a type, or a function of the TOML value.
 const REFERENCE_FIELDS = (
     value=Float64,
     grid_size=Int,
@@ -154,7 +155,20 @@ const REFERENCE_FIELDS = (
     agreement=Bool,
     spread=Float64,
     run=String,
+    # the known solutions (#378): the objectives of the distinct solutions reached, best first
+    solutions=tables -> Float64[t["objective"] for t in tables],
 )
+
+"""
+Relative gap below which two objectives are the same solution (#378): above the accuracy of
+the solvers at the tolerance of the tests (about 1e-6 at `tol = 1e-8`), below the gap between
+the known local solutions (1.6e-4 on `mountain_car`). Used to group the solutions reached,
+to say whether the configurations agree, and to say which solution a solve reached.
+"""
+const SAME_SOLUTION = 1e-5
+
+"""Relative gap of `a` to `b` (absolute when `b` is zero)."""
+_relative_gap(a, b) = abs(a - b) / (iszero(b) ? 1 : abs(b))
 # a new directory changes `METADATA_PATH`, already a dependency
 isdir(REFERENCES_PATH) && Base.include_dependency(REFERENCES_PATH)
 
@@ -401,6 +415,29 @@ function reference_objective(
     entry = get(references, scheme, nothing)
     (isnothing(entry) || entry.grid_size != grid_size) && return nothing
     return entry.value
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+Which known solution of `problem` the objective `objective` is, for the discretization on
+`grid_size` steps with `scheme` (#378): `:best` (the reference objective), `:local` (another
+known solution), `:new` (none of them), or `nothing` when the problem has no reference for
+this discretization. Two objectives are the same solution within a relative
+`OptimalControlProblems.SAME_SOLUTION`.
+"""
+function solution_kind(
+    problem::Symbol,
+    objective::Real;
+    grid_size::Int=grid_size_data(problem),
+    scheme::Symbol=:trapeze,
+)
+    reference = reference_objective(problem; grid_size, scheme)
+    isnothing(reference) && return nothing
+    _relative_gap(objective, reference) <= SAME_SOLUTION && return :best
+    solutions = problem_metadata(problem)[:reference_objective][scheme].solutions
+    any(s -> _relative_gap(objective, s) <= SAME_SOLUTION, solutions) && return :local
+    return :new
 end
 
 """

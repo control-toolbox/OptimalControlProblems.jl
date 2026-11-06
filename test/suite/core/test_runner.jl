@@ -31,14 +31,21 @@ function test_runner()
             Test.@test R.split_mode(String[]) == (:suite, String[])
             Test.@test R.split_mode(["JuMP", "cron"]) == (:cron, ["JuMP"])
             Test.@test R.split_mode(["convergence", "*solve*"]) == (:convergence, ["*solve*"])
+            Test.@test R.split_mode(["robustness", "OptimalControl"]) == (:robustness, ["OptimalControl"])
             Test.@test_throws ArgumentError R.split_mode(["cron", "convergence"])
+            Test.@test_throws ArgumentError R.split_mode(["cron", "robustness"])
             mktempdir() do root
                 suite, cron = joinpath(root, "suite"), joinpath(root, "cron")
+                robustness = joinpath(root, "robustness")
                 mkpath(joinpath(suite, "a")); mkpath(joinpath(cron, "a")); mkpath(joinpath(suite, "b"))
-                dirs(group, mode) = R.directories(group, suite, cron; mode=mode)
+                mkpath(joinpath(robustness, "a"))
+                dirs(group, mode) = R.directories(group, suite, cron, robustness; mode=mode)
                 Test.@test dirs("a", :suite) == [joinpath(suite, "a")]
                 Test.@test dirs("a", :cron) == [joinpath(cron, "a")]
                 Test.@test dirs("a", :convergence) == [joinpath(suite, "a"), joinpath(cron, "a")]
+                # the robustness directories run only when asked for, alone
+                Test.@test dirs("a", :robustness) == [joinpath(robustness, "a")]
+                Test.@test isempty(dirs("b", :robustness))
                 # no cron directory: nothing in cron mode, the suite only for convergence
                 Test.@test isempty(dirs("b", :cron))
                 Test.@test dirs("b", :convergence) == [joinpath(suite, "b")]
