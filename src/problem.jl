@@ -97,3 +97,58 @@ The method for a JuMP model (trapezoidal scheme) is defined by the `JuMPModels` 
 load JuMP. The model and `pb` must have the same state, control and variable dimensions.
 """
 function solution end
+
+"""
+$(TYPEDSIGNATURES)
+
+Features of `problem`, computed from its OptimalControl model, never written by hand:
+
+- `state_dimension`, `control_dimension`, `variable_dimension`;
+- `cost`: `:mayer`, `:lagrange` or `:bolza`;
+- `initial_time`, `final_time`: `:fixed` or `:free`;
+- `constraints`: the number of constraints of each kind, `state_box`, `control_box`,
+  `variable_box` (box constraints), `path` (nonlinear path constraints) and `boundary`
+  (nonlinear boundary constraints).
+
+The problem is built with its default parameters, which needs the `OptimalControlModels`
+extension: load OptimalControl. A problem without an OptimalControl model has no features
+yet.
+
+# Example
+
+```julia-repl
+julia> using OptimalControl, OptimalControlProblems
+
+julia> OptimalControlProblems.features(:beam).cost
+:lagrange
+```
+"""
+function features(problem::Symbol)
+    return features(getfield(@__MODULE__, problem)(OptimalControlBackend()))
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+Features of the `Problem` `pb`, computed from its model (see `features(problem::Symbol)`).
+"""
+function features(pb::Problem)
+    ocp = model(pb)
+    M = CTModels.Models
+    mayer, lagrange = M.has_mayer_cost(ocp), M.has_lagrange_cost(ocp)
+    return (
+        state_dimension=M.state_dimension(ocp),
+        control_dimension=M.control_dimension(ocp),
+        variable_dimension=M.variable_dimension(ocp),
+        cost=mayer && lagrange ? :bolza : (mayer ? :mayer : :lagrange),
+        initial_time=M.has_fixed_initial_time(ocp) ? :fixed : :free,
+        final_time=M.has_fixed_final_time(ocp) ? :fixed : :free,
+        constraints=(
+            state_box=M.dim_state_constraints_box(ocp),
+            control_box=M.dim_control_constraints_box(ocp),
+            variable_box=M.dim_variable_constraints_box(ocp),
+            path=M.dim_path_constraints_nl(ocp),
+            boundary=M.dim_boundary_constraints_nl(ocp),
+        ),
+    )
+end

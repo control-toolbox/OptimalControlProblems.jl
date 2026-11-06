@@ -24,41 +24,22 @@ end
 # Data collection
 # -------------------------------
 function collect_problem_data(problem_sym::Symbol)
-    ocp_pb = model(eval(problem_sym)(OptimalControlBackend()))
-
-    cost = if has_mayer_cost(ocp_pb) && has_lagrange_cost(ocp_pb)
-        "Bolza"
-    elseif has_mayer_cost(ocp_pb)
-        "Mayer"
-    else
-        "Lagrange"
-    end
-
-    final_time = has_fixed_final_time(ocp_pb) ? "fixed" : "free"
-
-    dims = (
-        x=dim_state_constraints_box(ocp_pb),
-        u=dim_control_constraints_box(ocp_pb),
-        v=dim_variable_constraints_box(ocp_pb),
-        c=dim_path_constraints_nl(ocp_pb),
-        b=dim_boundary_constraints_nl(ocp_pb),
-    )
-
-    total = sum_namedtuple(dims)
-
+    # computed by the package from the model (#376), not here
+    f = OptimalControlProblems.features(problem_sym)
+    c = f.constraints
     return (
         Problem=string(problem_sym),
-        State=state_dimension(ocp_pb),
-        Control=control_dimension(ocp_pb),
-        Variable=variable_dimension(ocp_pb),
-        Cost=cost,
-        FinalTime=final_time,
-        DimStateConstraint=dims.x,
-        DimControlConstraint=dims.u,
-        DimVariableConstraint=dims.v,
-        DimPathConstraint=dims.c,
-        DimBoundaryConstraint=dims.b,
-        TotalConstraints=total,
+        State=f.state_dimension,
+        Control=f.control_dimension,
+        Variable=f.variable_dimension,
+        Cost=uppercasefirst(string(f.cost)),
+        FinalTime=string(f.final_time),
+        DimStateConstraint=c.state_box,
+        DimControlConstraint=c.control_box,
+        DimVariableConstraint=c.variable_box,
+        DimPathConstraint=c.path,
+        DimBoundaryConstraint=c.boundary,
+        TotalConstraints=sum_namedtuple(c),
     )
 end
 
