@@ -279,24 +279,19 @@ julia> u(0.25)
 """
 function CTModels.Components.control(model::JuMP.GenericModel)
 
-    # time grid
+    # time grid and control at its nodes
     T = time_grid(model)
-    N = length(T) - 1
-
-    # get components and dimension
-    u_vars = control_components(model)
     dim_u = control_dimension(model)
+    U = _control_at_nodes(model, length(T) - 1)
 
-    # get control from the model
-    U = zeros(N + 1, dim_u)
-    for i in 1:dim_u
-        U[:, i] = JuMP.value.(model[Symbol(u_vars[i])])
-    end
-
-    # interpolate
-    M = size(U, 1)
+    # interpolate: linear between the nodes for a scheme with final control, steppost
+    # (one control per step) otherwise
     V = CTBase.Core.matrix2vec(U[:, 1:dim_u], 1)
-    u = CTBase.Interpolation.ctinterpolate(T[1:M], V)
+    u = if _control_interpolation(model) == :linear
+        CTBase.Interpolation.ctinterpolate(T, V)
+    else
+        CTBase.Interpolation.ctinterpolate_constant(T, V)
+    end
 
     # force scalar output when dimension is 1
     fu = (dim_u == 1) ? deepcopy(t -> u(t)[1]) : deepcopy(t -> u(t))
@@ -446,8 +441,10 @@ $(TYPEDSIGNATURES)
 
 Build the `CTModels.Solution` of a solved JuMP model, from the continuous model of `pb`, the
 `Problem` of the same problem in OptimalControl. The states and the controls are given at the
-nodes of the grid of the model (trapezoidal scheme) and the controls are interpolated
-linearly; the costate is given on the intervals of the grid. The costate keeps the
+nodes of the grid of the model, as CTDirect gives them: with one control per step
+(`:euler`, `:euler_implicit`, `:midpoint`) the last control is repeated at the last node
+and the control is piecewise constant; with the trapezoidal rule it is interpolated
+linearly. The costate is given on the intervals of the grid. The costate keeps the
 convention of the JuMP model: its signs are not yet those of OptimalControl (#326).
 
 # Arguments
@@ -504,7 +501,7 @@ function OptimalControlProblems.solution(
     T = collect(Float64, time_grid(model))
     N = length(T) - 1
     X = _values(model, state_components(model), JuMP.value)
-    U = _values(model, control_components(model), JuMP.value)
+    U = _control_at_nodes(model, N)
     P = _values(model, costate_components(model), JuMP.dual)
     v = Float64[JuMP.value(model[Symbol(c)]) for c in variable_components(model)]
 
@@ -530,8 +527,21 @@ function OptimalControlProblems.solution(
         message=JuMP.raw_status(model),
         status=Symbol(lowercase(string(status))),
         successful=status in (JuMP.MOI.OPTIMAL, JuMP.MOI.LOCALLY_SOLVED),
-        control_interpolation=:linear,
+        control_interpolation=_control_interpolation(model),
     )
+end
+
+# The control at the `N+1` nodes, one column per component. A scheme without final control
+# has one control per step: the last one is repeated at the last node, as CTDirect does.
+function _control_at_nodes(model::JuMP.GenericModel, N::Int)
+    U = _values(model, control_components(model), JuMP.value)
+    return size(U, 1) == N ? vcat(U, U[end:end, :]) : U
+end
+
+# Interpolation of the control between the nodes: linear for a scheme with final control,
+# steppost for one control per step.
+function _control_interpolation(model::JuMP.GenericModel)
+    return has_final_control(tableau(model[:scheme])) ? :linear : :constant
 end
 
 # Values of the variables or constraints `names` of the model, one column each.

@@ -32,10 +32,18 @@ function _stage(xi, xj, θ)
     θ == 1 && return xj
     return [(1 - θ) * a + θ * b for (a, b) in zip(xi, xj)]
 end
-_stage_time(ti, tj, Δt, c) = c == 0 ? ti : c == 1 ? tj : ti + c * Δt
+_stage_time(ti, tj, Δt, c) = if c == 0
+    ti
+elseif c == 1
+    tj
+else
+    ti + c * Δt
+end
 
 # Quadrature of the stage values `G` with the weights `b`.
-_weighted(b, G) = length(b) == 1 && b[1] == 1 ? G[1] : sum(b[j] * G[j] for j in eachindex(b))
+function _weighted(b, G)
+    return length(b) == 1 && b[1] == 1 ? G[1] : sum(b[j] * G[j] for j in eachindex(b))
+end
 
 """
 $(TYPEDSIGNATURES)

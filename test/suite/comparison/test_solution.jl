@@ -1,4 +1,5 @@
-isdefined(Main, :Comparison) || include(joinpath(@__DIR__, "..", "..", "common", "comparison.jl"))
+isdefined(Main, :Comparison) ||
+    include(joinpath(@__DIR__, "..", "..", "common", "comparison.jl"))
 
 module TestSolutionComparison
 
@@ -15,10 +16,13 @@ const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING :
 vec1(a::Number) = [Float64(a)]
 vec1(a) = Float64.(a)
 
+const SCHEMES = (:trapeze, :euler, :euler_implicit, :midpoint)
+
 # The solution built from a JuMP model gives back what the JuMP accessors give. Zero
 # iterations: the structure, not a solve (the solves are compared below, on `beam`).
-function check_solution(problem::Symbol)
-    model = getfield(OCP, problem)(OCP.JuMPBackend(); grid_size=Main.TestConfigs.SMALL_GRID)
+function check_solution(problem::Symbol, scheme::Symbol)
+    N = Main.TestConfigs.SMALL_GRID
+    model = getfield(OCP, problem)(OCP.JuMPBackend(); grid_size=N, scheme=scheme)
     Main.SolveJuMP.solve!(model; max_iter=0)
     pb = getfield(OCP, problem)(OCP.OptimalControlBackend())
     sol = OCP.solution(model, pb)
@@ -31,16 +35,30 @@ function check_solution(problem::Symbol)
     Test.@test vec1(OCP.variable(sol)) == vec1(OCP.variable(model))
     Test.@test all(t -> vec1(OCP.state(sol)(t)) ≈ vec1(OCP.state(model)(t)), T)
     Test.@test all(t -> vec1(OCP.control(sol)(t)) ≈ vec1(OCP.control(model)(t)), T)
-    Test.@test all(t -> vec1(OCP.costate(sol)(t)) ≈ vec1(OCP.costate(model)(t)), T[1:(end - 1)])
+    Test.@test all(
+        t -> vec1(OCP.costate(sol)(t)) ≈ vec1(OCP.costate(model)(t)), T[1:(end - 1)]
+    )
+    if scheme != :trapeze
+        # one control per step, held on the step [t_i, t_{i+1}) and repeated at the last node
+        name = first(OCP.control_components(model))
+        U = JuMP.value.(collect(model[Symbol(name)]))
+        Test.@test length(U) == N
+        u(t) = first(vec1(OCP.control(sol)(t)))
+        Test.@test [u((T[i] + T[i + 1]) / 2) for i in 1:N] == U
+        Test.@test u(T[end]) == U[end]
+    end
     return nothing
 end
 
 function test_solution()
-    Test.@testset "JuMP solution as a CTModels.Solution" verbose = VERBOSE showtiming = SHOWTIMING begin
+    Test.@testset "JuMP solution as a CTModels.Solution" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         Main.TestStatus.for_each_problem(
             "test_solution", OCP.JuMPBackend(), OCP.OptimalControlBackend()
         ) do problem
-            check_solution(problem)
+            for scheme in SCHEMES
+                Test.@testset "$scheme" check_solution(problem, scheme)
+            end
         end
 
         Test.@testset "errors" begin
@@ -55,16 +73,24 @@ function test_solution()
             Test.@test_throws CTBase.Exceptions.IncorrectArgument OCP.solution(model, other)
         end
 
-        Test.@testset "beam, solved, against OptimalControl" begin
+        Test.@testset "beam, solved, against OptimalControl, $scheme" for scheme in SCHEMES
             N = Main.TestConfigs.SMALL_GRID
-            model = OCP.beam(OCP.JuMPBackend(); grid_size=N)
+            model = OCP.beam(OCP.JuMPBackend(); grid_size=N, scheme=scheme)
             Main.SolveJuMP.solve!(model)
             pb = OCP.beam(OCP.OptimalControlBackend())
             sol = OCP.solution(model, pb)
             Test.@test OptimalControl.successful(sol)
 
-            ref = Main.SolveOptimalControl.solve(
-                pb, first(Main.TestConfigs.CONFIGS.OptimalControl); grid_size=N
+            # the same NLP (#369): solved by CTDirect with the same scheme
+            ref = OptimalControl.solve(
+                OCP.model(pb);
+                init=OCP.initial_guess(pb),
+                discretizer=OptimalControl.Collocation(; grid_size=N, scheme=scheme),
+                modeler=OptimalControl.ADNLP(),
+                solver=Main.SolveOptimalControl.solver(
+                    :ipopt; max_iter=Main.TestConfigs.MAX_ITER
+                ),
+                display=false,
             )
             C = Main.Comparison
             Test.@test C.within(OCP.objective(sol), OCP.objective(ref); C.OBJECTIVE...)

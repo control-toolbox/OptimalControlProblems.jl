@@ -7,6 +7,9 @@ julia> using OptimalControlProblems
 julia> cart_pendulum(JuMPBackend(); grid_size=100)
 ```
 
+The keyword `scheme` chooses the discretization: `:trapeze` (default), `:euler`,
+`:euler_implicit` or `:midpoint`, as in `OptimalControl.Collocation`.
+
 Default parameters and the modeling status are available through
 `problem_metadata(:cart_pendulum)` and `OptimalControlProblems.status(:cart_pendulum)`.
 """

@@ -48,7 +48,11 @@ function tableau(scheme::Symbol)
 end
 
 stage_count(tab::ButcherTableau) = length(tab.b)
-is_explicit(tab::ButcherTableau) = all(iszero(tab.A[j, k]) for j in 1:stage_count(tab), k in j:stage_count(tab))
+"""`A` strictly lower triangular: each stage depends on the previous ones only."""
+function is_explicit(tab::ButcherTableau)
+    s = stage_count(tab)
+    return all(iszero(tab.A[j, k]) for j in 1:s for k in j:s)
+end
 
 """Last row of `A` equal to `b` and `c_s = 1`: the last stage is the next node `X_{i+1}`."""
 is_stiffly_accurate(tab::ButcherTableau) = tab.A[end, :] == tab.b && tab.c[end] == 1
