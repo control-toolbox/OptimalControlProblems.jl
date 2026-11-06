@@ -27,4 +27,6 @@ insurance_meta = OrderedDict(
         x₃_t0=0,
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
+    # initial guess of every modeling (#377), from the parameters
+    :init => p -> (state=[0.1, 0.1, 0.1], control=[0.1, 0.1, 0.1, 0.1, 0.1], variable=0.1),
 )

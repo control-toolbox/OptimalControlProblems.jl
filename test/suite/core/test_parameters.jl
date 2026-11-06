@@ -22,6 +22,11 @@ function test_parameters()
         data = OptimalControlProblems.problem_metadata(problem)
         Test.@test data[:grid_size] == OptimalControlProblems.grid_size_data(problem)
         Test.@test data[:parameters] == OptimalControlProblems.parameters_data(problem)
+        # the initial guess comes from the parameters (#377)
+        guess = OptimalControlProblems.initial_guess_data(problem)
+        Test.@test guess isa NamedTuple
+        Test.@test issubset(keys(guess), (:state, :control, :variable))
+        Test.@test guess == data[:init](OptimalControlProblems.parameters_data(problem))
         Test.@test OptimalControlProblems.problem_metadata()[problem] === data
         Test.@test_throws CTBase.Exceptions.IncorrectArgument OptimalControlProblems.problem_metadata(
             :not_a_problem

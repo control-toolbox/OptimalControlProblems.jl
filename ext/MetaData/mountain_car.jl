@@ -20,4 +20,6 @@ mountain_car_meta = OrderedDict(
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
     :notes => "On the default grid, the scalarized model solved with MadNLP gives the objective 102.381 instead of 102.398 (JuMP and OptimalControl), a relative gap of 1.6e-4: a convergence gap, reported by the convergence tests (#360); the models are equivalent at the initial guess.",
+    # initial guess of every modeling (#377), from the parameters
+    :init => p -> (state=[p.pos_t0, p.vel_t0], control=0.0, variable=p.tf_start),
 )
