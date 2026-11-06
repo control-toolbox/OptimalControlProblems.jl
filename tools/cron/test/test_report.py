@@ -227,12 +227,12 @@ RESULT_HEADER = (
 )
 
 
-def result_row(problem, result="converged", objective="1.0", platform="cron-a"):
+def result_row(problem, result="converged", objective="1.0", platform="cron-a", solution=""):
     return {
         "test": "test_convergence c", "problem": problem, "modeling": "JuMP",
         "configuration": "solver=ipopt", "result": result, "reason": "LOCALLY_SOLVED",
         "objective": objective, "iterations": "10", "time": "0.1", "gap": "",
-        "platform": platform,
+        "solution": solution, "platform": platform,
     }
 
 
@@ -300,11 +300,30 @@ class ConvergenceTests(unittest.TestCase):
         self.assertEqual(["a", "c"], [row["problem"] for row in worse])
         self.assertEqual("solver=ipopt", worse[0]["test"])
 
+    def test_a_new_solution_is_flagged_and_a_known_one_is_not(self):
+        before = {REPORT.result_key(result_row(p)): {"result": "converged", "objective": "1.0"}
+                  for p in ("a", "b")}
+        now = [
+            result_row("a", solution="new"),
+            result_row("b", solution="local"),
+            result_row("c", solution="new"),  # not in the previous run
+            result_row("d", result="not_converged", solution=""),
+        ]
+        worse = REPORT.degradations(now, before)
+        self.assertEqual(["a", "c"], [row["problem"] for row in worse])
+        self.assertEqual(["new solution", "new solution"], [row["outcome"] for row in worse])
+        # the column is shown in the report
+        report = REPORT.report_markdown("JuMP", [], "run", "now", "sha", "1.13", "0.6.0", now, before)
+        self.assertIn("| solution | change |", report)
+        self.assertIn("| local |  |", report)
+
     def test_a_passing_convergence_test_does_not_make_a_draft_ready(self):
         rows = [
             {"test": "test_convergence solver=ipopt", "problem": "p", "modelings": "JuMP",
              "status": "draft", "outcome": "pass", "platform": "a"},
         ]
+        self.assertEqual([], REPORT.findings(rows)["draft"])
+        rows[0]["test"] = "test_robustness solver=ipopt mu_init=0.001"
         self.assertEqual([], REPORT.findings(rows)["draft"])
         rows[0]["test"] = "test_init"
         self.assertEqual(1, len(REPORT.findings(rows)["draft"]))

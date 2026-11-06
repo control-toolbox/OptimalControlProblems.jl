@@ -76,8 +76,10 @@ HEADERS["convergence"] = (
     f"regression to investigate. Details: [README]({README_URL}). This issue updates itself; "
     "close it when the sections say `No findings.`"
 )
-# The tests that report convergence instead of testing it (`cron/<scope>/test_convergence.jl`).
-CONVERGENCE_TEST = "test_convergence"
+# The tests that report solves instead of testing them (`cron/<env>/test_convergence.jl`,
+# `robustness/<env>/test_robustness.jl`, #360, #378): they always pass and never make a draft
+# ready.
+REPORTING_TESTS = ("test_convergence", "test_robustness")
 # A relative change of the objective above this is reported as a change of the convergence.
 OBJECTIVE_CHANGE = 1e-4
 BUG_LABEL = "cron-bug"
@@ -120,11 +122,13 @@ def parse_reports(directory: pathlib.Path) -> list[dict[str, str]]:
 
 
 # Columns of `<report>-results.tsv` the report reads, by name: the file may have more (grid and
-# scheme since #375), in any order.
+# scheme since #375), in any order. `solution` (#378: `best`, `local` or `new`) is read when
+# present, empty otherwise.
 RESULT_COLUMNS = (
     "test", "problem", "modeling", "configuration", "result", "reason", "objective",
     "iterations", "time", "gap",
 )
+OPTIONAL_RESULT_COLUMNS = ("solution",)
 
 
 def parse_results(directory: pathlib.Path) -> list[dict[str, str]]:
@@ -143,7 +147,12 @@ def parse_results(directory: pathlib.Path) -> list[dict[str, str]]:
             cells = line.split("\t")
             if len(cells) != len(header):
                 continue
-            row = {column: cell for column, cell in zip(header, cells) if column in RESULT_COLUMNS}
+            row = {column: "" for column in OPTIONAL_RESULT_COLUMNS}
+            row.update(
+                (column, cell)
+                for column, cell in zip(header, cells)
+                if column in RESULT_COLUMNS or column in OPTIONAL_RESULT_COLUMNS
+            )
             row["platform"] = platform
             results.append(row)
     return results
@@ -201,12 +210,19 @@ def change(row: dict[str, str], previous: dict[str, dict[str, str]]) -> str:
 def degradations(
     results: list[dict[str, str]], previous: dict[str, dict[str, str]]
 ) -> list[dict[str, str]]:
-    """Results that got worse, as rows of a summary issue: lost convergence, or a converged
-    objective that moved (a move is not better or worse without a reference)."""
+    """Results to look at, as rows of a summary issue: lost convergence, a converged objective
+    that moved (a move is not better or worse without a reference), or a solve that reached a
+    solution not known yet (#378: a new local solution, or a better one than the reference)."""
     rows = []
     for row in results:
         what = change(row, previous)
-        if what == "lost" or (what.startswith("objective") and row["result"] == "converged"):
+        if row.get("solution") == "new" and row["result"] == "converged":
+            what = ", ".join(w for w in (what, "new solution") if w and w != "new")
+        if (
+            what == "lost"
+            or (what.startswith("objective") and row["result"] == "converged")
+            or "new solution" in what
+        ):
             rows.append(
                 {
                     "platform": row["platform"],
@@ -239,7 +255,7 @@ def findings(rows: list[dict[str, str]]) -> dict[str, list[dict[str, str]]]:
     draft_rows = [
         row
         for row in rows
-        if row["status"] == "draft" and not row["test"].startswith(CONVERGENCE_TEST)
+        if row["status"] == "draft" and not row["test"].startswith(REPORTING_TESTS)
     ]
     ready_drafts = [
         row
@@ -323,13 +339,13 @@ def report_markdown(
                 "## Convergence (reported, not tested)",
                 "",
                 "| platform | problem | modeling | configuration | result | reason | objective "
-                "| iterations | time | gap | change |",
-                "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+                "| iterations | time | gap | solution | change |",
+                "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
             ]
         )
         lines.extend(
             "| {platform} | {problem} | {modeling} | {configuration} | {result} | {reason} "
-            "| {objective} | {iterations} | {time} | {gap} | ".format(
+            "| {objective} | {iterations} | {time} | {gap} | {solution} | ".format(
                 **{**row, "objective": short(row["objective"])}
             )
             + change(row, previous)

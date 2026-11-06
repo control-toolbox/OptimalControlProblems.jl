@@ -90,7 +90,8 @@ end
 Result of one solve (#360): reported, never asserted. `converged` is the solver's flag;
 `gap` the relative gap of the objective to the reference objective of the problem for the
 grid and the scheme of the solve, only when the problem has one (`:reference_objective` in
-its metadata, #375).
+its metadata, #375); `solution` which known solution a converged solve reached (`:best`,
+`:local` or `:new`, #378), under the same condition.
 """
 struct Result
     test::String
@@ -105,6 +106,7 @@ struct Result
     iterations::Int
     time::Float64
     gap::Union{Nothing,Float64}
+    solution::Union{Nothing,Symbol}
 end
 
 const RESULTS = Result[]
@@ -139,6 +141,9 @@ function result!(
             Int(iterations),
             Float64(time),
             isnothing(reference) ? nothing : gap(objective, reference),
+            converged ?
+            OptimalControlProblems.solution_kind(problem, objective; grid_size, scheme) :
+            nothing,
         ),
     )
     return nothing
@@ -249,12 +254,13 @@ function results_table(tsv::AbstractString)
     full(x) = isnothing(x) ? "" : repr(x)
     header = [
         "test", "problem", "modeling", "configuration", "grid_size", "scheme", "result",
-        "reason", "objective", "iterations", "time", "gap",
+        "reason", "objective", "iterations", "time", "gap", "solution",
     ]
     cells(r, fmt) = [
         r.test, string(r.problem), r.modelings, r.configuration, string(r.grid_size),
         string(r.scheme), r.converged ? "converged" : "not_converged", r.reason,
         fmt(r.objective), string(r.iterations), short(r.time), short(r.gap),
+        isnothing(r.solution) ? "" : string(r.solution),
     ]
     open(tsv, "w") do io
         println(io, join(header, "\t"))
