@@ -18,9 +18,9 @@ import{_ as e,o as a,c as i,ap as n}from"./chunks/framework.oN_wIzVc.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  Official https://julialang.org release</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Platform Info:</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  OS: Linux (x86_64-linux-gnu)</span></span>
-<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  CPU: 4 × AMD EPYC 7763 64-Core Processor</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  CPU: 4 × AMD EPYC 9V74 80-Core Processor</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  WORD_SIZE: 64</span></span>
-<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  LLVM: libLLVM-18.1.7 (ORCJIT, znver3)</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  LLVM: libLLVM-18.1.7 (ORCJIT, znver4)</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  GC: Built with stock GC</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Threads: 1 default, 1 interactive, 1 GC (on 4 virtual cores)</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Environment:</span></span>
@@ -28,7 +28,6 @@ import{_ as e,o as a,c as i,ap as n}from"./chunks/framework.oN_wIzVc.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [54762871] CTBase v0.30.13</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a93c6f00] DataFrames v1.8.2</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e30172f5] Documenter v1.20.0</span></span>
-<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d12716ef] DocumenterInterLinks v1.1.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4710194d] DocumenterVitepress v0.3.9</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b6b21f68] Ipopt v1.16.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [682c06a0] JSON v1.13.4</span></span>
@@ -84,7 +83,6 @@ import{_ as e,o as a,c as i,ap as n}from"./chunks/framework.oN_wIzVc.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [43dc2714] DocInventories v1.0.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [ffbed154] DocStringExtensions v0.9.5</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e30172f5] Documenter v1.20.0</span></span>
-<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d12716ef] DocumenterInterLinks v1.1.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4710194d] DocumenterVitepress v0.3.9</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4e289a0a] EnumX v1.0.7</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [1037b233] ExaModels v0.12.2</span></span>
