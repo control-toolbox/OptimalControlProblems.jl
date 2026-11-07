@@ -1,6 +1,8 @@
 # Problem pages: one page per problem, generated from the files of the problem, never written
 # by hand. Nothing is solved at build time: the results are those of the convergence and
-# robustness crons, stored with the reference objectives (`ext/MetaData/references/`, #375).
+# robustness crons, stored with the reference objectives (`ext/MetaData/references/`, #375),
+# and the solutions those the convergence crons publish on the `results` branch, drawn in the
+# browser (`ProblemPlot.vue`, read by `docs/results.jl`, #314).
 #
 # A page has one view per tab (`ProblemTabs.vue`): the problem (description, parameters,
 # reference objective), one view per modeling where the problem exists (status, how to get
@@ -270,6 +272,38 @@ function modeling_panel(problem::Symbol, spec, adapter, refs)
     ```
 
     $(results_section(problem, spec, refs))
+
+    $(solution_section(problem, [spec], [adapter]))
+    """
+end
+
+# The solutions drawn in the browser, with whether they are those of the current version of
+# the problem, and how they were obtained.
+function solution_section(problem::Symbol, specs, adapters)
+    names = [string(spec.name) for spec in specs]
+    titles = Dict(
+        string(spec.name) => adapter.title for (spec, adapter) in zip(specs, adapters)
+    )
+    id = if length(specs) == 1
+        anchor(problem, only(specs).name, :solution)
+    else
+        anchor(problem, :compare, :solution)
+    end
+    heading = length(specs) == 1 ? "Solution" : "Solutions side by side"
+    badges = if length(specs) == 1
+        freshness_badge(problem, only(specs).name)
+    else
+        join(
+            (freshness_badge(problem, s.name, a.title) for (s, a) in zip(specs, adapters)),
+            "\n",
+        )
+    end
+    plot = """<ClientOnly><ProblemPlot problem="$(problem)" :modelings='$(JSON.json(names))' :titles='$(JSON.json(titles))' /></ClientOnly>"""
+    repro = length(specs) == 1 ? reproducibility_block(problem, only(specs).name) : ""
+    return """
+    #### [$(heading)](@id $(id))
+
+    $(raw(badges * "\n" * plot * "\n" * repro))
     """
 end
 
@@ -349,6 +383,7 @@ function compare_panel(problem::Symbol, mods, refs)
         out *= "\n"
     end
     isempty(refs) && (out *= "No results yet: they come from the convergence crons.\n")
+    out *= "\n" * solution_section(problem, first.(mods), last.(mods))
     return out
 end
 

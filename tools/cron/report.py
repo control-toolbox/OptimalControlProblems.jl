@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Publish one cron scope report and maintain its GitHub issue state."""
+"""Publish one cron scope report and maintain its GitHub issue state.
+
+With `--results-dir`, also publish the results of the solves for the documentation (#314):
+`problems/<problem>/result.json`, the trajectories, the environments of the run and
+`manifest.json`, on the `results` branch."""
 
 from __future__ import annotations
 
@@ -9,7 +13,9 @@ import json
 import os
 import pathlib
 import re
+import shutil
 import time
+import tomllib
 import urllib.error
 import urllib.request
 
@@ -121,9 +127,9 @@ def parse_reports(directory: pathlib.Path) -> list[dict[str, str]]:
     return rows
 
 
-# Columns of `<report>-results.tsv` the report reads, by name: the file may have more (grid and
-# scheme since #375), in any order. `solution` (#378: `best`, `local` or `new`) is read when
-# present, empty otherwise.
+# Columns of `<report>-results.tsv` the report needs, by name: the file may have more (grid and
+# scheme since #375, the fingerprint of the problem since #314), in any order, all kept.
+# `solution` (#378: `best`, `local` or `new`) is empty when absent.
 RESULT_COLUMNS = (
     "test", "problem", "modeling", "configuration", "result", "reason", "objective",
     "iterations", "time", "gap",
@@ -148,12 +154,9 @@ def parse_results(directory: pathlib.Path) -> list[dict[str, str]]:
             if len(cells) != len(header):
                 continue
             row = {column: "" for column in OPTIONAL_RESULT_COLUMNS}
-            row.update(
-                (column, cell)
-                for column, cell in zip(header, cells)
-                if column in RESULT_COLUMNS or column in OPTIONAL_RESULT_COLUMNS
-            )
+            row.update(zip(header, cells))
             row["platform"] = platform
+            row["report"] = path.name.removesuffix("-results.tsv")
             results.append(row)
     return results
 
@@ -610,6 +613,168 @@ def update_bug_issues(
             )
 
 
+# -----------------------------------
+# Results for the documentation (#314)
+# -----------------------------------
+# The `results` branch keeps, next to `cron/`:
+#
+#   manifest.json                          the last run of each scope
+#   problems/<problem>/result.json         every solve of the problem, all scopes
+#   problems/<problem>/<scope>/<platform>/<modeling>/<configuration>.json   its trajectory
+#   env/<run id>/<platform>/<report>/      the environment of the solves of a run
+#
+# A run replaces, for each problem it solved, the entries of its scope and keeps the others:
+# each scope publishes on its own, and a run restricted to some problems (`problem=`) leaves
+# the other problems as they were. An environment is kept while an entry refers to it.
+
+# Columns of `<report>-results.tsv` that are numbers in `result.json`.
+INTEGER_COLUMNS = ("iterations", "grid_size")
+FLOAT_COLUMNS = ("objective", "time", "gap", "violation")
+
+
+def slug(text: str) -> str:
+    """`modeler=adnlp solver=ipopt` → `modeler-adnlp_solver-ipopt`: a file name."""
+    return re.sub(r"[^A-Za-z0-9._-]+", "-", text.replace(" ", "_").replace("=", "-")).strip("-")
+
+
+def number(value: str, kind: type):
+    try:
+        return kind(value)
+    except ValueError:
+        return None
+
+
+def solve_entry(row: dict[str, str]) -> dict:
+    """An entry of `result.json`: the columns of the results, numbers as numbers."""
+    entry: dict = {k: v for k, v in row.items() if k not in ("test", "report")}
+    for column in INTEGER_COLUMNS:
+        if column in entry:
+            entry[column] = number(entry[column], int)
+    for column in FLOAT_COLUMNS:
+        if column in entry:
+            entry[column] = number(entry[column], float)
+    return entry
+
+
+def parse_trajectories(directory: pathlib.Path) -> dict[str, dict]:
+    """The trajectories of the solves (`<report>-trajectories.toml`, #314), by `result_key`."""
+    trajectories = {}
+    for path in sorted(directory.rglob("*-trajectories.toml")):
+        relative = path.relative_to(directory)
+        platform = relative.parts[0] if len(relative.parts) > 1 else "local"
+        for solve in tomllib.loads(path.read_text()).get("solve", []):
+            row = {**solve, "platform": platform}
+            trajectories[result_key(row)] = solve["trajectory"]
+    return trajectories
+
+
+def run_id(run_url: str) -> str:
+    return run_url.rstrip("/").rsplit("/", 1)[-1] or "local"
+
+
+def environment_path(row: dict[str, str], run: str) -> str:
+    return f"env/{run}/{row['platform']}/{row['report']}"
+
+
+def copy_environment(
+    directory: pathlib.Path, results_dir: pathlib.Path, row: dict[str, str], run: str
+) -> bool:
+    """Copy the environment of the report of `row` (`<report>-environment.toml` and
+    `<report>-env/`) to `env/<run id>/<platform>/<report>/`; false when there is none."""
+    base = directory / row["platform"] if row["platform"] != "local" else directory
+    toml = base / f"{row['report']}-environment.toml"
+    files = base / f"{row['report']}-env"
+    if not toml.is_file():
+        return False
+    target = results_dir / environment_path(row, run)
+    if not target.exists():
+        if files.is_dir():
+            shutil.copytree(files, target)
+        target.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(toml, target / "environment.toml")
+    return True
+
+
+def read_json(path: pathlib.Path, default):
+    return json.loads(path.read_text()) if path.is_file() else default
+
+
+def write_json(path: pathlib.Path, data, indent: int | None = 2) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    separators = None if indent else (",", ":")
+    path.write_text(json.dumps(data, indent=indent, separators=separators, sort_keys=True) + "\n")
+
+
+def publish_results(
+    directory: pathlib.Path,
+    results_dir: pathlib.Path,
+    scope: str,
+    results: list[dict[str, str]],
+    run_url: str,
+    sha: str,
+    generated: str,
+) -> None:
+    """Write the results of this run of `scope` to the `results` tree `results_dir`."""
+    trajectories = parse_trajectories(directory)
+    run = run_id(run_url)
+    by_problem: dict[str, list[dict[str, str]]] = {}
+    for row in results:
+        by_problem.setdefault(row["problem"], []).append(row)
+
+    for problem, rows in sorted(by_problem.items()):
+        folder = results_dir / "problems" / problem
+        shutil.rmtree(folder / scope, ignore_errors=True)
+        data = read_json(folder / "result.json", {"problem": problem, "entries": []})
+        entries = [e for e in data["entries"] if e.get("scope") != scope]
+        for row in rows:
+            entry = solve_entry(row)
+            entry.update(scope=scope, run=run_url, commit=sha, date=generated)
+            entry["environment"] = (
+                environment_path(row, run)
+                if copy_environment(directory, results_dir, row, run)
+                else None
+            )
+            trajectory = trajectories.get(result_key(row))
+            entry["trajectory"] = None
+            if trajectory is not None:
+                relative = (
+                    f"problems/{problem}/{scope}/{slug(row['platform'])}/"
+                    f"{slug(row['modeling'])}/{slug(row['configuration'])}.json"
+                )
+                write_json(results_dir / relative, trajectory, indent=None)
+                entry["trajectory"] = relative
+            entries.append(entry)
+        entries.sort(key=lambda e: (e["scope"], e["modeling"], e["configuration"], e["platform"]))
+        write_json(folder / "result.json", {"problem": problem, "entries": entries})
+
+    manifest = read_json(results_dir / "manifest.json", {"scopes": {}})
+    manifest["scopes"][scope] = {
+        "run": run_url,
+        "commit": sha,
+        "date": generated,
+        "platforms": sorted({row["platform"] for row in results}),
+        "problems": sorted(by_problem),
+    }
+    manifest["updated"] = generated
+    write_json(results_dir / "manifest.json", manifest)
+    prune_environments(results_dir)
+
+
+def prune_environments(results_dir: pathlib.Path) -> None:
+    """Remove the environments of the runs no entry of `problems/` refers to any more."""
+    used = {
+        entry["environment"].split("/")[1]
+        for path in (results_dir / "problems").glob("*/result.json")
+        for entry in read_json(path, {"entries": []})["entries"]
+        if entry.get("environment")
+    }
+    env = results_dir / "env"
+    if env.is_dir():
+        for folder in env.iterdir():
+            if folder.name not in used:
+                shutil.rmtree(folder)
+
+
 def missing_report_row(scope: str) -> dict[str, str]:
     return {
         "test": "report",
@@ -628,6 +793,7 @@ def main() -> None:
     parser.add_argument("--run-url", required=True)
     parser.add_argument("--state-file", type=pathlib.Path, required=True)
     parser.add_argument("--output", type=pathlib.Path, required=True)
+    parser.add_argument("--results-dir", type=pathlib.Path)
     parser.add_argument("--sha", default="")
     parser.add_argument("--julia-version", default="")
     parser.add_argument("--package-version", default="")
@@ -659,6 +825,10 @@ def main() -> None:
             previous,
         )
     )
+    if args.results_dir is not None and results:
+        publish_results(
+            args.reports_dir, args.results_dir, args.scope, results, args.run_url, args.sha, now
+        )
 
     grouped = findings(rows)
     failure_rows = grouped["failure"]

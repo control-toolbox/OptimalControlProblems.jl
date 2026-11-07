@@ -26,7 +26,7 @@ function test_convergence()
                         Main.SolveJuMP.settings(config)...,
                         grid_size=OptimalControlProblems.grid_size_data(problem),
                         scheme=Main.TestConfigs.SCHEME, Main.SolveJuMP.outcome(model)...,
-                        time=time,
+                        time=time, trajectory=Main.TestStatus.trajectory(model),
                     )
                     Test.@test true
                 end
