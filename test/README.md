@@ -150,6 +150,16 @@ request changes** (#405), and the scope labels only **add** to it:
 
 Adding or removing a label reruns the CI when a runner label is set. `core` always runs.
 
+**When to add `test convergence`.** When the pull request can change what a solve returns
+(a model, an initial guess, a solver option, a scheme), or changes code that only the
+convergence tests run: `test/cron/`, the `outcome` and `settings` of the solve modules,
+`TestStatus.result!`. The smoke solves of the default run call `solve` but none of these.
+The label solves every selected problem on its default grid, as the crons do, one
+environment after another: on a pull request that touches a shared file (every problem), it
+adds about the time of the three convergence crons, some 35 minutes (#412). No label runs
+`robustness/`: run it locally (`test_args=["<environment>", "robustness", "problem=…"]`) and
+paste the output in the pull request.
+
 **The automatic scope.** Each changed file gives environments and problems, and the run is
 their union (one product, environments × problems: a little more than needed when several
 modelings change different problems). The rules are read from the repository:
