@@ -45,7 +45,20 @@ function _references(
             )
             return REFERENCE_FIELDS[key](table[string(key)])
         end
-        push!(entries, Symbol(scheme) => NamedTuple{keys(REFERENCE_FIELDS)}(values))
+        # the known solutions with how they were obtained (#409), best first; none for a
+        # file written before #409
+        found = [
+            _numerical_reference(problem, Symbol(scheme), Int(table["grid_size"]), s) for
+            s in table["solutions"]
+        ]
+        references = NumericalReference[r for r in found if !isnothing(r)]
+        length(references) == length(found) || empty!(references)
+        push!(
+            entries,
+            Symbol(scheme) => NamedTuple{(keys(REFERENCE_FIELDS)..., :references)}((
+                values..., references
+            )),
+        )
     end
     return NamedTuple(entries)
 end
@@ -132,4 +145,64 @@ function solution_kind(
     solutions = Metadata.problem_metadata(problem)[:reference_objective][scheme].solutions
     any(s -> _relative_gap(objective, s) <= SAME_SOLUTION, solutions) && return :local
     return :new
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+The known solutions of `problem` discretized on `grid_size` steps with `scheme`, best first,
+each with how it was obtained (#409); empty when the problem has no reference for this
+discretization. The first one is the reference objective.
+
+# Example
+
+```julia-repl
+julia> ref = first(OptimalControlProblems.references(:beam))
+julia> ref.solver, ref.options.tol, ref.status
+```
+"""
+function references(
+    problem::Symbol;
+    grid_size::Int=Metadata.grid_size_data(problem),
+    scheme::Symbol=:trapeze,
+)
+    tables = get(Metadata.problem_metadata(problem), :reference_objective, nothing)
+    isnothing(tables) && return NumericalReference[]
+    entry = get(tables, scheme, nothing)
+    (isnothing(entry) || entry.grid_size != grid_size) && return NumericalReference[]
+    return entry.references
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+The best known solution of `problem` discretized on `grid_size` steps with `scheme`, with
+how it was obtained, or `nothing`: its objective is `reference_objective(problem)`.
+"""
+function best_reference(
+    problem::Symbol;
+    grid_size::Int=Metadata.grid_size_data(problem),
+    scheme::Symbol=:trapeze,
+)
+    found = references(problem; grid_size, scheme)
+    return isempty(found) ? nothing : first(found)
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+The analytic solution of the continuous `problem` for `parameters` (merged with the default
+ones) as an [`AnalyticReference`](@ref), or `nothing` when none is known for them.
+"""
+function analytic_reference(problem::Symbol, parameters::Union{Nothing,NamedTuple}=nothing)
+    solution = reference_solution_data(problem, parameters)
+    isnothing(solution) && return nothing
+    return AnalyticReference(
+        problem,
+        Metadata.parameters_data(problem, parameters),
+        Float64(solution.objective),
+        solution.state,
+        solution.control,
+        solution.source,
+    )
 end
