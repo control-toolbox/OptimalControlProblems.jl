@@ -151,6 +151,49 @@ function test_no_handwritten_list()
     end
 end
 
+"""
+Whether the description `text` cites its sources: a heading `References` followed by at
+least one list entry (#379).
+"""
+function cites_sources(text::AbstractString)
+    m = match(r"^#+ References[^\n]*\n(.*?)(?=^#|\z)"ms, text)
+    return !isnothing(m) && occursin(r"^\s*[-*] \S"m, m[1])
+end
+
+"""Every description cites its sources (#379)."""
+function test_sources()
+    Test.@testset "sources" verbose = VERBOSE begin
+        for problem in OCP.problems(; status=:all)
+            text = read(joinpath(EXT, "Descriptions", "$problem.md"), String)
+            Test.@test cites_sources(text)
+        end
+        Test.@test cites_sources("text\n\n### References\n\n- **A. (2000)**. *Title*.\n")
+        Test.@test !cites_sources("text\n\n### Formulation\n\n- an item\n")
+        Test.@test !cites_sources("text\n\n### References\n\nSee below.\n\n### Other\n\n- an item\n")
+    end
+end
+
+"""
+The analytic solutions of the continuous problems (#379): a state, a control, an objective
+and a source for the default parameters. That they solve the problem is checked against the
+OptimalControl model (`test/suite/OptimalControl/test_reference_solution.jl`).
+"""
+function test_reference_solutions()
+    Test.@testset "reference solutions" verbose = VERBOSE begin
+        problems = filter(p -> haskey(OCP.problem_metadata(p), :reference_solution), OCP.problems(; status=:all))
+        Test.@test !isempty(problems)
+        for problem in problems
+            solution = OCP.reference_solution_data(problem)
+            Test.@test keys(solution) == (:state, :control, :objective, :source)
+            Test.@test isfinite(solution.objective) && !isempty(solution.source)
+            t0, tf = OCP.parameters_data(problem).t0, OCP.parameters_data(problem).tf
+            for t in range(t0, tf; length=5)
+                Test.@test all(isfinite, solution.state(t)) && all(isfinite, solution.control(t))
+            end
+        end
+    end
+end
+
 function test_consistency()
     Test.@testset "consistency of the collection" verbose = VERBOSE showtiming = SHOWTIMING begin
         test_files()
@@ -158,6 +201,8 @@ function test_consistency()
         test_comparison_rule()
         test_reference_objectives()
         test_no_handwritten_list()
+        test_sources()
+        test_reference_solutions()
     end
 end
 
