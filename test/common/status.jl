@@ -207,8 +207,10 @@ const TRAJECTORY_POINTS = 501
 The trajectory of a solution `x` (an OptimalControl solution or a solved JuMP model, read
 with the accessors they share), for the plots of the documentation (#314): the time grid,
 at most `TRAJECTORY_POINTS` of its nodes, the state, the control and the costate at these
-nodes by component, and the variable. The costate is the one of the solver: for JuMP its sign
-is the opposite of OptimalControl's (#326). Values are rounded to 8 significant digits.
+nodes by component, the variable, and the names of the components in the order of the model
+(`names`: a dictionary loses it). The costate is the one of the solver: for JuMP its sign
+is the opposite of OptimalControl's (#326). Values are rounded to 6 significant digits:
+enough to draw, and stable from one run to the next.
 `nothing`, with a warning, when the solution cannot be read (a JuMP model without values):
 the solve is still reported.
 """
@@ -230,7 +232,7 @@ function _trajectory(x)
         unique(round.(Int, range(1, length(grid); length=TRAJECTORY_POINTS)))
     end
     t = grid[keep]
-    r(v) = round(Float64(v); sigdigits=8)
+    r(v) = round(Float64(v); sigdigits=6)
     function components(f, names)
         return Dict(name => [r(f(τ)[i]) for τ in t] for (i, name) in enumerate(names))
     end
@@ -242,6 +244,9 @@ function _trajectory(x)
         "control" => components(scalar(O.control(x)), us),
         "costate" => components(scalar(O.costate(x)), xs),
         "variable" => r.(vcat(O.variable(x))),
+        "names" => Dict(
+            "state" => xs, "control" => us, "variable" => O.variable_components(x)
+        ),
     )
 end
 

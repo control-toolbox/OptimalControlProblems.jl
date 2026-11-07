@@ -52,21 +52,27 @@ function check_solution(problem::Symbol, scheme::Symbol)
 end
 
 # The trajectory published for the documentation (#314) is what the accessors give, on at
-# most `TRAJECTORY_POINTS` nodes, for a JuMP model as for an OptimalControl solution.
+# most `TRAJECTORY_POINTS` nodes, for a JuMP model as for an OptimalControl solution, to the
+# 6 significant digits it is rounded to.
 function check_trajectory(model, sol)
+    rtol = 1e-5
     for x in (model, sol)
         tr = Main.TestStatus.trajectory(x)
         Test.@test !isnothing(tr)
         t = tr["time"]
         Test.@test length(t) <= Main.TestStatus.TRAJECTORY_POINTS
-        Test.@test t[1] ≈ first(OCP.time_grid(x)) && t[end] ≈ last(OCP.time_grid(x))
+        Test.@test isapprox(t[1], first(OCP.time_grid(x)); rtol) &&
+            isapprox(t[end], last(OCP.time_grid(x)); rtol)
         Test.@test sort(collect(keys(tr["state"]))) == sort(OCP.state_components(x))
         Test.@test sort(collect(keys(tr["control"]))) == sort(OCP.control_components(x))
+        Test.@test tr["names"]["state"] == OCP.state_components(x)
+        Test.@test tr["names"]["control"] == OCP.control_components(x)
+        Test.@test length(tr["names"]["variable"]) == length(tr["variable"])
         for (i, name) in enumerate(OCP.state_components(x))
-            Test.@test tr["state"][name] ≈ [vec1(OCP.state(x)(τ))[i] for τ in t] rtol = 1e-7
+            Test.@test tr["state"][name] ≈ [vec1(OCP.state(x)(τ))[i] for τ in t] rtol = rtol
             Test.@test length(tr["costate"][name]) == length(t)
         end
-        Test.@test tr["variable"] ≈ vec1(OCP.variable(x))
+        Test.@test tr["variable"] ≈ vec1(OCP.variable(x)) rtol = rtol
     end
     return nothing
 end
