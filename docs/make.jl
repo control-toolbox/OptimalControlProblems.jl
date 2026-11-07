@@ -109,6 +109,20 @@ draft = false
 src_dir = abspath(joinpath(@__DIR__, "..", "src"))
 ext_dir = abspath(joinpath(@__DIR__, "..", "ext"))
 
+# Where the site is deployed, decided once (SITE13). DocumenterVitepress builds the site for
+# the base of this decision; without it, it decides with `push_preview=true` and builds a pull
+# request for `previews/PR<n>`, announcing a deployment that `deploydocs` then refuses. A pull
+# request deploys its preview only with the label `documentation push preview`, which sets
+# `DOCUMENTER_PUSH_PREVIEW` (CTActions).
+push_preview = get(ENV, "DOCUMENTER_PUSH_PREVIEW", "false") == "true"
+deploy_decision = Documenter.deploy_folder(
+    Documenter.auto_detect_deploy_system();
+    repo=repo_url,
+    devbranch="main",
+    devurl="dev",
+    push_preview=push_preview,
+)
+
 with_status_page() do status_file
     with_problems_browser() do browser_file
         with_api_reference(src_dir, ext_dir) do api_pages
@@ -117,7 +131,11 @@ with_status_page() do status_file
                 warnonly=:cross_references,
                 sitename="OptimalControlProblems.jl",
                 format=DocumenterVitepress.MarkdownVitepress(;
-                    repo=repo_url, devbranch="main", devurl="dev", sidebar_drawer=true
+                    repo=repo_url,
+                    devbranch="main",
+                    devurl="dev",
+                    sidebar_drawer=true,
+                    deploy_decision=deploy_decision,
                 ),
                 pages=[
                     "Introduction" => "index.md",
@@ -155,12 +173,17 @@ end
 # --- Deploy Documentation ---
 # ==============================
 bases_file = joinpath(@__DIR__, "build", "bases.txt")
-if isfile(bases_file)
-    DocumenterVitepress.deploydocs(;
-        repo=repo_url * ".git",
-        devbranch="main",
-        push_preview=get(ENV, "DOCUMENTER_PUSH_PREVIEW", "false") == "true",
-    )
-else
+if !deploy_decision.all_ok
+    reason = if get(ENV, "GITHUB_EVENT_NAME", "") == "pull_request" && !push_preview
+        "no preview requested (label `documentation push preview` absent)"
+    else
+        "the deployment criteria above are not met"
+    end
+    @info "Skipping deployment: $(reason)."
+elseif !isfile(bases_file)
     @info "Skipping deployment: no bases were built."
+else
+    DocumenterVitepress.deploydocs(;
+        repo=repo_url * ".git", devbranch="main", push_preview=push_preview
+    )
 end
