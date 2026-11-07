@@ -9,7 +9,6 @@ push!(LOAD_PATH, joinpath(@__DIR__))
 push!(LOAD_PATH, joinpath(@__DIR__, ".."))
 
 using Documenter           # Core package to generate documentation
-using DocumenterInterLinks # For linking to other package docs
 using DocumenterVitepress  # VitePress backend and deployment
 using CTBase               # automatic API reference
 using OptimalControlProblems
@@ -31,47 +30,6 @@ include("problems.jl")     # the problem pages
 include("browser.jl")      # the interactive problems browser
 include("status.jl")       # the status page
 include("api_reference.jl")
-
-# ==============================
-# --- Configure inter-package links ---
-# ==============================
-links = InterLinks(
-    "ADNLPModels" => (
-        "https://jso.dev/ADNLPModels.jl/stable/",
-        "https://jso.dev/ADNLPModels.jl/stable/objects.inv",
-        joinpath(@__DIR__, "inventories", "ADNLPModels.toml"),
-    ),
-    "CTDirect" => (
-        "https://control-toolbox.org/CTDirect.jl/stable/",
-        "https://control-toolbox.org/CTDirect.jl/stable/objects.inv",
-        joinpath(@__DIR__, "inventories", "CTDirect.toml"),
-    ),
-    "JuMP" => (
-        "https://jump.dev/JuMP.jl/stable/",
-        "https://jump.dev/JuMP.jl/stable/objects.inv",
-        joinpath(@__DIR__, "inventories", "JuMP.toml"),
-    ),
-    "NLPModelsIpopt" => (
-        "https://jso.dev/NLPModelsIpopt.jl/stable/",
-        "https://jso.dev/NLPModelsIpopt.jl/stable/objects.inv",
-        joinpath(@__DIR__, "inventories", "NLPModelsIpopt.toml"),
-    ),
-    "NLPModelsJuMP" => (
-        "https://jso.dev/NLPModelsJuMP.jl/stable/",
-        "https://jso.dev/NLPModelsJuMP.jl/stable/objects.inv",
-        joinpath(@__DIR__, "inventories", "NLPModelsJuMP.toml"),
-    ),
-    "OptimalControl" => (
-        "https://control-toolbox.org/OptimalControl.jl/dev/",
-        "https://control-toolbox.org/OptimalControl.jl/dev/objects.inv",
-        joinpath(@__DIR__, "inventories", "OptimalControl.toml"),
-    ),
-    "Tutorials" => (
-        "https://control-toolbox.org/Tutorials.jl/stable/",
-        "https://control-toolbox.org/Tutorials.jl/stable/objects.inv",
-        joinpath(@__DIR__, "inventories", "Tutorials.toml"),
-    ),
-)
 
 # ==============================
 # --- Copy Project Assets for reproducibility ---
@@ -163,7 +121,6 @@ with_status_page() do status_file
                     "API Reference" => api_pages,
                     "Migrating from 0.5" => "migration.md",
                 ],
-                plugins=[links],
             )
         end
     end
