@@ -1,6 +1,6 @@
 # Equivalence of the NLPs of the modelings of a problem (#371, #166): the JuMP NLP and the
-# Exa NLP of OptimalControl against CTDirect's (ADNLP). Used by `suite/comparison/` (fast
-# selection) and `cron/comparison/` (every problem and scheme).
+# Exa NLP of OptimalControl against CTDirect's (ADNLP). Used by `suite/comparison/`: the
+# trapezoidal rule for every problem, every scheme on problems chosen by their features (#401).
 module Equivalence
 
 using Test: Test
@@ -13,7 +13,7 @@ using OptimalControlProblems: OptimalControlProblems
 
 const OCP = OptimalControlProblems
 
-# The JuMP model of every problem is the NLP of CTDirect (#371, #166), for every scheme and
+# The JuMP model of a problem is the NLP of CTDirect (#371, #166), for every scheme and
 # ordering. The variables are matched by their names, the constraints by their values at
 # random points; the JuMP NLP is then put in CTDirect's order (`PermutedNLP`) and compared
 # with `NLPModelsTest.consistent_nlps`: meta, objective, gradient, constraints, Jacobian,
@@ -128,7 +128,7 @@ not have, with whether they enter the matched part of `other`.
 """
 function compare(reference, other, cols, xs, y)
     extra = setdiff(1:(other.meta.nvar), cols)
-    lift(x) = (z=fill(0.5, other.meta.nvar); z[cols]=x; z)
+    lift(x) = (z = fill(0.5, other.meta.nvar); z[cols] = x; z)
     rows = match_rows(
         signatures(reference, xs, 1:(reference.meta.nvar)),
         signatures(other, lift.(xs), cols),

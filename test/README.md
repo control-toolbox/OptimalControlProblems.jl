@@ -73,8 +73,10 @@ Only the first two can fail a run (#360).
    fair only if they are the same problem. `suite/comparison/` compares them at the
    definition, at the initial guess (see below), not at convergence, and checks that
    the JuMP NLP is CTDirect's (`test_equivalence`, #371): the trapezoidal rule for every
-   problem, the four schemes for two of them; `cron/comparison/` runs every problem and
-   scheme. Count the nonzeros of an NLP with `Equivalence.nonzeros`, never with
+   problem (is it the same problem?), every scheme and ordering on a few problems chosen by
+   their features, one per property the schemes treat differently (are the schemes
+   CTDirect's?, #401). The product problems × schemes is not run: it answers neither
+   question better. Count the nonzeros of an NLP with `Equivalence.nonzeros`, never with
    `meta.nnzh` (#372).
 3. **Convergence** — off by default: in the cron, and on demand with the `convergence`
    argument or the label `test convergence`. `cron/<group>/test_convergence.jl` solves each
