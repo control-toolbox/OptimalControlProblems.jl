@@ -237,12 +237,12 @@ function reproducibility_block(problem::Symbol, modeling::Symbol)
             "—"
         else
             join(
-            (
-                """<ResultLink path="$(e["environment"])/$(file)">$(label)</ResultLink>"""
-                for (file, label) in ENVIRONMENT_FILES
-            ),
-            " · ",
-        )
+                (
+                    """<ResultLink path="$(e["environment"])/$(file)">$(label)</ResultLink>"""
+                    for (file, label) in ENVIRONMENT_FILES
+                ),
+                " · ",
+            )
         end
         if isnothing(env)
             push!(

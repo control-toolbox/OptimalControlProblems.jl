@@ -49,6 +49,7 @@ interface Series {
   slot: number
   dash: string
   stale: boolean
+  width: number
 }
 type View = 'time' | 'phase' | 'space'
 
@@ -102,6 +103,7 @@ const allSeries = computed<Series[]>(() => {
       props.modelings.indexOf(a.modeling) - props.modelings.indexOf(b.modeling) ||
       a.configuration.localeCompare(b.configuration),
   )
+  const n = Math.min(entries.length, MAX_SERIES)
   return entries.slice(0, MAX_SERIES).map((e, i) => ({
     id: e.trajectory as string,
     entry: e,
@@ -109,6 +111,8 @@ const allSeries = computed<Series[]>(() => {
     slot: i + 1, // follows the solve, never its rank among the shown ones
     dash: DASHES[props.modelings.indexOf(e.modeling) % DASHES.length],
     stale: !!e.fingerprint && e.fingerprint !== data.fingerprint,
+    // the first solves drawn wider, under the next: solves that agree stay all visible
+    width: 2 + Math.min(1.4, 3 / Math.max(1, n - 1)) * (n - 1 - i),
   }))
 })
 const hiddenSeries = computed(() => {
@@ -340,7 +344,9 @@ function niceDomain(lo: number, hi: number, count = 4): [number, number, number]
 }
 function ticks([lo, hi, s]: [number, number, number]): number[] {
   const out: number[] = []
-  for (let v = lo; v <= hi + s * 1e-6; v += s) out.push(Math.abs(v) < s * 1e-9 ? 0 : v)
+  for (let v = Math.ceil(lo / s - 1e-9) * s; v <= hi + s * 1e-6; v += s) {
+    out.push(Math.abs(v) < s * 1e-9 ? 0 : v)
+  }
   return out
 }
 function fmt(v: number): string {
@@ -392,7 +398,11 @@ const TW = 360
 const TH = 210
 const TM = { l: 48, r: 12, t: 10, b: 26 }
 
-const timeX = computed(() => niceDomain(domain.value[0], domain.value[1], 5))
+// the time axis spans the time grids exactly (a free final time is not rounded up)
+const timeX = computed<[number, number, number]>(() => {
+  const [lo, hi] = domain.value
+  return [lo, hi, niceStep(hi - lo || 1, 5)]
+})
 const timePanels = computed(() =>
   shownQuantities.value.map((q) => {
     const yd = niceDomain(...extent(active.value.map(({ data }) => valuesOf(data, q))))
@@ -438,8 +448,10 @@ function hoverTime(event: PointerEvent) {
 // -----------------------------------
 // Phase plane
 // -----------------------------------
-const PW = 560
-const PH = 400
+// the size of the phase plane and of the 3D view, smaller on a narrow screen so that their
+// text keeps its size (the views scale with the width of the page)
+const PW = ref(560)
+const PH = ref(400)
 const PM = { l: 60, r: 16, t: 14, b: 40 }
 const axisX = ref(TIME.key)
 const axisY = ref(TIME.key)
@@ -460,8 +472,8 @@ const phase = computed(() => {
   const qy = byKey(axisY.value)
   const xd = niceDomain(...extent(active.value.map(({ data }) => valuesOf(data, qx))))
   const yd = niceDomain(...extent(active.value.map(({ data }) => valuesOf(data, qy))))
-  const sx = lin(xd[0], xd[1], PM.l, PW - PM.r)
-  const sy = lin(yd[0], yd[1], PH - PM.b, PM.t)
+  const sx = lin(xd[0], xd[1], PM.l, PW.value - PM.r)
+  const sy = lin(yd[0], yd[1], PH.value - PM.b, PM.t)
   const lines = active.value.map(({ series, data }) => {
     const xs = valuesOf(data, qx) ?? []
     const ys = valuesOf(data, qy) ?? []
@@ -489,8 +501,20 @@ const phase = computed(() => {
 // -----------------------------------
 // 3D: orthographic, rotated by dragging
 // -----------------------------------
-const SW = 560
-const SH = 440
+const SW = ref(560)
+const SH = ref(440)
+const root = ref<HTMLElement | null>(null)
+let observer: ResizeObserver | null = null
+onMounted(() => {
+  observer = new ResizeObserver(([entry]) => {
+    const narrow = entry.contentRect.width < 520
+    PW.value = SW.value = narrow ? 380 : 560
+    PH.value = narrow ? 320 : 400
+    SH.value = narrow ? 360 : 440
+  })
+  if (root.value) observer.observe(root.value)
+})
+onBeforeUnmount(() => observer?.disconnect())
 const DEFAULT_ANGLES = { yaw: -0.65, pitch: 0.45 }
 const yaw = ref(DEFAULT_ANGLES.yaw)
 const pitch = ref(DEFAULT_ANGLES.pitch)
@@ -503,8 +527,8 @@ function project(p: [number, number, number]): { x: number; y: number } {
   const x1 = x * cy - y * sy
   const y1 = x * sy + y * cy
   const up = z * Math.cos(pitch.value) + y1 * Math.sin(pitch.value)
-  const r = Math.min(SW, SH) * 0.3
-  return { x: SW / 2 + x1 * r, y: SH / 2 - up * r }
+  const r = Math.min(SW.value, SH.value) * 0.3
+  return { x: SW.value / 2 + x1 * r, y: SH.value / 2 - up * r }
 }
 const CORNERS: [number, number, number][] = []
 for (const x of [-1, 1]) for (const y of [-1, 1]) for (const z of [-1, 1]) CORNERS.push([x, y, z])
@@ -626,7 +650,7 @@ const VIEWS: { id: View; label: string }[] = [
 </script>
 
 <template>
-  <div class="problem-plot">
+  <div ref="root" class="problem-plot">
     <p v-if="failed" class="plot-empty">
       No trajectory to draw yet: they come from the convergence crons.
     </p>
@@ -770,6 +794,7 @@ const VIEWS: { id: View; label: string }[] = [
                 class="plot-line"
                 :class="`stroke-${line.series.slot}`"
                 :stroke-dasharray="line.series.dash"
+                :stroke-width="line.series.width"
               />
               <template v-for="line in panel.lines" :key="`dot${line.series.id}`">
                 <circle v-if="line.dot" :cx="line.dot.x" :cy="line.dot.y" r="4" class="plot-dot" :class="`fill-${line.series.slot}`" />
@@ -791,7 +816,7 @@ const VIEWS: { id: View; label: string }[] = [
               <text class="plot-axis-title" :x="(PM.l + PW - PM.r) / 2" :y="PH - 6" text-anchor="middle">{{ label(phase.qx) }}</text>
               <text class="plot-axis-title" :x="14" :y="(PM.t + PH - PM.b) / 2" text-anchor="middle" :transform="`rotate(-90 14 ${(PM.t + PH - PM.b) / 2})`">{{ label(phase.qy) }}</text>
             </g>
-            <path v-for="line in phase.lines" :key="line.series.id" :d="line.d" class="plot-line" :class="`stroke-${line.series.slot}`" :stroke-dasharray="line.series.dash" />
+            <path v-for="line in phase.lines" :key="line.series.id" :d="line.d" class="plot-line" :class="`stroke-${line.series.slot}`" :stroke-dasharray="line.series.dash" :stroke-width="line.series.width" />
             <template v-for="line in phase.lines" :key="`m${line.series.id}`">
               <circle v-if="line.start" :cx="line.start.x" :cy="line.start.y" r="4.5" class="plot-start" :class="`stroke-${line.series.slot}`" />
               <rect v-if="line.end" :x="line.end.x - 4" :y="line.end.y - 4" width="8" height="8" rx="1.5" class="plot-dot" :class="`fill-${line.series.slot}`" />
@@ -825,7 +850,7 @@ const VIEWS: { id: View; label: string }[] = [
                 <text :x="a.b.x" :y="a.b.y + 14" text-anchor="middle">{{ a.hi }}</text>
               </template>
             </g>
-            <path v-for="line in space.lines" :key="line.series.id" :d="line.d" class="plot-line" :class="`stroke-${line.series.slot}`" :stroke-dasharray="line.series.dash" />
+            <path v-for="line in space.lines" :key="line.series.id" :d="line.d" class="plot-line" :class="`stroke-${line.series.slot}`" :stroke-dasharray="line.series.dash" :stroke-width="line.series.width" />
             <template v-for="line in space.lines" :key="`m${line.series.id}`">
               <circle v-if="line.start" :cx="line.start.x" :cy="line.start.y" r="4.5" class="plot-start" :class="`stroke-${line.series.slot}`" />
               <circle v-if="line.dot" :cx="line.dot.x" :cy="line.dot.y" r="5" class="plot-dot" :class="`fill-${line.series.slot}`" />
@@ -989,9 +1014,10 @@ button {
 .plot-time {
   display: flex;
   flex-wrap: wrap;
-  flex: 1 1 18rem;
+  flex: 1 1 16rem;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem 0.5rem;
+  min-width: 0;
   max-width: 32rem;
 }
 .plot-time input[type='range'] {
@@ -1013,7 +1039,7 @@ button {
   fill: var(--vp-c-text-1);
 }
 .plot-t {
-  min-width: 5.5rem;
+  min-width: 4.5rem;
   font-size: 0.82rem;
   font-variant-numeric: tabular-nums;
   color: var(--vp-c-text-2);
@@ -1184,7 +1210,6 @@ button {
 }
 .plot-line {
   fill: none;
-  stroke-width: 2;
   stroke-linejoin: round;
   stroke-linecap: round;
 }
