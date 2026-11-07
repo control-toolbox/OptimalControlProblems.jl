@@ -8,7 +8,6 @@ scope labels. They are staggered at 04:00 UTC:
 | `CronJuMP.yml` | `JuMP` | Tuesday | No |
 | `CronOptimalControl.yml` | `OptimalControl` | Wednesday | Yes |
 | `CronOptimalControlScalarized.yml` | `OptimalControlScalarized` | Thursday | Yes |
-| `CronComparison.yml` | `comparison` | Friday | No |
 | `CronModelingToolkit.yml` | `ModelingToolkit` | manual only until the scope exists | No |
 | `CronRobustness.yml` | `JuMP-robustness`, `OptimalControl-robustness` | 1st of the month | No |
 
