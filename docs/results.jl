@@ -143,6 +143,7 @@ function publish_results!(results::SolveResults)
         )
         write(joinpath(RESULTS_PUBLIC, "$(problem).json"), JSON.json(data))
     end
+    write(joinpath(RESULTS_PUBLIC, "thumbnails.json"), JSON.json(thumbnails(results)))
     for env in environments
         source = joinpath(results.dir, env)
         isdir(source) || continue
@@ -151,6 +152,57 @@ function publish_results!(results::SolveResults)
         cp(source, target; force=true)
     end
     return nothing
+end
+
+# Points of a thumbnail, and its components: the shape of the solution, on a card.
+const THUMBNAIL_POINTS = 80
+const THUMBNAIL_COMPONENTS = 3
+
+"""
+The thumbnails of the gallery (`ProblemsGallery.vue`): for each problem with a trajectory, the
+first state components of one solve (the first modeling, a converged solve, `platform_rank`),
+on `THUMBNAIL_POINTS` nodes.
+"""
+function thumbnails(results::SolveResults)
+    out = Dict{String,Any}()
+    for problem in OCP.problems(; status=:all)
+        order = [string(spec.name) for (spec, _) in modelings(problem)]
+        candidates = [
+            e for e in page_entries(problem) if !isnothing(e["trajectory"]) &&
+            e["scope"] == e["modeling"] &&
+            e["modeling"] in order
+        ]
+        isempty(candidates) && continue
+        e = first(
+            sort(
+                candidates;
+                by=e -> (
+                    e["result"] != "converged",
+                    findfirst(==(e["modeling"]), order),
+                    platform_rank(e["platform"]),
+                    e["configuration"],
+                ),
+            ),
+        )
+        trajectory = JSON.parsefile(joinpath(results.dir, e["trajectory"]))
+        names = if haskey(trajectory, "names")
+            trajectory["names"]["state"]
+        else
+            sort!(collect(keys(trajectory["state"])))
+        end
+        time = trajectory["time"]
+        keep = unique(
+            round.(Int, range(1, length(time); length=min(length(time), THUMBNAIL_POINTS)))
+        )
+        out[string(problem)] = Dict(
+            "time" => time[keep],
+            "series" => [
+                Dict("name" => n, "values" => trajectory["state"][n][keep]) for
+                n in first(names, THUMBNAIL_COMPONENTS)
+            ],
+        )
+    end
+    return out
 end
 
 """

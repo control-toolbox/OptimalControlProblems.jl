@@ -17,9 +17,10 @@ Markdown.parse("The collection holds **$(n) problems**. Each one has a page, gen
 The tab bar stays at the top of the page, and the tab you choose is kept from one problem to the
 next. A link can open a page on a tab: add `?view=JuMP` to its address.
 
-The [browser](@ref problems-browser) finds problems by their features, and the
-[Status](@ref problems-status) page shows every problem in every modeling, with the latest
-convergence reports.
+[All the problems](@ref problems-browser) shows them as cards, with the shape of their
+solution and their status in each modeling, or as a table to sort and filter by their
+features; the [Status](@ref problems-status) page shows every problem in every modeling, with
+the latest convergence reports.
 
 ## What each problem comes with
 

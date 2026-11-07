@@ -38,12 +38,20 @@ function collect_problem_data(problem_sym::Symbol)
         DimPathConstraint=c.path,
         DimBoundaryConstraint=c.boundary,
         TotalConstraints=sum_namedtuple(c),
+        # the modelings where the problem exists, with its status in each (docs/modelings.jl)
+        Modelings=[
+            (
+                name=string(spec.name),
+                title=adapter.title,
+                status=string(OptimalControlProblems.status(problem_sym)[spec.name]),
+            ) for (spec, adapter) in modelings(problem_sym)
+        ],
     )
 end
 
-"Collects OCP data and returns a DataFrame"
+"Collects the data of every problem, drafts included (each has a page), as a DataFrame"
 function collect_problems_data()
-    return DataFrame([collect_problem_data(sym) for sym in problems()])
+    return DataFrame([collect_problem_data(sym) for sym in problems(; status=:all)])
 end
 
 function collect_problems_data_json()
@@ -59,13 +67,21 @@ function generate_problems_browser!(path::AbstractString)
     write(BROWSER_DATA_PATH, collect_problems_data_json())
     write(
         path,
-        """# [Problems browser](@id problems-browser)
+        """```@raw html
+---
+aside: false
+---
+```
 
-Explore the collection by searching, sorting, and filtering the problem characteristics.
-Select a row to reveal its constraint breakdown and follow the problem link for details.
+# [All the problems](@id problems-browser)
+
+Every problem of the collection, drafts included. **Cards** shows the shape of each solution,
+drawn from the trajectories the convergence crons publish, with the status of the problem in
+each modeling; **Table** sorts and filters them by their features. Open a problem for its
+page.
 
 ```@raw html
-<ProblemsBrowser></ProblemsBrowser>
+<ProblemsGallery></ProblemsGallery>
 ```
 """,
     )
