@@ -3,35 +3,34 @@
 # Or, with Julia only:
 # `julia --project=docs -e 'using LiveServer; LiveServer.serve(dir="docs/build/1", single_page=true)'`
 
+# Append (not prepend): docs/Manifest.toml must win for shared deps; the repo root is only
+# needed to find the local package (SITE18).
 push!(LOAD_PATH, joinpath(@__DIR__))
 push!(LOAD_PATH, joinpath(@__DIR__, ".."))
 
 using Documenter           # Core package to generate documentation
 using DocumenterInterLinks # For linking to other package docs
-using DocumenterMermaid    # For Mermaid diagrams in docs
 using DocumenterVitepress  # VitePress backend and deployment
+using CTBase               # automatic API reference
 using OptimalControlProblems
-using OptimalControl
-using JuMP
-using CTModels
-include("problems.jl")    # Your problem definitions
-include("browser.jl")     # The interactive problems browser
+using OptimalControl       # loads the OptimalControl extension
+using JuMP                 # loads the JuMP extension
+using Plots
 
-# ==============================
-# --- Add Docstrings from external packages ---
-# ==============================
-# Access extensions within OptimalControlProblems
+# The extensions, by name, for the `@docs` blocks of the API Reference.
 const JuMPModels = Base.get_extension(OptimalControlProblems, :JuMPModels)
 const OptimalControlModels = Base.get_extension(
     OptimalControlProblems, :OptimalControlModels
 )
 
-# Add DocTest setup for each module if missing
-Modules = [JuMPModels, OptimalControlModels]
-for Module in Modules
-    isnothing(DocMeta.getdocmeta(Module, :DocTestSetup)) &&
-        DocMeta.setdocmeta!(Module, :DocTestSetup, :(using $Module); recursive=true)
-end
+# Plots are saved as SVG (SITE12): DocumenterVitepress prefers PNG when both are offered.
+Base.showable(::MIME"image/png", ::Plots.Plot) = false
+
+include("modelings.jl")    # documentation adapters, one per modeling
+include("problems.jl")     # the problem pages
+include("browser.jl")      # the interactive problems browser
+include("status.jl")       # the status page
+include("api_reference.jl")
 
 # ==============================
 # --- Configure inter-package links ---
@@ -81,11 +80,7 @@ mkpath(joinpath(@__DIR__, "src", "assets"))  # Ensure assets folder exists
 mkpath(joinpath(@__DIR__, "src", "public", "assets"))
 
 for file in ("Manifest.toml", "Project.toml")
-    cp(
-        joinpath(@__DIR__, file),
-        joinpath(@__DIR__, "src", "assets", file);
-        force=true,
-    )
+    cp(joinpath(@__DIR__, file), joinpath(@__DIR__, "src", "assets", file); force=true)
     cp(
         joinpath(@__DIR__, file),
         joinpath(@__DIR__, "src", "public", "assets", file);
@@ -97,58 +92,63 @@ end
 repo_url = "github.com/control-toolbox/OptimalControlProblems.jl"
 
 # ==============================
-# --- Generate Problems Documentation ---
+# --- Generated pages ---
 # ==============================
-draft = false  # If true, code blocks in markdown are not executed
-exclude_from_draft = Symbol[
-#    :beam   # example: exclude beam from draft docs
-]
+# The problem pages execute no code: they are written from the files of each problem.
+PROBLEM_PAGES = generate_problem_pages()
 
-# Generate problem pages (returns list of markdown pages)
-PROBLEMS_PAGES = generate_documentation_problems(;
-    draft=draft, exclude_from_draft=exclude_from_draft
-)
-
-# ==============================
-# --- Generate Documentation ---
-# ==============================
-# If draft is true, the Julia code in markdown is not executed.
-# To disable draft mode in a specific markdown file, add:
+# If draft is true, the Julia code of the hand-written pages is not executed. To disable
+# draft mode in a specific markdown file, add:
 #=
 ```@meta
 Draft = false
 ```
 =#
-with_problems_browser() do browser_file
-    makedocs(;
-        draft=draft,
-        #remotes=nothing,
-        warnonly=:cross_references,
-        sitename="OptimalControlProblems.jl",
-        format=DocumenterVitepress.MarkdownVitepress(;
-            repo=repo_url,
-            devbranch="main",
-            devurl="dev",
-            sidebar_drawer=true,
-        ),
-        pages=[
-            "Problems" => [
-                "problems-introduction.md",
-                browser_file,
-                "List of the problems" => PROBLEMS_PAGES,
-            ],
-            "Tutorials" => [
-                "Get a problem" => "tutorial-get.md",
-                "Solve a problem" => "tutorial-solve.md",
-            ],
-            "Developers" => [
-                "Add a problem" => "dev-add.md",
-                "JuMP transcription" => "dev-jump-transcription.md",
-                "API" => "dev-api.md",
-            ],
-        ],
-        plugins=[links],
-    )
+draft = false
+
+src_dir = abspath(joinpath(@__DIR__, "..", "src"))
+ext_dir = abspath(joinpath(@__DIR__, "..", "ext"))
+
+with_status_page() do status_file
+    with_problems_browser() do browser_file
+        with_api_reference(src_dir, ext_dir) do api_pages
+            makedocs(;
+                draft=draft,
+                warnonly=:cross_references,
+                sitename="OptimalControlProblems.jl",
+                format=DocumenterVitepress.MarkdownVitepress(;
+                    repo=repo_url, devbranch="main", devurl="dev", sidebar_drawer=true
+                ),
+                pages=[
+                    "Introduction" => "index.md",
+                    "Getting started" => [
+                        "Installation" => "getting-started/installation.md",
+                        "Your first problem" => "getting-started/first-problem.md",
+                        "Guided tour" => "getting-started/guided-tour.md",
+                    ],
+                    "User guide" => [
+                        "Get a problem" => "guide/get.md",
+                        "Solve with OptimalControl" => "guide/solve-optimalcontrol.md",
+                        "Solve with JuMP" => "guide/solve-jump.md",
+                        "JuMP schemes" => "guide/jump-schemes.md",
+                        "Initial guess" => "guide/initial-guess.md",
+                        "Compare modelings" => "guide/compare.md",
+                        "Plot a solution" => "guide/plot.md",
+                    ],
+                    "Problems" => [
+                        "Overview" => "problems-overview.md",
+                        "Browser" => browser_file,
+                        "Status" => status_file,
+                        "All the problems" => PROBLEM_PAGES,
+                    ],
+                    "Developers" => "developers.md",
+                    "API Reference" => api_pages,
+                    "Migrating from 0.5" => "migration.md",
+                ],
+                plugins=[links],
+            )
+        end
+    end
 end
 
 # ==============================

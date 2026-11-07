@@ -1,0 +1,108 @@
+# ==============================================================================
+# OptimalControlProblems API Reference Manager
+#
+# One CTBase automatic_reference_documentation call per documented page (SITE1, SITE2).
+# Keep the file lists in sync with src/ and ext/ when files are added, removed, or
+# renamed, otherwise docstrings silently drop out of the reference.
+#
+# The problem functions (`beam`, `chain`, …) are left out: each problem has its own page.
+# ==============================================================================
+
+const reference_documentation = CTBase.DevTools.automatic_reference_documentation
+
+"""
+    generate_api_reference(src_dir::String, ext_dir::String)
+
+Generate the API reference of OptimalControlProblems and of its extensions (SITE3).
+Returns the list of pages.
+"""
+function generate_api_reference(src_dir::String, ext_dir::String)
+    src(files...) = [abspath(joinpath(src_dir, f)) for f in files]
+    ext(files...) = [abspath(joinpath(ext_dir, f)) for f in files]
+
+    EXCLUDE_SYMBOLS = vcat(
+        Symbol[:include, :eval], collect(OptimalControlProblems.PROBLEM_NAMES)
+    )
+
+    package_files = src("OptimalControlProblems.jl", "problem.jl", "solutions.jl")
+
+    # ── Extensions: their methods extend the package functions, and what is their own is
+    #    private, so they appear in the Internals page only (loaded conditionally) ──
+    extensions_config = [
+        (
+            sym=:JuMPModels,
+            files=ext(
+                "JuMPModels.jl",
+                joinpath("JuMPModels", "schemes", "data.jl"),
+                joinpath("JuMPModels", "schemes", "tableaux.jl"),
+                joinpath("JuMPModels", "schemes", "build.jl"),
+            ),
+        ),
+        (sym=:OptimalControlModels, files=ext("OptimalControlModels.jl")),
+    ]
+    loaded_extensions = [
+        (cfg=cfg, mod=Base.get_extension(OptimalControlProblems, cfg.sym)) for
+        cfg in extensions_config if
+        !isnothing(Base.get_extension(OptimalControlProblems, cfg.sym))
+    ]
+
+    # ── Public page: the package ──────────────────────────────────────────────
+    pages = Any[reference_documentation(;
+        subdirectory="api",
+        primary_modules=[OptimalControlProblems => package_files],
+        exclude=EXCLUDE_SYMBOLS,
+        public=true,
+        private=false,
+        title="OptimalControlProblems",
+        title_in_menu="OptimalControlProblems",
+        filename="api_public",
+    ),]
+
+    # ── Internals: all private symbols in one page, sections by module ────────
+    internals_modules = Any[OptimalControlProblems => package_files]
+    for entry in loaded_extensions
+        push!(internals_modules, entry.mod => entry.cfg.files)
+    end
+    push!(
+        pages,
+        reference_documentation(;
+            subdirectory="api",
+            primary_modules=internals_modules,
+            exclude=EXCLUDE_SYMBOLS,
+            public=false,
+            private=true,
+            title="Internals",
+            title_in_menu="Internals",
+            filename="internals",
+        ),
+    )
+
+    return pages
+end
+
+"""
+    with_api_reference(f::Function, src_dir::String, ext_dir::String)
+
+Generates the API reference, executes `f(pages)`, and cleans up generated files (SITE10).
+"""
+function with_api_reference(f::Function, src_dir::String, ext_dir::String)
+    pages = generate_api_reference(src_dir, ext_dir)
+    try
+        f(pages)
+    finally
+        docs_src = abspath(joinpath(@__DIR__, "src"))
+        function cleanup(pages)
+            for p in pages
+                content = last(p)
+                if content isa AbstractString
+                    fname = endswith(content, ".md") ? content : content * ".md"
+                    full_path = joinpath(docs_src, fname)
+                    isfile(full_path) && rm(full_path)
+                elseif content isa Vector
+                    cleanup(content)
+                end
+            end
+        end
+        cleanup(pages)
+    end
+end

@@ -1,19 +1,60 @@
 # OptimalControlProblems.jl
 
-The **OptimalControlProblems.jl** package is part of the [control-toolbox ecosystem](https://github.com/control-toolbox) and is independent of [OptimalControl.jl](https://control-toolbox.org/OptimalControl.jl). The control-toolbox ecosystem brings together Julia packages for mathematical control and its applications. Its purpose is to provide tools to model and solve optimal control problems governed by ordinary differential equations, using both direct and indirect methods, on CPU and GPU.  
+```@meta
+CurrentModule = OptimalControlProblems
+```
 
-If you would like to define and solve your own optimal control problem, please refer to the [OptimalControl.jl documentation](https://control-toolbox.org/OptimalControl.jl).
+**OptimalControlProblems.jl** is a collection of optimal control problems governed by ordinary
+differential equations, for testing and benchmarking. Each problem comes with its description,
+its parameters, a shared initial guess and a reference objective, and is written in one or more
+**modelings**: the continuous problem with [OptimalControl.jl](https://control-toolbox.org/OptimalControl.jl/dev/),
+a discretized problem with [JuMP](https://jump.dev). The package is part of the
+[control-toolbox ecosystem](https://github.com/control-toolbox).
 
-In **OptimalControlProblems.jl**, you will find a collection of optimal control problems modelled with JuMP and OptimalControl that can be used for benchmarking.
+!!! note "Each modeling is an extension"
+    The package alone lists the problems and their metadata. A modeling becomes available when
+    its package is loaded: `using OptimalControl` for the OptimalControl modelings, `using JuMP`
+    for JuMP. See [Installation](@ref installation).
 
-## Installation
+## The modelings
 
-To install **OptimalControlProblems.jl**, please [open Julia’s interactive session (known as the REPL)](https://docs.julialang.org/en/v1/manual/getting-started) and use the Julia package manager:
+```@eval
+using Markdown
+rows = ["| $(a.title) | `$(nameof(s.backend))()` | $(a.summary) |" for (s, a) in Main.modelings()]
+Markdown.parse("""
+| Modeling | Backend | What you get |
+| :--- | :--- | :--- |
+$(join(rows, "\n"))
+""")
+```
+
+Every problem written in two modelings is checked to give the same nonlinear program in both,
+and the solves of every modeling are compared to one reference objective. Each
+[problem page](@ref problems-overview) shows the modelings side by side.
+
+## Quick start
 
 ```julia
-using Pkg
-Pkg.add("OptimalControlProblems")
+using OptimalControl, OptimalControlProblems
+using NLPModelsIpopt
+
+pb = beam(OptimalControlBackend())   # the continuous problem
+sol = solve(
+    model(pb), :collocation, :adnlp, :ipopt;
+    init=initial_guess(pb), grid_size=500, scheme=:trapeze,
+)
+objective(sol)
 ```
+
+## Where to go next
+
+- **[Your first problem](@ref first-problem)**: get a problem, solve it, check the result.
+- **[Guided tour](@ref guided-tour)**: the collection, the metadata, the modelings.
+- **User guide**: [get a problem](@ref get-problem), solve it with
+  [OptimalControl](@ref solve-optimalcontrol) or [JuMP](@ref solve-jump),
+  [choose the initial guess](@ref initial-guess), [compare modelings](@ref compare-modelings),
+  [plot a solution](@ref plot-solution).
+- **[Problems](@ref problems-overview)**: every problem, with its modelings and results.
 
 ## Citing us
 
@@ -35,15 +76,9 @@ url = {https://control-toolbox.org/OptimalControlProblems.jl}
 
 ## Contributing
 
-If you think you found a bug or if you have a feature request / suggestion, feel free to open an [issue](https://github.com/control-toolbox/OptimalControlProblems.jl/issues). Before opening a pull request, please start an issue or a discussion on the topic. 
-
-Contributions are welcomed, check out [how to contribute to a Github project](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project). If it is your first contribution, you can also check [this first contribution tutorial](https://github.com/firstcontributions/first-contributions). You can find first good issues (if any 🙂) [here](https://github.com/control-toolbox/OptimalControlProblems.jl/contribute). You may find other packages to contribute to at the [control-toolbox organization](https://github.com/control-toolbox).
+If you think you found a bug or if you have a feature request / suggestion, feel free to open an [issue](https://github.com/control-toolbox/OptimalControlProblems.jl/issues). Before opening a pull request, please start an issue or a discussion on the topic. To add a problem, see the [Developers](@ref developers) page.
 
 If you want to ask a question, feel free to start a discussion [here](https://github.com/orgs/control-toolbox/discussions). This forum is for general discussion about this repository and the [control-toolbox organization](https://github.com/control-toolbox).
-
-!!! note
-
-    If you want to add an application or a package to the control-toolbox ecosystem, please follow this [set up tutorial](https://github.com/orgs/control-toolbox/discussions/65).
 
 ## Credits (not exhaustive!)
 
@@ -62,55 +97,37 @@ If you want to ask a question, feel free to start a discussion [here](https://gi
 using Pkg
 using InteractiveUtils
 using Markdown
-
-# Download links for the benchmark environment
-function _downloads_toml(DIR)
-    link_manifest = joinpath("assets", DIR, "Manifest.toml")
-    link_project = joinpath("assets", DIR, "Project.toml")
-    return Markdown.parse("""
-    You can download the exact environment used to build this documentation:
-    - 📦 [Project.toml]($link_project) - Package dependencies
-    - 📋 [Manifest.toml]($link_manifest) - Complete dependency tree with versions
-    """)
-end
 ```
 
-```@example main
-_downloads_toml(".") # hide
-```
+You can download the exact environment used to build this documentation:
 
 ```@raw html
-<details style="margin-bottom: 0.5em; margin-top: 1em;"><summary>ℹ️ Version info</summary>
+<ul>
+  <li>📦 <a href="./assets/Project.toml" download>Project.toml</a>: package dependencies</li>
+  <li>📋 <a href="./assets/Manifest.toml" download>Manifest.toml</a>: complete dependency tree with versions</li>
+</ul>
 ```
+
+::: details ℹ️ Version info
 
 ```@example main
 versioninfo() # hide
 ```
 
-```@raw html
-</details>
-```
+:::
 
-```@raw html
-<details style="margin-bottom: 0.5em;"><summary>📦 Package status</summary>
-```
+::: details 📦 Package status
 
 ```@example main
 Pkg.status() # hide
 ```
 
-```@raw html
-</details>
-```
+:::
 
-```@raw html
-<details style="margin-bottom: 0.5em;"><summary>📚 Complete manifest</summary>
-```
+::: details 📚 Complete manifest
 
 ```@example main
 Pkg.status(; mode = PKGMODE_MANIFEST) # hide
 ```
 
-```@raw html
-</details>
-```
+:::
