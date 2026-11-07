@@ -20,7 +20,8 @@ const OCP = OptimalControlProblems
 # Hessian of the Lagrangian and their products, as values. The Exa NLP of OptimalControl is
 # compared with the same reference: exact for the trapezoidal rule; for the other schemes
 # its known gap (#284: one more control, the path constraints at one extreme node) is
-# recognised by computation and reported.
+# recognised by computation and reported. The NLPs of the scalarized model are compared
+# exactly with those of the vector model (#399).
 const SCHEMES = (:trapeze, :euler, :euler_implicit, :midpoint)
 const ORDERINGS = (:interleaved, :blocks)
 const GRID_SIZE = 4
@@ -128,7 +129,7 @@ not have, with whether they enter the matched part of `other`.
 """
 function compare(reference, other, cols, xs, y)
     extra = setdiff(1:(other.meta.nvar), cols)
-    lift(x) = (z=fill(0.5, other.meta.nvar); z[cols]=x; z)
+    lift(x) = (z = fill(0.5, other.meta.nvar); z[cols] = x; z)
     rows = match_rows(
         signatures(reference, xs, 1:(reference.meta.nvar)),
         signatures(other, lift.(xs), cols),
@@ -408,12 +409,17 @@ function test_exact(reference, other, cols, ref; allowed=Symbol[])
     return tolerated
 end
 
-"""
-CTDirect's NLP (ADNLP) of `problem` for `scheme`, the Exa NLP of OptimalControl, the OCP,
-the points (initial point and a pseudo-random one, in CTDirect's order) and multipliers.
-"""
-function reference(problem, scheme)
-    pb = getfield(OCP, problem)(OCP.OptimalControlBackend())
+"""The points of `nlp` (its initial point and a pseudo-random one) and multipliers."""
+function points(nlp)
+    n, m = nlp.meta.nvar, nlp.meta.ncon
+    xs = [nlp.meta.x0, [0.6 + 0.8 * ((7919 * i) % 1009) / 1009 for i in 1:n]]
+    y = [-1 + 2 * ((104729 * i) % 997) / 997 for i in 1:m]
+    return (; xs, y)
+end
+
+"""CTDirect's NLP (ADNLP) and the Exa NLP of the `backend` model of `problem` for `scheme`."""
+function nlps(backend, problem, scheme)
+    pb = getfield(OCP, problem)(backend)
     ocp = OCP.model(pb)
     docp = OptimalControl.discretize(
         ocp, OptimalControl.Collocation(; grid_size=GRID_SIZE, scheme=scheme)
@@ -421,10 +427,22 @@ function reference(problem, scheme)
     init = OptimalControl.build_initial_guess(ocp, OCP.initial_guess(pb))
     adnlp = OptimalControl.nlp_model(docp, init, OptimalControl.ADNLP())
     exa = OptimalControl.nlp_model(docp, init, OptimalControl.Exa())
-    n, m = adnlp.meta.nvar, adnlp.meta.ncon
-    xs = [adnlp.meta.x0, [0.6 + 0.8 * ((7919 * i) % 1009) / 1009 for i in 1:n]]
-    y = [-1 + 2 * ((104729 * i) % 997) / 997 for i in 1:m]
-    return (; adnlp, exa, ocp, xs, y)
+    return (; adnlp, exa, ocp)
+end
+
+# The references, built once per problem and scheme: the JuMP and the scalarized comparisons
+# share them, and the discretization is mostly compilation (#373).
+const REFERENCES = Dict{Tuple{Symbol,Symbol},Any}()
+
+"""
+CTDirect's NLP (ADNLP) of `problem` for `scheme`, the Exa NLP of OptimalControl, the OCP,
+the points (initial point and a pseudo-random one, in CTDirect's order) and multipliers.
+"""
+function reference(problem, scheme)
+    return get!(REFERENCES, (problem, scheme)) do
+        r = nlps(OCP.OptimalControlBackend(), problem, scheme)
+        return (; r..., points(r.adnlp)...)
+    end
 end
 
 """
@@ -526,6 +544,25 @@ function test_problem(problem, schemes)
         ref = reference(problem, scheme)
         test_jump(problem, scheme, ref)
         test_exa(problem, scheme, ref)
+    end
+end
+
+"""
+The scalarized model of `problem` against the vector one (#399), with the trapezoidal rule:
+both are transcribed by CTDirect, so another scheme would test CTDirect, not the modeling.
+Their variables are in the same order. ADNLP is compared with the reference, Exa with the
+Exa NLP of the vector model, itself compared with the reference by `test_exa`.
+"""
+function test_scalarized(problem)
+    ref = reference(problem, :trapeze)
+    s = nlps(OCP.OptimalControlScalarizedBackend(), problem, :trapeze)
+    for (name, vector, scalarized, at) in
+        (("ADNLP", ref.adnlp, s.adnlp, ref), ("Exa", ref.exa, s.exa, points(ref.exa)))
+        Test.@testset "scalarized $name" begin
+            n = vector.meta.nvar
+            Test.@test scalarized.meta.nvar == n
+            scalarized.meta.nvar == n && test_exact(vector, scalarized, collect(1:n), at)
+        end
     end
 end
 
