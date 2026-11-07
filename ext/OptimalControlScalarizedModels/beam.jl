@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.beam(
     ::OptimalControlScalarizedBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:beam, :OptimalControlScalarized)
 
@@ -43,8 +44,8 @@ function OptimalControlProblems.beam(
         ∫(u(t)^2) → min
     end
 
-    # initial guess
-    init = (state=[0.05, 0.1], control=0.1)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:beam, params, init)
 
     return OptimalControlProblems._problem(:beam, :OptimalControlScalarized, ocp, init, params)
 end

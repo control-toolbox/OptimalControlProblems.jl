@@ -22,6 +22,7 @@ function OptimalControlProblems.steering(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:steering, :JuMP)
@@ -41,26 +42,13 @@ function OptimalControlProblems.steering(
     x₃_tf = params[:x₃_tf]
     x₄_tf = params[:x₄_tf]
 
-    #
-    tf_start = 0.6
-    N = grid_size
-    function gen_x0(k, i)
-        if i == 1 || i == 4
-            return 0.0
-        elseif i == 2
-            return 5.0 * k * (tf_start - t0) / N
-        elseif i == 3
-            return 45.0 * k * (tf_start - t0) / N
-        end
-    end
-
     data = ProblemData(;
         state=[
-            Component("x$(c)"; start=[gen_x0(i, k) for i in 0:grid_size]) for
+            Component("x$(c)") for
             (k, c) in enumerate("₁₂₃₄")
         ],
-        control=[Component("u"; lower=u_min, upper=u_max, start=0)],
-        variable=[Component("tf"; lower=tf_l, start=tf_start)],
+        control=[Component("u"; lower=u_min, upper=u_max)],
+        variable=[Component("tf"; lower=tf_l)],
         costate=["∂x₁", "∂x₂", "∂x₃", "∂x₄"],
         times=v -> (t0, v[1]),
         dynamics=(x, u, v, t) -> [x[3], x[4], a * cos(u[1]), a * sin(u[1])],
@@ -75,5 +63,7 @@ function OptimalControlProblems.steering(
             (x₄_tf, (x0, xf, v) -> xf[4], x₄_tf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:steering, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

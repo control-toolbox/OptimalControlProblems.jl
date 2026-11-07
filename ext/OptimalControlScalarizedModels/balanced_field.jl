@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.balanced_field(
     ::OptimalControlScalarizedBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:balanced_field, :OptimalControlScalarized)
 
@@ -81,10 +82,8 @@ function OptimalControlProblems.balanced_field(
         r(tf) → min
     end
 
-    # initial guess
-    tf_guess = 10.0
-    init = (state=[r_t0, v_t0 + 10.0, h_tf / 2.0, γ_tf], control=[0.1], variable=[tf_guess])
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:balanced_field, params, init)
 
-    # discretise
     return OptimalControlProblems._problem(:balanced_field, :OptimalControlScalarized, ocp, init, params)
 end

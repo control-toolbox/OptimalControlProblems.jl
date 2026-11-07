@@ -23,4 +23,6 @@ moonlander_meta = OrderedDict(
         dp₂_tf=0,
     ),
     :status => (OptimalControl=:valid, JuMP=:valid),
+    # initial guess of every modeling (#377), from the parameters
+    :init => p -> (state=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1], control=[5.0, 5.0], variable=0.5),
 )

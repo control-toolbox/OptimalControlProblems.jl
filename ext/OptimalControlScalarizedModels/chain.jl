@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.chain(
     ::OptimalControlScalarizedBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:chain, :OptimalControlScalarized)
 
@@ -53,19 +54,8 @@ function OptimalControlProblems.chain(
         x₂(tf) → min
     end
 
-    # initial guess
-    tmin = b > a ? 1 / 4 : 3 / 4
-    xinit =
-        t -> [
-            4 * abs(b - a) * (t - t0) / (tf - t0) * (0.5 * (t - t0) / (tf - t0) - tmin) + a,
-            (
-                4 * abs(b - a) * (t - t0) / (tf - t0) *
-                (0.5 * (t - t0) / (tf - t0) - tmin) + a
-            ) * (4 * abs(b - a) * ((t - t0) / (tf - t0) - tmin)),
-            4 * abs(b - a) * ((t - t0) / (tf - t0) - tmin),
-        ]
-    uinit = t -> 4 * abs(b - a) * (t / tf - tmin)
-    init = (state=xinit, control=uinit)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:chain, params, init)
 
     return OptimalControlProblems._problem(:chain, :OptimalControlScalarized, ocp, init, params)
 end

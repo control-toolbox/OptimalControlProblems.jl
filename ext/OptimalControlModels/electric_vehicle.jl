@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.electric_vehicle(
     ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:electric_vehicle, :OptimalControl)
 
@@ -53,10 +54,8 @@ function OptimalControlProblems.electric_vehicle(
     road(x) = α0 + α1 * x + α2 * x^2 + α3 * x^3
     dynamics(x, v, u) = [v, h1 * u - h2 * v^2 - h0 - road(x)]
 
-    # initial guess
-    yinit = [0.1, 0.1]  # [x, v]
-    uinit = [0.1]       # [u]
-    init = (state=yinit, control=uinit)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:electric_vehicle, params, init)
 
     return OptimalControlProblems._problem(:electric_vehicle, :OptimalControl, ocp, init, params)
 end

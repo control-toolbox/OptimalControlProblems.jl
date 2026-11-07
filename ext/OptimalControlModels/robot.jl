@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.robot(
     ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:robot, :OptimalControl)
 
@@ -116,8 +117,8 @@ function OptimalControlProblems.robot(
         return [ρ_val, 0.0, θ_val, 0.0, ϕ_val, 0.0]
     end
 
-    uinit = [0.0, 0.0, 0.0]
-    init = (state=xinit, control=uinit, variable=tf_guess)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:robot, params, init)
 
     return OptimalControlProblems._problem(:robot, :OptimalControl, ocp, init, params)
 end

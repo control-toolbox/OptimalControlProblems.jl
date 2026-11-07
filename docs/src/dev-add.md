@@ -11,8 +11,13 @@ new_problem_meta = OrderedDict(
         t0 = 0,                        # Value of the initial time
         tf = 1,                        # Value of the final time
     ),
+    # initial guess of every modeling, from the parameters: each component a constant,
+    # a vector, or a function of the time t
+    :init => p -> (state=t -> [p.t0 + t, 0.1], control=0.1),
 )
 ```
+
+The initial guess must make the solvers converge **without** being too close to the solution, so that the solves still exercise the iterations.
 
 !!! note
 
@@ -31,6 +36,7 @@ new_problem_meta = OrderedDict(
 function OptimalControlProblems.new_problem(
     ::OptimalControlBackend;
     parameters::Union{Nothing, NamedTuple}=nothing,
+    init=nothing,
 )
 
     # parameters
@@ -44,8 +50,8 @@ function OptimalControlProblems.new_problem(
         ...
     end
 
-    # initial guess for the problem, independent of any grid
-    init = (state=..., control=..., variable=...)
+    # initial guess: from the metadata, unless given
+    init = OptimalControlProblems._initial_guess(:new_problem, params, init)
 
     # the continuous problem: it is discretised when solved
     return OptimalControlProblems._problem(:new_problem, :OptimalControl, ocp, init, params)
@@ -82,6 +88,7 @@ function OptimalControlProblems.new_problem(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing, NamedTuple}=nothing,
+    init=nothing,
     kwargs...
 )
 
@@ -91,16 +98,18 @@ function OptimalControlProblems.new_problem(
     tf = params[:tf]
 
     data = ProblemData(;
-        # names consistent with the other models; bounds and start values
-        state=[Component("x₁"; start=0.5), Component("x₂"; start=0.1)],
-        control=[Component("u"; lower=-1, upper=1, start=0.1)],
+        # names consistent with the other models, and bounds; the start values come from
+        # the initial guess of the metadata
+        state=[Component("x₁"), Component("x₂")],
+        control=[Component("u"; lower=-1, upper=1)],
         costate=["∂x₁", "∂x₂"],
         times=v -> (t0, tf),
         dynamics=(x, u, v, t) -> [x[2], u[1]],
         lagrange=(x, u, v, t) -> u[1]^2,
         boundary=[(0, (x0, xf, v) -> x0[1], 0), (1, (x0, xf, v) -> xf[1], 1)],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    init = OptimalControlProblems._initial_guess(:new_problem, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 
 end
 ```
@@ -111,7 +120,7 @@ end
     - If `tf` is free, declare it as a variable and return it from `times`:
 
     ```julia
-    variable=[Component("tf"; lower=0.1, start=1.0)],
+    variable=[Component("tf"; lower=0.1)],
     times=v -> (t0, v[1]),
     ```
 

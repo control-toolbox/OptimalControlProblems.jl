@@ -22,6 +22,7 @@ function OptimalControlProblems.dielectrophoretic_particle(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:dielectrophoretic_particle, :JuMP)
@@ -39,9 +40,9 @@ function OptimalControlProblems.dielectrophoretic_particle(
     tf_l = params[:tf_l]
 
     data = ProblemData(;
-        state=[Component("x"; start=1), Component("y"; start=0.5)],
-        control=[Component("u"; lower=u_l, upper=u_u, start=0.5)],
-        variable=[Component("tf"; lower=tf_l, start=8)],
+        state=[Component("x"), Component("y")],
+        control=[Component("u"; lower=u_l, upper=u_u)],
+        variable=[Component("tf"; lower=tf_l)],
         costate=["∂x", "∂y"],
         times=v -> (t0, v[1]),
         dynamics=(x, u, v, t) -> [x[2] * u[1] + α * u[1]^2, -c * x[2] + u[1]],
@@ -52,5 +53,7 @@ function OptimalControlProblems.dielectrophoretic_particle(
             (x_tf, (x0, xf, v) -> xf[1], x_tf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:dielectrophoretic_particle, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

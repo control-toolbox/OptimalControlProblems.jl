@@ -24,4 +24,19 @@ glider_meta = OrderedDict(
         vx_l=0,
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
+    # initial guess of every modeling (#377), from the parameters
+    :init => p -> begin
+        (; x_t0, y_t0, y_tf, vx_t0, vx_tf, vy_t0, vy_tf) = p
+        tf = 100.0
+        return (
+            state=t -> [
+                x_t0 + (t / tf) * 1248.0,
+                y_t0 + (t / tf) * (y_tf - y_t0),
+                vx_t0 + (t / tf) * (vx_tf - vx_t0),
+                vy_t0 + (t / tf) * (vy_tf - vy_t0),
+            ],
+            control=1.0,
+            variable=tf,
+        )
+    end,
 )

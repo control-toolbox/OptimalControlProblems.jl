@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.steering(
     ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:steering, :OptimalControl)
 
@@ -69,8 +70,9 @@ function OptimalControlProblems.steering(
             return 45.0 * (t - t0)
         end
     end
-    xinit = t -> [gen_x0(t, i) for i in 1:4]
-    init = (state=xinit, control=0, variable=0.6)
+
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:steering, params, init)
 
     return OptimalControlProblems._problem(:steering, :OptimalControl, ocp, init, params)
 end

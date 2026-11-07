@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.double_oscillator(
     ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:double_oscillator, :OptimalControl)
 
@@ -58,10 +59,8 @@ function OptimalControlProblems.double_oscillator(
         return [dx₁, dx₂, dx₃, dx₄]
     end
 
-    # initial guess
-    xinit = [0.1, 0.1, 0.1, 0.1]  # [x₁, x₂, x₃, x₄]
-    uinit = [0.1]  # [u]
-    init = (state=xinit, control=uinit)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:double_oscillator, params, init)
 
     return OptimalControlProblems._problem(:double_oscillator, :OptimalControl, ocp, init, params)
 end

@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.moonlander(
     ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:moonlander, :OptimalControl)
 
@@ -100,11 +101,8 @@ function OptimalControlProblems.moonlander(
         return [dp₁, dp₂, ddp₁, ddp₂, dθ, ddθ]
     end
 
-    # initial guess
-    xinit = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]  # [p₁, p₂, dp₁, dp₂, θ, dθ]
-    uinit = [5.0, 5.0]  # [F₁, F₂] 
-    varinit = [0.5]  # [tf] 
-    init = (state=xinit, control=uinit, variable=varinit)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:moonlander, params, init)
 
     return OptimalControlProblems._problem(:moonlander, :OptimalControl, ocp, init, params)
 end

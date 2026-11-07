@@ -20,4 +20,6 @@ cart_pendulum_meta = OrderedDict(
         ω_tf=0,
     ),
     :status => (OptimalControl=:valid, JuMP=:valid),
+    # initial guess of every modeling (#377), from the parameters
+    :init => p -> (state=[0.1, 0.1, 0.1, 0.1], control=0.1, variable=[1.0, 0.1]),
 )

@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.vanderpol(
     ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:vanderpol, :OptimalControl)
 
@@ -38,10 +39,8 @@ function OptimalControlProblems.vanderpol(
         0.5∫(x[1](t)^2 + x[2](t)^2 + u(t)^2) → min
     end
 
-    # initial guess
-    xinit = [0.1, 0.1]  # [x₁, x₂]
-    uinit = [0.1]  # [u]
-    init = (state=xinit, control=uinit)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:vanderpol, params, init)
 
     return OptimalControlProblems._problem(:vanderpol, :OptimalControl, ocp, init, params)
 end

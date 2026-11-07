@@ -28,4 +28,6 @@ ducted_fan_meta = OrderedDict(
         vα_tf=0,
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
+    # initial guess of every modeling (#377), from the parameters
+    :init => p -> (state=[0.1, 0.1, -0.1, 0.1, 0.1, 0.1], control=[0.1, 1], variable=1.5),
 )

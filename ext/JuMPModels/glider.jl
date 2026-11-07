@@ -22,6 +22,7 @@ function OptimalControlProblems.glider(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:glider, :JuMP)
@@ -64,13 +65,13 @@ function OptimalControlProblems.glider(
     N = grid_size
     data = ProblemData(;
         state=[
-            Component("x"; lower=x_l, start=[x_t0 + (k / N) * 1248.0 for k in 0:N]),
-            Component("y"; start=[y_t0 + (k / N) * (y_tf - y_t0) for k in 0:N]),
-            Component("vx"; lower=vx_l, start=vx_t0),
-            Component("vy"; start=vy_t0),
+            Component("x"; lower=x_l),
+            Component("y"),
+            Component("vx"; lower=vx_l),
+            Component("vy"),
         ],
-        control=[Component("cL"; lower=cL_min, upper=cL_max, start=1.0)],
-        variable=[Component("tf"; lower=tf_l, start=100.0)],
+        control=[Component("cL"; lower=cL_min, upper=cL_max)],
+        variable=[Component("tf"; lower=tf_l)],
         costate=["∂x", "∂y", "∂vx", "∂vy"],
         times=v -> (t0, v[1]),
         dynamics=(x, u, v, t) -> dynamics(x, u),
@@ -85,5 +86,7 @@ function OptimalControlProblems.glider(
             (vy_tf, (x0, xf, v) -> xf[4], vy_tf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:glider, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

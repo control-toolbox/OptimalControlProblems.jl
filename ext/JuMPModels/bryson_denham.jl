@@ -22,6 +22,7 @@ function OptimalControlProblems.bryson_denham(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:bryson_denham, :JuMP)
@@ -32,8 +33,8 @@ function OptimalControlProblems.bryson_denham(
     x1_max = params[:x1_max]
 
     data = ProblemData(;
-        state=[Component("x1"; upper=x1_max, start=0.0), Component("x2"; start=0.0)],
-        control=[Component("u"; start=0.0)],
+        state=[Component("x1"; upper=x1_max), Component("x2")],
+        control=[Component("u")],
         costate=["p1", "p2"],
         times=v -> (t0, tf),
         dynamics=(x, u, v, t) -> [x[2], u[1]],
@@ -45,5 +46,7 @@ function OptimalControlProblems.bryson_denham(
             (x2_tf, (x0, xf, v) -> xf[2], x2_tf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:bryson_denham, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

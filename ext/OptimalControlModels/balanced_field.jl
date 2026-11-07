@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.balanced_field(
     ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:balanced_field, :OptimalControl)
 
@@ -92,13 +93,8 @@ function OptimalControlProblems.balanced_field(
         return [rdot, vdot, hdot, γdot]
     end
 
-    # initial guess
-    tf_guess = 10.0
-    xinit = [r_t0, v_t0 + 10.0, h_tf / 2.0, γ_tf]
-    uinit = [0.1]
-    vinit = [tf_guess]
-    init = (state=xinit, control=uinit, variable=vinit)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:balanced_field, params, init)
 
-    # discretise
     return OptimalControlProblems._problem(:balanced_field, :OptimalControl, ocp, init, params)
 end

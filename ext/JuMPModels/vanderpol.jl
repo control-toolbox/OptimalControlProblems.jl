@@ -22,6 +22,7 @@ function OptimalControlProblems.vanderpol(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:vanderpol, :JuMP)
@@ -36,8 +37,8 @@ function OptimalControlProblems.vanderpol(
     x₂_t0 = params[:x₂_t0]
 
     data = ProblemData(;
-        state=[Component("x₁"; start=0.1), Component("x₂"; start=0.1)],
-        control=[Component("u"; start=0.1)],
+        state=[Component("x₁"), Component("x₂")],
+        control=[Component("u")],
         costate=["∂x₁", "∂x₂"],
         times=v -> (t0, tf),
         dynamics=(x, u, v, t) -> [x[2], ε * ω * (1 - x[1]^2) * x[2] - ω^2 * x[1] + u[1]],
@@ -46,5 +47,7 @@ function OptimalControlProblems.vanderpol(
             (x₁_t0, (x0, xf, v) -> x0[1], x₁_t0), (x₂_t0, (x0, xf, v) -> x0[2], x₂_t0)
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:vanderpol, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

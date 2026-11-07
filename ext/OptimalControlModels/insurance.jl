@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.insurance(
     ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:insurance, :OptimalControl)
 
@@ -92,11 +93,8 @@ function OptimalControlProblems.insurance(
         -∫(U(t) * fx) → min
     end
 
-    # initial guess
-    xinit = [0.1, 0.1, 0.1]  # [I, m, x₃]
-    uinit = [0.1, 0.1, 0.1, 0.1, 0.1]  # [h, R, H, U, dUdR]
-    varinit = [0.1]  # [P]
-    init = (state=xinit, control=uinit, variable=varinit)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:insurance, params, init)
 
     return OptimalControlProblems._problem(:insurance, :OptimalControl, ocp, init, params)
 end

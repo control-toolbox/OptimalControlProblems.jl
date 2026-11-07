@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.dielectrophoretic_particle(
     ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:dielectrophoretic_particle, :OptimalControl)
 
@@ -49,8 +50,8 @@ function OptimalControlProblems.dielectrophoretic_particle(
         return [y * u + α * u^2, -c * y + u]
     end
 
-    # initial guess
-    init = (state=[1, 0.5], control=0.5, variable=8)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:dielectrophoretic_particle, params, init)
 
     return OptimalControlProblems._problem(:dielectrophoretic_particle, :OptimalControl, ocp, init, params)
 end

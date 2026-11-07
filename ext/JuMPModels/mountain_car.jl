@@ -22,6 +22,7 @@ function OptimalControlProblems.mountain_car(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:mountain_car, :JuMP)
@@ -47,11 +48,11 @@ function OptimalControlProblems.mountain_car(
 
     data = ProblemData(;
         state=[
-            Component("pos"; lower=pos_min, upper=pos_max, start=pos_t0),
-            Component("vel"; lower=vel_min, upper=vel_max, start=vel_t0),
+            Component("pos"; lower=pos_min, upper=pos_max),
+            Component("vel"; lower=vel_min, upper=vel_max),
         ],
-        control=[Component("u"; lower=u_min, upper=u_max, start=0.0)],
-        variable=[Component("tf"; lower=tf_min, start=tf_start)],
+        control=[Component("u"; lower=u_min, upper=u_max)],
+        variable=[Component("tf"; lower=tf_min)],
         costate=["∂pos", "∂vel"],
         times=v -> (t0, v[1]),
         dynamics=(x, u, v, t) -> [x[2], a * u[1] - b * cos(c * x[1])],
@@ -63,5 +64,7 @@ function OptimalControlProblems.mountain_car(
             (vel_tf_min, (x0, xf, v) -> xf[2], Inf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:mountain_car, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

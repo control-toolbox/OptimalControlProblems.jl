@@ -22,6 +22,7 @@ function OptimalControlProblems.brachistochrone(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:brachistochrone, :JuMP)
@@ -38,17 +39,14 @@ function OptimalControlProblems.brachistochrone(
     u_min = params[:u_min]
     u_max = params[:u_max]
 
-    # initial guess: linear interpolation, speed estimated, u ~ 90 degrees
-    interpolate(a, b) = [a + (i / grid_size) * (b - a) for i in 0:grid_size]
-
     data = ProblemData(;
         state=[
-            Component("px"; start=interpolate(x0, xf)),
-            Component("py"; start=interpolate(y0, yf)),
-            Component("v"; start=[v0 + (i / grid_size) * 10.0 for i in 0:grid_size]),
+            Component("px"),
+            Component("py"),
+            Component("v"),
         ],
-        control=[Component("u"; lower=-1.57, upper=1.57, start=1.57)],
-        variable=[Component("tf"; lower=0.1, upper=20.0, start=2.0)],
+        control=[Component("u"; lower=-1.57, upper=1.57)],
+        variable=[Component("tf"; lower=0.1, upper=20.0)],
         costate=["∂px", "∂py", "∂v"],
         times=v -> (t0, v[1]),
         # Dymos formulation
@@ -62,5 +60,7 @@ function OptimalControlProblems.brachistochrone(
             (yf, (s0, sf, v) -> sf[2], yf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:brachistochrone, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

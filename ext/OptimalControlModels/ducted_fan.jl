@@ -13,6 +13,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.ducted_fan(
     ::OptimalControlBackend;
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
 )
     OptimalControlProblems._warn_if_draft(:ducted_fan, :OptimalControl)
 
@@ -94,11 +95,8 @@ function OptimalControlProblems.ducted_fan(
         return [dx₁, dv₁, dx₂, dv₂, dα, dvα]
     end
 
-    # initial guess
-    xinit = [0.1, 0.1, -0.1, 0.1, 0.1, 0.1]  # [x₁, v₁, x₂, v₂, α, vα]
-    uinit = [0.1, 1]  # [u₁, u₂]
-    varinit = [1.5]  # [tf] 
-    init = (state=xinit, control=uinit, variable=varinit)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:ducted_fan, params, init)
 
     return OptimalControlProblems._problem(:ducted_fan, :OptimalControl, ocp, init, params)
 end

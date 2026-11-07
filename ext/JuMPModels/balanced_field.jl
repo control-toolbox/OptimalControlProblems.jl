@@ -22,6 +22,7 @@ function OptimalControlProblems.balanced_field(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:balanced_field, :JuMP)
@@ -77,13 +78,13 @@ function OptimalControlProblems.balanced_field(
 
     data = ProblemData(;
         state=[
-            Component("r"; start=r_t0),
-            Component("v"; lower=1.0, start=v_t0 + 10.0),
-            Component("h"; lower=0.0, start=h_tf / 2.0),
-            Component("γ"; start=γ_tf),
+            Component("r"),
+            Component("v"; lower=1.0),
+            Component("h"; lower=0.0),
+            Component("γ"),
         ],
-        control=[Component("α"; lower=0, upper=α_max_ctrl, start=0.1)],
-        variable=[Component("tf"; lower=0.1, start=10.0)],
+        control=[Component("α"; lower=0, upper=α_max_ctrl)],
+        variable=[Component("tf"; lower=0.1)],
         costate=["∂r", "∂v", "∂h", "∂γ"],
         times=v -> (t0, v[1]),
         dynamics=(x, u, v, t) -> dynamics(x, u),
@@ -97,5 +98,7 @@ function OptimalControlProblems.balanced_field(
             (γ_tf, (x0, xf, v) -> xf[4], γ_tf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:balanced_field, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

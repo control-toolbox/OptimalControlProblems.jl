@@ -11,4 +11,6 @@ bryson_denham_meta = OrderedDict(
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:draft),
     :notes => "JuMP uses ASCII state component names while the OptimalControl model uses Unicode names.",
+    # initial guess of every modeling (#377), from the parameters
+    :init => p -> (state=[0.0, 0.0], control=0.0),
 )

@@ -22,6 +22,7 @@ function OptimalControlProblems.moonlander(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:moonlander, :JuMP)
@@ -76,18 +77,18 @@ function OptimalControlProblems.moonlander(
 
     data = ProblemData(;
         state=[
-            Component("p₁"; start=0.1),
-            Component("p₂"; start=0.1),
-            Component("dp₁"; start=0.1),
-            Component("dp₂"; start=0.1),
-            Component("θ"; start=0.1),
-            Component("dθ"; start=0.1),
+            Component("p₁"),
+            Component("p₂"),
+            Component("dp₁"),
+            Component("dp₂"),
+            Component("θ"),
+            Component("dθ"),
         ],
         control=[
-            Component("F₁"; lower=F₁_l, upper=F₁_u, start=5.0),
-            Component("F₂"; lower=F₂_l, upper=F₂_u, start=5.0),
+            Component("F₁"; lower=F₁_l, upper=F₁_u),
+            Component("F₂"; lower=F₂_l, upper=F₂_u),
         ],
-        variable=[Component("tf"; lower=tf_l, upper=tf_u, start=0.5)],
+        variable=[Component("tf"; lower=tf_l, upper=tf_u)],
         costate=["∂p₁", "∂p₂", "∂dp₁", "∂dp₂", "∂θ", "∂dθ"],
         times=v -> (t0, v[1]),
         dynamics=(x, u, v, t) -> dynamics(x, u),
@@ -105,5 +106,7 @@ function OptimalControlProblems.moonlander(
             (dp₂_tf, (x0, xf, v) -> xf[4], dp₂_tf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:moonlander, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

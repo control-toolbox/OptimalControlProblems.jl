@@ -22,6 +22,7 @@ function OptimalControlProblems.beam(
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
+    init=nothing,
     kwargs...,
 )
     OptimalControlProblems._warn_if_draft(:beam, :JuMP)
@@ -39,9 +40,9 @@ function OptimalControlProblems.beam(
 
     data = ProblemData(;
         state=[
-            Component("x₁"; lower=x₁_l, upper=x₁_u, start=0.05), Component("x₂"; start=0.1)
+            Component("x₁"; lower=x₁_l, upper=x₁_u), Component("x₂")
         ],
-        control=[Component("u"; start=0.1)],
+        control=[Component("u")],
         costate=["∂x₁", "∂x₂"],
         times=v -> (t0, tf),
         dynamics=(x, u, v, t) -> [x[2], u[1]],
@@ -53,5 +54,7 @@ function OptimalControlProblems.beam(
             (x₂_tf, (x0, xf, v) -> xf[2], x₂_tf),
         ],
     )
-    return build(data, grid_size, scheme, ordering, args...; kwargs...)
+    # initial guess: from the metadata (#377), unless given
+    init = OptimalControlProblems._initial_guess(:beam, params, init)
+    return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

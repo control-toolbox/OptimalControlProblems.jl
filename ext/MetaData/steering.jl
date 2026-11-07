@@ -15,4 +15,11 @@ steering_meta = OrderedDict(
         x₄_tf=0,
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
+    # initial guess of every modeling (#377), from the parameters
+    :init => p -> begin
+        t0 = p.t0
+        return (
+            state=t -> [0.0, 5.0 * (t - t0), 45.0 * (t - t0), 0.0], control=0, variable=0.6
+        )
+    end,
 )
