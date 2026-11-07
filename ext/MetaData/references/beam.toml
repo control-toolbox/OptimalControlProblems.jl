@@ -6,10 +6,10 @@
 agreement = true
 grid_size = 500
 parameters = "(t0 = 0, tf = 1, x₁_l = 0, x₁_u = 0.1, x₁_t0 = 0, x₂_t0 = 1, x₁_tf = 0, x₂_tf = -1)"
-run = "https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42288933404 https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42288939786 https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42288946781 https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42288952545"
+run = "https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42387105573 https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42387108959 https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42387112175 https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42387115100"
 source = "computed"
-spread = 6.880267386757687e-8
-value = 8.88928162026725
+spread = 6.880267366774556e-8
+value = 8.889281808581256
 
     [[trapeze.results]]
     configuration = "solver=ipopt"
@@ -24,7 +24,7 @@ value = 8.88928162026725
     [[trapeze.results]]
     configuration = "solver=ipopt mu_init=0.001"
     modeling = "JuMP"
-    objective = 8.889281808507887
+    objective = 8.88928181017181
     platform = "cron-JuMP-robustness-1.13-ubuntu-latest"
     [[trapeze.results]]
     configuration = "solver=ipopt mu_init=0.001"
@@ -34,7 +34,7 @@ value = 8.88928162026725
     [[trapeze.results]]
     configuration = "solver=ipopt mu_strategy=monotone"
     modeling = "JuMP"
-    objective = 8.889282231873594
+    objective = 8.889282231873592
     platform = "cron-JuMP-robustness-1.13-ubuntu-latest"
     [[trapeze.results]]
     configuration = "solver=ipopt mu_strategy=monotone"
@@ -44,7 +44,7 @@ value = 8.88928162026725
     [[trapeze.results]]
     configuration = "solver=ipopt mu_strategy=monotone mu_init=0.001"
     modeling = "JuMP"
-    objective = 8.88928184856984
+    objective = 8.889281848569889
     platform = "cron-JuMP-robustness-1.13-ubuntu-latest"
     [[trapeze.results]]
     configuration = "solver=ipopt mu_strategy=monotone mu_init=0.001"
@@ -54,7 +54,7 @@ value = 8.88928162026725
     [[trapeze.results]]
     configuration = "modeler=adnlp solver=ipopt"
     modeling = "OptimalControl"
-    objective = 8.889281808581273
+    objective = 8.88928181130797
     platform = "cron-OptimalControl-1.13-ubuntu-latest"
     [[trapeze.results]]
     configuration = "modeler=adnlp solver=ipopt"
@@ -99,7 +99,7 @@ value = 8.88928162026725
     [[trapeze.results]]
     configuration = "modeler=exa solver=madnlp"
     modeling = "OptimalControl"
-    objective = 8.889281793484152
+    objective = 8.889281850493827
     platform = "cron-OptimalControl-1.13-ubuntu-latest"
     [[trapeze.results]]
     configuration = "modeler=exa solver=madnlp"
@@ -144,12 +144,12 @@ value = 8.88928162026725
     [[trapeze.results]]
     configuration = "modeler=exa solver=madnlp"
     modeling = "OptimalControlScalarized"
-    objective = 8.889281793484152
+    objective = 8.889281850493827
     platform = "cron-OptimalControlScalarized-1.13-ubuntu-latest"
     [[trapeze.results]]
     configuration = "modeler=exa solver=madnlp"
     modeling = "OptimalControlScalarized"
-    objective = 8.889281793484152
+    objective = 8.889281850493827
     platform = "cron-OptimalControlScalarized-1.13-windows-latest"
     [[trapeze.results]]
     configuration = "modeler=exa solver=madnlp"
@@ -159,5 +159,48 @@ value = 8.88928162026725
 
     [[trapeze.solutions]]
     configurations = ["JuMP solver=ipopt", "JuMP solver=ipopt mu_init=0.001", "JuMP solver=ipopt mu_strategy=monotone", "JuMP solver=ipopt mu_strategy=monotone mu_init=0.001", "OptimalControl modeler=adnlp solver=ipopt", "OptimalControl modeler=adnlp solver=ipopt mu_init=0.001", "OptimalControl modeler=adnlp solver=ipopt mu_strategy=monotone", "OptimalControl modeler=adnlp solver=ipopt mu_strategy=monotone mu_init=0.001", "OptimalControl modeler=exa solver=madnlp", "OptimalControl modeler=exa solver=madnlp barrier=loqo", "OptimalControl modeler=exa solver=madnlp mu_init=0.001", "OptimalControl modeler=exa solver=madnlp mu_init=1.0e-5", "OptimalControlScalarized modeler=exa solver=madnlp"]
-    objective = 8.88928162026725
+    objective = 8.889281808581256
     solves = 29
+
+        [trapeze.solutions.reference]
+        arch = "x86_64"
+        commit = "0f6b1ec2b60b46fcc5141592fd08794531e1f519"
+        configuration = "modeler=adnlp solver=ipopt mu_init=0.001"
+        cpu = "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz"
+        iterations = 18
+        julia = "1.13.3"
+        modeler = "adnlp"
+        modeling = "OptimalControl"
+        objective = 8.889281808581256
+        os = "NT"
+        platform = "cron-OptimalControl-robustness-1.13-windows-latest"
+        run = "https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42387115100"
+        solver = "ipopt"
+        status = "first_order"
+        time = 0.119083
+        violation = 1.1102230246251565e-16
+
+            [trapeze.solutions.reference.options]
+            max_iter = 1000
+            max_wall_time = 500.0
+            mu_init = 0.001
+            mu_strategy = "adaptive"
+            print_level = 0
+            sb = "yes"
+            tol = 1.0e-8
+
+            [trapeze.solutions.reference.versions]
+            ADNLPModels = "0.8.15"
+            CTBase = "0.30.13"
+            CTDirect = "1.1.8-beta"
+            CTModels = "0.19.8"
+            CTSolvers = "0.5.8"
+            ExaModels = "0.12.2"
+            Ipopt_jll = "300.1400.1902+0"
+            MUMPS_seq_jll = "500.900.100+0"
+            MadNLP = "0.10.3"
+            NLPModels = "0.21.12"
+            NLPModelsIpopt = "0.11.3"
+            OptimalControl = "2.2.1-beta"
+            OptimalControlProblems = "0.5.0"
+            Test = "1.11.0"
