@@ -23,11 +23,14 @@ function test_features()
             Test.@test f.variable_dimension == OptimalControl.variable_dimension(ocp)
             Test.@test f.cost in (:mayer, :lagrange, :bolza)
             Test.@test (f.cost in (:mayer, :bolza)) == OptimalControl.has_mayer_cost(ocp)
-            Test.@test (f.cost in (:lagrange, :bolza)) == OptimalControl.has_lagrange_cost(ocp)
+            Test.@test (f.cost in (:lagrange, :bolza)) ==
+                OptimalControl.has_lagrange_cost(ocp)
             Test.@test f.initial_time in (:fixed, :free) && f.final_time in (:fixed, :free)
             # a free time is a component of the variable
-            Test.@test f.variable_dimension > 0 || (f.initial_time === :fixed && f.final_time === :fixed)
-            Test.@test keys(f.constraints) == (:state_box, :control_box, :variable_box, :path, :boundary)
+            Test.@test f.variable_dimension > 0 ||
+                (f.initial_time === :fixed && f.final_time === :fixed)
+            Test.@test keys(f.constraints) ==
+                (:state_box, :control_box, :variable_box, :path, :boundary)
             Test.@test all(n -> n isa Int && n >= 0, f.constraints)
         end
     end

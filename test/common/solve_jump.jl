@@ -5,7 +5,10 @@ using JuMP: JuMP
 using Ipopt: Ipopt
 
 function solve!(
-    model; solver::Symbol=:ipopt, max_iter::Int=Main.TestConfigs.MAX_ITER, options::NamedTuple=(;)
+    model;
+    solver::Symbol=:ipopt,
+    max_iter::Int=Main.TestConfigs.MAX_ITER,
+    options::NamedTuple=(;),
 )
     solver === :ipopt || throw(ArgumentError("unsupported JuMP solver $solver"))
     o = Main.TestConfigs

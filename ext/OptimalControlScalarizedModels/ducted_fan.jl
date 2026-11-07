@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:ducted_fan)` and `OptimalControlProblems.status(:ducted_fan)`.
 """
 function OptimalControlProblems.ducted_fan(
-    ::OptimalControlScalarizedBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlScalarizedBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:ducted_fan, :OptimalControlScalarized)
 
@@ -95,5 +94,7 @@ function OptimalControlProblems.ducted_fan(
     init = (state=xinit, control=uinit, variable=varinit)
 
     # DOCP
-    return OptimalControlProblems._problem(:ducted_fan, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :ducted_fan, :OptimalControlScalarized, ocp, init, params
+    )
 end

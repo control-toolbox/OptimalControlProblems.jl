@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:mountain_car)` and `OptimalControlProblems.status(:mountain_car)`.
 """
 function OptimalControlProblems.mountain_car(
-    ::OptimalControlScalarizedBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlScalarizedBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:mountain_car, :OptimalControlScalarized)
 
@@ -67,5 +66,7 @@ function OptimalControlProblems.mountain_car(
     # initial guess
     init = (state=[pos_t0, vel_t0], control=0.0, variable=tf_start)
 
-    return OptimalControlProblems._problem(:mountain_car, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :mountain_car, :OptimalControlScalarized, ocp, init, params
+    )
 end

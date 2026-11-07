@@ -172,15 +172,19 @@ _relative_gap(a, b) = abs(a - b) / (iszero(b) ? 1 : abs(b))
 # a new directory changes `METADATA_PATH`, already a dependency
 isdir(REFERENCES_PATH) && Base.include_dependency(REFERENCES_PATH)
 
-function _references(problem::Symbol, file::AbstractString=joinpath(REFERENCES_PATH, "$(problem).toml"))
+function _references(
+    problem::Symbol, file::AbstractString=joinpath(REFERENCES_PATH, "$(problem).toml")
+)
     isfile(file) || return nothing
     Base.include_dependency(file)
     entries = Pair{Symbol,NamedTuple}[]
     for (scheme, table) in TOML.parsefile(file)
-        table isa AbstractDict || error("Reference objective $(scheme) of $(problem): not a table")
+        table isa AbstractDict ||
+            error("Reference objective $(scheme) of $(problem): not a table")
         values = map(keys(REFERENCE_FIELDS)) do key
-            haskey(table, string(key)) ||
-                error("Missing field $(key) in the reference objective $(scheme) of $(problem)")
+            haskey(table, string(key)) || error(
+                "Missing field $(key) in the reference objective $(scheme) of $(problem)",
+            )
             return REFERENCE_FIELDS[key](table[string(key)])
         end
         push!(entries, Symbol(scheme) => NamedTuple{keys(REFERENCE_FIELDS)}(values))

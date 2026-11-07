@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:steering)` and `OptimalControlProblems.status(:steering)`.
 """
 function OptimalControlProblems.steering(
-    ::OptimalControlScalarizedBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlScalarizedBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:steering, :OptimalControlScalarized)
 
@@ -72,5 +71,7 @@ function OptimalControlProblems.steering(
     xinit = t -> [gen_x0(t, i) for i in 1:4]
     init = (state=xinit, control=0, variable=0.6)
 
-    return OptimalControlProblems._problem(:steering, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :steering, :OptimalControlScalarized, ocp, init, params
+    )
 end

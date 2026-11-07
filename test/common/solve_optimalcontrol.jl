@@ -30,9 +30,16 @@ function solver(name::Symbol; max_iter::Int, options::NamedTuple=(;))
         )
         return OptimalControl.Ipopt(; merge(defaults, options)...)
     elseif name in (:madnlp, :madnlp_gpu)
-        T = name === :madnlp ? OptimalControl.MadNLP : OptimalControl.MadNLP{OptimalControl.GPU}
+        T = if name === :madnlp
+            OptimalControl.MadNLP
+        else
+            OptimalControl.MadNLP{OptimalControl.GPU}
+        end
         defaults = (
-            print_level=MadNLP.ERROR, tol=o.TOL, max_iter=max_iter, max_wall_time=o.MAX_WALL_TIME
+            print_level=MadNLP.ERROR,
+            tol=o.TOL,
+            max_iter=max_iter,
+            max_wall_time=o.MAX_WALL_TIME,
         )
         return T(; merge(defaults, barrier(options))...)
     end
@@ -45,7 +52,11 @@ end
 
 """Solve the `Problem` `pb` with `config`; the default grid of the problem if `grid_size` is `nothing`."""
 function solve(
-    pb, config; grid_size::Int, max_iter::Int=Main.TestConfigs.MAX_ITER, options::NamedTuple=(;)
+    pb,
+    config;
+    grid_size::Int,
+    max_iter::Int=Main.TestConfigs.MAX_ITER,
+    options::NamedTuple=(;),
 )
     return OptimalControl.solve(
         OptimalControlProblems.model(pb);

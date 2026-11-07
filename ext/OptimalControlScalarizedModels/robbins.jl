@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:robbins)` and `OptimalControlProblems.status(:robbins)`.
 """
 function OptimalControlProblems.robbins(
-    ::OptimalControlScalarizedBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlScalarizedBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:robbins, :OptimalControlScalarized)
 
@@ -54,5 +53,7 @@ function OptimalControlProblems.robbins(
     uinit = [0.1]  # [u]
     init = (state=xinit, control=uinit)
 
-    return OptimalControlProblems._problem(:robbins, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :robbins, :OptimalControlScalarized, ocp, init, params
+    )
 end

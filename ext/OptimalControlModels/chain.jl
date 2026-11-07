@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:chain)` and `OptimalControlProblems.status(:chain)`.
 """
 function OptimalControlProblems.chain(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:chain, :OptimalControl)
 

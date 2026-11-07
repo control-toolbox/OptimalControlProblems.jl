@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:robot)` and `OptimalControlProblems.status(:robot)`.
 """
 function OptimalControlProblems.robot(
-    ::OptimalControlScalarizedBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlScalarizedBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:robot, :OptimalControlScalarized)
 
@@ -124,5 +123,7 @@ function OptimalControlProblems.robot(
     uinit = [0.0, 0.0, 0.0]
     init = (state=xinit, control=uinit, variable=tf_guess)
 
-    return OptimalControlProblems._problem(:robot, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :robot, :OptimalControlScalarized, ocp, init, params
+    )
 end

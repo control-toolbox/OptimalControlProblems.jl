@@ -61,12 +61,15 @@ function outcome(ts::Test.DefaultTestSet)
     # Julia 1.10 returns a tuple (direct counts then cumulative child counts); newer
     # versions return a `Test.TestCounts` with named fields. Nested test sets are part
     # of the problem outcome.
-    passes = counts isa Tuple ? counts[1] + counts[5] : counts.passes + counts.cumulative_passes
-    fails = counts isa Tuple ? counts[2] + counts[6] : counts.fails + counts.cumulative_fails
-    errors = counts isa Tuple ? counts[3] + counts[7] : counts.errors + counts.cumulative_errors
+    passes =
+        counts isa Tuple ? counts[1] + counts[5] : counts.passes + counts.cumulative_passes
+    fails =
+        counts isa Tuple ? counts[2] + counts[6] : counts.fails + counts.cumulative_fails
+    errors =
+        counts isa Tuple ? counts[3] + counts[7] : counts.errors + counts.cumulative_errors
     errors > 0 && return "error"
     fails > 0 && return "fail"
-    passes > 0 ? "pass" : "no test"
+    return passes > 0 ? "pass" : "no test"
 end
 
 """One line of the report."""
@@ -112,7 +115,9 @@ end
 const RESULTS = Result[]
 
 """Relative gap of `objective` to `reference` (absolute when the reference is zero)."""
-gap(objective, reference) = abs(objective - reference) / (iszero(reference) ? 1 : abs(reference))
+function gap(objective, reference)
+    return abs(objective - reference) / (iszero(reference) ? 1 : abs(reference))
+end
 
 """
     result!(test, problem, backend, configuration; grid_size, scheme, converged, reason,
@@ -122,8 +127,17 @@ Record the result of a solve of `problem` in the modeling of `backend`, discreti
 `grid_size` steps with `scheme`.
 """
 function result!(
-    test, problem::Symbol, backend, configuration;
-    grid_size, scheme, converged, reason, objective, iterations, time,
+    test,
+    problem::Symbol,
+    backend,
+    configuration;
+    grid_size,
+    scheme,
+    converged,
+    reason,
+    objective,
+    iterations,
+    time,
 )
     reference = OptimalControlProblems.reference_objective(problem; grid_size, scheme)
     push!(
@@ -141,9 +155,11 @@ function result!(
             Int(iterations),
             Float64(time),
             isnothing(reference) ? nothing : gap(objective, reference),
-            converged ?
-            OptimalControlProblems.solution_kind(problem, objective; grid_size, scheme) :
-            nothing,
+            if converged
+                OptimalControlProblems.solution_kind(problem, objective; grid_size, scheme)
+            else
+                nothing
+            end,
         ),
     )
     return nothing
@@ -156,7 +172,11 @@ modeling(backend) = OptimalControlProblems._modeling_spec(backend).name
 """
 function status(problem::Symbol, backends)
     statuses = OptimalControlProblems.status(problem)
-    return all(b -> get(statuses, modeling(b), nothing) === :valid, backends) ? :valid : :draft
+    return if all(b -> get(statuses, modeling(b), nothing) === :valid, backends)
+        :valid
+    else
+        :draft
+    end
 end
 
 """
@@ -174,7 +194,9 @@ function select_problems!(names)
     wanted = Symbol.(names)
     unknown = setdiff(wanted, OptimalControlProblems.problems(; status=:all))
     isempty(unknown) || throw(
-        ArgumentError("Unknown problems in `problem=`: $(join(unknown, ", ")); see problems(; status=:all)"),
+        ArgumentError(
+            "Unknown problems in `problem=`: $(join(unknown, ", ")); see problems(; status=:all)",
+        ),
     )
     Main.TestConfigs.PROBLEMS[] = wanted
     return nothing
@@ -231,7 +253,10 @@ function write_report(name::AbstractString)
         "| --- | --- | --- | --- | --- |",
     ]
     for r in ROWS
-        push!(lines, "| $(r.test) | $(r.problem) | $(r.modelings) | $(r.status) | $(r.outcome) |")
+        push!(
+            lines,
+            "| $(r.test) | $(r.problem) | $(r.modelings) | $(r.status) | $(r.outcome) |",
+        )
     end
     mkpath(REPORTS)
     isempty(RESULTS) || append!(lines, results_table(tsv))
@@ -239,7 +264,9 @@ function write_report(name::AbstractString)
     write(file, text)
     # lines worth reading: drafts, and checks that report instead of failing
     notable = filter(r -> r.status !== :valid || r.outcome != "see the test summary", ROWS)
-    println("\nReport written to $file ($(length(ROWS)) lines, $(length(notable)) to read).")
+    println(
+        "\nReport written to $file ($(length(ROWS)) lines, $(length(notable)) to read)."
+    )
     for r in notable
         println("  $(r.status): $(r.problem) [$(r.modelings)] $(r.test) → $(r.outcome)")
     end
@@ -253,18 +280,38 @@ function results_table(tsv::AbstractString)
     short(x) = isnothing(x) ? "" : string(round(x; sigdigits=6))
     full(x) = isnothing(x) ? "" : repr(x)
     header = [
-        "test", "problem", "modeling", "configuration", "grid_size", "scheme", "result",
-        "reason", "objective", "iterations", "time", "gap", "solution",
+        "test",
+        "problem",
+        "modeling",
+        "configuration",
+        "grid_size",
+        "scheme",
+        "result",
+        "reason",
+        "objective",
+        "iterations",
+        "time",
+        "gap",
+        "solution",
     ]
     cells(r, fmt) = [
-        r.test, string(r.problem), r.modelings, r.configuration, string(r.grid_size),
-        string(r.scheme), r.converged ? "converged" : "not_converged", r.reason,
-        fmt(r.objective), string(r.iterations), short(r.time), short(r.gap),
+        r.test,
+        string(r.problem),
+        r.modelings,
+        r.configuration,
+        string(r.grid_size),
+        string(r.scheme),
+        r.converged ? "converged" : "not_converged",
+        r.reason,
+        fmt(r.objective),
+        string(r.iterations),
+        short(r.time),
+        short(r.gap),
         isnothing(r.solution) ? "" : string(r.solution),
     ]
     open(tsv, "w") do io
         println(io, join(header, "\t"))
-        foreach(r -> println(io, join(cells(r, full), "\t")), RESULTS)
+        return foreach(r -> println(io, join(cells(r, full), "\t")), RESULTS)
     end
     lines = [
         "",
@@ -275,7 +322,9 @@ function results_table(tsv::AbstractString)
     ]
     append!(lines, ["| " * join(cells(r, short), " | ") * " |" for r in RESULTS])
     not_converged = count(r -> !r.converged, RESULTS)
-    println("\nResults: $(length(RESULTS)) solves, $not_converged not converged (reported, not tested).")
+    println(
+        "\nResults: $(length(RESULTS)) solves, $not_converged not converged (reported, not tested).",
+    )
     return lines
 end
 

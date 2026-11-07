@@ -11,8 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:beam)` and `OptimalControlProblems.status(:beam)`.
 """
 function OptimalControlProblems.beam(
-    ::OptimalControlScalarizedBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
+    ::OptimalControlScalarizedBackend; parameters::Union{Nothing,NamedTuple}=nothing
 )
     OptimalControlProblems._warn_if_draft(:beam, :OptimalControlScalarized)
 
@@ -46,5 +45,7 @@ function OptimalControlProblems.beam(
     # initial guess
     init = (state=[0.05, 0.1], control=0.1)
 
-    return OptimalControlProblems._problem(:beam, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :beam, :OptimalControlScalarized, ocp, init, params
+    )
 end
