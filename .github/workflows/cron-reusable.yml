@@ -27,6 +27,14 @@ on:
         required: false
         default: ''
         type: string
+      problems:
+        description: >-
+          Only these problems (comma-separated; empty, the default: all). A restricted run
+          publishes the results of its problems (#314) and leaves the scope report, the state
+          and the issues as the last complete run left them.
+        required: false
+        default: ''
+        type: string
     secrets:
       SSH_KEY:
         required: false
@@ -55,7 +63,7 @@ jobs:
       # keep every platform running after a failure: one report per platform is needed
       fail_fast: false
       use_ct_registry: true
-      test_args: ${{ inputs.environment }} ${{ inputs.mode }}
+      test_args: ${{ inputs.environment }} ${{ inputs.mode }}${{ inputs.problems && format(' problem={0}', inputs.problems) || '' }}
       upload_artifact_path: test/reports
       upload_artifact_name: cron-${{ inputs.scope || inputs.environment }}
     secrets:
@@ -71,7 +79,7 @@ jobs:
     with:
       versions: '["1.13"]'
       use_ct_registry: true
-      test_args: ${{ inputs.environment }} ${{ inputs.mode }}
+      test_args: ${{ inputs.environment }} ${{ inputs.mode }}${{ inputs.problems && format(' problem={0}', inputs.problems) || '' }}
       upload_artifact_path: test/reports
       upload_artifact_name: cron-${{ inputs.scope || inputs.environment }}-gpu
       fail_fast: false
@@ -95,6 +103,8 @@ jobs:
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       TESTS_FAILED: ${{ needs.cpu.result != 'success' || needs.gpu.result == 'failure' }}
       RESULTS_DIR: /tmp/cron-results
+      # a restricted run writes its report and state aside, unpublished (`problems` input)
+      PARTIAL: ${{ inputs.problems != '' }}
     steps:
       - name: Checkout package
         uses: actions/checkout@v4
@@ -132,31 +142,41 @@ jobs:
           fi
           mkdir -p "$RESULTS_DIR/cron"
 
-      - name: Write report and observed state
+      # Also writes, for the documentation (#314), `problems/`, `env/` and `manifest.json`:
+      # the results and trajectories of the solves of the scope, merged with the other scopes.
+      - name: Write report, results and observed state
         shell: bash
         run: |
           set -euo pipefail
           package_version=$(sed -n 's/^version = "\(.*\)"/\1/p' Project.toml | head -1)
           test_failed_arg=()
           [ "$TESTS_FAILED" = "true" ] && test_failed_arg+=(--tests-failed)
+          cron_dir="$RESULTS_DIR/cron"
+          if [ "$PARTIAL" = "true" ]; then
+            cron_dir="$RUNNER_TEMP/cron"
+            mkdir -p "$cron_dir"
+            [ -f "$RESULTS_DIR/cron/state.json" ] && cp "$RESULTS_DIR/cron/state.json" "$cron_dir/"
+          fi
           python3 "$RUNNER_TEMP/cron-report.py" \
             --reports-dir artifacts \
             --scope "$SCOPE" \
             --run-url "$RUN_URL" \
-            --state-file "$RESULTS_DIR/cron/state.json" \
-            --output "$RESULTS_DIR/cron/$SCOPE.md" \
+            --state-file "$cron_dir/state.json" \
+            --output "$cron_dir/$SCOPE.md" \
+            --results-dir "$RESULTS_DIR" \
             --sha "$GITHUB_SHA" \
             --julia-version '1.13' \
             --package-version "$package_version" \
             "${test_failed_arg[@]}"
 
-      - name: Publish report and observed state
+      - name: Publish report, results and observed state
         shell: bash
         run: |
           set -euo pipefail
           git -C "$RESULTS_DIR" config user.name github-actions[bot]
           git -C "$RESULTS_DIR" config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git -C "$RESULTS_DIR" add cron
+          # the whole tree: `cron/`, and `problems/`, `env/` and `manifest.json` (#314)
+          git -C "$RESULTS_DIR" add --all
           git -C "$RESULTS_DIR" commit -m "ci: publish $SCOPE cron report" --allow-empty
           if git ls-remote --exit-code origin results >/dev/null 2>&1; then
             git -C "$RESULTS_DIR" push --force-with-lease origin HEAD:refs/heads/results
@@ -166,6 +186,7 @@ jobs:
 
       - name: Update cron issues
         id: issues
+        if: env.PARTIAL != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -206,7 +227,7 @@ jobs:
           set -euo pipefail
           if [ "${{ needs.cpu.result }}" != "success" ] || \
              [ "${{ needs.gpu.result }}" = "failure" ] || \
-             [ "${{ steps.issues.outcome }}" != "success" ]; then
+             { [ "$PARTIAL" != "true" ] && [ "${{ steps.issues.outcome }}" != "success" ]; }; then
             echo "A cron test or issue-update job failed."
             exit 1
           fi
