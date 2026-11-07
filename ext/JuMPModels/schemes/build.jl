@@ -42,10 +42,8 @@ function _variable(model, c::Component, name, i)
     x = JuMP.@variable(model, base_name=name)
     lower = isnothing(i) ? c.lower : _at(c.lower, i)
     upper = isnothing(i) ? c.upper : _at(c.upper, i)
-    start = isnothing(i) ? c.start : _at(c.start, i)
     isnothing(lower) || JuMP.set_lower_bound(x, lower)
     isnothing(upper) || JuMP.set_upper_bound(x, upper)
-    isnothing(start) || JuMP.set_start_value(x, start)
     return x
 end
 

@@ -89,7 +89,6 @@ function OptimalControlProblems.space_shuttle(
     scaling_h = 1e5
     scaling_v = 1e4
 
-
     # aerodynamics and motion of the vehicle, at one node, on the scaled state as in the
     # OptimalControl model: `h` and `v` at their true scale inside, their derivatives scaled
     function motion(x, u)

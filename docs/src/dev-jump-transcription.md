@@ -203,20 +203,20 @@ discretization itself:
 
 ```julia
 data = ProblemData(;
-    state=[Component("x₁"; lower=x₁_l, upper=x₁_u, start=0.05), Component("x₂"; start=0.1)],
-    control=[Component("u"; start=0.1)],
+    state=[Component("x₁"; lower=x₁_l, upper=x₁_u), Component("x₂")],
+    control=[Component("u")],
     costate=["∂x₁", "∂x₂"],
     times=v -> (t0, tf),
     dynamics=(x, u, v, t) -> [x[2], u[1]],
     lagrange=(x, u, v, t) -> u[1]^2,
     boundary=[(x₁_t0, (x0, xf, v) -> x0[1], x₁_t0), (x₁_tf, (x0, xf, v) -> xf[1], x₁_tf)],
 )
-return build(data, grid_size, scheme, ordering, args...; kwargs...)
+return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 ```
 
 | Field | Mathematical object |
 | --- | --- |
-| `state`, `control`, `variable` | the components, their bounds (box constraints) and start values (initial guess, a number or a vector over the nodes) |
+| `state`, `control`, `variable` | the components and their bounds (box constraints); the start values are those of the initial guess `init` of the metadata, at the nodes |
 | `times(v)` | ``(t_0, t_f)``, numbers or expressions of ``v`` |
 | `dynamics(x, u, v, t)` | ``f``, at one node |
 | `lagrange(x, u, v, t)` | ``f^0``, or `nothing` |

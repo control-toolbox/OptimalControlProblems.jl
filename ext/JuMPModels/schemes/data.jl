@@ -5,18 +5,18 @@
 $(TYPEDEF)
 
 A component of the state, the control or the variable: its name (also the name of the JuMP
-container), bounds and start value. A bound or a start value is a number, or for the
-state and the control a vector over the nodes `0:N`; `nothing` leaves it unset.
+container) and bounds. A bound is a number, or for the state and the control a vector over
+the nodes `0:N`; `nothing` leaves it unset. The start values come from the initial guess of
+the problem (#377), not from the components.
 """
 struct Component
     name::String
     lower::Any
     upper::Any
-    start::Any
 end
 
-function Component(name::AbstractString; lower=nothing, upper=nothing, start=nothing)
-    return Component(String(name), lower, upper, start)
+function Component(name::AbstractString; lower=nothing, upper=nothing)
+    return Component(String(name), lower, upper)
 end
 
 """
