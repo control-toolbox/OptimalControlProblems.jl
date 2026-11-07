@@ -20,6 +20,13 @@ function test_equivalence()
         ) do problem
             E.test_problem(problem, E.SCHEMES)
         end
+        Main.TestStatus.for_each_problem(
+            "NLP equivalence, scalarized (every scheme)",
+            OCP.OptimalControlBackend(),
+            OCP.OptimalControlScalarizedBackend(),
+        ) do problem
+            E.test_scalarized(problem, E.SCHEMES)
+        end
     end
 end
 

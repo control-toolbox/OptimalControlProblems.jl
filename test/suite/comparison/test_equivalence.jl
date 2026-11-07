@@ -34,6 +34,13 @@ function test_equivalence()
             E.test_problem(problem, problem in selected ? E.SCHEMES : (:trapeze,))
         end
         E.test_nonzeros()
+        Main.TestStatus.for_each_problem(
+            "NLP equivalence, scalarized",
+            OCP.OptimalControlBackend(),
+            OCP.OptimalControlScalarizedBackend(),
+        ) do problem
+            E.test_scalarized(problem, problem in selected ? E.SCHEMES : (:trapeze,))
+        end
     end
 end
 
