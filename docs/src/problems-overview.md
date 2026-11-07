@@ -54,3 +54,9 @@ discretization error.
 The tests of the package fail when a problem does not build or does not run, or when two
 modelings do not give the same NLP. Convergence is not tested: every solve is shown with its
 gap to the reference, as it is, without tolerance.
+
+The same configuration does not reach exactly the same objective on every platform: Linux,
+Windows, macOS, Intel and ARM processors, and GPUs round floating-point operations
+differently, and a solver stops at a point within its tolerance. The results of each problem
+page give the platforms of each configuration and, when they differ, the range of their
+objectives; a solve on your machine lands in that range, or close to it.
