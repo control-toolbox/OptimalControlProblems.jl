@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import pathlib
 import tempfile
 import unittest
@@ -339,6 +340,110 @@ class ConvergenceTests(unittest.TestCase):
         self.assertTrue(text.rstrip().endswith("| lost |"))
         # no results: no section
         self.assertNotIn("Convergence", REPORT.report_markdown("JuMP", [], "r", "n", "s", "j", "p"))
+
+
+# One report of a platform, as the tests write it (#314): results, trajectories, environment.
+def write_run(root, platform, report, problems, objective="1.5", fingerprint="f1"):
+    folder = root / platform
+    (folder / f"{report}-env").mkdir(parents=True, exist_ok=True)
+    (folder / f"{report}-env" / "Project.toml").write_text("[deps]\n")
+    (folder / f"{report}-environment.toml").write_text('julia = "1.13.0"\n')
+    lines = [RESULT_HEADER.rstrip("\n") + "\tsolution\tfingerprint"]
+    solves = []
+    for problem in problems:
+        lines.append(
+            f"test_convergence c\t{problem}\t{report}\tsolver=ipopt\t500\ttrapeze\tconverged"
+            f"\tLOCALLY_SOLVED\t{objective}\t18\t0.03\t\tbest\t{fingerprint}"
+        )
+        solves.append(
+            "[[solve]]\n"
+            f'problem = "{problem}"\nmodeling = "{report}"\nconfiguration = "solver=ipopt"\n'
+            f'fingerprint = "{fingerprint}"\n'
+            "[solve.trajectory]\ntime = [0.0, 1.0]\nvariable = []\n"
+            "[solve.trajectory.state]\nx = [0.0, 1.0]\n"
+            "[solve.trajectory.control]\nu = [1.0, 1.0]\n"
+            "[solve.trajectory.costate]\nx = [2.0, 2.0]\n"
+        )
+    (folder / f"{report}-results.tsv").write_text("\n".join(lines) + "\n")
+    (folder / f"{report}-trajectories.toml").write_text("\n".join(solves))
+
+
+def publish(reports, results, scope, run, **kw):
+    rows = REPORT.parse_results(reports)
+    REPORT.publish_results(
+        reports, results, scope, rows, f"https://x/actions/runs/{run}", "sha" + run, "date" + run
+    )
+
+
+class ResultsTests(unittest.TestCase):
+    def test_a_run_writes_the_results_the_trajectories_and_the_environment(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            write_run(root / "a", "cron-JuMP-1.13-ubuntu-latest", "JuMP", ["beam"])
+            publish(root / "a", root / "results", "JuMP", "1")
+            data = json.loads((root / "results/problems/beam/result.json").read_text())
+            entry = data["entries"][0]
+            self.assertEqual("beam", data["problem"])
+            self.assertEqual(1.5, entry["objective"])
+            self.assertEqual(18, entry["iterations"])
+            self.assertIsNone(entry["gap"])
+            self.assertEqual("f1", entry["fingerprint"])
+            self.assertEqual("https://x/actions/runs/1", entry["run"])
+            self.assertEqual("sha1", entry["commit"])
+            self.assertNotIn("report", entry)
+            trajectory = json.loads((root / "results" / entry["trajectory"]).read_text())
+            self.assertEqual({"x": [0.0, 1.0]}, trajectory["state"])
+            env = root / "results" / entry["environment"]
+            self.assertEqual("env/1/cron-JuMP-1.13-ubuntu-latest/JuMP", entry["environment"])
+            self.assertTrue((env / "environment.toml").is_file())
+            self.assertTrue((env / "Project.toml").is_file())
+            manifest = json.loads((root / "results/manifest.json").read_text())
+            self.assertEqual(["beam"], manifest["scopes"]["JuMP"]["problems"])
+            self.assertEqual("date1", manifest["updated"])
+
+    def test_a_run_replaces_the_entries_of_its_scope_only(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            results = root / "results"
+            write_run(root / "a", "cpu", "JuMP", ["beam", "chain"])
+            publish(root / "a", results, "JuMP", "1")
+            write_run(root / "b", "cpu", "OptimalControl", ["beam"])
+            publish(root / "b", results, "OptimalControl", "2")
+            # a run of JuMP restricted to `beam` (`problem=beam`)
+            write_run(root / "c", "cpu", "JuMP", ["beam"], objective="2.5")
+            publish(root / "c", results, "JuMP", "3")
+
+            beam = json.loads((results / "problems/beam/result.json").read_text())["entries"]
+            self.assertEqual(
+                [("JuMP", 2.5, "3"), ("OptimalControl", 1.5, "2")],
+                [(e["scope"], e["objective"], e["run"].rsplit("/", 1)[1]) for e in beam],
+            )
+            chain = json.loads((results / "problems/chain/result.json").read_text())["entries"]
+            self.assertEqual("https://x/actions/runs/1", chain[0]["run"])
+            # the environment of run 1 is kept while `chain` refers to it, run 2's too
+            self.assertEqual({"1", "2", "3"}, {p.name for p in (results / "env").iterdir()})
+            write_run(root / "d", "cpu", "JuMP", ["beam", "chain"])
+            publish(root / "d", results, "JuMP", "4")
+            self.assertEqual({"2", "4"}, {p.name for p in (results / "env").iterdir()})
+
+    def test_a_solve_without_trajectory_or_environment_is_published(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            write_run(root / "a", "cpu", "JuMP", ["beam"])
+            (root / "a/cpu/JuMP-trajectories.toml").unlink()
+            (root / "a/cpu/JuMP-environment.toml").unlink()
+            publish(root / "a", root / "results", "JuMP-robustness", "1")
+            entry = json.loads((root / "results/problems/beam/result.json").read_text())[
+                "entries"
+            ][0]
+            self.assertIsNone(entry["trajectory"])
+            self.assertIsNone(entry["environment"])
+            self.assertEqual("JuMP-robustness", entry["scope"])
+
+    def test_slug(self):
+        self.assertEqual("modeler-adnlp_solver-ipopt", REPORT.slug("modeler=adnlp solver=ipopt"))
+        self.assertEqual("mu_init-0.001", REPORT.slug("mu_init=0.001"))
+
 
 if __name__ == "__main__":
     unittest.main()

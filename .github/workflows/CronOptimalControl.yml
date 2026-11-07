@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "0 4 * * 3"
   workflow_dispatch:
+    inputs:
+      problems:
+        description: "Only these problems, comma-separated (e.g. beam): publishes their results, leaves the reports, the state and the issues"
+        required: false
+        default: ''
+        type: string
 
 permissions:
   contents: read
@@ -18,5 +24,6 @@ jobs:
     uses: ./.github/workflows/cron-reusable.yml
     with:
       environment: OptimalControl
+      problems: ${{ inputs.problems }}
       gpu: true
     secrets: inherit
