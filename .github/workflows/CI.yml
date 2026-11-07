@@ -9,13 +9,13 @@ on:
     types: [labeled, unlabeled, synchronize, reopened]
 
 jobs:
-  # Turn scope labels and per-problem pull request changes into the arguments of
-  # test/runtests.jl (tools/ci/scope.py). Without a scope label, or outside a pull
-  # request, every environment and problem runs. A pull request whose files are all
-  # per-problem files narrows the run to those problems (`problem=`); narrowing only
-  # happens on positive evidence: the `release` or `test all problems` label, a shared
-  # change, a removed or renamed file and any unreadable or truncated file list run
-  # everything.
+  # Turn the files a pull request changes, and its scope labels, into the arguments of
+  # test/runtests.jl (tools/ci/scope.py, #405): each file gives environments and
+  # problems, the run is their union, and the labels only add (`test <env> backend`,
+  # `test comparison`, `test all problems`, `test everything`). Outside a pull request
+  # everything runs; narrowing only happens on positive evidence: the `release` label, a
+  # shared change, a removed or renamed file and any unreadable or truncated file list
+  # run everything. The rules are in test/README.md.
   scope:
     runs-on: ubuntu-latest
     permissions:
