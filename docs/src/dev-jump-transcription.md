@@ -223,18 +223,15 @@ return build(data, grid_size, scheme, ordering, args...; kwargs...)
 | `cost(I, x0, xf, v)` | the objective given the discretized integral ``I`` of ``f^0`` (default: ``I``), e.g. ``g`` alone or ``I + g`` |
 | `path` | ``(c_l, c, c_u)`` |
 | `boundary` | ``(b_l, b, b_u)`` |
-| `state_expressions(x, v)` | what the dynamics constrain (default: ``x``), see below |
 
 The functions receive the vectors of JuMP variables of one node and return JuMP
 expressions: the scheme evaluates them at its stages (nodes or, for the midpoint rule,
 ``\frac{X_i + X_{i+1}}{2}``).
 
-**Scaled models.** Some models are written on scaled variables but keep the dynamics of
-the true quantities, for instance `space_shuttle` with ``h = 10^5\, \tilde h``. Writing
-the scheme on ``\tilde h`` would divide those rows by ``10^5`` and change the NLP seen by
-the solver. `state_expressions` returns the quantities the dynamics constrain, here
-``(10^5 \tilde h, \dots)``, so that the scheme writes
-``z(X_{i+1}) = z(X_i) + h \sum_j b_j f(Z_j)``.
+**Scaled models.** A model written on scaled variables writes its dynamics on the scaled
+state, as the OptimalControl model does: for `space_shuttle`, with ``h = 10^5\, \tilde h``,
+the dynamics of ``\tilde h`` are ``\dot h / 10^5``. The JuMP NLP is then the NLP of
+CTDirect, row by row.
 
 ### What the model stores
 

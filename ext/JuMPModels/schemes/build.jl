@@ -158,12 +158,11 @@ function build(
     # dynamics and path constraints
     reuse = stage_reuse(tab)
     F = _stage_values(reuse, data.dynamics, tab, θ, x, u, v, t, Δt)
-    z = [data.state_expressions(x[i + 1], v) for i in 0:N]
     D = Matrix{JuMP.ConstraintRef}(undef, length(data.state), N)
     function dynamics(i)
         f = _weighted(tab.b, F[i])
         for k in eachindex(data.state)
-            D[k, i] = JuMP.@constraint(model, z[i + 1][k] == z[i][k] + Δt * f[k])
+            D[k, i] = JuMP.@constraint(model, x[i + 1][k] == x[i][k] + Δt * f[k])
         end
         return D[:, i]
     end

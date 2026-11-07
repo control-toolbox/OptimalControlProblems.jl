@@ -71,7 +71,11 @@ Only the first two can fail a run (#360).
    `test_problem`, `core`) belong here too.
 2. **Model equivalence** — every run; the most important part, since comparing models is
    fair only if they are the same problem. `suite/comparison/` compares them at the
-   definition, at the initial guess (see below), not at convergence.
+   definition, at the initial guess (see below), not at convergence, and checks that
+   the JuMP NLP is CTDirect's (`test_equivalence`, #371): the trapezoidal rule for every
+   problem, the four schemes for two of them; `cron/comparison/` runs every problem and
+   scheme. Count the nonzeros of an NLP with `Equivalence.nonzeros`, never with
+   `meta.nnzh` (#372).
 3. **Convergence** — off by default: in the cron, and on demand with the `convergence`
    argument or the label `test convergence`. `cron/<group>/test_convergence.jl` solves each
    problem on its default grid and **reports** the result without testing it: whether the

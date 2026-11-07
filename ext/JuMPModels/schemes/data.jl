@@ -30,9 +30,6 @@ last nodes.
 
 - `times(v)`: the initial and final times, numbers or expressions of `v`.
 - `dynamics(x, u, v, t)`: the vector `ẋ`.
-- `state_expressions(x, v)`: what the dynamics constrain, by default `x` itself. A model
-  written on scaled variables declares here the unscaled quantities, so that the dynamics
-  keep the scaling of the original formulation.
 - `lagrange(x, u, v, t)`: the integrand of the cost, or `nothing`.
 - `cost(I, x0, xf, v)`: the objective, given the discretized integral `I` of the Lagrange
   cost (`0` without one).
@@ -46,7 +43,6 @@ Base.@kwdef struct ProblemData
     costate::Vector{String}
     times::Function
     dynamics::Function
-    state_expressions::Function = (x, v) -> x
     lagrange::Union{Nothing,Function} = nothing
     cost::Function = (I, x0, xf, v) -> I
     path::Vector{Tuple{Any,Function,Any}} = Tuple{Any,Function,Any}[]
