@@ -34,7 +34,7 @@ function main(args)
     )
     rows = ReferenceObjectives.read_results(dirs)
     tables = ReferenceObjectives.references(rows, defaults; run=run)
-    files = ReferenceObjectives.write_references(OptimalControlProblems.REFERENCES_PATH, tables)
+    files = ReferenceObjectives.write_references(OptimalControlProblems.References.REFERENCES_PATH, tables)
     foreach(println, ReferenceObjectives.summary(tables))
     missing_problems = setdiff(keys(defaults), keys(tables))
     isempty(missing_problems) ||

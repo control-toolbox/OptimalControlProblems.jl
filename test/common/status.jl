@@ -169,7 +169,7 @@ function result!(
     return nothing
 end
 
-modeling(backend) = OptimalControlProblems._modeling_spec(backend).name
+modeling(backend) = OptimalControlProblems.Modelings._modeling_spec(backend).name
 
 """
 `:valid` when `problem` is `:valid` in every modeling of `backends`, `:draft` otherwise.

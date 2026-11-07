@@ -15,7 +15,7 @@ function OptimalControlProblems.robbins(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:robbins, :OptimalControl)
+    OptimalControlProblems.Catalogue._warn_if_draft(:robbins, :OptimalControl)
 
     # parameters
     params = parameters_data(:robbins, parameters)
@@ -49,7 +49,7 @@ function OptimalControlProblems.robbins(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:robbins, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:robbins, params, init)
 
-    return OptimalControlProblems._problem(:robbins, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:robbins, :OptimalControl, ocp, init, params)
 end

@@ -25,7 +25,7 @@ function OptimalControlProblems.moonlander(
     init=nothing,
     kwargs...,
 )
-    OptimalControlProblems._warn_if_draft(:moonlander, :JuMP)
+    OptimalControlProblems.Catalogue._warn_if_draft(:moonlander, :JuMP)
 
     # parameters
     params = parameters_data(:moonlander, parameters)
@@ -107,6 +107,6 @@ function OptimalControlProblems.moonlander(
         ],
     )
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:moonlander, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:moonlander, params, init)
     return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

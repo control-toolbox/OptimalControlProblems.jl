@@ -18,7 +18,7 @@ ext/
 - A problem **exists** in a modeling when its file `<Modeling>Models/<problem>.jl` does. This is
   the only source of truth: `problems(backend)` reads it, and no list of problems is written by
   hand anywhere (a test checks it).
-- The modelings are listed once, in `MODELING_SPECS` (`src/OptimalControlProblems.jl`): name,
+- The modelings are listed once, in `MODELING_SPECS` (`src/Modelings/backends.jl`): name,
   backend type, directory, weak dependency.
 - Each modeling returns the most abstract object it can represent: OptimalControl returns the
   continuous problem (`Problem`), JuMP a discretized model.
@@ -32,9 +32,9 @@ ext/
    - `:init`, the initial guess shared by every modeling, a function of the parameters
      returning `(state=…, control=…, variable=…)`;
    - optionally `:notes` (why a modeling is a draft) and `:reference_solution` (the analytic
-     solution of the continuous problem, see `src/solutions.jl`).
+     solution of the continuous problem, see `src/Metadata/solutions.jl`).
 
-   The schema is `METADATA_SCHEMA` in `src/OptimalControlProblems.jl`, checked when the
+   The schema is `METADATA_SCHEMA` in `src/Metadata/loading.jl`, checked when the
    package loads.
 2. **Description**, `Descriptions/<problem>.md`: the problem in words and its mathematical
    formulation, and a `### References` section with at least one entry (checked).
@@ -42,7 +42,7 @@ ext/
    problem with the same features (kind of cost, free times, constraints) in the same modeling:
    - OptimalControl: a method `OptimalControlProblems.<problem>(::OptimalControlBackend;
      parameters, init)` that writes the model with `@def` and returns
-     `OptimalControlProblems._problem(…)`;
+     `OptimalControlProblems.Problems._problem(…)`;
    - scalarized OptimalControl: the same model with scalar components only;
    - JuMP: a method that declares the problem as `ProblemData` (continuous functions, no
      discretization) and calls `build`; the schemes are written once, in
@@ -61,7 +61,7 @@ The documentation page of the problem is generated from these files: nothing to 
 
 ## Add a modeling
 
-1. A backend type and an entry in `MODELING_SPECS` (`src/OptimalControlProblems.jl`).
+1. A backend type and an entry in `MODELING_SPECS` (`src/Modelings/backends.jl`).
 2. A directory `ext/<Modeling>Models/` and the extension that includes its files, declared in
    `Project.toml` (`[weakdeps]`, `[extensions]`).
 3. A test environment, `test/suite/<Modeling>/` (see `test/README.md`).

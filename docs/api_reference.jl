@@ -2,8 +2,9 @@
 # OptimalControlProblems API Reference Manager
 #
 # One CTBase automatic_reference_documentation call per documented page (SITE1, SITE2).
-# Keep the file lists in sync with src/ and ext/ when files are added, removed, or
-# renamed, otherwise docstrings silently drop out of the reference.
+# The files of the package are read from `src/<Submodule>/`; keep the lists of the
+# extensions in sync with ext/ when files are added, removed, or renamed, otherwise
+# docstrings silently drop out of the reference.
 #
 # The problem functions (`beam`, `chain`, …) are left out: each problem has its own page.
 # ==============================================================================
@@ -21,10 +22,28 @@ function generate_api_reference(src_dir::String, ext_dir::String)
     ext(files...) = [abspath(joinpath(ext_dir, f)) for f in files]
 
     EXCLUDE_SYMBOLS = vcat(
-        Symbol[:include, :eval], collect(OptimalControlProblems.PROBLEM_NAMES)
+        Symbol[:include, :eval], collect(OptimalControlProblems.Metadata.PROBLEM_NAMES)
     )
 
-    package_files = src("OptimalControlProblems.jl", "problem.jl", "solutions.jl")
+    # The package and its submodules (#413), each with the files of its directory
+    # `src/<Name>/`: both lists are read from the package, never written here. The public API
+    # of a submodule is what it exports (the package re-exports part of it).
+    O = OptimalControlProblems
+    submodules = sort!(
+        [
+            m for m in (getfield(O, n) for n in names(O; all=true)) if
+            m isa Module && m !== O && parentmodule(m) === O
+        ];
+        by=nameof,
+    )
+    files_of(m) = sort!([
+        abspath(f) for f in readdir(joinpath(src_dir, string(nameof(m))); join=true) if
+        endswith(f, ".jl")
+    ])
+    package_modules = Any[
+        O => src("OptimalControlProblems.jl");
+        [m => files_of(m) for m in submodules]
+    ]
 
     # ── Extensions: their methods extend the package functions, and what is their own is
     #    private, so they appear in the Internals page only (loaded conditionally) ──
@@ -49,7 +68,7 @@ function generate_api_reference(src_dir::String, ext_dir::String)
     # ── Public page: the package ──────────────────────────────────────────────
     pages = Any[reference_documentation(;
         subdirectory="api",
-        primary_modules=[OptimalControlProblems => package_files],
+        primary_modules=package_modules,
         exclude=EXCLUDE_SYMBOLS,
         public=true,
         private=false,
@@ -59,7 +78,7 @@ function generate_api_reference(src_dir::String, ext_dir::String)
     ),]
 
     # ── Internals: all private symbols in one page, sections by module ────────
-    internals_modules = Any[OptimalControlProblems => package_files]
+    internals_modules = Any[package_modules...]
     for entry in loaded_extensions
         push!(internals_modules, entry.mod => entry.cfg.files)
     end

@@ -25,7 +25,7 @@ function OptimalControlProblems.bioreactor(
     init=nothing,
     kwargs...,
 )
-    OptimalControlProblems._warn_if_draft(:bioreactor, :JuMP)
+    OptimalControlProblems.Catalogue._warn_if_draft(:bioreactor, :JuMP)
 
     # parameters
     params = parameters_data(:bioreactor, parameters)
@@ -83,6 +83,6 @@ function OptimalControlProblems.bioreactor(
         ],
     )
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:bioreactor, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:bioreactor, params, init)
     return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

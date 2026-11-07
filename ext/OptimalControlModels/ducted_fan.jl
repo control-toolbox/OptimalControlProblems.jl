@@ -15,7 +15,7 @@ function OptimalControlProblems.ducted_fan(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:ducted_fan, :OptimalControl)
+    OptimalControlProblems.Catalogue._warn_if_draft(:ducted_fan, :OptimalControl)
 
     # parameters
     params = parameters_data(:ducted_fan, parameters)
@@ -96,7 +96,7 @@ function OptimalControlProblems.ducted_fan(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:ducted_fan, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:ducted_fan, params, init)
 
-    return OptimalControlProblems._problem(:ducted_fan, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:ducted_fan, :OptimalControl, ocp, init, params)
 end

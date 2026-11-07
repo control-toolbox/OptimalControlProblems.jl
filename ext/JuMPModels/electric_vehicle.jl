@@ -25,7 +25,7 @@ function OptimalControlProblems.electric_vehicle(
     init=nothing,
     kwargs...,
 )
-    OptimalControlProblems._warn_if_draft(:electric_vehicle, :JuMP)
+    OptimalControlProblems.Catalogue._warn_if_draft(:electric_vehicle, :JuMP)
 
     # parameters
     params = parameters_data(:electric_vehicle, parameters)
@@ -66,6 +66,6 @@ function OptimalControlProblems.electric_vehicle(
         ],
     )
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:electric_vehicle, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:electric_vehicle, params, init)
     return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

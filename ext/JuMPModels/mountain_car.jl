@@ -25,7 +25,7 @@ function OptimalControlProblems.mountain_car(
     init=nothing,
     kwargs...,
 )
-    OptimalControlProblems._warn_if_draft(:mountain_car, :JuMP)
+    OptimalControlProblems.Catalogue._warn_if_draft(:mountain_car, :JuMP)
 
     # parameters
     params = parameters_data(:mountain_car, parameters)
@@ -65,6 +65,6 @@ function OptimalControlProblems.mountain_car(
         ],
     )
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:mountain_car, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:mountain_car, params, init)
     return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

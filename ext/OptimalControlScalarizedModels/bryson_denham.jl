@@ -16,7 +16,7 @@ function OptimalControlProblems.bryson_denham(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:bryson_denham, :OptimalControlScalarized)
+    OptimalControlProblems.Catalogue._warn_if_draft(:bryson_denham, :OptimalControlScalarized)
     params = parameters_data(:bryson_denham, parameters)
     t0, tf = params[:t0], params[:tf]
     x1_t0, x2_t0 = params[:x1_t0], params[:x2_t0]
@@ -40,7 +40,7 @@ function OptimalControlProblems.bryson_denham(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:bryson_denham, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:bryson_denham, params, init)
 
-    return OptimalControlProblems._problem(:bryson_denham, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:bryson_denham, :OptimalControlScalarized, ocp, init, params)
 end

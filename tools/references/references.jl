@@ -109,7 +109,7 @@ function solutions(rows)
     groups = Vector{Vector{Dict{String,String}}}()
     for r in sort(rows; by=objective)
         if isempty(groups) ||
-            OptimalControlProblems._relative_gap(objective(r), objective(first(last(groups)))) >
+            OptimalControlProblems.References._relative_gap(objective(r), objective(first(last(groups)))) >
            SAME_SOLUTION
             push!(groups, [r])
         else

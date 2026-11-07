@@ -1,5 +1,5 @@
 # Documentation adapters: what the documentation needs to know about each modeling. One entry
-# per modeling of `OptimalControlProblems.MODELING_SPECS`, the single place where a modeling is
+# per modeling of `OptimalControlProblems.Modelings.MODELING_SPECS`, the single place where a modeling is
 # named; the page generators loop over the modelings and never name one.
 #
 # - `title`: display name;
@@ -76,14 +76,14 @@ const ADAPTERS = Dict{Symbol,NamedTuple}(
 )
 
 # A modeling without an adapter would be missing from every page: fail the build instead.
-for spec in OptimalControlProblems.MODELING_SPECS
+for spec in OptimalControlProblems.Modelings.MODELING_SPECS
     haskey(ADAPTERS, spec.name) ||
         error("No documentation adapter for the modeling $(spec.name) in docs/modelings.jl")
 end
 
 """The modelings, in the order of the modeling table, as `(spec, adapter)` pairs."""
 modelings() =
-    [(spec, ADAPTERS[spec.name]) for spec in OptimalControlProblems.MODELING_SPECS]
+    [(spec, ADAPTERS[spec.name]) for spec in OptimalControlProblems.Modelings.MODELING_SPECS]
 
 """The modelings in which `problem` exists, whatever its status there."""
 function modelings(problem::Symbol)

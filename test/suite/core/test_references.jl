@@ -79,21 +79,21 @@ function test_references()
         files = R.write_references(dir, tables)
         Test.@test basename.(files) == ["alpha.toml", "omega.toml"]
         Test.@test startswith(read(files[1], String), "# Reference objectives")
-        read_back = OCP._references(:alpha, files[1])
+        read_back = OCP.References._references(:alpha, files[1])
         Test.@test read_back.trapeze.value == 2.0
         Test.@test read_back.trapeze.source === :computed
         Test.@test read_back.trapeze.run == "https://run"
         Test.@test read_back.trapeze.solutions == [2.0]
-        Test.@test OCP._references(:omega, files[2]).trapeze.solutions == [3.0, 3.3]
+        Test.@test OCP.References._references(:omega, files[2]).trapeze.solutions == [3.0, 3.3]
         # a scheme not recomputed is kept
         R.write_references(dir, Dict(:alpha => Dict{String,Any}("midpoint" => alpha)))
-        Test.@test keys(OCP._references(:alpha, files[1])) ⊇ (:trapeze, :midpoint)
+        Test.@test keys(OCP.References._references(:alpha, files[1])) ⊇ (:trapeze, :midpoint)
 
         # a file that misses a field is an error at load time
         broken = joinpath(dir, "broken.toml")
         write(broken, "[trapeze]\nvalue = 1.0\n")
-        Test.@test_throws ErrorException OCP._references(:alpha, broken)
-        Test.@test isnothing(OCP._references(:alpha, joinpath(dir, "none.toml")))
+        Test.@test_throws ErrorException OCP.References._references(:alpha, broken)
+        Test.@test isnothing(OCP.References._references(:alpha, joinpath(dir, "none.toml")))
     end
 end
 

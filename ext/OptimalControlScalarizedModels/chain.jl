@@ -15,7 +15,7 @@ function OptimalControlProblems.chain(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:chain, :OptimalControlScalarized)
+    OptimalControlProblems.Catalogue._warn_if_draft(:chain, :OptimalControlScalarized)
 
     # parameters
     params = parameters_data(:chain, parameters)
@@ -55,7 +55,7 @@ function OptimalControlProblems.chain(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:chain, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:chain, params, init)
 
-    return OptimalControlProblems._problem(:chain, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:chain, :OptimalControlScalarized, ocp, init, params)
 end

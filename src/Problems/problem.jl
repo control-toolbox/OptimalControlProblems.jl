@@ -43,7 +43,7 @@ function _problem(
     init::NamedTuple,
     parameters::Union{Nothing,NamedTuple},
 )
-    data = copy(problem_metadata(problem))
+    data = copy(Metadata.problem_metadata(problem))
     data[:parameters] = parameters
     return Problem(problem, modeling, ocp, init, data)
 end
@@ -124,7 +124,7 @@ julia> OptimalControlProblems.features(:beam).cost
 ```
 """
 function features(problem::Symbol)
-    return features(getfield(@__MODULE__, problem)(OptimalControlBackend()))
+    return features(getfield(Catalogue, problem)(Modelings.OptimalControlBackend()))
 end
 
 """

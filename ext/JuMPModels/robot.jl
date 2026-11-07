@@ -25,7 +25,7 @@ function OptimalControlProblems.robot(
     init=nothing,
     kwargs...,
 )
-    OptimalControlProblems._warn_if_draft(:robot, :JuMP)
+    OptimalControlProblems.Catalogue._warn_if_draft(:robot, :JuMP)
 
     # parameters
     params = parameters_data(:robot, parameters)
@@ -110,6 +110,6 @@ function OptimalControlProblems.robot(
         ],
     )
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:robot, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:robot, params, init)
     return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

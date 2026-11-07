@@ -15,7 +15,7 @@ function OptimalControlProblems.bioreactor(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:bioreactor, :OptimalControl)
+    OptimalControlProblems.Catalogue._warn_if_draft(:bioreactor, :OptimalControl)
 
     # parameters
     params = parameters_data(:bioreactor, parameters)
@@ -82,7 +82,7 @@ function OptimalControlProblems.bioreactor(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:bioreactor, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:bioreactor, params, init)
 
-    return OptimalControlProblems._problem(:bioreactor, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:bioreactor, :OptimalControl, ocp, init, params)
 end

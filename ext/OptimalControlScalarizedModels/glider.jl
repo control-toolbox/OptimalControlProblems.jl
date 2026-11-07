@@ -15,7 +15,7 @@ function OptimalControlProblems.glider(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:glider, :OptimalControlScalarized)
+    OptimalControlProblems.Catalogue._warn_if_draft(:glider, :OptimalControlScalarized)
 
     # parameters
     params = parameters_data(:glider, parameters)
@@ -85,7 +85,7 @@ function OptimalControlProblems.glider(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:glider, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:glider, params, init)
 
-    return OptimalControlProblems._problem(:glider, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:glider, :OptimalControlScalarized, ocp, init, params)
 end

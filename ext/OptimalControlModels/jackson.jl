@@ -15,7 +15,7 @@ function OptimalControlProblems.jackson(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:jackson, :OptimalControl)
+    OptimalControlProblems.Catalogue._warn_if_draft(:jackson, :OptimalControl)
 
     # parameters
     params = parameters_data(:jackson, parameters)
@@ -57,7 +57,7 @@ function OptimalControlProblems.jackson(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:jackson, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:jackson, params, init)
 
-    return OptimalControlProblems._problem(:jackson, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:jackson, :OptimalControl, ocp, init, params)
 end

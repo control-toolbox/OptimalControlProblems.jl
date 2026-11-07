@@ -32,7 +32,7 @@ function gap_string(g::Real)
     return @sprintf("%.1e", g)
 end
 
-relative_gap(a, b) = OCP._relative_gap(a, b)
+relative_gap(a, b) = OCP.References._relative_gap(a, b)
 
 function objective_range(values)
     lo, hi = extrema(values)

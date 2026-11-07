@@ -25,7 +25,7 @@ function OptimalControlProblems.rocket(
     init=nothing,
     kwargs...,
 )
-    OptimalControlProblems._warn_if_draft(:rocket, :JuMP)
+    OptimalControlProblems.Catalogue._warn_if_draft(:rocket, :JuMP)
 
     # parameters
     params = parameters_data(:rocket, parameters)
@@ -75,6 +75,6 @@ function OptimalControlProblems.rocket(
         ],
     )
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:rocket, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:rocket, params, init)
     return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end
