@@ -244,9 +244,8 @@ function _trajectory(x)
         "control" => components(scalar(O.control(x)), us),
         "costate" => components(scalar(O.costate(x)), xs),
         "variable" => r.(vcat(O.variable(x))),
-        "names" => Dict(
-            "state" => xs, "control" => us, "variable" => O.variable_components(x)
-        ),
+        "names" =>
+            Dict("state" => xs, "control" => us, "variable" => O.variable_components(x)),
     )
 end
 
