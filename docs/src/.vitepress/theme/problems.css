@@ -1,0 +1,66 @@
+/* Problem pages (docs/problems.jl): the facts under the title, the status badges, the notes
+   under the tables. Colors come from the VitePress tokens, so both themes follow. */
+
+.vp-doc .problem-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-doc .problem-facts li {
+  margin: 0;
+  list-style: none;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 1rem;
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-2);
+  font-size: 0.8rem;
+}
+
+.vp-doc .problem-facts li::marker {
+  content: none;
+}
+
+.vp-doc .problem-facts li strong {
+  color: var(--vp-c-text-1);
+}
+
+.status {
+  display: inline-block;
+  padding: 0 0.5rem;
+  border-radius: 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.status-valid {
+  background: var(--vp-c-success-soft);
+  color: var(--vp-c-success-1);
+}
+
+.status-draft {
+  background: var(--vp-c-warning-soft);
+  color: var(--vp-c-warning-1);
+}
+
+.problem-panel {
+  min-height: 40vh;
+}
+
+.problem-panel > h2:first-child,
+.problem-panel > div:first-child > h2:first-child {
+  margin-top: 0.5rem;
+  padding-top: 0;
+  border-top: none;
+}
+
+.table-note {
+  margin-top: -0.5rem;
+  color: var(--vp-c-text-2);
+  font-size: 0.85rem;
+}

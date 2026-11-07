@@ -1,4 +1,4 @@
-# JuMP transcription
+# [JuMP schemes](@id jump-schemes)
 
 This page is for users and developers who want to know **exactly which nonlinear program
 (NLP)** a JuMP model of this package is, and how the model stores what is needed to read
