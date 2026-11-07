@@ -42,7 +42,7 @@ async function select(id: string): Promise<void> {
   await nextTick()
   const el = bar.value
   const panel = document.getElementById(`view-${id}`)
-  if (!el || !panel) return
+  if (!el || !panel || getComputedStyle(el).position !== 'sticky') return
   const offset = parseFloat(getComputedStyle(el).top) || 0
   const stuck = el.getBoundingClientRect().top <= offset + 1
   if (stuck) {
@@ -92,7 +92,8 @@ function isSelected(view: View, index: number): boolean {
 <style scoped>
 .problem-tabs {
   position: sticky;
-  top: var(--vp-nav-height);
+  /* under the navigation bar, and the banner of control-toolbox.org above it */
+  top: calc(var(--vp-nav-height) + var(--vp-layout-top-height, 0px));
   z-index: 20;
   display: flex;
   flex-wrap: wrap;
@@ -105,9 +106,10 @@ function isSelected(view: View, index: number): boolean {
 }
 
 @media (max-width: 959px) {
-  /* the local navigation bar of VitePress is stuck at the top on small screens */
+  /* small screens already stack the banner, the navigation and the local navigation bar:
+     the tabs stay at the top of the content instead */
   .problem-tabs {
-    top: calc(var(--vp-nav-height) + 1px);
+    position: static;
   }
 }
 
