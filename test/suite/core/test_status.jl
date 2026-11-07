@@ -1,5 +1,6 @@
 module TestStatusLoop
 
+using TOML: TOML
 using Test: Test
 using OptimalControlProblems: OptimalControlProblems
 
@@ -73,6 +74,66 @@ function test_status()
             )
             Test.record(failing, inner_fail)
             Test.@test Main.TestStatus.outcome(failing) == "fail"
+        end
+
+        Test.@testset "how a solve was configured is recorded (#409)" begin
+            S = Main.TestStatus
+            # the options are read back with TOML: an enumeration value and a symbol as
+            # their names, numbers as they are, the non-finite ones too
+            options = (
+                tol=1e-8, max_iter=1000, sb="yes", barrier=:loqo, print_level=Base.Order.Forward,
+                flag=true, wall=Inf, nan=NaN,
+            )
+            back = TOML.parse("o = " * S.inline_toml(options))["o"]
+            Test.@test back["tol"] === 1e-8
+            Test.@test back["max_iter"] === 1000
+            Test.@test back["sb"] == "yes"
+            Test.@test back["barrier"] == "loqo"
+            Test.@test back["print_level"] == string(Base.Order.Forward)
+            Test.@test back["flag"] === true
+            Test.@test back["wall"] == Inf
+            Test.@test isnan(back["nan"])
+
+            # a result has its settings and its violation in the results file, after the
+            # columns the cron report reads
+            problem = first(OptimalControlProblems.problems(BACKEND; status=:all))
+            n = length(S.RESULTS)
+            tsv = tempname() * "-results.tsv"
+            try
+                S.result!(
+                    "test_convergence solver=ipopt", problem, BACKEND, "solver=ipopt";
+                    modeler=nothing, solver=:ipopt, options=(tol=1e-8, mu_init=1e-3),
+                    grid_size=OptimalControlProblems.grid_size_data(problem),
+                    scheme=:trapeze, converged=true, reason="LOCALLY_SOLVED", objective=1.0,
+                    iterations=7, violation=2.5e-9, time=0.1,
+                )
+                S.results_table(tsv)
+                header, row = split.(readlines(tsv)[[1, end]], '\t')
+                cell(name) = row[findfirst(==(name), header)]
+                Test.@test header[(end - 3):end] == ["modeler", "solver", "options", "violation"]
+                Test.@test cell("modeler") == ""
+                Test.@test cell("solver") == "ipopt"
+                Test.@test TOML.parse("o = " * cell("options"))["o"] ==
+                    Dict("tol" => 1e-8, "mu_init" => 1e-3)
+                Test.@test parse(Float64, cell("violation")) == 2.5e-9
+            finally
+                resize!(S.RESULTS, n)
+                rm(tsv; force=true)
+            end
+
+            # the environment of the run: Julia, the machine, the commit, the run, and the
+            # versions of the packages
+            file = tempname() * "-environment.toml"
+            try
+                env = TOML.parsefile(S.write_environment(file))
+                Test.@test env["julia"] == string(VERSION)
+                for key in ("os", "arch", "cpu", "commit", "run")
+                    Test.@test !isempty(env[key])
+                end
+                Test.@test haskey(env["packages"], "Test")
+            finally
+                rm(file; force=true)
+            end
         end
     end
 end
