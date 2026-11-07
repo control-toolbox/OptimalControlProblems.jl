@@ -39,7 +39,7 @@ function test_equivalence()
             OCP.OptimalControlBackend(),
             OCP.OptimalControlScalarizedBackend(),
         ) do problem
-            E.test_scalarized(problem, problem in selected ? E.SCHEMES : (:trapeze,))
+            E.test_scalarized(problem)
         end
     end
 end

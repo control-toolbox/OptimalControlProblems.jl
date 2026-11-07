@@ -548,23 +548,20 @@ function test_problem(problem, schemes)
 end
 
 """
-The scalarized model of `problem` against the vector one (#399), for the schemes `schemes`.
-Both are discretized by CTDirect, so their variables are in the same order. ADNLP is
-compared with the reference, Exa with the Exa NLP of the vector model, itself compared with
-the reference by `test_exa`.
+The scalarized model of `problem` against the vector one (#399), with the trapezoidal rule:
+both are transcribed by CTDirect, so another scheme would test CTDirect, not the modeling.
+Their variables are in the same order. ADNLP is compared with the reference, Exa with the
+Exa NLP of the vector model, itself compared with the reference by `test_exa`.
 """
-function test_scalarized(problem, schemes)
-    for scheme in schemes
-        ref = reference(problem, scheme)
-        s = nlps(OCP.OptimalControlScalarizedBackend(), problem, scheme)
-        for (name, vector, scalarized, at) in
-            (("ADNLP", ref.adnlp, s.adnlp, ref), ("Exa", ref.exa, s.exa, points(ref.exa)))
-            Test.@testset "scalarized $name, $scheme" begin
-                n = vector.meta.nvar
-                Test.@test scalarized.meta.nvar == n
-                scalarized.meta.nvar == n &&
-                    test_exact(vector, scalarized, collect(1:n), at)
-            end
+function test_scalarized(problem)
+    ref = reference(problem, :trapeze)
+    s = nlps(OCP.OptimalControlScalarizedBackend(), problem, :trapeze)
+    for (name, vector, scalarized, at) in
+        (("ADNLP", ref.adnlp, s.adnlp, ref), ("Exa", ref.exa, s.exa, points(ref.exa)))
+        Test.@testset "scalarized $name" begin
+            n = vector.meta.nvar
+            Test.@test scalarized.meta.nvar == n
+            scalarized.meta.nvar == n && test_exact(vector, scalarized, collect(1:n), at)
         end
     end
 end
