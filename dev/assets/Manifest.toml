@@ -2,7 +2,7 @@
 
 julia_version = "1.12.7"
 manifest_format = "2.0"
-project_hash = "10dedb992774c9b85a1537efdc634113d9ddb1ab"
+project_hash = "048a04cdfd1114e111eb876b1730663a7f5aebe7"
 
 [[deps.ADNLPModels]]
 deps = ["ADTypes", "DifferentiationInterface", "ForwardDiff", "LinearAlgebra", "NLPModels", "ReverseDiff", "SparseArrays", "SparseConnectivityTracer", "SparseMatrixColorings"]
@@ -1176,7 +1176,7 @@ uuid = "5f98b655-cc9a-415a-b60e-744165666948"
 version = "2.2.1-beta"
 
 [[deps.OptimalControlProblems]]
-deps = ["CTBase", "CTModels", "DocStringExtensions", "OrderedCollections", "TOML"]
+deps = ["CTBase", "CTModels", "DocStringExtensions", "OrderedCollections", "SHA", "TOML"]
 path = "/home/runner/work/OptimalControlProblems.jl/OptimalControlProblems.jl"
 uuid = "59046045-fb9c-4c23-964f-ff0a25704f96"
 version = "0.5.0"
