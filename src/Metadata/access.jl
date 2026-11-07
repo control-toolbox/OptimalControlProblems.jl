@@ -16,7 +16,7 @@ $(TYPEDSIGNATURES)
 
 Return a dictionary containing the metadata of `problem`, without building it.
 
-The metadata of a built problem is read with `metadata(pb)` on the [`Problem`](@ref).
+The metadata of a built problem is read with `metadata(pb)` on the [`Problem`](@ref OptimalControlProblems.Problems.Problem).
 The following keys are valid:
 
 - `grid_size::Int`: the default number of steps. For example:
@@ -40,7 +40,7 @@ The following keys are valid:
 - `init`: the initial guess of every modeling, a function of the parameters (see
   `OptimalControlProblems.initial_guess_data`).
 - `reference_solution` (optional): the analytic solution of the continuous problem, a
-  function of the parameters; see [`OptimalControlProblems.reference_solution_data`](@ref).
+  function of the parameters; see [`OptimalControlProblems.reference_solution_data`](@ref OptimalControlProblems.References.reference_solution_data).
 
 # Example
 
