@@ -10,11 +10,13 @@ module Catalogue
 
 using CTBase: CTBase
 using DocStringExtensions: TYPEDSIGNATURES
+using SHA: SHA
 
 using ..Modelings: Modelings
 using ..Metadata: Metadata
 
 include(joinpath(@__DIR__, "selection.jl"))
+include(joinpath(@__DIR__, "fingerprint.jl"))
 include(joinpath(@__DIR__, "functions.jl"))
 
 export problems, status

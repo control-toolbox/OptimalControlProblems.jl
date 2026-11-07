@@ -72,7 +72,7 @@ using OptimalControl
 OptimalControlProblems.features(:beam)
 ```
 
-The [browser](@ref problems-browser) filters the problems by these features.
+The table of [all the problems](@ref problems-browser) filters them by these features.
 
 ## The modelings
 

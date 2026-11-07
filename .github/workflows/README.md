@@ -35,7 +35,8 @@ of every report row. The final job uses the GitHub token to:
 - reopen completed regressions at most three times, label them `flaky`, and close a
   regression after two consecutive runs where every observed valid row passes;
 - report a missing report artifact as a failure rather than as a success;
-- commit the scope report and state to the `results` branch.
+- commit the scope report and state to the `results` branch, with the results of the
+  solves for the documentation (#314, below).
 
 The `cron-capabilities` transition is intentionally not active yet: it depends on the
 `:known_failures` metadata added by #306. Until then no capability entries can be
@@ -45,6 +46,30 @@ The workflow requires the `upload_artifact_path` and `upload_artifact_name` inpu
 the CTActions `ci.yml` and `ci-gpu.yml` reusable workflows. CTActions must be merged
 before these cron workflows are enabled or dispatched against `main`: calling a reusable
 workflow with an undeclared input fails at workflow validation.
+
+## Results for the documentation
+
+The `publish` job also writes, from the reports of the run, what the problem pages of the
+documentation draw (#314):
+
+| Path on `results` | Content |
+| --- | --- |
+| `manifest.json` | The last run of each scope: run, commit, date, platforms, problems. |
+| `problems/<problem>/result.json` | Every solve of the problem, all scopes: the columns of `<report>-results.tsv` (fingerprint of the problem included), with the run, its commit and the paths below. |
+| `problems/<problem>/<scope>/<platform>/<modeling>/<configuration>.json` | The trajectory of a solve: time grid, state, control and costate by component, variable. |
+| `env/<run id>/<platform>/<report>/` | The environment of the solves: `environment.toml`, `Project.toml`, `Manifest.toml`, `versioninfo.txt`, `status*.txt`. |
+
+A run replaces, for each problem it solved, the entries of its scope and keeps the others:
+a run restricted to some problems (`problem=`) leaves the other problems as they were. An
+environment is removed once no entry refers to it. Everything is written by
+`tools/cron/report.py` (`--results-dir`), tested in `tools/cron/test/`.
+
+A convergence cron dispatched by hand takes an optional `problems` input (`beam` or
+`beam,chain`): it solves those problems only, and publishes their results and environments.
+Its report and its state are written aside, unpublished, and the issues are left as they
+are: a restricted run cannot tell about the problems it did not solve, so `cron/<scope>.md`,
+`cron/state.json` and the issues stay those of the last complete run. Use it to check a
+change of the pipeline, or to refresh one problem after changing it.
 
 ## What to do with the cron issues
 

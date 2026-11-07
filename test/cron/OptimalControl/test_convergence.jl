@@ -28,7 +28,7 @@ function test_convergence()
                         test, problem, backend, Main.TestConfigs.label(config);
                         S.settings(config)...,
                         grid_size=N, scheme=Main.TestConfigs.SCHEME, S.outcome(sol)...,
-                        time=time,
+                        time=time, trajectory=Main.TestStatus.trajectory(sol),
                     )
                     Test.@test true
                 end
