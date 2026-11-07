@@ -9,9 +9,10 @@ Markdown.parse("The collection holds **$(n) problems**. Each one has a page, gen
 - **Problem**: its description and mathematical formulation, its parameters, and its reference
   objective;
 - **one tab per modeling** where it exists: its status, how to get and solve it, the model as
-  written, and its results;
+  written, its results, and its solutions drawn;
 - **Compare**, when it exists in two modelings or more: which modelings are checked to give the
-  same NLP, their results side by side, and which solution each one reached.
+  same NLP, their results side by side, which solution each one reached, and the solutions of
+  the modelings drawn together.
 
 The tab bar stays at the top of the page, and the tab you choose is kept from one problem to the
 next. A link can open a page on a tab: add `?view=JuMP` to its address.
@@ -31,6 +32,24 @@ convergence reports.
 | Features | computed from the OptimalControl model |
 | Reference objective | computed from the convergence and robustness crons, per scheme, on the default grid |
 | Analytic solution | the metadata, when the continuous problem has a known solution |
+
+## The solutions drawn
+
+The solutions on the pages are those of the weekly convergence crons: each solve records its
+trajectory (time grid, state, control, costate and variable, on at most 501 nodes), and your
+browser draws it. Choose the solves to overlay, the components, and the view: against time,
+in a phase plane, or in 3D (drag to rotate); move the time cursor, or play it, and every view
+follows. **Draw up to t** draws the trajectories up to the cursor only.
+
+Each modeling says whether its results are **up to date**: solved for the current version of
+the problem, the one of the page. A problem is identified by a fingerprint of its files (its
+metadata, description and models): when one of them changes, the results are marked **stale**
+until the next run of the cron. The **Reproducibility** block gives the run, the commit, and
+the environment of each platform: Julia, system, processor, the versions of the packages, and
+the `Project.toml` and `Manifest.toml` to download.
+
+The JuMP costate is the multiplier of the solver: its sign is the opposite of OptimalControl's
+([#326](https://github.com/control-toolbox/OptimalControlProblems.jl/issues/326)).
 
 ## The reference objective
 

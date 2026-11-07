@@ -27,6 +27,7 @@ Base.showable(::MIME"image/png", ::Plots.Plot) = false
 
 include("modelings.jl")    # documentation adapters, one per modeling
 include("problems.jl")     # the problem pages
+include("results.jl")      # the results of the crons, drawn on the problem pages
 include("browser.jl")      # the interactive problems browser
 include("status.jl")       # the status page
 include("api_reference.jl")
@@ -52,7 +53,9 @@ repo_url = "github.com/control-toolbox/OptimalControlProblems.jl"
 # ==============================
 # --- Generated pages ---
 # ==============================
-# The problem pages execute no code: they are written from the files of each problem.
+# The problem pages execute no code: they are written from the files of each problem, and
+# show the results the crons published (#314).
+load_results!()
 PROBLEM_PAGES = generate_problem_pages()
 
 # If draft is true, the Julia code of the hand-written pages is not executed. To disable
