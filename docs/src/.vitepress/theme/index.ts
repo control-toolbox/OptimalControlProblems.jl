@@ -16,6 +16,8 @@ import SidebarDrawerToggle from '@/SidebarDrawerToggle.vue'
 import ProblemsBrowser from '@/ProblemsBrowser.vue'
 import ProblemTabs from '@/ProblemTabs.vue'
 import ProblemPanel from '@/ProblemPanel.vue'
+import ProblemPlot from '@/ProblemPlot.vue'
+import ResultLink from '@/ResultLink.vue'
 // __DV_PLUGIN_COMPONENT_IMPORTS__
 
 import { enhanceAppWithTabs } from 'vitepress-plugin-tabs/client'
@@ -68,6 +70,8 @@ export const Theme: ThemeConfig = {
     app.component('ProblemsBrowser', ProblemsBrowser)
     app.component('ProblemTabs', ProblemTabs)
     app.component('ProblemPanel', ProblemPanel)
+    app.component('ProblemPlot', ProblemPlot)
+    app.component('ResultLink', ResultLink)
 
     // Execute the scripts inside interactive `text/html` outputs (WGLMakie/Bonito, Plotly, …)
     // once their `<ClientOnly>` wrapper has mounted on the client. `mounted` fires on the

@@ -33,6 +33,9 @@ Manifest.toml
 
 # generated doc for the problems
 docs/src/problems
+# results of the crons, read by the documentation build (docs/results.jl)
+docs/results/
+docs/src/public/results/
 # ct-conventions, cloned at the tag pinned in AGENTS.md
 .ct-conventions/
 
