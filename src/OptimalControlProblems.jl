@@ -128,6 +128,7 @@ for spec in MODELING_SPECS
 end
 
 # ------- Problem Metadata -------
+include(joinpath(@__DIR__, "solutions.jl"))
 for problem in PROBLEM_NAMES
     include(joinpath(METADATA_PATH, "$problem.jl"))
 end
@@ -139,7 +140,7 @@ const METADATA_SCHEMA = (
     required=(
         grid_size=Int, parameters=Union{Nothing,NamedTuple}, status=NamedTuple, init=Function
     ),
-    optional=(notes=AbstractString,),
+    optional=(notes=AbstractString, reference_solution=Function),
     generated=(reference_objective=NamedTuple,),
 )
 const METADATA_STORAGE = OrderedDict{Symbol,OrderedDict}()
@@ -288,6 +289,8 @@ The following keys are valid:
 - `status`: the status (`:valid` or `:draft`) of the problem in each modeling.
 - `init`: the initial guess of every modeling, a function of the parameters (see
   `OptimalControlProblems.initial_guess_data`).
+- `reference_solution` (optional): the analytic solution of the continuous problem, a
+  function of the parameters; see [`OptimalControlProblems.reference_solution_data`](@ref).
 
 # Example
 
@@ -419,6 +422,31 @@ function reference_objective(
     entry = get(references, scheme, nothing)
     (isnothing(entry) || entry.grid_size != grid_size) && return nothing
     return entry.value
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+Return the analytic solution of the continuous `problem` for `parameters` (merged with the
+default ones), or `nothing` when none is known for them: a named tuple with `state` and
+`control`, functions of the time, the `objective`, and its `source`.
+
+It is the solution of the continuous problem: the objective of a discretized problem differs
+from it by the discretization error, which the reference objective includes.
+
+# Example
+
+```julia-repl
+julia> OptimalControlProblems.reference_solution_data(:beam).objective
+8.88888888888889
+```
+"""
+function reference_solution_data(
+    problem::Symbol, parameters::Union{Nothing,NamedTuple}=nothing
+)
+    solution = get(problem_metadata(problem), :reference_solution, nothing)
+    isnothing(solution) && return nothing
+    return solution(parameters_data(problem, parameters))
 end
 
 """

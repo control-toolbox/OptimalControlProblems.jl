@@ -104,6 +104,15 @@ using OptimalControlProblems
 problem_metadata(:chain)
 ```
 
+When the solution of the continuous problem is known analytically, it is given with its objective and its source, for the parameters it is known for (`nothing` otherwise):
+
+```@example main
+solution = OptimalControlProblems.reference_solution_data(:beam)
+solution.objective, solution.source
+```
+
+The objective of a discretized problem differs from it by the discretization error. The tests check, on the OptimalControl model, that this solution satisfies the constraints and reaches this objective up to an error of order 2 in the step.
+
 ## Problems characteristics
 
 To get the list of available problems, call the [`problems`](@ref) method.

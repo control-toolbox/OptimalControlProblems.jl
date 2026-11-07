@@ -13,4 +13,8 @@ bryson_denham_meta = OrderedDict(
     :notes => "JuMP uses ASCII state component names while the OptimalControl model uses Unicode names.",
     # initial guess of every modeling (#377), from the parameters
     :init => p -> (state=[0.0, 0.0], control=0.0),
+    :reference_solution =>
+        p -> _bryson_denham_solution(
+            p.t0, p.tf, (p.x1_t0, p.x2_t0), (p.x1_tf, p.x2_tf), p.x1_max; weight=0.5
+        ),
 )
