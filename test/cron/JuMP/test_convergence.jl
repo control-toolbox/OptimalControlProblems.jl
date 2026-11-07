@@ -23,6 +23,7 @@ function test_convergence()
                     Main.TestStatus.result!(
                         test, problem, OptimalControlProblems.JuMPBackend(),
                         Main.TestConfigs.label(config);
+                        Main.SolveJuMP.settings(config)...,
                         grid_size=OptimalControlProblems.grid_size_data(problem),
                         scheme=Main.TestConfigs.SCHEME, Main.SolveJuMP.outcome(model)...,
                         time=time,

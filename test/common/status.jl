@@ -12,8 +12,13 @@
 # A solve to convergence is a result, not a test (#360): `result!` records it (solver status,
 # objective, iterations, time, gap to the reference objective when there is one) and the
 # report lists it; `:draft` means "not finished or not equivalent", not "does not converge".
+# It also records how the solve was configured (modeler, solver and its options) and the
+# constraint violation, and each run writes its environment, so that a reference solution says
+# how it was obtained (#409).
 module TestStatus
 
+using Pkg: Pkg
+using TOML: TOML
 using Test: Test
 using OptimalControlProblems: OptimalControlProblems
 
@@ -91,13 +96,19 @@ Result of one solve (#360): reported, never asserted. `converged` is the solver'
 `gap` the relative gap of the objective to the reference objective of the problem for the
 grid and the scheme of the solve, only when the problem has one (`:reference_objective` in
 its metadata, #375); `solution` which known solution a converged solve reached (`:best`,
-`:local` or `:new`, #378), under the same condition.
+`:local` or `:new`, #378), under the same condition. `modeler` (`nothing` for JuMP),
+`solver`, `options` (every option of the solver, as an inline TOML table) and `violation`
+(the largest violation of the constraints) say how the solve was configured and how feasible
+it is (#409).
 """
 struct Result
     test::String
     problem::Symbol
     modelings::String
     configuration::String
+    modeler::Union{Nothing,Symbol}
+    solver::Symbol
+    options::String
     grid_size::Int
     scheme::Symbol
     converged::Bool
@@ -105,6 +116,7 @@ struct Result
     objective::Float64
     iterations::Int
     time::Float64
+    violation::Float64
     gap::Union{Nothing,Float64}
     solution::Union{Nothing,Symbol}
 end
@@ -115,15 +127,17 @@ const RESULTS = Result[]
 gap(objective, reference) = abs(objective - reference) / (iszero(reference) ? 1 : abs(reference))
 
 """
-    result!(test, problem, backend, configuration; grid_size, scheme, converged, reason,
-            objective, iterations, time)
+    result!(test, problem, backend, configuration; modeler, solver, options, grid_size,
+            scheme, converged, reason, objective, iterations, violation, time)
 
 Record the result of a solve of `problem` in the modeling of `backend`, discretized on
-`grid_size` steps with `scheme`.
+`grid_size` steps with `scheme`. `modeler`, `solver` and `options` are the `settings` of the
+solve modules, the solver status the `outcome` of a solution.
 """
 function result!(
     test, problem::Symbol, backend, configuration;
-    grid_size, scheme, converged, reason, objective, iterations, time,
+    modeler, solver, options, grid_size, scheme, converged, reason, objective, iterations,
+    violation, time,
 )
     reference = OptimalControlProblems.reference_objective(problem; grid_size, scheme)
     push!(
@@ -133,6 +147,11 @@ function result!(
             problem,
             string(modeling(backend)),
             string(configuration),
+            isnothing(modeler) ? nothing : Symbol(modeler),
+            Symbol(solver),
+            # written now: a solver's own types (`MadNLP.LogLevels`) may not print later, from
+            # the report written after the tests (an older world age)
+            inline_toml(NamedTuple(options)),
             Int(grid_size),
             Symbol(scheme),
             converged,
@@ -140,6 +159,7 @@ function result!(
             Float64(objective),
             Int(iterations),
             Float64(time),
+            Float64(violation),
             isnothing(reference) ? nothing : gap(objective, reference),
             converged ?
             OptimalControlProblems.solution_kind(problem, objective; grid_size, scheme) :
@@ -222,7 +242,9 @@ report, nothing is written and the files of a previous run are removed.
 function write_report(name::AbstractString)
     file = joinpath(REPORTS, "$name.md")
     tsv = joinpath(REPORTS, "$name-results.tsv")
+    environment = joinpath(REPORTS, "$name-environment.toml")
     rm(tsv; force=true)
+    rm(environment; force=true)
     isempty(ROWS) && isempty(RESULTS) && (rm(file; force=true); return nothing)
     lines = [
         "# Test report: $name",
@@ -235,6 +257,7 @@ function write_report(name::AbstractString)
     end
     mkpath(REPORTS)
     isempty(RESULTS) || append!(lines, results_table(tsv))
+    isempty(RESULTS) || write_environment(environment)
     text = join(lines, "\n") * "\n"
     write(file, text)
     # lines worth reading: drafts, and checks that report instead of failing
@@ -262,9 +285,15 @@ function results_table(tsv::AbstractString)
         fmt(r.objective), string(r.iterations), short(r.time), short(r.gap),
         isnothing(r.solution) ? "" : string(r.solution),
     ]
+    # how each solve was configured (#409): in the file only, too long for the table
+    extra = ["modeler", "solver", "options", "violation"]
+    extra_cells(r) = [
+        isnothing(r.modeler) ? "" : string(r.modeler), string(r.solver), r.options,
+        full(r.violation),
+    ]
     open(tsv, "w") do io
-        println(io, join(header, "\t"))
-        foreach(r -> println(io, join(cells(r, full), "\t")), RESULTS)
+        println(io, join([header; extra], "\t"))
+        foreach(r -> println(io, join([cells(r, full); extra_cells(r)], "\t")), RESULTS)
     end
     lines = [
         "",
@@ -277,6 +306,87 @@ function results_table(tsv::AbstractString)
     not_converged = count(r -> !r.converged, RESULTS)
     println("\nResults: $(length(RESULTS)) solves, $not_converged not converged (reported, not tested).")
     return lines
+end
+
+"""
+`options` as an inline TOML table, one cell of the results file read back with `TOML.parse`
+(#409): numbers and booleans as they are, anything else (a symbol, an enumeration value) as
+its string.
+"""
+function inline_toml(options::NamedTuple)
+    value(x::Bool) = string(x)
+    value(x::Integer) = string(x)
+    function value(x::AbstractFloat)
+        isnan(x) && return "nan"
+        isinf(x) && return x > 0 ? "inf" : "-inf"
+        return repr(Float64(x))
+    end
+    value(x) = repr(string(x))
+    return "{" * join(("$k = $(value(v))" for (k, v) in pairs(options)), ", ") * "}"
+end
+
+# Packages whose versions say how a problem was discretized and solved, besides the direct
+# dependencies of the test environment, which do not include them: the discretization, the
+# modelers, the solvers and their binaries. Recorded when the environment has them.
+const KEY_DEPENDENCIES = (
+    "CTDirect",
+    "CTModels",
+    "CTSolvers",
+    "ADNLPModels",
+    "ExaModels",
+    "MadNLP",
+    "NLPModelsIpopt",
+    "Ipopt_jll",
+    "MUMPS_seq_jll",
+)
+
+"""
+Write the environment of the run to `file` (#409): Julia, the machine, the commit and the
+run when known, and the versions of the direct dependencies of the test environment and of
+`KEY_DEPENDENCIES`. The full manifest of a cron run is kept with its results (#314).
+"""
+function write_environment(file::AbstractString)
+    packages = Dict{String,String}()
+    for (_, info) in Pkg.dependencies()
+        (info.is_direct_dep || info.name in KEY_DEPENDENCIES) || continue
+        isnothing(info.version) || (packages[info.name] = string(info.version))
+    end
+    run =
+        if all(
+            haskey.(Ref(ENV), ("GITHUB_SERVER_URL", "GITHUB_REPOSITORY", "GITHUB_RUN_ID"))
+        )
+            "$(ENV["GITHUB_SERVER_URL"])/$(ENV["GITHUB_REPOSITORY"])/actions/runs/$(ENV["GITHUB_RUN_ID"])"
+        else
+            "local"
+        end
+    data = Dict{String,Any}(
+        "julia" => string(VERSION),
+        "os" => string(Sys.KERNEL),
+        "arch" => string(Sys.ARCH),
+        "cpu" => String(strip(first(Sys.cpu_info()).model)),
+        "threads" => Threads.nthreads(),
+        "commit" => get(ENV, "GITHUB_SHA", commit()),
+        "run" => run,
+        "packages" => packages,
+    )
+    open(file, "w") do io
+        println(
+            io,
+            "# Environment of the solves of this report (#409); generated by the tests.\n",
+        )
+        return TOML.print(io, data; sorted=true)
+    end
+    return file
+end
+
+"""The commit of the package checkout, or `unknown` outside a git checkout."""
+function commit()
+    root = pkgdir(OptimalControlProblems)
+    try
+        return readchomp(`git -C $root rev-parse HEAD`)
+    catch
+        return "unknown"
+    end
 end
 
 end # module TestStatus

@@ -25,6 +25,7 @@ function test_robustness()
                     time = @elapsed Main.SolveJuMP.solve!(model; solver=config.solver, options=options)
                     Main.TestStatus.result!(
                         test, problem, backend, label;
+                        Main.SolveJuMP.settings(config; options=options)...,
                         grid_size=OptimalControlProblems.grid_size_data(problem),
                         scheme=C.SCHEME, Main.SolveJuMP.outcome(model)..., time=time,
                     )

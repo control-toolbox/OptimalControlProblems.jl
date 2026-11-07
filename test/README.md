@@ -109,6 +109,18 @@ The convergence report adds a second table, `Results of the solves` (also writte
 `<environment>[-cron]-results.tsv`, objective at full precision), one line per solve, with
 its grid size and scheme.
 
+The results file also says how each solve was configured and how feasible its solution is
+(#409), in columns after those of the table: `modeler` (empty for JuMP), `solver`, `options`
+(every option given to the solver, defaults included, as an inline TOML table: read it with
+`TOML.parse("o = " * cell)["o"]`) and `violation` (the largest violation of the
+constraints, as each modeling measures it: JuMP counts the variable bounds, which Ipopt
+relaxes by about the tolerance). A run with solves also writes
+`<environment>[-cron]-environment.toml`: Julia, the machine, the commit and the run, and the
+versions of the direct dependencies of the environment and of the packages that discretize
+and solve (`TestStatus.KEY_DEPENDENCIES`). The tools read these files by column and by key;
+they are never edited by hand. The reference solutions are computed from them
+(`tools/references/`).
+
 `:draft` means that the model is not finished or not equivalent to the other modelings,
 not that it does not converge: convergence is reported, not tested.
 A draft whose line says `pass` everywhere is ready to become `:valid`. The cron workflows

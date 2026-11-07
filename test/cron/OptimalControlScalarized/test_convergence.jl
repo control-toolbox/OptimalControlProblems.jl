@@ -26,6 +26,7 @@ function test_convergence()
                     # convergence is reported, not tested (#360); an exception still fails
                     Main.TestStatus.result!(
                         test, problem, backend, Main.TestConfigs.label(config);
+                        S.settings(config)...,
                         grid_size=N, scheme=Main.TestConfigs.SCHEME, S.outcome(sol)...,
                         time=time,
                     )

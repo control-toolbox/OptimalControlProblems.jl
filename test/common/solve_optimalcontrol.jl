@@ -16,11 +16,15 @@ const MODELERS = Dict(
     :exa_gpu => OptimalControl.Exa{OptimalControl.GPU},
 )
 
-# `options` (robustness, #378) replace the default options.
-function solver(name::Symbol; max_iter::Int, options::NamedTuple=(;))
+"""
+The options of the solver `name` for a solve: the defaults of `Main.TestConfigs`, replaced by
+`options` (robustness, #378). As given to the solver, before `barrier`; the results of the
+solves record them (#409).
+"""
+function solver_options(name::Symbol; max_iter::Int, options::NamedTuple=(;))
     o = Main.TestConfigs
-    if name === :ipopt
-        defaults = (
+    defaults = if name === :ipopt
+        (
             print_level=0,
             tol=o.TOL,
             mu_strategy=o.MU_STRATEGY,
@@ -28,15 +32,31 @@ function solver(name::Symbol; max_iter::Int, options::NamedTuple=(;))
             max_iter=max_iter,
             max_wall_time=o.MAX_WALL_TIME,
         )
-        return OptimalControl.Ipopt(; merge(defaults, options)...)
     elseif name in (:madnlp, :madnlp_gpu)
-        T = name === :madnlp ? OptimalControl.MadNLP : OptimalControl.MadNLP{OptimalControl.GPU}
-        defaults = (
-            print_level=MadNLP.ERROR, tol=o.TOL, max_iter=max_iter, max_wall_time=o.MAX_WALL_TIME
-        )
-        return T(; merge(defaults, barrier(options))...)
+        (print_level=MadNLP.ERROR, tol=o.TOL, max_iter=max_iter, max_wall_time=o.MAX_WALL_TIME)
+    else
+        error("unknown solver $(name) in the test configurations")
     end
-    return error("unknown solver $(name) in the test configurations")
+    return merge(defaults, options)
+end
+
+function solver(name::Symbol; max_iter::Int, options::NamedTuple=(;))
+    all = solver_options(name; max_iter=max_iter, options=options)
+    name === :ipopt && return OptimalControl.Ipopt(; all...)
+    T = name === :madnlp ? OptimalControl.MadNLP : OptimalControl.MadNLP{OptimalControl.GPU}
+    return T(; barrier(all)...)
+end
+
+"""
+How a solve with `config` and `options` was configured, as `TestStatus.result!` records it
+(#409): the modeler, the solver and every option of the solver.
+"""
+function settings(config; max_iter::Int=Main.TestConfigs.MAX_ITER, options::NamedTuple=(;))
+    return (
+        modeler=config.modeler,
+        solver=config.solver,
+        options=solver_options(config.solver; max_iter=max_iter, options=options),
+    )
 end
 
 function discretizer(grid_size::Int)
@@ -89,6 +109,7 @@ function outcome(sol)
         reason=OptimalControl.status(sol),
         objective=OptimalControl.objective(sol),
         iterations=OptimalControl.iterations(sol),
+        violation=OptimalControl.constraints_violation(sol),
     )
 end
 

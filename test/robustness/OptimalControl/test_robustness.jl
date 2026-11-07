@@ -30,6 +30,7 @@ function test_robustness()
                     time = @elapsed sol = S.solve(pb, config; grid_size=N, options=options)
                     Main.TestStatus.result!(
                         test, problem, backend, label;
+                        S.settings(config; options=options)...,
                         grid_size=N, scheme=C.SCHEME, S.outcome(sol)..., time=time,
                     )
                     Test.@test true
