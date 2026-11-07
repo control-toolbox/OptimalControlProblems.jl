@@ -136,28 +136,41 @@ with per modeling. A test loops over
 
 ## Continuous integration
 
-The CI runs on a pull request only with a runner label, and the scope labels select what
-it runs:
+The CI runs on a pull request only with a runner label. It then tests **what the pull
+request changes** (#405), and the scope labels only **add** to it:
 
 | Labels | Effect |
 | --- | --- |
 | `run ci kkt-runner`, `run ci occidata-runner` | run the GPU tests (environment `GPU`, see below) on this self-hosted runner |
 | `run ci github-runner` | run the CI on GitHub runners (Ubuntu and Julia 1.13 only for now; Julia 1.10, macOS and Windows come back at the end of #310, see #344) |
-| `test <environment> backend`, `test comparison` | run core and these environments only |
+| `test <environment> backend`, `test comparison` | add these environments, with the problems of the automatic scope (every problem if it has none) |
+| `test all problems` | every problem, in the environments of the automatic scope and of the labels |
+| `test everything` | every environment (except the opt-in ones) and every problem |
 | `test convergence` | add the convergence report (argument `convergence`): the convergence tests of the selected environments run after the others, and report without failing |
-| `test all problems` | remove the per-problem narrowing below; composes with the scope labels |
-| no scope label | run core and every environment except the opt-in ones |
 
-Scope labels add up. Adding or removing a label reruns the CI when a runner label is set.
-On a pull request, a change touching only one or more per-problem files
-(`ext/MetaData/<p>.jl`, `ext/<modeling>Models/<p>.jl`, or `ext/Descriptions/<p>.md`)
-automatically adds `problem=<p>,...` to the test arguments. The changed problem names are
-combined with any scope labels, so `test JuMP backend` and a change to `beam` run
-`JuMP problem=beam`. Any shared, removed, or renamed file (a file of those directories whose name is not
-a problem of `ext/MetaData/`, such as a helper, is a shared file), an unreadable or truncated
-file list, a release pull request, and the `test all problems` label run the complete
-catalogue: narrowing only happens on positive evidence. The decision is made by
-`tools/ci/scope.py`, tested by `python3 -m unittest discover -s tools/ci/test -p 'test_*.py'`.
+Adding or removing a label reruns the CI when a runner label is set. `core` always runs.
+
+**The automatic scope.** Each changed file gives environments and problems, and the run is
+their union (one product, environments × problems: a little more than needed when several
+modelings change different problems). The rules are read from the repository:
+
+| Changed file | Environments | Problems |
+| --- | --- | --- |
+| `ext/<M>Models/<p>.jl`, a problem of a modeling | `M`, `comparison` | `p` |
+| another file of `ext/<M>Models/` (e.g. `schemes/`) | `M`, `comparison` | all |
+| `ext/<E>.jl`, an extension | those whose `Project.toml` holds its triggers | all |
+| a file of `ext/MetaData/` or `ext/Descriptions/` named after a problem | all | `p` |
+| `test/suite/<env>/**` | `env` (none for `core` and the opt-in ones) | all |
+| `test/common/<f>.jl` | those whose tests include it, directly or not; all if `test/runtests.jl` names it | all |
+| `test/cron/**`, `test/robustness/**`, `tools/**`, `docs/**`, Markdown outside `ext/` | none: `core` only | — |
+| anything else (`src/`, `Project.toml`, `test/runtests.jl`, workflows...) | all | all |
+
+A removed or renamed file, an unreadable or truncated file list, no file, a release pull
+request, or an event other than a pull request run everything: narrowing only happens on
+positive evidence. The opt-in environments (`OPT_IN` in `runtests.jl`) never enter the
+automatic scope; their label adds them. The decision, file by file, is in the job summary
+of the `scope` job. It is made by `tools/ci/scope.py`, tested by
+`python3 -m unittest discover -s tools/ci/test -p 'test_*.py'`.
 
 `problem=` also narrows `core`: checks that loop over problems run for the selected
 problems only, while the repository-wide checks (files, metadata schema) are unaffected.
