@@ -2,7 +2,7 @@
 
 julia_version = "1.12.7"
 manifest_format = "2.0"
-project_hash = "fedef11e7ece9c6e47fafc44b52f41515fd9d8d6"
+project_hash = "c9565a74a5921d788dccbbf8f436abaa8500d2f5"
 
 [[deps.ADNLPModels]]
 deps = ["ADTypes", "DifferentiationInterface", "ForwardDiff", "LinearAlgebra", "NLPModels", "ReverseDiff", "SparseArrays", "SparseConnectivityTracer", "SparseMatrixColorings"]
@@ -450,12 +450,6 @@ git-tree-sha1 = "b0c5f73f14c6fabc2161b94b873ccb5afeb0b424"
 uuid = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 version = "1.20.0"
 
-[[deps.DocumenterInterLinks]]
-deps = ["CodecZlib", "DocInventories", "Documenter", "Markdown", "MarkdownAST", "TOML"]
-git-tree-sha1 = "d8a8cb2d5b0181fbbd41861016b221b0202c9bc5"
-uuid = "d12716ef-a0f6-4df4-a9f1-a5a34e75c656"
-version = "1.1.0"
-
 [[deps.DocumenterVitepress]]
 deps = ["ANSIColoredPrinters", "Base64", "DocInventories", "DocStringExtensions", "Documenter", "IOCapture", "JSON", "Markdown", "NodeJS_20_jll", "REPL", "TOML"]
 git-tree-sha1 = "9613145b909b2228b185abe80121164b83388141"
@@ -699,9 +693,9 @@ version = "0.2.0"
 
 [[deps.Hwloc_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "XML2_jll", "Xorg_libpciaccess_jll"]
-git-tree-sha1 = "cbbd99d516990d05c02aa132aa077b2bf50ae323"
+git-tree-sha1 = "8226014d201c6d689bf6034302637d2550155206"
 uuid = "e33a78d0-f292-5ffc-b300-72abe9b543c8"
-version = "2.15.0+0"
+version = "2.15.0+1"
 
 [[deps.IOCapture]]
 deps = ["Logging", "Random"]
@@ -1531,9 +1525,9 @@ weakdeps = ["ChainRulesCore", "Statistics"]
     StaticArraysStatisticsExt = "Statistics"
 
 [[deps.StaticArraysCore]]
-git-tree-sha1 = "6ab403037779dae8c514bad259f32a447262455a"
+git-tree-sha1 = "bf7e2d0d9ed9ac2a652fd598c0f784910cc759f2"
 uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
-version = "1.4.4"
+version = "1.4.5"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra"]

@@ -64,3 +64,54 @@
   color: var(--vp-c-text-2);
   font-size: 0.85rem;
 }
+
+/* The solutions of a problem (docs/results.jl, ProblemPlot.vue): whether the results are those
+   of the current version of the problem, and how they were obtained. */
+.vp-doc .results-freshness {
+  margin: 0.3rem 0;
+  font-size: 0.85rem;
+  color: var(--vp-c-text-2);
+}
+
+.vp-doc .results-freshness strong {
+  color: var(--vp-c-text-1);
+}
+
+.vp-doc .results-dot {
+  display: inline-block;
+  margin-right: 0.4rem;
+  vertical-align: 0.05rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+}
+
+.vp-doc .results-current .results-dot {
+  background: var(--vp-c-success-1);
+}
+
+.vp-doc .results-stale .results-dot {
+  background: var(--vp-c-warning-1);
+}
+
+.vp-doc .results-missing {
+  font-style: italic;
+}
+
+.vp-doc details.results-repro {
+  margin: 0.8rem 0 1.2rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background: var(--vp-c-bg-soft);
+  font-size: 0.88rem;
+}
+
+.vp-doc details.results-repro summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.vp-doc details.results-repro table {
+  font-size: 0.82rem;
+}
