@@ -14,6 +14,7 @@ import AuthorBadge from '@/AuthorBadge.vue'
 import Authors from '@/Authors.vue'
 import SidebarDrawerToggle from '@/SidebarDrawerToggle.vue'
 import ProblemsBrowser from '@/ProblemsBrowser.vue'
+import ProblemsGallery from '@/ProblemsGallery.vue'
 import ProblemTabs from '@/ProblemTabs.vue'
 import ProblemPanel from '@/ProblemPanel.vue'
 import ProblemPlot from '@/ProblemPlot.vue'
@@ -68,6 +69,7 @@ export const Theme: ThemeConfig = {
     app.component('AuthorBadge', AuthorBadge)
     app.component('Authors', Authors)
     app.component('ProblemsBrowser', ProblemsBrowser)
+    app.component('ProblemsGallery', ProblemsGallery)
     app.component('ProblemTabs', ProblemTabs)
     app.component('ProblemPanel', ProblemPanel)
     app.component('ProblemPlot', ProblemPlot)

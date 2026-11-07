@@ -114,11 +114,12 @@ with_status_page() do status_file
                         "Compare modelings" => "guide/compare.md",
                         "Plot a solution" => "guide/plot.md",
                     ],
+                    # the problem pages are reached from the gallery (`All the problems`),
+                    # not listed one by one in the sidebar
                     "Problems" => [
                         "Overview" => "problems-overview.md",
-                        "Browser" => browser_file,
+                        "All the problems" => browser_file,
                         "Status" => status_file,
-                        "All the problems" => PROBLEM_PAGES,
                     ],
                     "Developers" => "developers.md",
                     "API Reference" => api_pages,
