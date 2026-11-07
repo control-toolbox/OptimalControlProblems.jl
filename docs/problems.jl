@@ -1,452 +1,434 @@
+# Problem pages: one page per problem, generated from the files of the problem, never written
+# by hand. Nothing is solved at build time: the results are those of the convergence and
+# robustness crons, stored with the reference objectives (`ext/MetaData/references/`, #375).
+#
+# A page has one view per tab (`ProblemTabs.vue`): the problem (description, parameters,
+# reference objective), one view per modeling where the problem exists (status, how to get
+# and solve it, the model, its results), and the comparison of the modelings when there are
+# two or more. The modelings come from the modeling table, through `docs/modelings.jl`.
+
+using JSON: JSON
+using Printf: @sprintf
+using TOML: TOML
+using OptimalControlProblems: OptimalControlProblems
+
+const OCP = OptimalControlProblems
+const REPOSITORY = "https://github.com/control-toolbox/OptimalControlProblems.jl"
+const ROOT = abspath(joinpath(@__DIR__, ".."))
+const PROBLEMS_DIR = joinpath(@__DIR__, "src", "problems")
+
+# Two objectives closer than this, relative, are written once (a range otherwise).
+const SAME_OBJECTIVE = 1e-9
+
 # -----------------------------------
-# Helper: draft metadata block
+# Formatting
 # -----------------------------------
-function draft_meta(draft::Union{Bool,Nothing})
-    if isnothing(draft)
-        return ""
-    elseif draft
-        return """```@meta\nDraft = true\n```\n"""
+title(problem::Symbol) = uppercasefirst(replace(string(problem), "_" => " "))
+
+objective_string(x::Real) = @sprintf("%.10g", x)
+
+function gap_string(g::Real)
+    iszero(g) && return "0"
+    return @sprintf("%.1e", g)
+end
+
+relative_gap(a, b) = OCP._relative_gap(a, b)
+
+function objective_range(values)
+    lo, hi = extrema(values)
+    relative_gap(hi, lo) <= SAME_OBJECTIVE && return objective_string(lo)
+    return objective_string(lo) * " – " * objective_string(hi)
+end
+
+status_badge(status) = """<span class="status status-$(status)">$(status)</span>"""
+
+# `cron-JuMP-robustness-1.13-windows-latest` → `Windows`; the GPU runners carry `-gpu-`.
+function platform_name(platform::AbstractString)
+    occursin("-gpu-", platform) && return "GPU runner"
+    occursin("windows", platform) && return "Windows"
+    occursin("macos", platform) && return "macOS"
+    occursin("ubuntu", platform) && return "Linux"
+    return platform
+end
+
+# `modeler=adnlp solver=ipopt mu_init=0.001` → (`adnlp`, `ipopt`), (`mu_init=0.001`): the
+# configuration of the convergence tests, and the options the robustness tests change.
+const CONFIGURATION_KEYS = ("modeler", "solver")
+
+function split_configuration(configuration::AbstractString)
+    pairs = split(configuration)
+    base = [split(p, '=')[2] for p in pairs if split(p, '=')[1] in CONFIGURATION_KEYS]
+    options = [p for p in pairs if !(split(p, '=')[1] in CONFIGURATION_KEYS)]
+    return join(("`$b`" for b in base), " + "),
+    isempty(options) ? "default" : join(("`$o`" for o in options), " ")
+end
+
+# -----------------------------------
+# Data of a problem
+# -----------------------------------
+"""The reference objectives of `problem`, one table per scheme, or an empty dictionary."""
+function references(problem::Symbol)
+    file = joinpath(ROOT, "ext", "MetaData", "references", "$(problem).toml")
+    return isfile(file) ? TOML.parsefile(file) : Dict{String,Any}()
+end
+
+"""The features of `problem`, computed from its OptimalControl model, or `nothing`."""
+function problem_features(problem::Symbol)
+    problem in OCP.problems(OCP.OptimalControlBackend(); status=:all) || return nothing
+    return OCP.features(problem)
+end
+
+function facts(problem::Symbol)
+    f = problem_features(problem)
+    isnothing(f) && return String[]
+    items = [
+        "<strong>$(f.state_dimension)</strong> state",
+        "<strong>$(f.control_dimension)</strong> control",
+    ]
+    f.variable_dimension > 0 &&
+        push!(items, "<strong>$(f.variable_dimension)</strong> variable")
+    push!(items, "$(uppercasefirst(string(f.cost))) cost")
+    f.initial_time === :free && push!(items, "free initial time")
+    push!(items, f.final_time === :free ? "free final time" : "fixed final time")
+    labels = (
+        state_box="state box",
+        control_box="control box",
+        variable_box="variable box",
+        path="path",
+        boundary="boundary",
+    )
+    for (kind, n) in pairs(f.constraints)
+        n > 0 && push!(items, "<strong>$(n)</strong> $(labels[kind])")
+    end
+    return items
+end
+
+# -----------------------------------
+# Sections
+# -----------------------------------
+raw(html) = "```@raw html\n$(html)\n```\n"
+
+anchor(problem, parts...) = join((string(problem), string.(parts)...), "-")
+
+function parameters_section(problem::Symbol)
+    params = OCP.parameters_data(problem)
+    isnothing(params) &&
+        return "### [Parameters](@id $(anchor(problem, :parameters)))\n\nThe problem has no parameters.\n"
+    rows = join(("| `$(k)` | `$(v)` |" for (k, v) in pairs(params)), "\n")
+    return """
+    ### [Parameters](@id $(anchor(problem, :parameters)))
+
+    | Parameter | Default value |
+    | :--- | :--- |
+    $(rows)
+
+    Every modeling takes other values with the keyword `parameters`, merged with these:
+    `$(problem)(backend; parameters=($(first(keys(params)))=…,))`.
+    """
+end
+
+function reference_section(problem::Symbol, refs)
+    out = "### [Reference objective](@id $(anchor(problem, :reference)))\n\n"
+    if isempty(refs)
+        out *= "No reference objective has been computed for this problem yet.\n"
     else
-        return """```@meta\nDraft = false\n```\n"""
+        out *= """
+        The best objective among the solves that converged, for every modeling and
+        configuration, on the default grid. See
+        [how the references are computed]($(REPOSITORY)/blob/main/tools/references/README.md).
+
+        | Scheme | Grid | Reference objective | Solves | Distinct solutions | Agreement |
+        | :--- | ---: | ---: | ---: | ---: | :--- |
+        """
+        for (scheme, table) in sort!(collect(refs); by=first)
+            solves = length(get(table, "results", []))
+            nsolutions = length(get(table, "solutions", []))
+            agreement =
+                table["agreement"] ? "yes, within $(gap_string(table["spread"]))" : "no"
+            out *= "| `:$(scheme)` | $(table["grid_size"]) | $(objective_string(table["value"])) | $(solves) | $(nsolutions) | $(agreement) |\n"
+        end
+        out *= "\n" * solutions_text(refs)
     end
+    analytic = OCP.reference_solution_data(problem)
+    if !isnothing(analytic)
+        out *= """
+
+        **Analytic solution.** The continuous problem has a known solution, of objective
+        $(objective_string(analytic.objective)) ($(analytic.source)). The reference objective
+        above is the one of the discretized problem: the gap between the two is the
+        discretization error.
+        """
+    end
+    return out
 end
 
-# -----------------------------------
-# Helper: left margin for plots
-# -----------------------------------
-function get_left_margin(problem::Symbol)
-    margins = Dict(:beam => "5mm")
-    return get(margins, problem, "20mm")
+# Distinct solutions, said in words: the reader learns whether the problem has local solutions.
+function solutions_text(refs)
+    lines = String[]
+    for (scheme, table) in sort!(collect(refs); by=first)
+        solutions = get(table, "solutions", [])
+        length(solutions) <= 1 && continue
+        best = table["value"]
+        others = [
+            "$(objective_string(s["objective"])) (gap $(gap_string(relative_gap(s["objective"], best))), $(s["solves"]) solves)"
+            for s in solutions[2:end]
+        ]
+        push!(
+            lines,
+            "With `:$(scheme)`, the solves reached $(length(solutions)) distinct solutions: " *
+            "besides the best one, " *
+            join(others, "; ") *
+            ". " *
+            "See the comparison of the modelings for which configurations reached which.",
+        )
+    end
+    return isempty(lines) ? "" : join(lines, "\n\n") * "\n"
 end
 
-# -----------------------------------
-# Generate documentation for a problem
-# -----------------------------------
-function generate_documentation(
-    PROBLEM::String, DESCRIPTION::String; draft::Union{Bool,Nothing}
-)
-    TITLE =
-        "[" * uppercasefirst(replace(PROBLEM, "_" => " ")) * "](@id description-$PROBLEM)"
-    DRAFT = draft_meta(draft)
-    LEFT_MARGIN = get_left_margin(Symbol(PROBLEM))
-
-    documentation =
-        DRAFT * """
-# $TITLE
-
-## Description of the problem
-
-$DESCRIPTION
-
-## Numerical set-up
-
-In this section, we prepare the numerical environment required to study the problem. We begin by importing the relevant Julia packages and then initialise the data frames   that will store the results of our simulations and computations. These structures provide the foundation for solving the problem and for comparing the different solution strategies in a consistent way.
-
-```@example main
-using OptimalControlProblems    # to access the Beam model
-using OptimalControl            # to import the OptimalControl model
-using NLPModelsIpopt            # to solve the model with Ipopt
-import DataFrames: DataFrame    # to store data
-using NLPModels                 # to retrieve data from the NLP solution
-using Plots                     # to plot the trajectories
-using Plots.PlotMeasures        # for leftmargin, bottommargin
-using JuMP                      # to import the JuMP model
-using Ipopt                     # to solve the JuMP model with Ipopt
-using Printf                    # to print
-
-data_pb = DataFrame(            # to store data about the problem
-    Problem=Symbol[],
-    Grid_Size=Int[],
-    Variables=Int[],
-    Constraints=Int[],
-)
-
-data_re = DataFrame(            # to store data about the resolutions
-    Model=Symbol[],
-    Flag=Any[],
-    Iterations=Int[],
-    Objective=Float64[],
-)
-nothing # hide
-```
-
-## Metadata
-
-The default number of time steps is:
-
-```@example main
-problem_metadata(:$PROBLEM)[:grid_size]
-```
-
-The default values of the parameters are:
-
-```@example main
-problem_metadata(:$PROBLEM)[:parameters]
-using Printf # hide
-println("Parameter = Value") # hide
-println("------------------") # hide
-for e ∈ pairs(problem_metadata(:$PROBLEM)[:parameters]) # hide
-    @printf("%6s = ", string(e.first)) # hide
-    @printf("%11.4e\\n", e.second) # hide
-end # hide
-```
-
-## Initial guess
-
-Before solving the problem, it is often useful to inspect the initial guess (sometimes called the first iterate). This guess is obtained by running the NLP solver with `max_iter = 0`, which evaluates the problem formulation without performing any optimisation steps.  
-
-We plot the resulting trajectories for both the OptimalControl and JuMP models. Since both backends represent the same mathematical problem, their initial guesses should coincide, providing a useful consistency check before moving on to the optimised solution.
-
-!!! note "Code to plot the initial guess"
-
-    ```@raw html
-    <details><summary>Click to unfold and see the code for plotting the initial guess.</summary>
-    ```
-
-    ```@example main
-    function plot_initial_guess(problem)
-
-        # -----------------------------
-        # Build OptimalControl problem
-        # -----------------------------
-        pb = eval(problem)(OptimalControlBackend())
-        ocp_oc = model(pb)
-
-        # Solve with zero iterations (initial guess), on the default grid
-        ocp_sol = solve(
-            ocp_oc, :collocation, :adnlp, :ipopt;
-            init=initial_guess(pb),
-            grid_size=problem_metadata(problem)[:grid_size],
-            scheme=:trapeze,
-            max_iter=0,
-            display=false,
-        )
-
-        # get dimensions
-        n = state_dimension(ocp_oc)
-        m = control_dimension(ocp_oc)
-
-        # -----------------------------
-        # Plot OptimalControl solution
-        # -----------------------------
-        plt = plot(
-            ocp_sol;
-            state_style=(color=1,),
-            costate_style=(color=1, legend=:none),
-            control_style=(color=1, legend=:none),
-            path_style=(color=1, legend=:none),
-            dual_style=(color=1, legend=:none),
-            size=(816, 220*(n+m)),
-            label="OptimalControl",
-            leftmargin=$LEFT_MARGIN,
-        )
-
-        # Hide legend for additional state plots
-        for i in 2:n
-            plot!(plt[i]; legend=:none)
-        end
-
-        # -----------------------------
-        # Build JuMP model
-        # -----------------------------
-        nlp_jp = eval(problem)(JuMPBackend())
-
-        # Solve NLP with zero iterations (initial guess)
-        set_optimizer(nlp_jp, Ipopt.Optimizer)
-        set_optimizer_attribute(nlp_jp, "max_iter", 0)
-        optimize!(nlp_jp)
-
-        # Extract trajectories
-        t_grid = time_grid(nlp_jp)
-        x_fun = state(nlp_jp)
-        u_fun = control(nlp_jp)
-        p_fun = costate(nlp_jp)
-
-        # -----------------------------
-        # Plot JuMP solution on top
-        # -----------------------------
-        # States
-        for i in 1:n
-            label = i == 1 ? "JuMP" : :none
-            plot!(plt[i], t_grid, t -> x_fun(t)[i]; color=2, linestyle=:dash, label=label)
-        end
-
-        # Costates
-        for i in 1:n
-            plot!(plt[n+i], t_grid, t -> -p_fun(t)[i]; color=2, linestyle=:dash, label=:none)
-        end
-
-        # Controls
-        for i in 1:m
-            plot!(plt[2*n+i], t_grid, t -> u_fun(t)[i]; color=2, linestyle=:dash, label=:none)
-        end
-
-        return plt
+function results_rows(table, modeling::Symbol)
+    results = [r for r in get(table, "results", []) if r["modeling"] == string(modeling)]
+    grouped = Dict{String,Vector{Any}}()
+    for r in results
+        push!(get!(grouped, r["configuration"], Any[]), r)
     end
-    nothing # hide
-    ```
+    return grouped
+end
 
-    ```@raw html
-    </details>
-    ```
-
-```@example main
-plot_initial_guess(:$PROBLEM)
-```
-
-## Solving the problem
-
-To solve an optimal control problem, we can rely on two complementary formulations: the `OptimalControl` backend, which works directly with the discretised control problem, and the `JuMP` backend, which leverages JuMP’s flexible modelling framework.  
-
-Both approaches generate equivalent NLPs that can be solved with Ipopt, and comparing them ensures consistency between the two formulations.
-
-Before solving, we can inspect the discretisation details of the problem. We discretise it with the trapezoidal rule on its default grid and build the NLP with ADNLPModels. The table below reports the number of grid points, decision variables, and constraints associated with this formulation.  
-
-```@example main
-pb = $PROBLEM(OptimalControlBackend())
-N = problem_metadata(:$PROBLEM)[:grid_size]
-docp = discretize(model(pb), OptimalControl.Collocation(grid_size=N, scheme=:trapeze))
-init = build_initial_guess(model(pb), initial_guess(pb))
-nlp_oc = nlp_model(docp, init, OptimalControl.ADNLP())
-
-push!(data_pb,(
-    Problem=:$PROBLEM,
-    Grid_Size=N,
-    Variables=get_nvar(nlp_oc),
-    Constraints=get_ncon(nlp_oc),
-))
-data_pb # hide
-```
-
-### OptimalControl model
-
-We first solve the problem using the `OptimalControl` backend. The continuous problem is discretised with the trapezoidal rule, modelled with ADNLPModels and solved with Ipopt, with standard options for tolerance and barrier parameter strategy.  
-
-```@example main
-ocp_sol = solve(
-    model(pb), :collocation, :adnlp, :ipopt;
-    init=initial_guess(pb),
-    grid_size=N,
-    scheme=:trapeze,
-    print_level=4,
-    tol=1e-8,
-    mu_strategy="adaptive",
-    display=false,
-)
-nothing # hide
-```
-
-### JuMP model
-
-We now repeat the procedure using the `JuMP` backend. Here, the problem is reformulated as a JuMP model, which offers a flexible and widely used framework for nonlinear optimisation in Julia. The solver settings are chosen to mirror those used previously, so that the results can be compared on an equal footing. 
-
-```@example main
-# import model
-nlp_jp = $PROBLEM(JuMPBackend())
-
-# solve with Ipopt
-set_optimizer(nlp_jp, Ipopt.Optimizer)
-set_optimizer_attribute(nlp_jp, "print_level", 4)
-set_optimizer_attribute(nlp_jp, "tol", 1e-8)
-set_optimizer_attribute(nlp_jp, "mu_strategy", "adaptive")
-set_optimizer_attribute(nlp_jp, "linear_solver", "mumps")
-set_optimizer_attribute(nlp_jp, "sb", "yes")
-optimize!(nlp_jp)
-```
-
-## Numerical comparisons
-
-In this section, we examine the results of the problem resolutions. We extract the solver status (flag), the number of iterations, and the objective value for each model. This provides a first overview of how each approach performs and sets the stage for a more detailed comparison of the solution trajectories.
-
-```@example main
-# from OptimalControl model
-push!(data_re,(
-    Model=:OptimalControl,
-    Flag=status(ocp_sol),
-    Iterations=iterations(ocp_sol),
-    Objective=objective(ocp_sol),
-))
-
-# from JuMP model
-push!(data_re,(
-    Model=:JuMP,
-    Flag=termination_status(nlp_jp),
-    Iterations=barrier_iterations(nlp_jp),
-    Objective=objective_value(nlp_jp),
-))
-data_re # hide
-```    
-
-We compare the solutions obtained from the OptimalControl and JuMP models by examining the number of iterations required for convergence, the \$L^2\$-norms of the differences in states, controls, and additional variables, and the corresponding objective values. Both absolute and relative errors are reported, providing a clear quantitative measure of the agreement between the two approaches.
-
-!!! note "Code to print the numerical comparisons"
-
-    ```@raw html
-    <details><summary>Click to unfold and get the code of the numerical comparisons.</summary>
-    ```
-
-    ```@example main
-    function L2_norm(T, X)
-        # T and X are supposed to be one dimensional
-        s = 0.0
-        for i in 1:(length(T) - 1)
-            s += 0.5 * (X[i]^2 + X[i + 1]^2) * (T[i + 1]-T[i])
-        end
-        return √(s)
+function results_section(problem::Symbol, spec, refs)
+    out = "#### [Results](@id $(anchor(problem, spec.name, :results)))\n\n"
+    tables = [
+        (s, t) for
+        (s, t) in sort!(collect(refs); by=first) if !isempty(results_rows(t, spec.name))
+    ]
+    if isempty(tables)
+        return out *
+               "No results yet for this modeling: they come from the convergence crons.\n"
     end
-    
-    function print_numerical_comparisons(problem, ocp_sol, nlp_jp)
+    for (scheme, table) in tables
+        best = table["value"]
+        out *= """
+        Solved on the default grid ($(table["grid_size"]) steps) with the scheme `:$(scheme)`,
+        by the convergence and robustness crons. The gap is relative to the reference objective,
+        $(objective_string(best)); it is shown as it is, never tested.
 
-        # get relevant data from OptimalControl model
-        t_oc = time_grid(ocp_sol)
-        x_oc = state(ocp_sol).(t_oc)
-        u_oc = control(ocp_sol).(t_oc)
-        v_oc = variable(ocp_sol)
-        o_oc = objective(ocp_sol)
-        i_oc = iterations(ocp_sol)
-
-        # get relevant data from JuMP model
-        t_jp = time_grid(nlp_jp)
-        x_jp = state(nlp_jp).(t_jp)
-        u_jp = control(nlp_jp).(t_jp)
-        o_jp = objective(nlp_jp)
-        v_jp = variable(nlp_jp)
-        i_jp = iterations(nlp_jp)
-
-        x_vars = state_components(nlp_jp)
-        u_vars = control_components(nlp_jp)
-        v_vars = variable_components(nlp_jp)
-
-        println("┌─ ", string(problem))
-        println("│")
-        println("├─  Number of Iterations")
-        @printf("│     OptimalControl : %d   JuMP : %d\\n", i_oc, i_jp)
-
-        # States
-        println("├─  States (L2 Norms)")
-        for i in eachindex(x_vars)
-            xi_oc = [x_oc[k][i] for k in eachindex(t_oc)]
-            xi_jp = [x_jp[k][i] for k in eachindex(t_jp)]
-            L2_ae = L2_norm(t_oc, xi_oc - xi_jp)
-            L2_re = L2_ae / (0.5 * (L2_norm(t_oc, xi_oc) + L2_norm(t_oc, xi_jp)))
-            @printf("│     %-6s Abs: %.3e   Rel: %.3e\\n", x_vars[i], L2_ae, L2_re)
+        | Configuration | Options | Platforms | Objective | Gap to reference |
+        | :--- | :--- | :--- | ---: | ---: |
+        """
+        rows = results_rows(table, spec.name)
+        # the convergence configurations first, then the robustness ones
+        order = sort!(collect(keys(rows)); by=c -> (length(split(c)), c))
+        for configuration in order
+            group = rows[configuration]
+            base, options = split_configuration(configuration)
+            platforms = join(
+                sort!(unique(platform_name.(r["platform"] for r in group))), ", "
+            )
+            objectives = [r["objective"] for r in group]
+            gap = maximum(relative_gap(o, best) for o in objectives)
+            out *= "| $(base) | $(options) | $(platforms) | $(objective_range(objectives)) | $(gap_string(gap)) |\n"
         end
+        out *= "\n"
+    end
+    return out
+end
 
-        # Controls
-        println("├─  Controls (L2 Norms)")
-        for i in eachindex(u_vars)
-            ui_oc = [u_oc[k][i] for k in eachindex(t_oc)]
-            ui_jp = [u_jp[k][i] for k in eachindex(t_jp)]
-            L2_ae = L2_norm(t_oc, ui_oc - ui_jp)
-            L2_re = L2_ae / (0.5 * (L2_norm(t_oc, ui_oc) + L2_norm(t_oc, ui_jp)))
-            @printf("│     %-6s Abs: %.3e   Rel: %.3e\\n", u_vars[i], L2_ae, L2_re)
+function modeling_panel(problem::Symbol, spec, adapter, refs)
+    status = OCP.status(problem)[spec.name]
+    file = problem_file(problem, spec)
+    text = read(joinpath(ROOT, file), String)
+    grid_size = OCP.grid_size_data(problem)
+    notes = get(OCP.problem_metadata(problem), :notes, nothing)
+    draft = if status === :draft
+        """
+        !!! warning "Draft in this modeling"
+            The problem is not validated in this modeling yet$(isnothing(notes) ? "." : ": " * notes)
+            Getting it warns, and it is left out of `problems($(nameof(spec.backend))())`.
+
+        """
+    else
+        ""
+    end
+    return """
+    ### [$(adapter.title)](@id $(anchor(problem, spec.name)))
+
+    $(raw(status_badge(status)))
+    $(adapter.summary) Load $(join(("`$p`" for p in adapter.packages), " and ")).
+
+    $(draft)#### [Get and solve](@id $(anchor(problem, spec.name, :solve)))
+
+    ```julia
+    $(adapter.snippet(problem, grid_size))
+    ```
+
+    #### [The model](@id $(anchor(problem, spec.name, :model)))
+
+    The model as written in [`$(file)`]($(REPOSITORY)/blob/main/$(file)), where the
+    parameters are read from the metadata.
+
+    ```julia
+    $(model_excerpt(text, adapter.model_start))
+    ```
+
+    $(results_section(problem, spec, refs))
+    """
+end
+
+function compare_panel(problem::Symbol, mods, refs)
+    out = "### [Comparison of the modelings](@id $(anchor(problem, :compare)))\n\n"
+    names = [spec.name for (spec, _) in mods]
+
+    # Same problem: the NLPs are compared on every pull request.
+    checks = String[]
+    for (spec, adapter) in mods
+        other = adapter.checked_against
+        (isnothing(other) || !(other in names)) && continue
+        statuses = OCP.status(problem)
+        drafts = [ADAPTERS[m].title for m in (spec.name, other) if statuses[m] === :draft]
+        verdict = if isempty(drafts)
+            "same NLP, checked on every pull request"
+        else
+            "not checked yet: the problem is a draft in $(join(drafts, " and "))"
         end
+        push!(
+            checks, "- **$(adapter.title)** and **$(ADAPTERS[other].title)**: $(verdict)."
+        )
+    end
+    if !isempty(checks)
+        out *= """
+        #### [Same problem](@id $(anchor(problem, :compare, :nlp)))
 
-        # Variables
-        if !isnothing(v_vars)
-            println("├─  Variables")
-            for i in eachindex(v_vars)
-                vi_oc = v_oc[i]
-                vi_jp = v_jp[i]
-                vi_ae = abs(vi_oc - vi_jp)
-                vi_re = vi_ae / (0.5 * (abs(vi_oc) + abs(vi_jp)))
-                @printf("│     %-6s Abs: %.3e   Rel: %.3e\\n", v_vars[i], vi_ae, vi_re)
+        Two modelings of the same problem, discretized the same way, must give the same
+        nonlinear program: same variables, constraints, objective and derivatives at the
+        initial guess. This is what is compared, not the solutions: two solves are two
+        optimization paths.
+
+        $(join(checks, "\n"))
+
+        """
+    end
+
+    for (scheme, table) in sort!(collect(refs); by=first)
+        best = table["value"]
+        out *= """
+        #### [Results side by side, `:$(scheme)`](@id $(anchor(problem, :compare, scheme)))
+
+        | Modeling | Status | Solves | Objective | Largest gap to reference |
+        | :--- | :--- | ---: | ---: | ---: |
+        """
+        for (spec, adapter) in mods
+            rows = results_rows(table, spec.name)
+            status = string(OCP.status(problem)[spec.name])
+            if isempty(rows)
+                out *= "| $(adapter.title) | $(status) | 0 | — | — |\n"
+                continue
+            end
+            objectives = [r["objective"] for group in values(rows) for r in group]
+            gap = maximum(relative_gap(o, best) for o in objectives)
+            out *= "| $(adapter.title) | $(status) | $(length(objectives)) | $(objective_range(objectives)) | $(gap_string(gap)) |\n"
+        end
+        solutions = get(table, "solutions", [])
+        if !isempty(solutions)
+            header = join((adapter.title for (_, adapter) in mods), " | ")
+            out *= """
+
+            Which solution each modeling reached: the number of configurations of each
+            modeling whose solves reached it.
+
+            | Solution | Objective | Gap to best | $(header) |
+            | :--- | ---: | ---: |$(repeat(" ---: |", length(mods)))
+            """
+            for (i, s) in enumerate(solutions)
+                counts = map(mods) do (spec, _)
+                    n = count(c -> first(split(c)) == string(spec.name), s["configurations"])
+                    return n == 0 ? "—" : string(n)
+                end
+                label = i == 1 ? "best" : "local $(i - 1)"
+                out *= "| $(label) | $(objective_string(s["objective"])) | $(gap_string(relative_gap(s["objective"], best))) | $(join(counts, " | ")) |\n"
             end
         end
-
-        # Objective
-        o_ae = abs(o_oc - o_jp)
-        o_re = o_ae / (0.5 * (abs(o_oc) + abs(o_jp)))
-        println("├─  Objective")
-        @printf("│            Abs: %.3e   Rel: %.3e\\n", o_ae, o_re)
-        println("└─")
-        return nothing
+        out *= "\n"
     end
-    nothing # hide
-    ```
-
-    ```@raw html
-    </details>
-    ```
-
-```@example main
-print_numerical_comparisons(:$PROBLEM, ocp_sol, nlp_jp)
-```
-
-## Plotting the solutions
-
-In this section, we visualise the trajectories of the states, costates, and controls obtained from both the OptimalControl and JuMP solutions. The plots provide an intuitive way to compare the two approaches and to observe how the constraints and the optimal control influence the system dynamics.  
-
-For each variable, the OptimalControl solution is shown in solid lines, while the JuMP solution is overlaid using dashed lines. Since both models represent the same mathematical problem, their trajectories should closely coincide, highlighting the consistency between the two formulations.
-
-```@example main
-# dimensions
-n = state_dimension(ocp_sol)
-m = control_dimension(ocp_sol)
-
-# from OptimalControl solution
-plt = plot(
-    ocp_sol;
-    color=1,
-    size=(816, 240*(n+m)),
-    label="OptimalControl",
-    leftmargin=$LEFT_MARGIN,
-)
-for i in 2:length(plt)
-    plot!(plt[i]; legend=:none)
-end
-
-# from JuMP solution
-t = time_grid(nlp_jp)     # t0, ..., tN = tf
-x = state(nlp_jp)         # function of time
-u = control(nlp_jp)       # function of time
-p = costate(nlp_jp)       # function of time
-
-for i in 1:n # state
-    label = i == 1 ? "JuMP" : :none
-    plot!(plt[i], t, t -> x(t)[i]; color=2, linestyle=:dash, label=label)
-end
-
-for i in 1:n # costate
-    plot!(plt[n+i], t, t -> -p(t)[i]; color=2, linestyle=:dash, label=:none)
-end
-
-for i in 1:m # control
-    plot!(plt[2n+i], t, t -> u(t)[i]; color=2, linestyle=:dash, label=:none)
-end
-plt # hide
-```
-"""
-
-    return documentation
+    isempty(refs) && (out *= "No results yet: they come from the convergence crons.\n")
+    return out
 end
 
 # -----------------------------------
-# Generate documentation for all problems
+# Page
 # -----------------------------------
-function generate_documentation_problems(;
-    draft::Union{Bool,Nothing}=nothing, exclude_from_draft::Vector{Symbol}=Symbol[]
-)
-    # the pages show both the OptimalControl and the JuMP models; drafts are documented too
-    problems_list = problems(OptimalControlBackend(), JuMPBackend(); status=:all)
-    problems_pages = map(p -> joinpath("problems", string(p) * ".md"), problems_list)
+function problem_page(problem::Symbol)
+    mods = modelings(problem)
+    refs = references(problem)
+    statuses = OCP.status(problem)
+    description = read(joinpath(ROOT, "ext", "Descriptions", "$(problem).md"), String)
 
-    # reset problems directory
-    problems_dir = joinpath(@__DIR__, "src", "problems")
-    rm(problems_dir; recursive=true, force=true)
-    mkpath(problems_dir)
-    mkpath(joinpath(problems_dir, "assets"))
-
-    for problem in problems_list
-        description = read(
-            joinpath(@__DIR__, "..", "ext", "Descriptions", string(problem) * ".md"), String
+    views = Any[(id="problem", label="Problem", kind="problem")]
+    for (spec, adapter) in mods
+        push!(
+            views,
+            (
+                id=string(spec.name),
+                label=adapter.title,
+                kind="modeling",
+                status=string(statuses[spec.name]),
+            ),
         )
-        draft_problem = problem ∈ exclude_from_draft ? false : draft
-        contents = generate_documentation(string(problem), description; draft=draft_problem)
-
-        filename = joinpath(problems_dir, string(problem) * ".md")
-        write(filename, contents)
     end
+    length(mods) >= 2 && push!(views, (id="compare", label="Compare", kind="compare"))
 
-    return problems_pages
+    items = join(("<li>$(item)</li>" for item in facts(problem)), "")
+    badges = join(
+        (
+            "<li>$(adapter.title) $(status_badge(statuses[spec.name]))</li>" for
+            (spec, adapter) in mods
+        ),
+        "",
+    )
+    lists = if isempty(items)
+        ""
+    else
+        """<ul class="problem-facts" aria-label="Features">$(items)</ul>\n"""
+    end
+    lists *= """<ul class="problem-facts" aria-label="Status per modeling">$(badges)</ul>"""
+
+    page = raw("---\noutline: false\n---") * """
+
+    # [$(title(problem))](@id description-$(problem))
+
+    $(raw("""$(lists)
+    <ProblemTabs :views='$(JSON.json(views))' />
+    <ProblemPanel id="problem" default>"""))
+
+    $(description)
+
+    $(parameters_section(problem))
+
+    $(reference_section(problem, refs))
+
+    $(raw("</ProblemPanel>"))
+    """
+    for (spec, adapter) in mods
+        page *= raw("""<ProblemPanel id="$(spec.name)">""") * "\n"
+        page *= modeling_panel(problem, spec, adapter, refs) * "\n"
+        page *= raw("</ProblemPanel>") * "\n"
+    end
+    if length(mods) >= 2
+        page *= raw("""<ProblemPanel id="compare">""") * "\n"
+        page *= compare_panel(problem, mods, refs) * "\n"
+        page *= raw("</ProblemPanel>") * "\n"
+    end
+    return page
+end
+
+"""
+Write the page of every problem, drafts included, under `docs/src/problems/`, and return their
+paths relative to `docs/src/`.
+"""
+function generate_problem_pages()
+    rm(PROBLEMS_DIR; recursive=true, force=true)
+    mkpath(PROBLEMS_DIR)
+    names = OCP.problems(; status=:all)
+    for problem in names
+        write(joinpath(PROBLEMS_DIR, "$(problem).md"), problem_page(problem))
+    end
+    return [joinpath("problems", "$(problem).md") for problem in names]
 end
