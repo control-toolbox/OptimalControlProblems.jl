@@ -14,9 +14,12 @@
 # report lists it; `:draft` means "not finished or not equivalent", not "does not converge".
 # It also records how the solve was configured (modeler, solver and its options) and the
 # constraint violation, and each run writes its environment, so that a reference solution says
-# how it was obtained (#409).
+# how it was obtained (#409). A result also carries the fingerprint of the problem and, from
+# the convergence tests, the trajectory of the solution, published with the environment of the
+# run for the documentation (#314).
 module TestStatus
 
+using InteractiveUtils: InteractiveUtils
 using Pkg: Pkg
 using TOML: TOML
 using Test: Test
@@ -102,7 +105,8 @@ its metadata, #375); `solution` which known solution a converged solve reached (
 `:local` or `:new`, #378), under the same condition. `modeler` (`nothing` for JuMP),
 `solver`, `options` (every option of the solver, as an inline TOML table) and `violation`
 (the largest violation of the constraints) say how the solve was configured and how feasible
-it is (#409).
+it is (#409). `fingerprint` is the one of the problem when it was solved, and `trajectory`
+the solution on its time grid, when the test gives it (#314, see `trajectory`).
 """
 struct Result
     test::String
@@ -122,6 +126,8 @@ struct Result
     violation::Float64
     gap::Union{Nothing,Float64}
     solution::Union{Nothing,Symbol}
+    fingerprint::String
+    trajectory::Union{Nothing,Dict{String,Any}}
 end
 
 const RESULTS = Result[]
@@ -132,11 +138,13 @@ gap(objective, reference) =
 
 """
     result!(test, problem, backend, configuration; modeler, solver, options, grid_size,
-            scheme, converged, reason, objective, iterations, violation, time)
+            scheme, converged, reason, objective, iterations, violation, time,
+            trajectory=nothing)
 
 Record the result of a solve of `problem` in the modeling of `backend`, discretized on
 `grid_size` steps with `scheme`. `modeler`, `solver` and `options` are the `settings` of the
-solve modules, the solver status the `outcome` of a solution.
+solve modules, the solver status the `outcome` of a solution, `trajectory` the
+`trajectory` of the solution.
 """
 function result!(
     test,
@@ -154,6 +162,7 @@ function result!(
     iterations,
     violation,
     time,
+    trajectory=nothing,
 )
     reference = OptimalControlProblems.reference_objective(problem; grid_size, scheme)
     push!(
@@ -182,12 +191,59 @@ function result!(
             else
                 nothing
             end,
+            OptimalControlProblems._fingerprint(problem),
+            trajectory,
         ),
     )
     return nothing
 end
 
 modeling(backend) = OptimalControlProblems._modeling_spec(backend).name
+
+# Points kept on the time grid of a trajectory: enough to draw it, small enough to publish.
+const TRAJECTORY_POINTS = 501
+
+"""
+The trajectory of a solution `x` (an OptimalControl solution or a solved JuMP model, read
+with the accessors they share), for the plots of the documentation (#314): the time grid,
+at most `TRAJECTORY_POINTS` of its nodes, the state, the control and the costate at these
+nodes by component, and the variable. The costate is the one of the solver: for JuMP its sign
+is the opposite of OptimalControl's (#326). Values are rounded to 8 significant digits.
+`nothing`, with a warning, when the solution cannot be read (a JuMP model without values):
+the solve is still reported.
+"""
+function trajectory(x)
+    try
+        return _trajectory(x)
+    catch err
+        @warn "No trajectory for this solve" exception = err
+        return nothing
+    end
+end
+
+function _trajectory(x)
+    O = OptimalControlProblems
+    grid = collect(O.time_grid(x))
+    keep = if length(grid) <= TRAJECTORY_POINTS
+        eachindex(grid)
+    else
+        unique(round.(Int, range(1, length(grid); length=TRAJECTORY_POINTS)))
+    end
+    t = grid[keep]
+    r(v) = round(Float64(v); sigdigits=8)
+    function components(f, names)
+        return Dict(name => [r(f(τ)[i]) for τ in t] for (i, name) in enumerate(names))
+    end
+    xs, us = O.state_components(x), O.control_components(x)
+    scalar(f) = τ -> (y = f(τ); y isa Number ? [y] : y)
+    return Dict{String,Any}(
+        "time" => r.(t),
+        "state" => components(scalar(O.state(x)), xs),
+        "control" => components(scalar(O.control(x)), us),
+        "costate" => components(scalar(O.costate(x)), xs),
+        "variable" => r.(vcat(O.variable(x))),
+    )
+end
 
 """
 `:valid` when `problem` is `:valid` in every modeling of `backends`, `:draft` otherwise.
@@ -260,15 +316,21 @@ const REPORTS = joinpath(dirname(@__DIR__), "reports")
 
 """
 Print the report and write it to `test/reports/<name>.md`, with the results of the solves
-(#360) as a second table and as `test/reports/<name>-results.tsv`. When there is nothing to
-report, nothing is written and the files of a previous run are removed.
+(#360) as a second table and as `test/reports/<name>-results.tsv`, the environment of the run
+(`<name>-environment.toml`, `<name>-env/`) and the trajectories of the solutions
+(`<name>-trajectories.toml`). When there is nothing to report, nothing is written and the
+files of a previous run are removed.
 """
 function write_report(name::AbstractString)
     file = joinpath(REPORTS, "$name.md")
     tsv = joinpath(REPORTS, "$name-results.tsv")
     environment = joinpath(REPORTS, "$name-environment.toml")
+    env_dir = joinpath(REPORTS, "$name-env")
+    trajectories = joinpath(REPORTS, "$name-trajectories.toml")
     rm(tsv; force=true)
     rm(environment; force=true)
+    rm(env_dir; force=true, recursive=true)
+    rm(trajectories; force=true)
     isempty(ROWS) && isempty(RESULTS) && (rm(file; force=true); return nothing)
     lines = [
         "# Test report: $name",
@@ -285,6 +347,8 @@ function write_report(name::AbstractString)
     mkpath(REPORTS)
     isempty(RESULTS) || append!(lines, results_table(tsv))
     isempty(RESULTS) || write_environment(environment)
+    isempty(RESULTS) || write_environment_files(env_dir)
+    write_trajectories(trajectories)
     text = join(lines, "\n") * "\n"
     write(file, text)
     # lines worth reading: drafts, and checks that report instead of failing
@@ -337,13 +401,14 @@ function results_table(tsv::AbstractString)
         ]
     end
     # how each solve was configured (#409): in the file only, too long for the table
-    extra = ["modeler", "solver", "options", "violation"]
+    extra = ["modeler", "solver", "options", "violation", "fingerprint"]
     function extra_cells(r)
         return [
             isnothing(r.modeler) ? "" : string(r.modeler),
             string(r.solver),
             r.options,
             full(r.violation),
+            r.fingerprint,
         ]
     end
     open(tsv, "w") do io
@@ -432,6 +497,53 @@ function write_environment(file::AbstractString)
             "# Environment of the solves of this report (#409); generated by the tests.\n",
         )
         return TOML.print(io, data; sorted=true)
+    end
+    return file
+end
+
+"""
+Write the files of the environment of the run to the directory `dir` (#314), for the
+Reproducibility block of the documentation: `Project.toml` and `Manifest.toml` of the test
+environment, `versioninfo.txt`, `status.txt` (`Pkg.status()`) and `status-manifest.txt`
+(`Pkg.status(; mode=Pkg.PKGMODE_MANIFEST)`).
+"""
+function write_environment_files(dir::AbstractString)
+    mkpath(dir)
+    project = Base.active_project()
+    manifest = joinpath(dirname(project), "Manifest.toml")
+    cp(project, joinpath(dir, "Project.toml"); force=true)
+    isfile(manifest) && cp(manifest, joinpath(dir, "Manifest.toml"); force=true)
+    open(io -> InteractiveUtils.versioninfo(io), joinpath(dir, "versioninfo.txt"), "w")
+    # the environment is a temporary copy: its path says nothing and would be published
+    without_path(text) = replace(text, dirname(project) => "test environment")
+    status(; kwargs...) = without_path(sprint(io -> Pkg.status(; io=io, kwargs...)))
+    write(joinpath(dir, "status.txt"), status())
+    write(joinpath(dir, "status-manifest.txt"), status(; mode=Pkg.PKGMODE_MANIFEST))
+    return dir
+end
+
+"""
+Write the trajectories of the results that have one to `file` (#314), one table per solve:
+problem, modeling, configuration, fingerprint, and the `trajectory`. Nothing is written when
+no result has a trajectory.
+"""
+function write_trajectories(file::AbstractString)
+    entries = [
+        Dict{String,Any}(
+            "problem" => string(r.problem),
+            "modeling" => r.modelings,
+            "configuration" => r.configuration,
+            "fingerprint" => r.fingerprint,
+            "trajectory" => r.trajectory,
+        ) for r in RESULTS if !isnothing(r.trajectory)
+    ]
+    isempty(entries) && return nothing
+    open(file, "w") do io
+        println(
+            io,
+            "# Trajectories of the solutions of this report (#314); generated by the tests.\n",
+        )
+        return TOML.print(io, Dict("solve" => entries); sorted=true)
     end
     return file
 end

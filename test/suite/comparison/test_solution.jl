@@ -38,6 +38,7 @@ function check_solution(problem::Symbol, scheme::Symbol)
     Test.@test all(
         t -> vec1(OCP.costate(sol)(t)) ≈ vec1(OCP.costate(model)(t)), T[1:(end - 1)]
     )
+    scheme === :trapeze && check_trajectory(model, sol)
     if scheme != :trapeze
         # one control per step, held on the step [t_i, t_{i+1}) and repeated at the last node
         name = first(OCP.control_components(model))
@@ -46,6 +47,26 @@ function check_solution(problem::Symbol, scheme::Symbol)
         u(t) = first(vec1(OCP.control(sol)(t)))
         Test.@test [u((T[i] + T[i + 1]) / 2) for i in 1:N] == U
         Test.@test u(T[end]) == U[end]
+    end
+    return nothing
+end
+
+# The trajectory published for the documentation (#314) is what the accessors give, on at
+# most `TRAJECTORY_POINTS` nodes, for a JuMP model as for an OptimalControl solution.
+function check_trajectory(model, sol)
+    for x in (model, sol)
+        tr = Main.TestStatus.trajectory(x)
+        Test.@test !isnothing(tr)
+        t = tr["time"]
+        Test.@test length(t) <= Main.TestStatus.TRAJECTORY_POINTS
+        Test.@test t[1] ≈ first(OCP.time_grid(x)) && t[end] ≈ last(OCP.time_grid(x))
+        Test.@test sort(collect(keys(tr["state"]))) == sort(OCP.state_components(x))
+        Test.@test sort(collect(keys(tr["control"]))) == sort(OCP.control_components(x))
+        for (i, name) in enumerate(OCP.state_components(x))
+            Test.@test tr["state"][name] ≈ [vec1(OCP.state(x)(τ))[i] for τ in t] rtol = 1e-7
+            Test.@test length(tr["costate"][name]) == length(t)
+        end
+        Test.@test tr["variable"] ≈ vec1(OCP.variable(x))
     end
     return nothing
 end

@@ -4,6 +4,7 @@ using CTBase: CTBase
 using CTModels: CTModels
 using DocStringExtensions: TYPEDEF, TYPEDFIELDS, TYPEDSIGNATURES
 using OrderedCollections: OrderedDict
+using SHA: SHA
 using TOML: TOML
 
 # Accessors shared with OptimalControl, which reexports these very functions: binding them
@@ -73,6 +74,38 @@ end
 
 function _problem_exists(problem::Symbol, spec)
     return isfile(_problem_file(problem, spec))
+end
+
+# The files that define `problem`: its metadata, its description and its model in each
+# modeling where it exists. Its reference objectives are not part of it: they are computed
+# from its results.
+function _problem_files(problem::Symbol)
+    ext = joinpath(dirname(@__DIR__), "ext")
+    files = [
+        joinpath(ext, "MetaData", "$(problem).jl"),
+        joinpath(ext, "Descriptions", "$(problem).md"),
+    ]
+    for spec in MODELING_SPECS
+        _problem_exists(problem, spec) && push!(files, _problem_file(problem, spec))
+    end
+    return files
+end
+
+"""
+Fingerprint of `problem` (#314): the SHA-256 of the files that define it (metadata,
+description, model files), recorded with each result and compared by the documentation to
+tell whether a result is up to date. The same on every platform: paths are relative to the
+package and written with `/`, and line endings are read as `\n`.
+"""
+_fingerprint(problem::Symbol) = _fingerprint(_problem_files(problem), dirname(@__DIR__))
+
+function _fingerprint(files, root::AbstractString)
+    ctx = SHA.SHA256_CTX()
+    for file in files
+        SHA.update!(ctx, codeunits(join(splitpath(relpath(file, root)), "/") * "\0"))
+        SHA.update!(ctx, codeunits(replace(read(file, String), "\r\n" => "\n") * "\0"))
+    end
+    return bytes2hex(SHA.digest!(ctx))
 end
 
 function _warn_if_draft(problem::Symbol, modeling::Symbol)

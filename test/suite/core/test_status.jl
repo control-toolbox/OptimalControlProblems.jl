@@ -79,6 +79,34 @@ function test_status()
             Test.@test Main.TestStatus.outcome(failing) == "fail"
         end
 
+        Test.@testset "fingerprint of a problem (#314)" begin
+            O = OptimalControlProblems
+            problem = first(O.problems(; status=:all))
+            Test.@test O._fingerprint(problem) == O._fingerprint(problem)
+            Test.@test length(O._fingerprint(problem)) == 64
+            # every file that defines the problem, and only them
+            files = O._problem_files(problem)
+            Test.@test all(isfile, files)
+            Test.@test !any(contains("references"), files)
+            # it changes with the content and the path of a file, not with the line endings
+            root = mktempdir()
+            try
+                a, b = joinpath(root, "a.jl"), joinpath(root, "b.jl")
+                write(a, "x = 1\ny = 2\n")
+                write(b, "z = 3\n")
+                f = O._fingerprint([a, b], root)
+                write(a, "x = 1\r\ny = 2\r\n")
+                Test.@test O._fingerprint([a, b], root) == f
+                write(a, "x = 1\ny = 3\n")
+                Test.@test O._fingerprint([a, b], root) != f
+                write(a, "x = 1\ny = 2\n")
+                mv(b, joinpath(root, "c.jl"))
+                Test.@test O._fingerprint([a, joinpath(root, "c.jl")], root) != f
+            finally
+                rm(root; force=true, recursive=true)
+            end
+        end
+
         Test.@testset "how a solve was configured is recorded (#409)" begin
             S = Main.TestStatus
             # the options are read back with TOML: an enumeration value and a symbol as
@@ -129,16 +157,73 @@ function test_status()
                 S.results_table(tsv)
                 header, row = split.(readlines(tsv)[[1, end]], '\t')
                 cell(name) = row[findfirst(==(name), header)]
-                Test.@test header[(end - 3):end] ==
-                    ["modeler", "solver", "options", "violation"]
+                Test.@test header[(end - 4):end] ==
+                    ["modeler", "solver", "options", "violation", "fingerprint"]
                 Test.@test cell("modeler") == ""
                 Test.@test cell("solver") == "ipopt"
                 Test.@test TOML.parse("o = " * cell("options"))["o"] ==
                     Dict("tol" => 1e-8, "mu_init" => 1e-3)
                 Test.@test parse(Float64, cell("violation")) == 2.5e-9
+                Test.@test cell("fingerprint") ==
+                    OptimalControlProblems._fingerprint(problem)
             finally
                 resize!(S.RESULTS, n)
                 rm(tsv; force=true)
+            end
+
+            # the trajectories of the results that have one (#314), with their fingerprint
+            file = tempname() * "-trajectories.toml"
+            try
+                trajectory = Dict{String,Any}(
+                    "time" => [0.0, 1.0],
+                    "state" => Dict("x" => [1.0, 2.0]),
+                    "control" => Dict("u" => [0.5, 0.5]),
+                    "costate" => Dict("x" => [3.0, 4.0]),
+                    "variable" => Float64[],
+                )
+                for tr in (nothing, trajectory)
+                    S.result!(
+                        "test_convergence solver=ipopt",
+                        problem,
+                        BACKEND,
+                        "solver=ipopt";
+                        modeler=nothing,
+                        solver=:ipopt,
+                        options=(;),
+                        grid_size=OptimalControlProblems.grid_size_data(problem),
+                        scheme=:trapeze,
+                        converged=true,
+                        reason="LOCALLY_SOLVED",
+                        objective=1.0,
+                        iterations=7,
+                        violation=0.0,
+                        time=0.1,
+                        trajectory=tr,
+                    )
+                end
+                solves = TOML.parsefile(S.write_trajectories(file))["solve"]
+                Test.@test length(solves) == 1
+                Test.@test solves[1]["problem"] == string(problem)
+                Test.@test solves[1]["fingerprint"] ==
+                    OptimalControlProblems._fingerprint(problem)
+                Test.@test solves[1]["trajectory"] == trajectory
+            finally
+                resize!(S.RESULTS, n)
+                rm(file; force=true)
+            end
+            # no trajectory, no file
+            Test.@test isnothing(S.write_trajectories(tempname()))
+
+            # the files of the environment of the run (#314)
+            dir = mktempdir()
+            try
+                S.write_environment_files(dir)
+                for f in
+                    ("Project.toml", "versioninfo.txt", "status.txt", "status-manifest.txt")
+                    Test.@test isfile(joinpath(dir, f)) && filesize(joinpath(dir, f)) > 0
+                end
+            finally
+                rm(dir; force=true, recursive=true)
             end
 
             # the environment of the run: Julia, the machine, the commit, the run, and the
