@@ -18,9 +18,9 @@ import{_ as e,o as a,c as i,ap as n}from"./chunks/framework.oN_wIzVc.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  Official https://julialang.org release</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Platform Info:</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  OS: Linux (x86_64-linux-gnu)</span></span>
-<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  CPU: 4 × AMD EPYC 7763 64-Core Processor</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  CPU: 4 × Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  WORD_SIZE: 64</span></span>
-<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  LLVM: libLLVM-18.1.7 (ORCJIT, znver3)</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  LLVM: libLLVM-18.1.7 (ORCJIT, icelake-server)</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  GC: Built with stock GC</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Threads: 1 default, 1 interactive, 1 GC (on 4 virtual cores)</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Environment:</span></span>
