@@ -4,6 +4,7 @@ using CTBase: CTBase
 using CTModels: CTModels
 using DocStringExtensions: TYPEDEF, TYPEDFIELDS, TYPEDSIGNATURES
 using OrderedCollections: OrderedDict
+using SHA: SHA
 using TOML: TOML
 
 # Accessors shared with OptimalControl, which reexports these very functions: binding them
@@ -75,6 +76,38 @@ function _problem_exists(problem::Symbol, spec)
     return isfile(_problem_file(problem, spec))
 end
 
+# The files that define `problem`: its metadata, its description and its model in each
+# modeling where it exists. Its reference objectives are not part of it: they are computed
+# from its results.
+function _problem_files(problem::Symbol)
+    ext = joinpath(dirname(@__DIR__), "ext")
+    files = [
+        joinpath(ext, "MetaData", "$(problem).jl"),
+        joinpath(ext, "Descriptions", "$(problem).md"),
+    ]
+    for spec in MODELING_SPECS
+        _problem_exists(problem, spec) && push!(files, _problem_file(problem, spec))
+    end
+    return files
+end
+
+"""
+Fingerprint of `problem` (#314): the SHA-256 of the files that define it (metadata,
+description, model files), recorded with each result and compared by the documentation to
+tell whether a result is up to date. The same on every platform: paths are relative to the
+package and written with `/`, and line endings are read as `\n`.
+"""
+_fingerprint(problem::Symbol) = _fingerprint(_problem_files(problem), dirname(@__DIR__))
+
+function _fingerprint(files, root::AbstractString)
+    ctx = SHA.SHA256_CTX()
+    for file in files
+        SHA.update!(ctx, codeunits(join(splitpath(relpath(file, root)), "/") * "\0"))
+        SHA.update!(ctx, codeunits(replace(read(file, String), "\r\n" => "\n") * "\0"))
+    end
+    return bytes2hex(SHA.digest!(ctx))
+end
+
 function _warn_if_draft(problem::Symbol, modeling::Symbol)
     data = METADATA_STORAGE[problem]
     statuses = data[:status]
@@ -138,7 +171,10 @@ end
 # at load time and by the consistency tests.
 const METADATA_SCHEMA = (
     required=(
-        grid_size=Int, parameters=Union{Nothing,NamedTuple}, status=NamedTuple, init=Function
+        grid_size=Int,
+        parameters=Union{Nothing,NamedTuple},
+        status=NamedTuple,
+        init=Function,
     ),
     optional=(notes=AbstractString, reference_solution=Function),
     generated=(reference_objective=NamedTuple,),
@@ -175,15 +211,19 @@ _relative_gap(a, b) = abs(a - b) / (iszero(b) ? 1 : abs(b))
 # a new directory changes `METADATA_PATH`, already a dependency
 isdir(REFERENCES_PATH) && Base.include_dependency(REFERENCES_PATH)
 
-function _references(problem::Symbol, file::AbstractString=joinpath(REFERENCES_PATH, "$(problem).toml"))
+function _references(
+    problem::Symbol, file::AbstractString=joinpath(REFERENCES_PATH, "$(problem).toml")
+)
     isfile(file) || return nothing
     Base.include_dependency(file)
     entries = Pair{Symbol,NamedTuple}[]
     for (scheme, table) in TOML.parsefile(file)
-        table isa AbstractDict || error("Reference objective $(scheme) of $(problem): not a table")
+        table isa AbstractDict ||
+            error("Reference objective $(scheme) of $(problem): not a table")
         values = map(keys(REFERENCE_FIELDS)) do key
-            haskey(table, string(key)) ||
-                error("Missing field $(key) in the reference objective $(scheme) of $(problem)")
+            haskey(table, string(key)) || error(
+                "Missing field $(key) in the reference objective $(scheme) of $(problem)",
+            )
             return REFERENCE_FIELDS[key](table[string(key)])
         end
         push!(entries, Symbol(scheme) => NamedTuple{keys(REFERENCE_FIELDS)}(values))
