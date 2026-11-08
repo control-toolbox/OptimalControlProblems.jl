@@ -11,13 +11,41 @@ discretization, or `nothing`. `OptimalControlProblems.solution_kind(p, objective
 scheme)` says which known solution an objective is: `:best`, `:local` or `:new`. The
 convergence and robustness reports (`test/README.md`) show both for each solve.
 
+Each known solution also says **how it was obtained** (#409), as a value:
+`OptimalControlProblems.references(p; grid_size, scheme)` returns them best first, as
+`NumericalReference`s, and `OptimalControlProblems.best_reference(p)` the first one:
+
+```julia
+ref = OptimalControlProblems.best_reference(:moonlander)
+ref.modeling, ref.modeler, ref.solver   # how it was modeled and solved
+ref.options                             # every option of the solver, defaults included
+ref.status, ref.iterations, ref.violation
+ref.run, ref.commit, ref.versions       # where, and with which packages
+OptimalControlProblems.objective(ref)
+```
+
+An analytic solution of the continuous problem is an `AnalyticReference`
+(`OptimalControlProblems.analytic_reference(p, parameters)`), with its state, control,
+objective and source. Both are `AbstractReference`s. The trajectories of a numerical
+solution are not kept: the configuration is enough to solve again, and the trajectories and
+plots of the last runs belong to the results pipeline (#314).
+
 ## What a reference is
 
-- **Value:** the best objective among the solves that converged, over every modeling,
-  configuration and platform of the convergence and robustness tests, at the default grid.
-  Every problem of the collection is a minimization.
+- **Value:** the objective of the best solution among the solves that converged, over every
+  modeling, configuration and platform of the convergence and robustness tests, at the
+  default grid. Every problem of the collection is a minimization.
 - **`solutions`:** the distinct solutions reached, best first, each with its objective, its
-  number of solves and the configurations that reached it. Two objectives within a relative
+  number of solves, the configurations that reached it, and its **`reference`**: the solve
+  chosen to represent it, whose objective is the solution's. The representative is a strict
+  convergence before an acceptable one (`acceptable`, `ALMOST_LOCALLY_SOLVED`,
+  `SOLVED_TO_ACCEPTABLE_LEVEL`), then the solve with the smallest constraint violation, then
+  the smallest objective. Its table holds the modeling, configuration, modeler, solver and
+  every option, the exit status, iterations, time and violation, the platform, and the
+  environment of its run (run, commit, Julia, machine, package versions), read from
+  `<report>-environment.toml`. The violation is what each modeling measures (JuMP counts the
+  variable bounds, relaxed by Ipopt): comparing it across modelings favours the
+  OptimalControl ones when both are strict. Two objectives within a relative
   `OptimalControlProblems.SAME_SOLUTION` (1e-5) are the same solution. 1e-5 is above the
   accuracy of the solvers at `tol = 1e-8` (about 1e-6), and below the gap between the two
   known solutions of `mountain_car` (1.6e-4).
@@ -26,10 +54,15 @@ convergence and robustness reports (`test/README.md`) show both for each solve.
 - **`grid_size`, `parameters`:** the default grid and parameters of the problem when the
   reference was computed. If either changes, the consistency tests fail. Compute the
   reference again.
-- **`run`:** where the results come from (a cron run, or `local`). The package versions are
-  in the logs of that run.
+- **`run`:** where the results come from (the cron runs, or `local`). Each solution says which
+  run solved its representative, and the versions of its packages.
 
 ## Computing the references
+
+The results must say how each solve was configured (columns `modeler`, `solver`, `options`,
+`violation` and the file `<report>-environment.toml`, written by the tests since #412):
+older results are refused. A reference file written before #409 still loads, without
+`references`, so that this script can write it again; the consistency tests fail on it.
 
 From the cron runs: the weekly convergence runs (one per environment: JuMP, OptimalControl,
 OptimalControlScalarized) **and** the latest monthly robustness run (`CronRobustness.yml`),

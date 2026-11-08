@@ -13,7 +13,7 @@ In dependency order: a submodule uses only those above it (`MOD7`).
 | --- | --- |
 | `Modelings` | the backend types and the modeling table `MODELING_SPECS`, the single place where a modeling is declared |
 | `Metadata` | the list of the problems (the files of `ext/MetaData/`), the schema `METADATA_SCHEMA`, loading and checking the metadata, reading it (`problem_metadata`, `parameters_data`, `initial_guess_data`…), the analytic solutions used by the metadata files |
-| `References` | the reference objectives and known solutions (`ext/MetaData/references/`), `reference_objective`, `solution_kind`, `reference_solution_data`, `SAME_SOLUTION` |
+| `References` | the reference objectives and known solutions (`ext/MetaData/references/`), `reference_objective`, `solution_kind`, `reference_solution_data`, `SAME_SOLUTION`; the references as values (#409): `AbstractReference`, `NumericalReference` (a known solution and how it was obtained), `AnalyticReference`, `references`, `best_reference`, `analytic_reference`, `objective(ref)` |
 | `Catalogue` | one function per problem (`beam`…), whose methods the extensions define, `problems`, `status`, the fingerprint of the files that define a problem |
 | `Problems` | `Problem`, `features`, `solution`, and the accessors shared with OptimalControl (`state`, `objective`…) |
 
