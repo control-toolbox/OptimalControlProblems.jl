@@ -47,54 +47,97 @@ STATUS_WORD = {
     "capability": "finding",
     "convergence": "finding",
 }
+SCOPE_INFO = {
+    "JuMP": {
+        "title": "JuMP — Nominal Convergence",
+        "focus": "Default solver configuration (IPOPT/MadNLP on default discretization grids)",
+        "cadence": "Weekly (Tuesday 04:00 UTC) · Julia 1.13, Ubuntu + Windows (CPU)",
+    },
+    "JuMP-robustness": {
+        "title": "JuMP — Solver Robustness",
+        "focus": "Perturbs IPOPT solver parameters (`mu_strategy`, `mu_init`) to test numerical stability (#378)",
+        "cadence": "Monthly (1st, 04:00 UTC) · Julia 1.13, Ubuntu + Windows (CPU)",
+    },
+    "OptimalControl": {
+        "title": "OptimalControl — Nominal Convergence",
+        "focus": "High-level `OptimalControl.jl` modeling on standard grids and default solvers",
+        "cadence": "Weekly (Wednesday 04:00 UTC) · Julia 1.13, Ubuntu + Windows (CPU + GPU)",
+    },
+    "OptimalControl-robustness": {
+        "title": "OptimalControl — Solver Robustness",
+        "focus": "Perturbs solver parameters for `OptimalControl.jl` formulations (#378)",
+        "cadence": "Monthly (1st, 04:00 UTC) · Julia 1.13, Ubuntu + Windows (CPU)",
+    },
+    "OptimalControlScalarized": {
+        "title": "OptimalControlScalarized — Nominal Convergence",
+        "focus": "Scalarized modeling where vector states/controls are unrolled into scalar components",
+        "cadence": "Weekly (Thursday 04:00 UTC) · Julia 1.13, Ubuntu + Windows (CPU + GPU)",
+    },
+    "ModelingToolkit": {
+        "title": "ModelingToolkit — Nominal Convergence",
+        "focus": "Symbolic modeling backend with ModelingToolkit.jl",
+        "cadence": "Manual dispatch (disabled until the environment exists)",
+    },
+}
+
+
+def scope_meta(scope: str) -> dict[str, str]:
+    """Human-friendly title, focus and cadence for a scope, with fallback for unknown scopes."""
+    return SCOPE_INFO.get(
+        scope,
+        {
+            "title": scope,
+            "focus": f"Automated cron tests for {scope}",
+            "cadence": "Scheduled workflow",
+        },
+    )
+
+
 HEADERS = {
     "failure": (
         "# Cron failures\n\n"
-        "Written by the weekly cron workflows, one section per scope, replaced by each run of "
-        "that scope. A `:valid` problem failed its slow tests (or the run itself failed).\n\n"
-        "**Who:** a maintainer triages; nothing is fixed or changed automatically (an agent only "
-        "if a maintainer asks for it).\n\n"
-        "**What to do:** open the run linked in the section, find the failing problem and "
-        "configuration in the table, and decide: fix the problem or the package; report an "
-        "upstream break; or, if the configuration is not supported, set the problem to "
-        "`:draft` in `ext/MetaData/<problem>.jl`. A `cron-bug` issue per (problem, modeling) is "
-        "opened for up to 5 failing pairs per run; more than 5 is reported here only, as a "
-        f"probable upstream breakage. Details: [README]({README_URL}). "
-        "This issue updates itself; close it when the sections say `No findings.`"
+        "> **About this tracking:**\n"
+        "> A problem marked `:valid` in metadata failed its slow tests (or the workflow itself crashed).\n"
+        ">\n"
+        "> **What to do:**\n"
+        "> - Check the failing configuration and reproduce locally using the command below.\n"
+        "> - Fix the problem definition or package, or report an upstream breakage.\n"
+        "> - If the configuration is unsupported, set the problem to `:draft` in `ext/MetaData/<problem>.jl`.\n"
+        f"> - Details: [Workflow README]({README_URL}). This issue updates itself; close when all scopes are clean."
     ),
     "draft": (
         "# Drafts ready to become valid\n\n"
-        "Written by the weekly cron workflows, one section per scope, replaced by each run of "
-        "that scope. Each problem below is a `:draft` that **passed all its tests on every "
-        "platform of the run**.\n\n"
-        "**Who:** a maintainer decides; nothing changes automatically (an agent only if a "
-        "maintainer asks for it).\n\n"
-        "**What to do:** check the problem, then change its status to `:valid` in "
-        "`ext/MetaData/<problem>.jl` (`:status => (JuMP=:valid, ...)`, the modeling named in "
-        "the table) in a pull request; from then on a failure fails the CI and the cron. "
-        f"Details: [README]({README_URL}). This issue updates itself; the problem leaves the "
-        "list once it is `:valid`."
+        "> **About this tracking:**\n"
+        "> Problems marked `:draft` that **passed all slow tests on every platform**.\n"
+        ">\n"
+        "> **What to do:**\n"
+        "> Review the problem, then change its status to `:valid` in `ext/MetaData/<problem>.jl` via PR.\n"
+        f"> Details: [Workflow README]({README_URL})."
     ),
     "capability": (
-        "# Declared known failures that no longer happen\n\n"
-        "Written by the weekly cron workflows, one section per scope. Each entry below is a "
-        "known failure declared in the metadata that now passes.\n\n"
-        "**What to do:** remove the entry from `:known_failures` in `ext/MetaData/<problem>.jl`. "
-        f"Details: [README]({README_URL})."
+        "# Declared known failures that now pass\n\n"
+        "> **About this tracking:**\n"
+        "> Declared known failures in problem metadata that succeeded in the latest run.\n"
+        ">\n"
+        "> **What to do:**\n"
+        "> Remove the entry from `:known_failures` in `ext/MetaData/<problem>.jl`.\n"
+        f"> Details: [Workflow README]({README_URL})."
+    ),
+    "convergence": (
+        "# Solver Convergence and Robustness Report\n\n"
+        "> **About this tracking:**\n"
+        "> Numerical convergence is **reported, not tested** (#360): a solver failing to converge or finding an "
+        "objective that shifts does not fail the CI. These scheduled crons periodically re-solve the entire problem "
+        "catalogue to catch silent regressions, sensitivity to solver parameters, or better local optima.\n"
+        ">\n"
+        "> **What to do when an alert (⚠️) is flagged:**\n"
+        "> 1. Check which problem and solver configuration lost convergence or shifted objective.\n"
+        "> 2. Reproduce locally with the Julia command provided in the section.\n"
+        "> 3. Decide if the change is expected (e.g. updated solver version, improved initial guess) or a regression.\n"
+        "> 4. If expected, recompute reference objectives (`tools/references/README.md`). Close this issue when all scopes report clean.\n"
+        f"> Details: [Workflow README]({README_URL})."
     ),
 }
-HEADERS["convergence"] = (
-    "# Convergence that got worse\n\n"
-    "Written by the weekly cron workflows, one section per scope, replaced by each run of "
-    "that scope. Convergence is reported, not tested (#360): each entry below is a solve "
-    "that converged in the previous run of the scope and no longer does, or whose objective "
-    "moved by more than the threshold of `tools/cron/report.py`.\n\n"
-    "**Who:** a maintainer looks; nothing fails and nothing changes automatically.\n\n"
-    "**What to do:** open the run and the previous one (both linked in the section), and "
-    "decide whether the change is expected (new initial guess, new solver version) or a "
-    f"regression to investigate. Details: [README]({README_URL}). This issue updates itself; "
-    "close it when the sections say `No findings.`"
-)
 # The tests that report solves instead of testing them (`cron/<env>/test_convergence.jl`,
 # `robustness/<env>/test_robustness.jl`, #360, #378): they always pass and never make a draft
 # ready.
@@ -423,45 +466,54 @@ def problem_cell(kind: str, problem: str) -> str:
 
 
 def investigate(scope: str, kind: str, rows: list[dict[str, str]]) -> str:
-    """The `<details>` hint block of a section with findings (empty when there is nothing
-    to reproduce: a ready draft or a gone known failure is handled in the metadata file,
-    already linked in the table)."""
+    """The `<details>` hint block of a section with findings."""
     if kind not in ("failure", "convergence"):
         return ""
     env = scope.removesuffix("-robustness")
     mode = "robustness" if scope.endswith("-robustness") else "cron"
     repro_rows = [row for row in rows if row["problem"] != "workflow"]
+    
+    items = []
     if repro_rows:
-        repro = (
-            "Reproduce: "
-            f'`Pkg.test(; test_args=["{env}", "{mode}", '
-            f'"problem={repro_rows[0]["problem"]}"])`'
+        prob = repro_rows[0]["problem"]
+        items.append(
+            f"- **Local reproduction:**\n"
+            f"  ```julia\n"
+            f"  using Pkg; Pkg.test(; test_args=[\"{env}\", \"{mode}\", \"problem={prob}\"])\n"
+            f"  ```"
         )
+        if kind == "convergence":
+            items.append(
+                f"- **Data files:** "
+                f"[`problems/{prob}/result.json`]({REPOSITORY_URL}/blob/results/problems/{prob}/result.json) · "
+                f"[`cron/{scope}.md`]({REPOSITORY_URL}/blob/results/cron/{scope}.md)"
+            )
+            items.append(
+                "- **Outcome guide:**\n"
+                "  - `converged → <status>`: problem converged in the previous run, but not in this run\n"
+                "  - `objective a → b (±x)`: converged in both runs, but the objective value moved by more than relative threshold `1e-4`\n"
+                "  - `new solution`: converged to a previously unknown local solution (#378)"
+            )
     else:
-        repro = "the run itself failed or produced no report — open its logs"
-    legend = {
-        "failure": "a `cron-bug` issue may exist for this (problem, modeling)",
-        "convergence": (
-            "outcomes: `converged → <result>` (converged in the previous run, not now), "
-            "`objective a → b (±x)` (relative move above `OBJECTIVE_CHANGE`), "
-            "`new solution` (#378)"
-        ),
-    }[kind]
-    return (
-        "<details><summary>Investigate</summary>\n\n"
-        f"{repro} · {legend}\n\n"
-        "</details>"
-    )
+        items.append("- The run itself failed or produced no report. Check the linked GitHub Actions run logs.")
+
+    if kind == "failure":
+        items.append("- A standalone `cron-bug` issue may also be opened for this problem.")
+
+    content = "\n".join(items)
+    return f"<details><summary>🛠️ <b>How to investigate</b></summary>\n\n{content}\n\n</details>"
 
 
 def history_markdown(entries: list[str]) -> str:
     """The bounded `<details>` history block of a section."""
     return "\n".join(
         [
-            "<details><summary>History</summary>",
+            "<details><summary>📜 <b>Recent history</b></summary>",
+            "",
             HISTORY_MARKER,
             *entries,
             HISTORY_END,
+            "",
             "</details>",
         ]
     )
@@ -477,35 +529,40 @@ def issue_section(
     note: str = "",
     history: list[str] | None = None,
 ) -> str:
-    """One scope section of a summary issue: `## <scope>` (a stable anchor), a `<sub>`
-    reminder of what the scope is, a status line with the run, the findings table."""
+    """One scope section of a summary issue: title with scope name, focus and cadence,
+    status line with run link, and the findings table."""
+    meta = scope_meta(scope)
     word = STATUS_WORD[kind]
-    status = f"**⚠️ {len(rows)} {word}{'s' * (len(rows) != 1)}**" if rows else "**✅ clean**"
+    status = f"**⚠️ {len(rows)} {word}{'s' * (len(rows) != 1)}**" if rows else "**✅ Clean**"
+    
     bits = [status, f"Run [{run_id(run_url)}]({run_url})"]
     if generated:
-        bits.append(generated[:16].replace("T", " "))
-    bits.append(f"[scope report]({REPOSITORY_URL}/blob/results/cron/{scope}.md)")
+        bits.append(generated[:16].replace("T", " ") + " UTC")
+    bits.append(f"[Full scope report]({REPOSITORY_URL}/blob/results/cron/{scope}.md)")
     if previous_run:
-        bits.append(f"[previous run]({previous_run})")
+        bits.append(f"[Previous run]({previous_run})")
+        
     lines = [
         SCOPE_MARKER.format(scope=scope),
         STATUS_MARKER.format(count=len(rows)),
-        f"## {scope}",
+        f"## {meta['title']}",
+        "",
+        f"**Focus:** {meta['focus']}",
+        f"**Cadence & runners:** {note or meta['cadence']}",
+        "",
+        " · ".join(bits),
         "",
     ]
-    if note:
-        lines += [f"<sub>{note}</sub>", ""]
-    lines += [" · ".join(bits), ""]
     if rows:
-        outcome_header = "change" if kind == "convergence" else "outcome"
+        outcome_header = "Change" if kind == "convergence" else "Outcome"
         lines += [
-            f"| platform | problem | modeling | test | {outcome_header} |",
-            "| --- | --- | --- | --- | --- |",
+            f"| Platform | Problem | Modeling | Test configuration | {outcome_header} |",
+            "| :--- | :--- | :--- | :--- | :--- |",
         ]
         lines += [
             f"| {short_platform(row.get('platform', ''), scope)} | "
-            f"{problem_cell(kind, row['problem'])} | {row['modelings']} | "
-            f"{row['test']} | {row['outcome']} |"
+            f"{problem_cell(kind, row['problem'])} | `{row['modelings']}` | "
+            f"`{row['test']}` | **{row['outcome']}** |"
             for row in rows
         ]
         hint = investigate(scope, kind, rows)
@@ -528,17 +585,34 @@ def section_statuses(body: str) -> list[tuple[str, int]]:
     ]
 
 
+def is_section_placeholder(body: str, scope: str) -> bool:
+    """True if the section of `scope` is waiting for its first execution."""
+    start, end = section_bounds(body, scope)
+    return start >= 0 and "*Awaiting next scheduled run.*" in body[start:end]
+
+
 def summary_markdown(body: str, kind: str) -> str:
-    """The table of contents of the scopes, regenerated inside the header region by each
-    run: findings first, clean scopes grouped on one line."""
+    """Dashboard table of all scopes regenerated at the top of the issue."""
     statuses = section_statuses(body)
     word = STATUS_WORD[kind]
-    flagged = [f"[{scope}](#{scope.lower()}) | ⚠️ {n} {word}{'s' * (n != 1)}" for scope, n in statuses if n]
-    clean = " · ".join(f"[{scope}](#{scope.lower()})" for scope, n in statuses if not n)
-    lines = ["| Scope | Status |", "| --- | --- |"]
-    lines += [f"| {line} |" for line in flagged]
-    if clean:
-        lines.append(f"| {clean} | ✅ clean |")
+    lines = [
+        "## Overall Scope Status",
+        "",
+        "| Scope | Focus | Cadence | Status |",
+        "| :--- | :--- | :--- | :---: |",
+    ]
+    for scope, n in statuses:
+        meta = scope_meta(scope)
+        slug = re.sub(r"[^a-z0-9_-]+", "-", meta["title"].lower()).strip("-")
+        if n:
+            status_badge = f"⚠️ **{n} {word}{'s' * (n != 1)}**"
+        elif is_section_placeholder(body, scope):
+            status_badge = "*Awaiting run*"
+        else:
+            status_badge = "✅ Clean"
+        lines.append(
+            f"| [{meta['title']}](#{slug}) | {meta['focus']} | {meta['cadence'].split(' · ')[0]} | {status_badge} |"
+        )
     return "\n".join(lines)
 
 
@@ -564,10 +638,13 @@ def section_rows(body: str, scope: str) -> list[dict[str, str]]:
         return []
     rows = []
     for line in body[start:end].splitlines():
-        if not line.startswith("|") or line.startswith("| ---"):
+        if not line.startswith("|"):
             continue
         cells = [unwrap_link(cell) for cell in line.strip("|").split("|")]
-        if len(cells) != 5 or cells[0] == "platform":
+        if len(cells) != 5:
+            continue
+        first = cells[0].strip().lower()
+        if first in ("platform", "---", ":---") or first.startswith(":--") or first.startswith("--"):
             continue
         rows.append(
             {
@@ -732,6 +809,51 @@ def labels(issue: dict) -> set[str]:
     return {label["name"] for label in issue.get("labels", [])}
 
 
+DEFAULT_SCOPES = {
+    "convergence": [
+        "JuMP",
+        "JuMP-robustness",
+        "OptimalControl",
+        "OptimalControl-robustness",
+        "OptimalControlScalarized",
+    ],
+    "failure": ["JuMP", "OptimalControl", "OptimalControlScalarized"],
+    "draft": ["JuMP", "OptimalControl", "OptimalControlScalarized"],
+    "capability": ["JuMP", "OptimalControl", "OptimalControlScalarized"],
+}
+
+
+def placeholder_section(scope: str, kind: str) -> str:
+    """A clean placeholder section for a known scope waiting for its first run."""
+    meta = scope_meta(scope)
+    return "\n".join(
+        [
+            SCOPE_MARKER.format(scope=scope),
+            STATUS_MARKER.format(count=0),
+            f"## {meta['title']}",
+            "",
+            f"**Focus:** {meta['focus']}",
+            f"**Cadence & runners:** {meta['cadence']}",
+            "",
+            "*Awaiting next scheduled run.*",
+        ]
+    )
+
+
+def initial_issue_body(kind: str, active_scope: str, active_section: str) -> str:
+    """Build the complete initial body of a summary issue, pre-populating all known scopes."""
+    scopes = DEFAULT_SCOPES.get(kind, [active_scope])
+    sections = []
+    for s in scopes:
+        if s == active_scope:
+            sections.append(active_section)
+        else:
+            sections.append(placeholder_section(s, kind))
+    body = "\n\n".join(sections)
+    header = f"{HEADERS[kind]}\n\n{summary_markdown(body, kind)}"
+    return with_header(body, header)
+
+
 def issue_title(label: str, total: int, kind: str) -> str:
     word = STATUS_WORD[kind]
     suffix = f" — {total} {word}{'s' * (total != 1)}" if total else ""
@@ -755,14 +877,14 @@ def update_summary_issue(
     if issue is None and not rows:
         return
     if issue is None:
-        history = [change_entry(generated, run_url, rows, [])]
+        history = [change_entry(generated, run_url, rows, [])] if rows else []
         section = issue_section(
             scope, kind, rows, run_url, generated, previous_run, note, history
         )
-        body = f"{HEADERS[kind]}\n\n{section}\n"
+        body = initial_issue_body(kind, scope, section)
         github.create_issue(
             issue_title(label, len(rows), kind),
-            with_header(body, f"{HEADERS[kind]}\n\n{summary_markdown(body, kind)}"),
+            body,
             [label],
         )
         return

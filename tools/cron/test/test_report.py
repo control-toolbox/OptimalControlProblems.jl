@@ -229,42 +229,35 @@ class ReportTest(unittest.TestCase):
         )
         self.assertIn("<!-- cron-scope: JuMP -->", section)
         self.assertIn("<!-- cron-status: 1 -->", section)
-        self.assertIn("## JuMP\n", section)
-        self.assertIn("<sub>weekly, CPU</sub>", section)
+        self.assertIn("## JuMP — Nominal Convergence\n", section)
+        self.assertIn("**Focus:**", section)
+        self.assertIn("**Cadence & runners:** weekly, CPU", section)
         self.assertIn("**⚠️ 1 failure**", section)
         self.assertIn("Run [1](https://x/actions/runs/1)", section)
-        self.assertIn("2026-11-07 04:12", section)
+        self.assertIn("2026-11-07 04:12 UTC", section)
         self.assertIn("blob/results/cron/JuMP.md", section)
-        self.assertIn("[previous run](https://x/actions/runs/0)", section)
+        self.assertIn("[Previous run](https://x/actions/runs/0)", section)
         self.assertIn("Pkg.test", section)  # the Investigate hints
         clean = REPORT.issue_section("JuMP", "failure", [], "run")
-        self.assertIn("**✅ clean**", clean)
-        self.assertNotIn("Investigate", clean)
+        self.assertIn("**✅ Clean**", clean)
+        self.assertNotIn("How to investigate", clean)
 
     def test_a_missing_report_row_does_not_get_a_bogus_reproduce_command(self):
         section = REPORT.issue_section(
             "JuMP", "failure", [REPORT.missing_report_row("JuMP")], "run"
         )
         self.assertNotIn("problem=workflow", section)
-        self.assertIn("produced no report", section)
+        self.assertIn("failed or produced no report", section)
 
-    def test_the_summary_counts_sections_written_by_an_older_report(self):
-        github = FakeGitHub()
-        # a section in the pre-#432 format (no cron-status marker) still counts in the TOC
-        github.create_issue(
-            "[Cron] cron-convergence",
-            "header\n\n<!-- cron-scope: JuMP-robustness -->\n## cron-convergence\n\n"
-            "| platform | problem | modeling | test | outcome |\n"
-            "| --- | --- | --- | --- | --- |\n"
-            "| p | moonlander | JuMP | cfg | lost |\n",
-            ["cron-convergence"],
-        )
-        REPORT.update_summary_issue(
-            github, github.data, "convergence", "JuMP", [], "run", generated="d"
-        )
-        body = github.data[0]["body"]
-        self.assertIn("[JuMP-robustness](#jump-robustness) | ⚠️ 1 finding |", body)
-        self.assertEqual("[Cron] cron-convergence — 1 finding", github.data[0]["title"])
+    def test_initial_issue_body_prepopulates_all_known_scopes(self):
+        active = "<!-- cron-scope: JuMP -->\nACTIVE_JUMP_SECTION"
+        body = REPORT.initial_issue_body("convergence", "JuMP", active)
+        self.assertIn("ACTIVE_JUMP_SECTION", body)
+        self.assertIn("<!-- cron-scope: JuMP-robustness -->", body)
+        self.assertIn("<!-- cron-scope: OptimalControl -->", body)
+        self.assertIn("## Overall Scope Status", body)
+        self.assertIn("| [JuMP — Solver Robustness]", body)
+        self.assertIn("*Awaiting run*", body)
 
     def test_the_platform_column_drops_the_scope_prefix(self):
         row = self.rows("fail")[0]
@@ -287,9 +280,11 @@ class ReportTest(unittest.TestCase):
         REPORT.update_summary_issue(github, github.data, "failure", "JuMP", rows, "r1")
         REPORT.update_summary_issue(github, github.data, "failure", "OptimalControl", [], "r2")
         issue = github.data[0]
-        self.assertIn("| Scope | Status |", issue["body"])
-        self.assertIn("[JuMP](#jump) | ⚠️ 1 failure |", issue["body"])
-        self.assertIn("[OptimalControl](#optimalcontrol) | ✅ clean |", issue["body"])
+        self.assertIn("## Overall Scope Status", issue["body"])
+        self.assertIn("[JuMP — Nominal Convergence]", issue["body"])
+        self.assertIn("⚠️ **1 failure**", issue["body"])
+        self.assertIn("[OptimalControl — Nominal Convergence]", issue["body"])
+        self.assertIn("✅ Clean", issue["body"])
         self.assertEqual("[Cron] cron-failure — 1 failure", issue["title"])
         # all scopes clean again: the count leaves the title
         REPORT.update_summary_issue(github, github.data, "failure", "JuMP", [], "r3")
@@ -310,7 +305,7 @@ class ReportTest(unittest.TestCase):
         self.assertEqual(len(github.comments), 1)
         self.assertIn("all clear", github.comments[0][1])
         body = github.data[0]["body"]
-        self.assertIn("<details><summary>History</summary>", body)
+        self.assertIn("<details><summary>📜 <b>Recent history</b></summary>", body)
         self.assertIn("resolved: `beam` (all clear)", body)
         self.assertIn("[run](run-2)", body)
         # a stable finding set adds neither a comment nor an entry
