@@ -14,6 +14,9 @@ struct OptimalControlBackend <: AbstractModelBackend end
 """Select the scalarized OptimalControl modeling."""
 struct OptimalControlScalarizedBackend <: AbstractModelBackend end
 
+"""Select the ModelingToolkit modeling."""
+struct ModelingToolkitBackend <: AbstractModelBackend end
+
 # Keep the modeling table as the single place to add a backend.
 const MODELING_SPECS = (
     (
@@ -29,6 +32,12 @@ const MODELING_SPECS = (
         weakdep=:OptimalControl,
     ),
     (name=:JuMP, backend=JuMPBackend, directory="JuMPModels", weakdep=:JuMP),
+    (
+        name=:ModelingToolkit,
+        backend=ModelingToolkitBackend,
+        directory="ModelingToolkitModels",
+        weakdep=:ModelingToolkit,
+    ),
 )
 
 const MODELING_BY_TYPE = Dict(spec.backend => spec for spec in MODELING_SPECS)

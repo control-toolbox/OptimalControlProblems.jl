@@ -13,10 +13,12 @@ TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 
 [weakdeps]
 JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
+ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
 OptimalControl = "5f98b655-cc9a-415a-b60e-744165666948"
 
 [extensions]
 JuMPModels = "JuMP"
+ModelingToolkitModels = "ModelingToolkit"
 OptimalControlModels = "OptimalControl"
 
 [compat]
@@ -24,6 +26,7 @@ CTBase = "0.30"
 CTModels = "0.19"
 DocStringExtensions = "0.9"
 JuMP = "1"
+ModelingToolkit = "11"
 OptimalControl = "2.2"
 OrderedCollections = "1, 2"
 SHA = "0.7, 1"

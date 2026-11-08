@@ -1,0 +1,14 @@
+[deps]
+CTBase = "54762871-cc72-4466-b8e8-f6c8b58076cd"
+CTModels = "34c4fa32-2049-4079-8329-de33c2a22e2d"
+ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
+OptimalControlProblems = "59046045-fb9c-4c23-964f-ff0a25704f96"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+CTBase = "0.30"
+CTModels = "0.19"
+ModelingToolkit = "11"
+OptimalControlProblems = "0.5"
+Test = "1"
+

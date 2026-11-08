@@ -12,6 +12,7 @@ const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING :
 # Deliberately no problem name written here: everything is derived from the catalogue.
 const BACKENDS = (
     OptimalControlProblems.JuMPBackend(),
+    OptimalControlProblems.ModelingToolkitBackend(),
     OptimalControlProblems.OptimalControlBackend(),
     OptimalControlProblems.OptimalControlScalarizedBackend(),
 )

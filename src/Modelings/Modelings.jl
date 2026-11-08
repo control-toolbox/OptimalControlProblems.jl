@@ -14,6 +14,9 @@ using DocStringExtensions: TYPEDEF
 include(joinpath(@__DIR__, "backends.jl"))
 
 export AbstractModelBackend,
-    JuMPBackend, OptimalControlBackend, OptimalControlScalarizedBackend
+    JuMPBackend,
+    ModelingToolkitBackend,
+    OptimalControlBackend,
+    OptimalControlScalarizedBackend
 
 end # module Modelings
