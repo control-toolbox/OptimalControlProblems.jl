@@ -169,8 +169,8 @@ function thumbnails(results::SolveResults)
         order = [string(spec.name) for (spec, _) in modelings(problem)]
         candidates = [
             e for e in page_entries(problem) if !isnothing(e["trajectory"]) &&
-            e["scope"] == e["modeling"] &&
-            e["modeling"] in order
+                e["scope"] == e["modeling"] &&
+                e["modeling"] in order
         ]
         isempty(candidates) && continue
         e = first(

@@ -147,5 +147,7 @@ function OptimalControlProblems.space_shuttle(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems._initial_guess(:space_shuttle, params, init)
 
-    return OptimalControlProblems._problem(:space_shuttle, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :space_shuttle, :OptimalControlScalarized, ocp, init, params
+    )
 end

@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:cart_pendulum)` and `OptimalControlProblems.status(:cart_pendulum)`.
 """
 function OptimalControlProblems.cart_pendulum(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems._warn_if_draft(:cart_pendulum, :OptimalControl)
 
@@ -94,5 +92,7 @@ function OptimalControlProblems.cart_pendulum(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems._initial_guess(:cart_pendulum, params, init)
 
-    return OptimalControlProblems._problem(:cart_pendulum, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :cart_pendulum, :OptimalControl, ocp, init, params
+    )
 end

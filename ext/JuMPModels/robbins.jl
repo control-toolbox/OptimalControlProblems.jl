@@ -43,11 +43,7 @@ function OptimalControlProblems.robbins(
     x₃_tf = params[:x₃_tf]
 
     data = ProblemData(;
-        state=[
-            Component("x₁"; lower=x₁_l),
-            Component("x₂"),
-            Component("x₃"),
-        ],
+        state=[Component("x₁"; lower=x₁_l), Component("x₂"), Component("x₃")],
         control=[Component("u")],
         costate=["∂x₁", "∂x₂", "∂x₃"],
         times=v -> (t0, tf),

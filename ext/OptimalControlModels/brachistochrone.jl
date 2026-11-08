@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:brachistochrone)` and `OptimalControlProblems.status(:brachistochrone)`.
 """
 function OptimalControlProblems.brachistochrone(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems._warn_if_draft(:brachistochrone, :OptimalControl)
     params = parameters_data(:brachistochrone, parameters)
@@ -55,5 +53,7 @@ function OptimalControlProblems.brachistochrone(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems._initial_guess(:brachistochrone, params, init)
 
-    return OptimalControlProblems._problem(:brachistochrone, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :brachistochrone, :OptimalControl, ocp, init, params
+    )
 end

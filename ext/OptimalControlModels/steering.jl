@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:steering)` and `OptimalControlProblems.status(:steering)`.
 """
 function OptimalControlProblems.steering(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems._warn_if_draft(:steering, :OptimalControl)
 

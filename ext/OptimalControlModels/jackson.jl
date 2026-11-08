@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:jackson)` and `OptimalControlProblems.status(:jackson)`.
 """
 function OptimalControlProblems.jackson(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems._warn_if_draft(:jackson, :OptimalControl)
 

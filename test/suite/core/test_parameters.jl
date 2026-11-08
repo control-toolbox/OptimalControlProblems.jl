@@ -40,7 +40,9 @@ function test_parameters()
                 # the default parameters, given or not
                 expected = data[:reference_solution](data[:parameters])
                 Test.@test solution.objective == expected.objective
-                given = OptimalControlProblems.reference_solution_data(problem, data[:parameters])
+                given = OptimalControlProblems.reference_solution_data(
+                    problem, data[:parameters]
+                )
                 Test.@test given.objective == expected.objective
             else
                 Test.@test isnothing(solution)
@@ -49,7 +51,9 @@ function test_parameters()
     end
     Test.@testset "Bryson–Denham solution" verbose = VERBOSE showtiming = SHOWTIMING begin
         solve(ℓ; t0=0, tf=1, x_t0=(0, 1), x_tf=(0, -1), weight=1, kwargs...) =
-            OptimalControlProblems._bryson_denham_solution(t0, tf, x_t0, x_tf, ℓ; weight, kwargs...)
+            OptimalControlProblems._bryson_denham_solution(
+                t0, tf, x_t0, x_tf, ℓ; weight, kwargs...
+            )
         solution = solve(0.1)
         Test.@test solution.objective ≈ 8 / 0.9
         Test.@test solve(0.1; weight=0.5).objective ≈ 4 / 0.9

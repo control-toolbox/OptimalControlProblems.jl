@@ -10,10 +10,14 @@ const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING :
 
 function test_kwargs()
     Test.@testset "JuMP keyword arguments" verbose = VERBOSE showtiming = SHOWTIMING begin
-        Main.TestStatus.for_each_problem("kwargs", OptimalControlProblems.JuMPBackend()) do problem
+        Main.TestStatus.for_each_problem(
+            "kwargs", OptimalControlProblems.JuMPBackend()
+        ) do problem
             build = getfield(OptimalControlProblems, problem)
             # arguments of the model constructor are forwarded to JuMP.Model
-            model = build(OptimalControlProblems.JuMPBackend(), Ipopt.Optimizer; add_bridges=true)
+            model = build(
+                OptimalControlProblems.JuMPBackend(), Ipopt.Optimizer; add_bridges=true
+            )
             Test.@test JuMP.solver_name(model) == "Ipopt"
             # the initial guess of the metadata is the start, unless another one is given (#377)
             default = build(OptimalControlProblems.JuMPBackend(); grid_size=4)

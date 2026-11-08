@@ -53,5 +53,7 @@ function OptimalControlProblems.brachistochrone(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems._initial_guess(:brachistochrone, params, init)
 
-    return OptimalControlProblems._problem(:brachistochrone, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :brachistochrone, :OptimalControlScalarized, ocp, init, params
+    )
 end

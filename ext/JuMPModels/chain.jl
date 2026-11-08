@@ -41,11 +41,7 @@ function OptimalControlProblems.chain(
     x₃_tf = L
 
     data = ProblemData(;
-        state=[
-            Component("x₁"),
-            Component("x₂"),
-            Component("x₃"),
-        ],
+        state=[Component("x₁"), Component("x₂"), Component("x₃")],
         control=[Component("u")],
         costate=["∂x₁", "∂x₂", "∂x₃"],
         times=v -> (t0, tf),

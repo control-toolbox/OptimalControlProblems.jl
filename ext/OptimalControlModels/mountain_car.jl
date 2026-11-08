@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:mountain_car)` and `OptimalControlProblems.status(:mountain_car)`.
 """
 function OptimalControlProblems.mountain_car(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems._warn_if_draft(:mountain_car, :OptimalControl)
 
@@ -67,5 +65,7 @@ function OptimalControlProblems.mountain_car(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems._initial_guess(:mountain_car, params, init)
 
-    return OptimalControlProblems._problem(:mountain_car, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :mountain_car, :OptimalControl, ocp, init, params
+    )
 end

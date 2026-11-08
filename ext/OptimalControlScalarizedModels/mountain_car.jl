@@ -68,5 +68,7 @@ function OptimalControlProblems.mountain_car(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems._initial_guess(:mountain_car, params, init)
 
-    return OptimalControlProblems._problem(:mountain_car, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :mountain_car, :OptimalControlScalarized, ocp, init, params
+    )
 end

@@ -66,9 +66,7 @@ function OptimalControlProblems.bioreactor(
 
     data = ProblemData(;
         state=[
-            Component("y"; lower=y_l),
-            Component("s"; lower=s_l),
-            Component("b"; lower=b_l),
+            Component("y"; lower=y_l), Component("s"; lower=s_l), Component("b"; lower=b_l)
         ],
         control=[Component("u"; lower=u_l, upper=u_u)],
         costate=["∂y", "∂s", "∂b"],

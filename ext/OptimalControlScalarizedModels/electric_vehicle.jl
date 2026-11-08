@@ -56,5 +56,7 @@ function OptimalControlProblems.electric_vehicle(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems._initial_guess(:electric_vehicle, params, init)
 
-    return OptimalControlProblems._problem(:electric_vehicle, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :electric_vehicle, :OptimalControlScalarized, ocp, init, params
+    )
 end

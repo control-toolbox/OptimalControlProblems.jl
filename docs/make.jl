@@ -87,7 +87,7 @@ deploy_decision = Documenter.deploy_folder(
 with_status_page() do status_file
     with_problems_browser() do browser_file
         with_api_reference(src_dir, ext_dir) do api_pages
-            makedocs(;
+            return makedocs(;
                 draft=draft,
                 warnonly=:cross_references,
                 sitename="OptimalControlProblems.jl",

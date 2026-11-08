@@ -57,5 +57,7 @@ function OptimalControlProblems.jackson(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems._initial_guess(:jackson, params, init)
 
-    return OptimalControlProblems._problem(:jackson, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :jackson, :OptimalControlScalarized, ocp, init, params
+    )
 end

@@ -8,7 +8,8 @@
 # equivalence of #284; convergence is tested per modeling.
 # Numbers only: no plot. The visual comparison is left to the cron report (#310).
 isdefined(Main, :SolveJuMP) || include(joinpath(@__DIR__, "solve_jump.jl"))
-isdefined(Main, :SolveOptimalControl) || include(joinpath(@__DIR__, "solve_optimalcontrol.jl"))
+isdefined(Main, :SolveOptimalControl) ||
+    include(joinpath(@__DIR__, "solve_optimalcontrol.jl"))
 
 module Comparison
 
@@ -99,7 +100,9 @@ end
 Solve `problem` with an OptimalControl modeling (first configuration of the modeling); the
 size of the NLP is read from `discretize` + `nlp_model`, built as `solve` builds it.
 """
-function solve(backend::OCP.AbstractModelBackend, problem::Symbol; grid_size::Int, max_iter::Int)
+function solve(
+    backend::OCP.AbstractModelBackend, problem::Symbol; grid_size::Int, max_iter::Int
+)
     config = first(getfield(Main.TestConfigs.CONFIGS, Main.TestStatus.modeling(backend)))
     pb = getfield(OCP, problem)(backend)
     S = Main.SolveOptimalControl
@@ -156,7 +159,9 @@ function compare_grid(ref::Data, other::Data)
     same_final = check(within(ref.t[end], other.t[end]; GRID...))
     comparable = same_length && same_final
     if comparable
-        comparable &= all(i -> check(within(ref.t[i], other.t[i]; GRID...)), eachindex(ref.t))
+        comparable &= all(
+            i -> check(within(ref.t[i], other.t[i]; GRID...)), eachindex(ref.t)
+        )
     end
     return comparable
 end
@@ -165,11 +170,7 @@ end
 function compare_trajectories(ref::Data, other::Data)
     t = ref.t
     for i in eachindex(ref.xnames)
-        check(
-            within_L2(
-                t, [s[i] for s in ref.x], [s[i] for s in other.x]; STATE...
-            ),
-        )
+        check(within_L2(t, [s[i] for s in ref.x], [s[i] for s in other.x]; STATE...))
     end
     for i in eachindex(ref.unames)
         check(within_L2(t, [s[i] for s in ref.u], [s[i] for s in other.u]; CONTROL...))
@@ -189,9 +190,10 @@ function compare_objective(ref::Data, other::Data)
     a, b = ref.objective, other.objective
     bound = max(0.5 * (abs(a) + abs(b)) * OBJECTIVE.rtol, OBJECTIVE.atol)
     ok = abs(a - b) < bound
-    ok || @warn "Objectives differ" reference = a other = b gap = abs(a - b) bound iterations = (
-        ref.iterations, other.iterations
-    )
+    ok ||
+        @warn "Objectives differ" reference = a other = b gap = abs(a - b) bound iterations = (
+            ref.iterations, other.iterations
+        )
     Test.@test abs(a - b) < bound
     return ok
 end

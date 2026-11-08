@@ -19,7 +19,8 @@ const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING :
 function test_smoke_scalarized()
     S = Main.SolveOptimalControl
     backend = OptimalControlProblems.OptimalControlScalarizedBackend()
-    Test.@testset "OptimalControlScalarized smoke on GPU (small grid, few iterations)" verbose = VERBOSE showtiming = SHOWTIMING begin
+    Test.@testset "OptimalControlScalarized smoke on GPU (small grid, few iterations)" verbose =
+        VERBOSE showtiming = SHOWTIMING begin
         for config in Main.TestConfigs.GPU_CONFIGS.OptimalControlScalarized
             Test.@testset "$(Main.TestConfigs.label(config))" begin
                 test = "test_smoke_scalarized $(Main.TestConfigs.label(config))"
@@ -29,13 +30,20 @@ function test_smoke_scalarized()
                     if Main.TestCapabilities.CUDA_FUNCTIONAL
                         # a few iterations: the solve runs on the device and gives a finite
                         # objective; whether it converges is not checked (#360)
-                        sol = S.solve(pb, config; grid_size=o.SMOKE_GRID, max_iter=o.SMOKE_MAX_ITER)
+                        sol = S.solve(
+                            pb, config; grid_size=o.SMOKE_GRID, max_iter=o.SMOKE_MAX_ITER
+                        )
                         Test.@test isfinite(OptimalControl.objective(sol))
                     else
                         # no device: a visible skip (TST6), not a vacuous pass
                         Test.@test_skip isfinite(
                             OptimalControl.objective(
-                                S.solve(pb, config; grid_size=o.SMOKE_GRID, max_iter=o.SMOKE_MAX_ITER)
+                                S.solve(
+                                    pb,
+                                    config;
+                                    grid_size=o.SMOKE_GRID,
+                                    max_iter=o.SMOKE_MAX_ITER,
+                                ),
                             ),
                         )
                     end

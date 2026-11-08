@@ -14,8 +14,12 @@ const GRID_SIZES = (100, 400)
 # Constraint violation of the discretized problem at the analytic solution, and relative gap
 # of its objective to the analytic objective, on `grid_size` steps of the trapezoidal rule.
 function errors(ocp, solution, grid_size)
-    init = OptimalControl.build_initial_guess(ocp, (state=solution.state, control=solution.control))
-    docp = OptimalControl.discretize(ocp, OptimalControl.Collocation(; grid_size=grid_size, scheme=:trapeze))
+    init = OptimalControl.build_initial_guess(
+        ocp, (state=solution.state, control=solution.control)
+    )
+    docp = OptimalControl.discretize(
+        ocp, OptimalControl.Collocation(; grid_size=grid_size, scheme=:trapeze)
+    )
     nlp = OptimalControl.nlp_model(docp, init, OptimalControl.ADNLP())
     x, meta = nlp.meta.x0, nlp.meta
     c = NLPModels.cons(nlp, x)
@@ -33,7 +37,8 @@ end
 # solution or objective leaves them bounded away from zero.
 function test_reference_solution()
     backend = OCP.OptimalControlBackend()
-    Test.@testset "OptimalControl reference solution" verbose = VERBOSE showtiming = SHOWTIMING begin
+    Test.@testset "OptimalControl reference solution" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         Main.TestStatus.for_each_problem("reference_solution", backend) do problem
             solution = OCP.reference_solution_data(problem)
             isnothing(solution) && return nothing

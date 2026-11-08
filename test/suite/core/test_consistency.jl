@@ -13,7 +13,11 @@ const EXT = joinpath(ROOT, "ext")
 # Directories of ext/ that hold one file per problem, and the extension of their files.
 const DATA_DIRECTORIES = ("MetaData" => ".jl", "Descriptions" => ".md")
 
-names_in(dir, extension) = sort!([Symbol(first(splitext(f))) for f in readdir(dir) if endswith(f, extension)])
+function names_in(dir, extension)
+    return sort!([
+        Symbol(first(splitext(f))) for f in readdir(dir) if endswith(f, extension)
+    ])
+end
 
 """Files of the problem `problem` in `ext/` (model files, metadata, description)."""
 function test_files()
@@ -24,7 +28,9 @@ function test_files()
             Test.@test names_in(joinpath(EXT, dir), extension) == problems
         end
         # model directories: exactly the directories of the modeling table
-        model_dirs = sort!([d for d in readdir(EXT) if isdir(joinpath(EXT, d)) && endswith(d, "Models")])
+        model_dirs = sort!([
+            d for d in readdir(EXT) if isdir(joinpath(EXT, d)) && endswith(d, "Models")
+        ])
         Test.@test model_dirs == sort!([spec.directory for spec in OCP.MODELING_SPECS])
         for spec in OCP.MODELING_SPECS
             files = names_in(joinpath(EXT, spec.directory), ".jl")
@@ -35,7 +41,10 @@ function test_files()
         end
         # every problem has at least one modeling
         for problem in problems
-            Test.@test any(spec -> isfile(joinpath(EXT, spec.directory, "$problem.jl")), OCP.MODELING_SPECS)
+            Test.@test any(
+                spec -> isfile(joinpath(EXT, spec.directory, "$problem.jl")),
+                OCP.MODELING_SPECS,
+            )
         end
     end
 end
@@ -99,7 +108,8 @@ function test_reference_objectives()
                 Test.@test first(entry.solutions) == entry.value
                 Test.@test issorted(entry.solutions)
                 Test.@test entry.agreement == (length(entry.solutions) == 1)
-                kind(x) = OCP.solution_kind(problem, x; grid_size=entry.grid_size, scheme=scheme)
+                kind(x) =
+                    OCP.solution_kind(problem, x; grid_size=entry.grid_size, scheme=scheme)
                 Test.@test kind(entry.value) === :best
                 Test.@test all(s -> kind(s) in (:best, :local), entry.solutions)
                 Test.@test all(s -> kind(s) === :local, entry.solutions[2:end])
@@ -109,7 +119,11 @@ function test_reference_objectives()
             valid = [name for (name, s) in pairs(OCP.status(problem)) if s === :valid]
             (isempty(valid) || !isnothing(OCP.reference_objective(problem))) && continue
             Main.TestStatus.report!(
-                "reference objectives", problem, join(valid, ", "), :valid, "no reference objective",
+                "reference objectives",
+                problem,
+                join(valid, ", "),
+                :valid,
+                "no reference objective",
             )
         end
     end
@@ -132,19 +146,26 @@ end
 function test_no_handwritten_list()
     Test.@testset "no hand-written list" verbose = VERBOSE begin
         problems = OCP.problems(; status=:all)
-        pattern = Regex("(?<![:\\w]):(" * join(string.(problems), "|") * ")\\b|\"(" *
-                        join(string.(problems), "|") * ")\"")
+        pattern = Regex(
+            "(?<![:\\w]):(" *
+            join(string.(problems), "|") *
+            ")\\b|\"(" *
+            join(string.(problems), "|") *
+            ")\"",
+        )
         files = source_files()
         Test.@test !isempty(files)
         for file in files
             in_docstring = false
             for (i, line) in enumerate(eachline(file))
                 # docstrings may show a problem as an example; code may not name one
-                isodd(count("\"\"\"", line)) && (in_docstring = !in_docstring; continue)
+                isodd(count("\"\"\"", line)) && (in_docstring=(!in_docstring); continue)
                 in_docstring && continue
                 m = match(pattern, line)
                 isnothing(m) && continue
-                @error "Problem name written by hand" file = relpath(file, ROOT) line = i text = strip(line)
+                @error "Problem name written by hand" file = relpath(file, ROOT) line = i text = strip(
+                    line
+                )
                 Test.@test isnothing(m)
             end
         end
@@ -169,7 +190,9 @@ function test_sources()
         end
         Test.@test cites_sources("text\n\n### References\n\n- **A. (2000)**. *Title*.\n")
         Test.@test !cites_sources("text\n\n### Formulation\n\n- an item\n")
-        Test.@test !cites_sources("text\n\n### References\n\nSee below.\n\n### Other\n\n- an item\n")
+        Test.@test !cites_sources(
+            "text\n\n### References\n\nSee below.\n\n### Other\n\n- an item\n"
+        )
     end
 end
 
@@ -180,7 +203,10 @@ OptimalControl model (`test/suite/OptimalControl/test_reference_solution.jl`).
 """
 function test_reference_solutions()
     Test.@testset "reference solutions" verbose = VERBOSE begin
-        problems = filter(p -> haskey(OCP.problem_metadata(p), :reference_solution), OCP.problems(; status=:all))
+        problems = filter(
+            p -> haskey(OCP.problem_metadata(p), :reference_solution),
+            OCP.problems(; status=:all),
+        )
         Test.@test !isempty(problems)
         for problem in problems
             solution = OCP.reference_solution_data(problem)
@@ -188,7 +214,8 @@ function test_reference_solutions()
             Test.@test isfinite(solution.objective) && !isempty(solution.source)
             t0, tf = OCP.parameters_data(problem).t0, OCP.parameters_data(problem).tf
             for t in range(t0, tf; length=5)
-                Test.@test all(isfinite, solution.state(t)) && all(isfinite, solution.control(t))
+                Test.@test all(isfinite, solution.state(t)) &&
+                    all(isfinite, solution.control(t))
             end
         end
     end

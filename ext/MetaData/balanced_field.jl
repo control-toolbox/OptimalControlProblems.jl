@@ -28,7 +28,10 @@ balanced_field_meta = OrderedDict(
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
     # initial guess of every modeling (#377), from the parameters
-    :init => p -> (
-        state=[p.r_t0, p.v_t0 + 10.0, p.h_tf / 2.0, p.γ_tf], control=0.1, variable=10.0
-    ),
+    :init =>
+        p -> (
+            state=[p.r_t0, p.v_t0 + 10.0, p.h_tf / 2.0, p.γ_tf],
+            control=0.1,
+            variable=10.0,
+        ),
 )

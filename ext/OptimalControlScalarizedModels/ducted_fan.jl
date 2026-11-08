@@ -92,5 +92,7 @@ function OptimalControlProblems.ducted_fan(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems._initial_guess(:ducted_fan, params, init)
 
-    return OptimalControlProblems._problem(:ducted_fan, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :ducted_fan, :OptimalControlScalarized, ocp, init, params
+    )
 end

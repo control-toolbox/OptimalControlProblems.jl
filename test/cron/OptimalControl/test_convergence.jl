@@ -25,10 +25,16 @@ function test_convergence()
                     time = @elapsed sol = S.solve(pb, config; grid_size=N) # second, compiled
                     # convergence is reported, not tested (#360); an exception still fails
                     Main.TestStatus.result!(
-                        test, problem, backend, Main.TestConfigs.label(config);
+                        test,
+                        problem,
+                        backend,
+                        Main.TestConfigs.label(config);
                         S.settings(config)...,
-                        grid_size=N, scheme=Main.TestConfigs.SCHEME, S.outcome(sol)...,
-                        time=time, trajectory=Main.TestStatus.trajectory(sol),
+                        grid_size=N,
+                        scheme=Main.TestConfigs.SCHEME,
+                        S.outcome(sol)...,
+                        time=time,
+                        trajectory=Main.TestStatus.trajectory(sol),
                     )
                     Test.@test true
                 end

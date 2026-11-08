@@ -57,5 +57,7 @@ function OptimalControlProblems.chain(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems._initial_guess(:chain, params, init)
 
-    return OptimalControlProblems._problem(:chain, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :chain, :OptimalControlScalarized, ocp, init, params
+    )
 end

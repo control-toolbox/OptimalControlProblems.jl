@@ -23,7 +23,9 @@ function test_smoke()
                 Main.TestStatus.for_each_problem(test, backend) do problem
                     pb = getfield(OptimalControlProblems, problem)(backend)
                     o = Main.TestConfigs
-                    sol = S.solve(pb, config; grid_size=o.SMOKE_GRID, max_iter=o.SMOKE_MAX_ITER)
+                    sol = S.solve(
+                        pb, config; grid_size=o.SMOKE_GRID, max_iter=o.SMOKE_MAX_ITER
+                    )
                     Test.@test isfinite(OptimalControl.objective(sol))
                 end
             end

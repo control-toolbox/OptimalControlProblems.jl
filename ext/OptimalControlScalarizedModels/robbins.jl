@@ -53,5 +53,7 @@ function OptimalControlProblems.robbins(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems._initial_guess(:robbins, params, init)
 
-    return OptimalControlProblems._problem(:robbins, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :robbins, :OptimalControlScalarized, ocp, init, params
+    )
 end

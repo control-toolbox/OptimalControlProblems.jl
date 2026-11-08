@@ -42,5 +42,7 @@ function OptimalControlProblems.bryson_denham(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems._initial_guess(:bryson_denham, params, init)
 
-    return OptimalControlProblems._problem(:bryson_denham, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :bryson_denham, :OptimalControlScalarized, ocp, init, params
+    )
 end

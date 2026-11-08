@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:dielectrophoretic_particle)` and `OptimalControlProblems.status(:dielectrophoretic_particle)`.
 """
 function OptimalControlProblems.dielectrophoretic_particle(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems._warn_if_draft(:dielectrophoretic_particle, :OptimalControl)
 
@@ -53,5 +51,7 @@ function OptimalControlProblems.dielectrophoretic_particle(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems._initial_guess(:dielectrophoretic_particle, params, init)
 
-    return OptimalControlProblems._problem(:dielectrophoretic_particle, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :dielectrophoretic_particle, :OptimalControl, ocp, init, params
+    )
 end

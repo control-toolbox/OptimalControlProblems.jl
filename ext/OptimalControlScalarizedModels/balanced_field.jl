@@ -85,5 +85,7 @@ function OptimalControlProblems.balanced_field(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems._initial_guess(:balanced_field, params, init)
 
-    return OptimalControlProblems._problem(:balanced_field, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems._problem(
+        :balanced_field, :OptimalControlScalarized, ocp, init, params
+    )
 end
