@@ -23,7 +23,11 @@ using .Problems
 # The package is used directly, unlike the internal CT packages: it exports its main API
 # (#413). The other public functions (`status`, `features`, `reference_objective`, …) are
 # called qualified, `OptimalControlProblems.status(problem)`.
-export JuMPBackend, OptimalControlBackend, OptimalControlScalarizedBackend, problems
+export JuMPBackend,
+    ModelingToolkitBackend,
+    OptimalControlBackend,
+    OptimalControlScalarizedBackend,
+    problems
 export time_grid, state, costate, control, variable, iterations, objective
 export control_components,
     control_dimension,

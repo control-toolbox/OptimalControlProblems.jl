@@ -73,6 +73,19 @@ const ADAPTERS = Dict{Symbol,NamedTuple}(
         model_start=r"^\s*data = ProblemData\(",
         checked_against=:OptimalControl,
     ),
+    :ModelingToolkit => (
+        title="ModelingToolkit",
+        summary="The continuous problem, written with ModelingToolkit.jl, solved with direct \
+            shooting via Corleone.jl.",
+        packages=["ModelingToolkit", "Corleone", "Ipopt"],
+        snippet=(problem, grid_size) -> """
+            using ModelingToolkit, OptimalControlProblems
+
+            pb = $(problem)(ModelingToolkitBackend())
+            sys = model(pb)""",
+        model_start=r"^\s*ModelingToolkit\.@named sys = ModelingToolkit\.System\(",
+        checked_against=:OptimalControl,
+    ),
 )
 
 # A modeling without an adapter would be missing from every page: fail the build instead.

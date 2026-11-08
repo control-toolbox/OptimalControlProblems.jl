@@ -9,7 +9,12 @@ bryson_denham_meta = OrderedDict(
         x2_tf=-1.0,      # Final velocity
         x1_max=1 / 9,        # State constraint: x1(t) <= x1_max
     ),
-    :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:draft),
+    :status => (
+        OptimalControl=:valid,
+        OptimalControlScalarized=:valid,
+        JuMP=:draft,
+        ModelingToolkit=:draft,
+    ),
     :notes => "JuMP uses ASCII state component names while the OptimalControl model uses Unicode names.",
     # initial guess of every modeling (#377), from the parameters
     :init => p -> (state=[0.0, 0.0], control=0.0),
