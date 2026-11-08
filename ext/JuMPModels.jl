@@ -299,22 +299,34 @@ function CTModels.Components.control(model::JuMP.GenericModel)
     return fu
 end
 
-# Sign convention of the multipliers (ct-conventions rules/signs.md, SGN1–SGN3): the
-# multiplier `y` of a row `c(x) ∈ S` satisfies `∇F_min + Jᵀy = 0`, with `F_min` the
-# objective of the equivalent minimization (`F` for a minimization, `-F` for a
-# maximization). `JuMP.dual` returns the MOI `ConstraintDual`, a convention fixed by
-# MathOptInterface, independent of the solver and of the objective sense — it is the one
-# of the equivalent minimization, `∇F_min - Jᵀy_MOI = 0`. The multiplier is hence
-# `-JuMP.dual`, for a `Min` and a `Max` model alike (SGN1: `min f` and `max -f` have the
-# same multipliers).
-# https://jump.dev/MathOptInterface.jl/stable/background/duality/
+"""
+$(TYPEDSIGNATURES)
+
+Return the multiplier of the constraint `ref` in the convention of `rules/signs.md`
+(ct-conventions, SGN1–SGN3): the multiplier `y` of a row `c(x) ∈ S` satisfies
+`∇F_min + Jᵀy = 0`, with `F_min` the objective of the equivalent minimization (`F` for a
+minimization, `-F` for a maximization).
+
+`JuMP.dual` returns the MOI `ConstraintDual`, a convention fixed by MathOptInterface,
+independent of the solver and of the objective sense — it is the one of the equivalent
+minimization, `∇F_min - Jᵀy_MOI = 0`. The multiplier is hence `-JuMP.dual`, for a `Min`
+and a `Max` model alike (SGN1: `min f` and `max -f` have the same multipliers).
+
+See <https://jump.dev/MathOptInterface.jl/stable/background/duality/>.
+"""
 _multiplier(ref) = -JuMP.dual(ref)
 
-# Time stamps of the dynamics multipliers: the multiplier of a step approximates the
-# costate at the middle of the step (the discrete adjoint of the scheme, CTDirect.jl#640),
-# so the values are stamped at the midpoints `t_i + h_i/2` of the steps, not at the nodes.
-# Evaluations outside `[τ_1, τ_N]` return the first / last value (`ctinterpolate`
-# extrapolates flat), i.e. the multiplier of the first / last step.
+"""
+$(TYPEDSIGNATURES)
+
+Return the time stamps of the dynamics multipliers: the multiplier of a step
+approximates the costate at the middle of the step (the discrete adjoint of the scheme,
+CTDirect.jl#640), so the values are stamped at the midpoints `t_i + h_i/2` of the steps,
+not at the nodes.
+
+Evaluations outside `[τ_1, τ_N]` return the first / last value (`ctinterpolate`
+extrapolates flat), i.e. the multiplier of the first / last step.
+"""
 _costate_times(T) = [(T[i] + T[i + 1]) / 2 for i in 1:(length(T) - 1)]
 
 """
