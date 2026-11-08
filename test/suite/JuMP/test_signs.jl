@@ -127,15 +127,17 @@ function test_ocp()
 
         # beam, trapezoidal rule: the stationarity `∂H/∂u = 0` of `H = p₁x₂ + p₂u - u²`
         # reads `P_i + P_{i+1} = 4 u_i` on the multiplier `P_i` of step `i` (SGN4), an
-        # exact relation of the discrete solution, decisive on the sign.
+        # exact relation of the discrete solution, decisive on the sign. `P_i` is the
+        # costate at the midpoint `τ_i` of the step (`_costate_times`).
         N = Main.TestConfigs.SMALL_GRID
         model = OCP.beam(OCP.JuMPBackend(); grid_size=N)
         Main.SolveJuMP.solve!(model)
         p = OCP.costate(model)
         u = OCP.control(model)
         T = collect(Float64, OCP.time_grid(model))
+        τ = (T[1:(end - 1)] .+ T[2:end]) ./ 2
         p2(t) = p(t)[2]
-        Test.@test [p2(T[i]) + p2(T[i + 1]) for i in 1:(N - 1)] ≈
+        Test.@test [p2(τ[i]) + p2(τ[i + 1]) for i in 1:(N - 1)] ≈
             [4 * u(T[i + 1]) for i in 1:(N - 1)] atol = 1e-3
     end
 end

@@ -310,6 +310,13 @@ end
 # https://jump.dev/MathOptInterface.jl/stable/background/duality/
 _multiplier(ref) = -JuMP.dual(ref)
 
+# Time stamps of the dynamics multipliers: the multiplier of a step approximates the
+# costate at the middle of the step (the discrete adjoint of the scheme, CTDirect.jl#640),
+# so the values are stamped at the midpoints `t_i + h_i/2` of the steps, not at the nodes.
+# Evaluations outside `[τ_1, τ_N]` return the first / last value (`ctinterpolate`
+# extrapolates flat), i.e. the multiplier of the first / last step.
+_costate_times(T) = [(T[i] + T[i + 1]) / 2 for i in 1:(length(T) - 1)]
+
 """
 $(TYPEDSIGNATURES)
 
@@ -317,7 +324,8 @@ Extract and interpolate the costate trajectory (dual variables associated with s
 
 The sign convention is the one of `rules/signs.md` (ct-conventions, SGN1–SGN3): the
 duals returned by the solver through `JuMP.dual` (the MOI `ConstraintDual`, independent
-of the solver) are negated, see `_multiplier`.
+of the solver) are negated, see `_multiplier`. The multiplier of a step is stamped at
+its midpoint `t_i + h_i/2`, the time it approximates (see `_costate_times`).
 
 # Arguments
 
@@ -352,13 +360,13 @@ function CTModels.Components.costate(model::JuMP.GenericModel)
         P[:, i] = _multiplier.(model[Symbol(p_vars[i])])
     end
 
-    # interpolate
+    # interpolate on the midpoints of the steps (see `_costate_times`)
     L = size(P, 1)
     V = CTBase.Core.matrix2vec(P[:, 1:dim_x], 1)
     p = if length(T) == 2
         t -> P[1, 1:dim_x]
     else
-        CTBase.Interpolation.ctinterpolate(T[1:L], V)
+        CTBase.Interpolation.ctinterpolate(_costate_times(T), V)
     end
 
     # force scalar output when dimension is 1
@@ -532,7 +540,7 @@ function OptimalControlProblems.solution(
         ocp,
         T,
         T,
-        T[1:N],
+        _costate_times(T),
         T,
         X,
         U,
