@@ -72,6 +72,7 @@ function test_rows()
         Test.@test EXT._multiplier(ref) ≈ -2 atol = ATOL
         model, ref = nlp_equality(; negated=true, sense=JuMP.MOI.MIN_SENSE)
         Main.SolveJuMP.solve!(model)
+        Test.@test JuMP.dual(ref) ≈ -2 atol = ATOL
         Test.@test EXT._multiplier(ref) ≈ 2 atol = ATOL
 
         # `min f` and `max -f` have the same multipliers (SGN1): `JuMP.dual` is already
@@ -87,28 +88,44 @@ function test_rows()
         Test.@test JuMP.dual(ref) ≈ -6 atol = ATOL
         Test.@test EXT._multiplier(ref) ≈ 6 atol = ATOL
 
-        # lower side `x ≥ -2` active, `min (x + 5)²`: y_MOI = +6 -> y = -μL = -6
+        # lower side `x ≥ -2` active, `min (x + 5)²`: y_MOI = +6 -> signed y = -μL = -6
+        # (SGN3 signed row multiplier `y = μU - μL`; single-sided inequality normalization
+        # to `μL ≥ 0` per SGN2 is tracked in #430)
         model, ref = nlp((m, x) -> JuMP.@constraint(m, x >= -2), -5, JuMP.MOI.MIN_SENSE)
         Main.SolveJuMP.solve!(model)
+        Test.@test JuMP.dual(ref) ≈ 6 atol = ATOL
         Test.@test EXT._multiplier(ref) ≈ -6 atol = ATOL
 
         # two-sided row `0 ≤ x ≤ 2`, upper side active: y = μU - μL = +6; the lower
         # side of `-2 ≤ x ≤ 0` gives -6 (SGN3)
         model, ref = nlp((m, x) -> JuMP.@constraint(m, 0 <= x <= 2), 5, JuMP.MOI.MIN_SENSE)
         Main.SolveJuMP.solve!(model)
+        Test.@test JuMP.dual(ref) ≈ -6 atol = ATOL
         Test.@test EXT._multiplier(ref) ≈ 6 atol = ATOL
         model, ref = nlp((m, x) -> JuMP.@constraint(m, -2 <= x <= 0), -5, JuMP.MOI.MIN_SENSE)
         Main.SolveJuMP.solve!(model)
+        Test.@test JuMP.dual(ref) ≈ 6 atol = ATOL
         Test.@test EXT._multiplier(ref) ≈ -6 atol = ATOL
 
-        # `x ≤ 2` as a bound of the variable: the same normalized dual as the row (SGN5)
+        # `x ≤ 2` and `x ≥ -2` as variable bounds: MOI returns `ConstraintDual` with the
+        # same sign as the corresponding `≤` / `≥` row (`-zU` on upper bound, `+zL` on
+        # lower bound), so `_multiplier` gives the signed bound multiplier `zU - zL` (SGN3)
         model, ref = nlp(
             (m, x) -> (JuMP.set_upper_bound(x, 2); JuMP.UpperBoundRef(x)),
             5,
             JuMP.MOI.MIN_SENSE,
         )
         Main.SolveJuMP.solve!(model)
+        Test.@test JuMP.dual(ref) ≈ -6 atol = ATOL
         Test.@test EXT._multiplier(ref) ≈ 6 atol = ATOL
+        model, ref = nlp(
+            (m, x) -> (JuMP.set_lower_bound(x, -2); JuMP.LowerBoundRef(x)),
+            -5,
+            JuMP.MOI.MIN_SENSE,
+        )
+        Main.SolveJuMP.solve!(model)
+        Test.@test JuMP.dual(ref) ≈ 6 atol = ATOL
+        Test.@test EXT._multiplier(ref) ≈ -6 atol = ATOL
     end
 end
 
@@ -122,8 +139,9 @@ function test_ocp()
             Main.SolveJuMP.solve!(model)
             p = OCP.costate(model)
             T = collect(Float64, OCP.time_grid(model))
+            τ = EXT._costate_times(T)
             Test.@test all(isapprox(-1; atol=ATOL), JuMP.dual.(model[:∂x]))
-            Test.@test all(t -> isapprox(p(t), 1; atol=ATOL), T[1:(end - 1)])
+            Test.@test all(t -> isapprox(p(t), 1; atol=ATOL), τ)
         end
 
         # beam, trapezoidal rule: the stationarity `∂H/∂u = 0` of `H = p₁x₂ + p₂u - u²`

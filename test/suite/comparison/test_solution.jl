@@ -38,7 +38,7 @@ function check_solution(problem::Symbol, scheme::Symbol)
     Test.@test all(t -> vec1(OCP.state(sol)(t)) ≈ vec1(OCP.state(model)(t)), T)
     Test.@test all(t -> vec1(OCP.control(sol)(t)) ≈ vec1(OCP.control(model)(t)), T)
     Test.@test all(
-        t -> vec1(OCP.costate(sol)(t)) ≈ vec1(OCP.costate(model)(t)), T[1:(end - 1)]
+        t -> vec1(OCP.costate(sol)(t)) ≈ vec1(OCP.costate(model)(t)), [T[1]; τ; T[end]]
     )
     scheme === :trapeze && check_trajectory(model, sol)
     if scheme != :trapeze
@@ -129,11 +129,12 @@ function test_solution()
                 b = [vec1(OCP.state(ref)(t))[i] for t in T]
                 Test.@test C.within_L2(T, a, b; C.STATE...)
             end
-            # costate on the intervals: same sign convention (#326, signs.md)
-            for i in eachindex(first(vec1(OCP.costate(ref)(T[1]))))
-                a = [vec1(OCP.costate(sol)(t))[i] for t in T[1:(end - 1)]]
-                b = [vec1(OCP.costate(ref)(t))[i] for t in T[1:(end - 1)]]
-                Test.@test C.within_L2(T[1:(end - 1)], a, b; C.COSTATE...)
+            # costate on the step midpoints: same sign convention (#326, signs.md)
+            τ = collect(Float64, OCP.time_grid(sol, :costate))
+            for i in eachindex(first(vec1(OCP.costate(ref)(τ[1]))))
+                a = [vec1(OCP.costate(sol)(t))[i] for t in τ]
+                b = [vec1(OCP.costate(ref)(t))[i] for t in τ]
+                Test.@test C.within_L2(τ, a, b; C.COSTATE...)
             end
         end
     end
