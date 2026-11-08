@@ -265,8 +265,12 @@ objective(model), iterations(model)
 ```
 
 The costate is read from the duals of the ``N`` dynamics constraints of each component,
-one per step: its sign and time conventions are not yet aligned with OptimalControl (see
-[#326](https://github.com/control-toolbox/OptimalControlProblems.jl/issues/326)). When
+one per step. `JuMP.dual` returns the
+[MOI `ConstraintDual`](https://jump.dev/MathOptInterface.jl/stable/background/duality/),
+a convention fixed by MathOptInterface, independent of the solver and of the objective
+sense; the accessors return `-JuMP.dual`, the multiplier convention of
+`rules/signs.md` (ct-conventions, SGN1–SGN3) and of OptimalControl
+([#326](https://github.com/control-toolbox/OptimalControlProblems.jl/issues/326)). When
 the problem also exists in OptimalControl, `solution(model, pb)` builds a full
 `CTModels.Solution` from these values, which can be plotted like an OptimalControl
 solution.

@@ -127,6 +127,12 @@ function test_solution()
                 b = [vec1(OCP.state(ref)(t))[i] for t in T]
                 Test.@test C.within_L2(T, a, b; C.STATE...)
             end
+            # costate on the intervals: same sign convention (#326, signs.md)
+            for i in eachindex(first(vec1(OCP.costate(ref)(T[1]))))
+                a = [vec1(OCP.costate(sol)(t))[i] for t in T[1:(end - 1)]]
+                b = [vec1(OCP.costate(ref)(t))[i] for t in T[1:(end - 1)]]
+                Test.@test C.within_L2(T[1:(end - 1)], a, b; C.COSTATE...)
+            end
         end
     end
 end

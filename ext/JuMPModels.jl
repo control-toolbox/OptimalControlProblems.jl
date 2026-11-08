@@ -299,10 +299,25 @@ function CTModels.Components.control(model::JuMP.GenericModel)
     return fu
 end
 
+# Sign convention of the multipliers (ct-conventions rules/signs.md, SGN1–SGN3): the
+# multiplier `y` of a row `c(x) ∈ S` satisfies `∇F_min + Jᵀy = 0`, with `F_min` the
+# objective of the equivalent minimization (`F` for a minimization, `-F` for a
+# maximization). `JuMP.dual` returns the MOI `ConstraintDual`, a convention fixed by
+# MathOptInterface, independent of the solver and of the objective sense — it is the one
+# of the equivalent minimization, `∇F_min - Jᵀy_MOI = 0`. The multiplier is hence
+# `-JuMP.dual`, for a `Min` and a `Max` model alike (SGN1: `min f` and `max -f` have the
+# same multipliers).
+# https://jump.dev/MathOptInterface.jl/stable/background/duality/
+_multiplier(ref) = -JuMP.dual(ref)
+
 """
 $(TYPEDSIGNATURES)
 
 Extract and interpolate the costate trajectory (dual variables associated with states) from a JuMP model of an optimal control problem.
+
+The sign convention is the one of `rules/signs.md` (ct-conventions, SGN1–SGN3): the
+duals returned by the solver through `JuMP.dual` (the MOI `ConstraintDual`, independent
+of the solver) are negated, see `_multiplier`.
 
 # Arguments
 
@@ -334,7 +349,7 @@ function CTModels.Components.costate(model::JuMP.GenericModel)
     # get costate from the model
     P = zeros(N, dim_x)
     for i in 1:dim_x
-        P[:, i] = JuMP.dual.(model[Symbol(p_vars[i])])
+        P[:, i] = _multiplier.(model[Symbol(p_vars[i])])
     end
 
     # interpolate
@@ -444,8 +459,9 @@ Build the `CTModels.Solution` of a solved JuMP model, from the continuous model 
 nodes of the grid of the model, as CTDirect gives them: with one control per step
 (`:euler`, `:euler_implicit`, `:midpoint`) the last control is repeated at the last node
 and the control is piecewise constant; with the trapezoidal rule it is interpolated
-linearly. The costate is given on the intervals of the grid. The costate keeps the
-convention of the JuMP model: its signs are not yet those of OptimalControl (#326).
+linearly. The costate is given on the intervals of the grid, with the sign convention
+of `rules/signs.md` (`-JuMP.dual`, see [`costate`](@ref)) — the same as an
+OptimalControl solution (#326).
 
 # Arguments
 
@@ -502,7 +518,7 @@ function OptimalControlProblems.solution(
     N = length(T) - 1
     X = _values(model, state_components(model), JuMP.value)
     U = _control_at_nodes(model, N)
-    P = _values(model, costate_components(model), JuMP.dual)
+    P = _values(model, costate_components(model), _multiplier)
     v = Float64[JuMP.value(model[Symbol(c)]) for c in variable_components(model)]
 
     status = JuMP.termination_status(model)

@@ -634,14 +634,6 @@ function variableText(d: Trajectory): string {
   if (!d.variable?.length) return ''
   return d.variable.map((v, i) => `${names[i] ?? `v${i + 1}`} = ${fmt(v)}`).join(', ')
 }
-const costateNote = computed(
-  () =>
-    props.modelings.includes('JuMP') &&
-    props.modelings.length > 1 &&
-    (view.value === 'time'
-      ? shown.value.some((k) => k.startsWith('costate:'))
-      : [axisX.value, axisY.value, axisZ.value].some((k) => k.startsWith('costate:'))),
-)
 const VIEWS: { id: View; label: string }[] = [
   { id: 'time', label: 'Against time' },
   { id: 'phase', label: 'Phase plane' },
@@ -865,11 +857,6 @@ const VIEWS: { id: View; label: string }[] = [
       <p v-if="active.some(({ data }) => variableText(data))" class="plot-muted plot-variables">
         Variable: {{ active.map(({ series, data }) => `${variableText(data)} (${series.label})`).join('; ') }}
       </p>
-      <p v-if="costateNote" class="plot-muted">
-        The JuMP costate is the multiplier of the solver: its sign is the opposite of
-        OptimalControl's (<a href="https://github.com/control-toolbox/OptimalControlProblems.jl/issues/326">#326</a>).
-      </p>
-
       <button type="button" class="plot-link" :aria-expanded="showTable" @click="showTable = !showTable">
         {{ showTable ? 'Hide' : 'Show' }} the values at t = {{ fmt(cursor) }}
       </button>
