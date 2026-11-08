@@ -874,7 +874,9 @@ def update_summary_issue(
     label = SUMMARY_LABELS[kind]
     candidates = [issue for issue in all_issues if label in labels(issue)]
     issue = next((item for item in candidates if item["state"] == "open"), None)
-    if issue is None and not rows:
+    # Failure, draft and capability issues are only opened when there is an active finding.
+    # The convergence dashboard is permanent: it tracks clean runs as well as regressions.
+    if issue is None and not rows and kind != "convergence":
         return
     if issue is None:
         history = [change_entry(generated, run_url, rows, [])] if rows else []
