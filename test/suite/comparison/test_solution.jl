@@ -28,8 +28,10 @@ function check_solution(problem::Symbol, scheme::Symbol)
     sol = OCP.solution(model, pb)
 
     T = collect(Float64, OCP.time_grid(model))
+    τ = [(T[i] + T[i + 1]) / 2 for i in 1:(length(T) - 1)]
     Test.@test OCP.model(sol) === OCP.model(pb)
     Test.@test collect(Float64, OCP.time_grid(sol)) == T
+    Test.@test collect(Float64, OCP.time_grid(sol, :costate)) == τ
     Test.@test OCP.objective(sol) == OCP.objective(model)
     Test.@test OCP.iterations(sol) == OCP.iterations(model)
     Test.@test vec1(OCP.variable(sol)) == vec1(OCP.variable(model))

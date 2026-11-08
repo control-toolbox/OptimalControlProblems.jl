@@ -140,6 +140,11 @@ function test_ocp()
         p2(t) = p(t)[2]
         Test.@test [p2(τ[i]) + p2(τ[i + 1]) for i in 1:(N - 1)] ≈
             [4 * u(T[i + 1]) for i in 1:(N - 1)] atol = 1e-3
+
+        # Boundary contract: flat extrapolation outside [τ_1, τ_N]
+        Test.@test EXT._costate_times(T) == τ
+        Test.@test p(T[1]) == p(τ[1])
+        Test.@test p(T[end]) == p(τ[end])
     end
 end
 

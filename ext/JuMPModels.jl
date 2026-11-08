@@ -332,6 +332,22 @@ _costate_times(T) = [(T[i] + T[i + 1]) / 2 for i in 1:(length(T) - 1)]
 """
 $(TYPEDSIGNATURES)
 
+Interpolate the costate matrix `P` (sampled at step midpoints `_costate_times(T)`)
+into a function of continuous time, coercing to scalar when `dim_x == 1`.
+"""
+function _interpolate_costate(T, P, dim_x::Int)
+    V = CTBase.Core.matrix2vec(P[:, 1:dim_x], 1)
+    p = if length(T) == 2
+        t -> P[1, 1:dim_x]
+    else
+        CTBase.Interpolation.ctinterpolate(_costate_times(T), V)
+    end
+    return (dim_x == 1) ? deepcopy(t -> p(t)[1]) : deepcopy(t -> p(t))
+end
+
+"""
+$(TYPEDSIGNATURES)
+
 Extract and interpolate the costate trajectory (dual variables associated with states) from a JuMP model of an optimal control problem.
 
 The sign convention is the one of `rules/signs.md` (ct-conventions, SGN1–SGN3): the
@@ -357,34 +373,10 @@ julia> p(0.75)
 ```
 """
 function CTModels.Components.costate(model::JuMP.GenericModel)
-
-    # time grid
     T = time_grid(model)
-    N = length(T) - 1
-
-    # get dimension
-    p_vars = costate_components(model)
     dim_x = state_dimension(model)
-
-    # get costate from the model
-    P = zeros(N, dim_x)
-    for i in 1:dim_x
-        P[:, i] = _multiplier.(model[Symbol(p_vars[i])])
-    end
-
-    # interpolate on the midpoints of the steps (see `_costate_times`)
-    L = size(P, 1)
-    V = CTBase.Core.matrix2vec(P[:, 1:dim_x], 1)
-    p = if length(T) == 2
-        t -> P[1, 1:dim_x]
-    else
-        CTBase.Interpolation.ctinterpolate(_costate_times(T), V)
-    end
-
-    # force scalar output when dimension is 1
-    fp = (dim_x == 1) ? deepcopy(t -> p(t)[1]) : deepcopy(t -> p(t))
-
-    return fp
+    P = _values(model, costate_components(model), _multiplier)
+    return _interpolate_costate(T, P, dim_x)
 end
 
 """
