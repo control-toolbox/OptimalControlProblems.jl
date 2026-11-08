@@ -208,9 +208,9 @@ The trajectory of a solution `x` (an OptimalControl solution or a solved JuMP mo
 with the accessors they share), for the plots of the documentation (#314): the time grid,
 at most `TRAJECTORY_POINTS` of its nodes, the state, the control and the costate at these
 nodes by component, the variable, and the names of the components in the order of the model
-(`names`: a dictionary loses it). The costate is the one of the solver: for JuMP its sign
-is the opposite of OptimalControl's (#326). Values are rounded to 6 significant digits:
-enough to draw, and stable from one run to the next.
+(`names`: a dictionary loses it). The costate has the sign convention of `rules/signs.md`
+(`-JuMP.dual` for JuMP, the same as OptimalControl's, #326). Values are rounded to 6
+significant digits: enough to draw, and stable from one run to the next.
 `nothing`, with a warning, when the solution cannot be read (a JuMP model without values):
 the solve is still reported.
 """

@@ -29,9 +29,10 @@ plt = plot(sol; label="OptimalControl")
 plot!(plt, solution(nlp, pb); label="JuMP", linestyle=:dash)
 ```
 
-The costates of the JuMP models do not have the sign of the OptimalControl ones yet
-([#326](https://github.com/control-toolbox/OptimalControlProblems.jl/issues/326)): compare the
-states and the controls.
+The costates of the JuMP models have the sign convention of the OptimalControl ones
+(`-JuMP.dual`,
+[#326](https://github.com/control-toolbox/OptimalControlProblems.jl/issues/326)): the two
+solutions are drawn over each other.
 
 ## The analytic solution
 

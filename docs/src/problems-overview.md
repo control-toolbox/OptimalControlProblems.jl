@@ -49,8 +49,9 @@ until the next run of the cron. The **Reproducibility** block gives the run, the
 the environment of each platform: Julia, system, processor, the versions of the packages, and
 the `Project.toml` and `Manifest.toml` to download.
 
-The JuMP costate is the multiplier of the solver: its sign is the opposite of OptimalControl's
-([#326](https://github.com/control-toolbox/OptimalControlProblems.jl/issues/326)).
+The JuMP costate is the multiplier of the dynamics constraints, with the sign convention of
+OptimalControl (`-JuMP.dual`, the MOI `ConstraintDual` negated:
+[#326](https://github.com/control-toolbox/OptimalControlProblems.jl/issues/326)).
 
 ## The reference objective
 

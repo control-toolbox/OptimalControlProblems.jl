@@ -302,7 +302,85 @@ end
 """
 $(TYPEDSIGNATURES)
 
+Return the signed multiplier `y = μU - μL` of the constraint `ref` in the convention of
+`rules/signs.md` (ct-conventions, SGN1, SGN3): the multiplier `y` of a row `c(x) ∈ S`
+satisfies `∇F_min + Jᵀy = 0`, with `F_min` the objective of the equivalent minimization
+(`F` for a minimization, `-F` for a maximization).
+
+`JuMP.dual` returns the MOI `ConstraintDual`, a convention fixed by MathOptInterface,
+independent of the solver and of the objective sense — it is the one of the equivalent
+minimization, `∇F_min - Jᵀy_MOI = 0`. The signed multiplier is hence `-JuMP.dual`, for a
+`Min` and a `Max` model alike (SGN1: `min f` and `max -f` have the same multipliers).
+
+See <https://jump.dev/MathOptInterface.jl/stable/background/duality/>.
+
+# Arguments
+
+- `ref`: A JuMP constraint reference.
+
+# Returns
+
+- `Float64`: The signed multiplier `-JuMP.dual(ref)`.
+"""
+_multiplier(ref) = -JuMP.dual(ref)
+
+"""
+$(TYPEDSIGNATURES)
+
+Return the time stamps of the dynamics multipliers: the multiplier of a step
+approximates the costate at the middle of the step (the discrete adjoint of the scheme,
+CTDirect.jl#640), so the values are stamped at the midpoints `t_i + h_i/2` of the steps,
+not at the nodes.
+
+Evaluations outside `[τ_1, τ_N]` return the first / last value (`ctinterpolate`
+extrapolates flat), i.e. the multiplier of the first / last step.
+
+# Arguments
+
+- `T`: The node time grid `t_0, …, t_N` (`length(T) == N + 1`).
+
+# Returns
+
+- `Vector{Float64}`: The `N` step midpoints `(T[i] + T[i + 1]) / 2`.
+"""
+_costate_times(T) = [(T[i] + T[i + 1]) / 2 for i in 1:(length(T) - 1)]
+
+"""
+$(TYPEDSIGNATURES)
+
+Interpolate the costate matrix `P` (sampled at step midpoints `_costate_times(T)`)
+into a function of continuous time, coercing to scalar when `dim_x == 1`.
+
+# Arguments
+
+- `T`: The node time grid `t_0, …, t_N`.
+- `P`: The `N × dim_x` matrix of step multipliers.
+- `dim_x::Int`: The state dimension.
+
+# Returns
+
+- `Function`: A function of continuous time returning the interpolated costate (scalar when
+  `dim_x == 1`, vector otherwise).
+"""
+function _interpolate_costate(T, P, dim_x::Int)
+    V = CTBase.Core.matrix2vec(P[:, 1:dim_x], 1)
+    p = if length(T) == 2
+        t -> P[1, 1:dim_x]
+    else
+        CTBase.Interpolation.ctinterpolate(_costate_times(T), V)
+    end
+    return (dim_x == 1) ? deepcopy(t -> p(t)[1]) : deepcopy(t -> p(t))
+end
+
+"""
+$(TYPEDSIGNATURES)
+
 Extract and interpolate the costate trajectory (dual variables associated with states) from a JuMP model of an optimal control problem.
+
+The sign convention is the one of `rules/signs.md` (ct-conventions, SGN1–SGN3): the
+duals returned by the solver through `JuMP.dual` (the MOI `ConstraintDual`, independent
+of the solver) are negated, see `_multiplier`. The multiplier of a step is stamped at
+its midpoint `t_i + h_i/2`, the time it approximates (see `_costate_times`).
 
 # Arguments
 
@@ -322,34 +400,10 @@ julia> p(0.75)
 ```
 """
 function CTModels.Components.costate(model::JuMP.GenericModel)
-
-    # time grid
     T = time_grid(model)
-    N = length(T) - 1
-
-    # get dimension
-    p_vars = costate_components(model)
     dim_x = state_dimension(model)
-
-    # get costate from the model
-    P = zeros(N, dim_x)
-    for i in 1:dim_x
-        P[:, i] = JuMP.dual.(model[Symbol(p_vars[i])])
-    end
-
-    # interpolate
-    L = size(P, 1)
-    V = CTBase.Core.matrix2vec(P[:, 1:dim_x], 1)
-    p = if length(T) == 2
-        t -> P[1, 1:dim_x]
-    else
-        CTBase.Interpolation.ctinterpolate(T[1:L], V)
-    end
-
-    # force scalar output when dimension is 1
-    fp = (dim_x == 1) ? deepcopy(t -> p(t)[1]) : deepcopy(t -> p(t))
-
-    return fp
+    P = _values(model, costate_components(model), _multiplier)
+    return _interpolate_costate(T, P, dim_x)
 end
 
 """
@@ -444,8 +498,9 @@ Build the `CTModels.Solution` of a solved JuMP model, from the continuous model 
 nodes of the grid of the model, as CTDirect gives them: with one control per step
 (`:euler`, `:euler_implicit`, `:midpoint`) the last control is repeated at the last node
 and the control is piecewise constant; with the trapezoidal rule it is interpolated
-linearly. The costate is given on the intervals of the grid. The costate keeps the
-convention of the JuMP model: its signs are not yet those of OptimalControl (#326).
+linearly. The costate is given on the step midpoints of the grid, with the sign convention
+of `rules/signs.md` (`-JuMP.dual`, see `costate`) — the same as an
+OptimalControl solution (#326).
 
 # Arguments
 
@@ -502,7 +557,7 @@ function OptimalControlProblems.solution(
     N = length(T) - 1
     X = _values(model, state_components(model), JuMP.value)
     U = _control_at_nodes(model, N)
-    P = _values(model, costate_components(model), JuMP.dual)
+    P = _values(model, costate_components(model), _multiplier)
     v = Float64[JuMP.value(model[Symbol(c)]) for c in variable_components(model)]
 
     status = JuMP.termination_status(model)
@@ -516,7 +571,7 @@ function OptimalControlProblems.solution(
         ocp,
         T,
         T,
-        T[1:N],
+        _costate_times(T),
         T,
         X,
         U,

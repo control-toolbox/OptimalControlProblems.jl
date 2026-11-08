@@ -25,6 +25,8 @@ const OBJECTIVE = (rtol=1e-4, atol=1e-6)
 const STATE = (rtol=1e-1, atol=1e-6)
 const CONTROL = (rtol=1e-1, atol=1e-6)
 const VARIABLE = (rtol=1e-1, atol=1e-6)
+# multipliers: same NLP, two solvers; loose, the sign is what matters (#326)
+const COSTATE = (rtol=5e-1, atol=1e-3)
 
 """Every modeling is compared with the reference one."""
 const REFERENCE = OCP.JuMPBackend()

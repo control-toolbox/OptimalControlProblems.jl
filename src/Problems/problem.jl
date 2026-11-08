@@ -93,7 +93,7 @@ Build the `CTModels.Solution` of a solved model of the same problem as `pb`, to 
 it as an OptimalControl solution: `state(sol)`, `control(sol)`, `costate(sol)`,
 `objective(sol)`, `iterations(sol)` and `plot(sol)` work on it, and `model(sol) === model(pb)`.
 
-The method for a JuMP model (trapezoidal scheme) is defined by the `JuMPModels` extension:
+The method for a JuMP model is defined by the `JuMPModels` extension:
 load JuMP. The model and `pb` must have the same state, control and variable dimensions.
 """
 function solution end
