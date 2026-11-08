@@ -40,6 +40,7 @@ const CONFIGS = (
     JuMP=((solver=:ipopt,),),
     OptimalControl=((modeler=:adnlp, solver=:ipopt), (modeler=:exa, solver=:madnlp)),
     OptimalControlScalarized=((modeler=:exa, solver=:madnlp),),
+    ModelingToolkit=((shooting=:single, solver=:ipopt),),
 )
 
 # Robustness of the initial guess (#378; `robustness/<group>/`, monthly cron): each
