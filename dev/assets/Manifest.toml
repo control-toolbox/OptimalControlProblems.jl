@@ -693,9 +693,9 @@ version = "0.2.0"
 
 [[deps.Hwloc_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "XML2_jll", "Xorg_libpciaccess_jll"]
-git-tree-sha1 = "5c851a90e6dcfab6ce9192f7e0370f9c0c08f667"
+git-tree-sha1 = "550c21420b96b46f2f0abe8fc4c9430cd55649e3"
 uuid = "e33a78d0-f292-5ffc-b300-72abe9b543c8"
-version = "2.15.0+2"
+version = "2.15.0+3"
 
 [[deps.IOCapture]]
 deps = ["Logging", "Random"]
