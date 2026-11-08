@@ -1,0 +1,16 @@
+Julia Version 1.13.3
+Commit 67ac47b9cd8 (2026-10-25 15:28 UTC)
+Build Info:
+  Official https://julialang.org release
+Platform Info:
+  OS: Linux (x86_64-linux-gnu)
+  CPU: 192 × INTEL(R) XEON(R) PLATINUM 8568Y+
+  WORD_SIZE: 64
+  LLVM: libLLVM-20.1.8 (ORCJIT, emeraldrapids)
+  GC: Built with stock GC
+Threads: 1 default, 1 interactive, 1 GC (on 192 virtual cores)
+Environment:
+  JULIA_MATRIX_VERSION = 1.13
+  JULIA_DEPOT_PATH = /storage/mschanen/github-actions/julia_depot_ct
+  JULIA_PKG_SERVER_REGISTRY_PREFERENCE = eager
+  LD_LIBRARY_PATH = /software/julia/julia_binaries/julia-1.12/lib:/software/mpich-ofi/lib:/software/libcudss/libcudss-linux-x86_64-0.7.1.4_cuda13-archive/lib:/usr/local/cuda/lib

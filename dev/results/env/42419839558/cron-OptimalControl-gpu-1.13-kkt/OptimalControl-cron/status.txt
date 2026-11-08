@@ -1,0 +1,9 @@
+Status `test environment/Project.toml`
+  [54762871] CTBase v0.30.13
+⌅ [2621e9c9] MadNLP v0.10.3
+  [a4795742] NLPModels v0.21.12
+  [f4238b75] NLPModelsIpopt v0.11.3
+  [5f98b655] OptimalControl v2.2.1-beta
+  [59046045] OptimalControlProblems v0.5.0 `/storage/mschanen/github-actions/actions_runner_ct/_work/OptimalControlProblems.jl/OptimalControlProblems.jl`
+  [8dfed614] Test v1.11.0
+Info Packages marked with ⌅ have new versions available but compatibility constraints restrict them from upgrading. To see why use `status --outdated`

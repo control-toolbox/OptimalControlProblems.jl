@@ -2,7 +2,7 @@
 
 julia_version = "1.12.7"
 manifest_format = "2.0"
-project_hash = "10dedb992774c9b85a1537efdc634113d9ddb1ab"
+project_hash = "048a04cdfd1114e111eb876b1730663a7f5aebe7"
 
 [[deps.ADNLPModels]]
 deps = ["ADTypes", "DifferentiationInterface", "ForwardDiff", "LinearAlgebra", "NLPModels", "ReverseDiff", "SparseArrays", "SparseConnectivityTracer", "SparseMatrixColorings"]
@@ -693,9 +693,9 @@ version = "0.2.0"
 
 [[deps.Hwloc_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "XML2_jll", "Xorg_libpciaccess_jll"]
-git-tree-sha1 = "8226014d201c6d689bf6034302637d2550155206"
+git-tree-sha1 = "5c851a90e6dcfab6ce9192f7e0370f9c0c08f667"
 uuid = "e33a78d0-f292-5ffc-b300-72abe9b543c8"
-version = "2.15.0+1"
+version = "2.15.0+2"
 
 [[deps.IOCapture]]
 deps = ["Logging", "Random"]
