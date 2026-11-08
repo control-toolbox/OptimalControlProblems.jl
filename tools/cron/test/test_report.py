@@ -281,9 +281,9 @@ class ReportTest(unittest.TestCase):
         REPORT.update_summary_issue(github, github.data, "failure", "OptimalControl", [], "r2")
         issue = github.data[0]
         self.assertIn("## Overall Scope Status", issue["body"])
-        self.assertIn("[JuMP — Nominal Convergence]", issue["body"])
+        self.assertIn("[JuMP — Nominal Convergence](#jump--nominal-convergence)", issue["body"])
         self.assertIn("⚠️ **1 failure**", issue["body"])
-        self.assertIn("[OptimalControl — Nominal Convergence]", issue["body"])
+        self.assertIn("[OptimalControl — Nominal Convergence](#optimalcontrol--nominal-convergence)", issue["body"])
         self.assertIn("✅ Clean", issue["body"])
         self.assertEqual("[Cron] cron-failure — 1 failure", issue["title"])
         # all scopes clean again: the count leaves the title
@@ -299,6 +299,12 @@ class ReportTest(unittest.TestCase):
         self.assertEqual(github.comments, [])  # creation notifies, no comment
         # ...but the first finding seeds the history
         self.assertIn("new: `beam`", github.data[0]["body"])
+        # a stable non-empty finding set adds neither a comment nor an entry (section_rows unwraps formatting)
+        REPORT.update_summary_issue(
+            github, github.data, "failure", "JuMP", rows, "run-1b", generated="2026-11-02T04:00:00+00:00"
+        )
+        self.assertEqual(github.comments, [])
+        self.assertEqual(1, len(REPORT.section_history(github.data[0]["body"], "JuMP")))
         REPORT.update_summary_issue(
             github, github.data, "failure", "JuMP", [], "run-2", generated="2026-11-08T04:00:00+00:00"
         )
@@ -308,13 +314,45 @@ class ReportTest(unittest.TestCase):
         self.assertIn("<details><summary>📜 <b>Recent history</b></summary>", body)
         self.assertIn("resolved: `beam` (all clear)", body)
         self.assertIn("[run](run-2)", body)
-        # a stable finding set adds neither a comment nor an entry
+        # a stable empty finding set adds neither a comment nor an entry
         REPORT.update_summary_issue(
             github, github.data, "failure", "JuMP", [], "run-3", generated="2026-11-15T04:00:00+00:00"
         )
         self.assertEqual(len(github.comments), 1)
         body = github.data[0]["body"]
         self.assertEqual(1, body.count("resolved: `beam`"))
+
+    def test_partial_resolution_does_not_claim_all_clear_and_investigate_lists_all_problems(self):
+        github = FakeGitHub()
+        beam = self.rows("fail")[0]
+        chain = dict(beam, problem="chain")
+        REPORT.update_summary_issue(
+            github, github.data, "convergence", "JuMP", [beam, chain], "run-1",
+            generated="2026-11-01T04:00:00+00:00",
+        )
+        body1 = github.data[0]["body"]
+        self.assertIn('problem=beam,chain', body1)
+        self.assertIn("problems/beam/result.json", body1)
+        self.assertIn("problems/chain/result.json", body1)
+        # resolve `beam` while `chain` remains active: not all clear
+        REPORT.update_summary_issue(
+            github, github.data, "convergence", "JuMP", [chain], "run-2",
+            generated="2026-11-08T04:00:00+00:00",
+        )
+        self.assertEqual(len(github.comments), 1)
+        self.assertNotIn("all clear", github.comments[0][1])
+        self.assertIn("- resolved: `beam`", github.comments[0][1])
+        body2 = github.data[0]["body"]
+        self.assertIn("resolved: `beam`", body2)
+        self.assertNotIn("(all clear)", body2)
+        # resolve `chain` as well: convergence is a permanent dashboard, so no "safe to close"
+        REPORT.update_summary_issue(
+            github, github.data, "convergence", "JuMP", [], "run-3",
+            generated="2026-11-15T04:00:00+00:00",
+        )
+        self.assertEqual(len(github.comments), 2)
+        self.assertIn("all clear", github.comments[1][1])
+        self.assertNotIn("safe to close", github.comments[1][1])
 
     def test_the_history_is_bounded(self):
         github = FakeGitHub()

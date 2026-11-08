@@ -29,9 +29,10 @@ artifact, so the artifact name (Julia version, runner, CPU/GPU) identifies the p
 of every report row. The final job uses the GitHub token to:
 
 - update one repository-wide issue for each of `cron-failure`, `cron-drafts` and
-  `cron-convergence` — one `## <scope>` section per scope (with its `note`, its run, the
-  previous run and a bounded history), a table of contents on top, a finding count in the
-  title, and a comment whenever the finding set of a scope changes;
+  `cron-convergence` — one section per scope (with its focus, cadence/`note`, its run, the
+  previous run and a bounded history), an `Overall Scope Status` dashboard table on top, a
+  finding count in the title, and a comment whenever the finding set of a scope changes
+  (`cron-convergence` stays open permanently as a dashboard);
 - add the results of the convergence tests (#360) to the scope report, with their change
   since the previous run of the scope (kept in the state on the `results` branch);
 - maintain one idempotent `cron-bug` issue per failing problem and modeling;

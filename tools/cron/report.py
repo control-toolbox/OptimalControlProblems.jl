@@ -134,7 +134,7 @@ HEADERS = {
         "> 1. Check which problem and solver configuration lost convergence or shifted objective.\n"
         "> 2. Reproduce locally with the Julia command provided in the section.\n"
         "> 3. Decide if the change is expected (e.g. updated solver version, improved initial guess) or a regression.\n"
-        "> 4. If expected, recompute reference objectives (`tools/references/README.md`). Close this issue when all scopes report clean.\n"
+        "> 4. If expected, recompute reference objectives (`tools/references/README.md`). This issue stays open as a permanent dashboard.\n"
         f"> Details: [Workflow README]({README_URL})."
     ),
 }
@@ -475,17 +475,21 @@ def investigate(scope: str, kind: str, rows: list[dict[str, str]]) -> str:
     
     items = []
     if repro_rows:
-        prob = repro_rows[0]["problem"]
+        problems = list(dict.fromkeys(row["problem"] for row in repro_rows))
+        prob_arg = ",".join(problems)
         items.append(
             f"- **Local reproduction:**\n"
             f"  ```julia\n"
-            f"  using Pkg; Pkg.test(; test_args=[\"{env}\", \"{mode}\", \"problem={prob}\"])\n"
+            f"  using Pkg; Pkg.test(; test_args=[\"{env}\", \"{mode}\", \"problem={prob_arg}\"])\n"
             f"  ```"
         )
         if kind == "convergence":
+            data_links = " · ".join(
+                f"[`problems/{p}/result.json`]({REPOSITORY_URL}/blob/results/problems/{p}/result.json)"
+                for p in problems
+            )
             items.append(
-                f"- **Data files:** "
-                f"[`problems/{prob}/result.json`]({REPOSITORY_URL}/blob/results/problems/{prob}/result.json) · "
+                f"- **Data files:** {data_links} · "
                 f"[`cron/{scope}.md`]({REPOSITORY_URL}/blob/results/cron/{scope}.md)"
             )
             items.append(
@@ -591,6 +595,12 @@ def is_section_placeholder(body: str, scope: str) -> bool:
     return start >= 0 and "*Awaiting next scheduled run.*" in body[start:end]
 
 
+def github_slug(title: str) -> str:
+    """GitHub heading anchor slug (`## JuMP — Nominal Convergence` -> `jump--nominal-convergence`)."""
+    cleaned = re.sub(r"[^a-z0-9 _-]", "", title.lower()).strip()
+    return cleaned.replace(" ", "-")
+
+
 def summary_markdown(body: str, kind: str) -> str:
     """Dashboard table of all scopes regenerated at the top of the issue."""
     statuses = section_statuses(body)
@@ -603,7 +613,7 @@ def summary_markdown(body: str, kind: str) -> str:
     ]
     for scope, n in statuses:
         meta = scope_meta(scope)
-        slug = re.sub(r"[^a-z0-9_-]+", "-", meta["title"].lower()).strip("-")
+        slug = github_slug(meta["title"])
         if n:
             status_badge = f"⚠️ **{n} {word}{'s' * (n != 1)}**"
         elif is_section_placeholder(body, scope):
@@ -628,7 +638,12 @@ def section_bounds(body: str, scope: str) -> tuple[int, int]:
 
 
 def unwrap_link(cell: str) -> str:
-    return re.sub(r"\[(.+?)\]\([^)]*\)", r"\1", cell).strip()
+    text = re.sub(r"\[(.+?)\]\([^)]*\)", r"\1", cell).strip()
+    if text.startswith("**") and text.endswith("**") and len(text) >= 4:
+        text = text[2:-2].strip()
+    if text.startswith("`") and text.endswith("`") and len(text) >= 2:
+        text = text[1:-1].strip()
+    return text
 
 
 def section_rows(body: str, scope: str) -> list[dict[str, str]]:
@@ -696,24 +711,48 @@ def finding_brief(row: dict[str, str]) -> str:
     return f"`{row['problem']}` / {row['modelings']} / `{row['test']}` — {row['outcome']}"
 
 
-def change_entry(generated: str, run_url: str, gained, resolved) -> str:
+def change_entry(
+    generated: str,
+    run_url: str,
+    gained,
+    resolved,
+    *,
+    all_clear: bool | None = None,
+) -> str:
     """One history entry (a markdown list line) of a change of the finding set."""
+    if all_clear is None:
+        all_clear = not gained
     parts = []
     if gained:
-        parts.append("new: " + ", ".join(f"`{row['problem']}` ({row['outcome']})" for row in gained))
+        gained_items = list(
+            dict.fromkeys(f"`{row['problem']}` ({row['outcome']})" for row in gained)
+        )
+        parts.append("new: " + ", ".join(gained_items))
     if resolved:
+        resolved_problems = list(dict.fromkeys(f"`{row['problem']}`" for row in resolved))
         parts.append(
             "resolved: "
-            + ", ".join(f"`{row['problem']}`" for row in resolved)
-            + (" (all clear)" if not gained else "")
+            + ", ".join(resolved_problems)
+            + (" (all clear)" if all_clear else "")
         )
     return f"- **{generated[:10] or '?'}** · [run]({run_url}) — " + "; ".join(parts)
 
 
-def change_comment(scope: str, run_url: str, gained, resolved) -> str:
+def change_comment(
+    scope: str,
+    run_url: str,
+    gained,
+    resolved,
+    *,
+    all_clear: bool | None = None,
+    kind: str = "",
+) -> str:
     """The issue comment of a change of the finding set (notification + timeline)."""
-    if not gained:
-        return f"**{scope}** — all clear ([run]({run_url})); safe to close when every scope is."
+    if all_clear is None:
+        all_clear = not gained
+    if all_clear:
+        suffix = "" if kind == "convergence" else "; safe to close when every scope is"
+        return f"**{scope}** — all clear ([run]({run_url})){suffix}."
     lines = [f"**{scope}** — findings changed in [run]({run_url}):"]
     lines += [f"- new: {finding_brief(row)}" for row in gained]
     lines += [f"- resolved: {finding_brief(row)}" for row in resolved]
@@ -895,9 +934,15 @@ def update_summary_issue(
     gained, resolved = findings_diff(scope, section_rows(old_body, scope), rows)
     history = section_history(old_body, scope)
     if gained or resolved:
-        entry = change_entry(generated, run_url, gained, resolved)
+        all_clear = not rows
+        entry = change_entry(generated, run_url, gained, resolved, all_clear=all_clear)
         history = [entry] + history[: MAX_HISTORY - 1]
-        github.comment(issue["number"], change_comment(scope, run_url, gained, resolved))
+        github.comment(
+            issue["number"],
+            change_comment(
+                scope, run_url, gained, resolved, all_clear=all_clear, kind=kind
+            ),
+        )
     section = issue_section(
         scope, kind, rows, run_url, generated, previous_run, note, history
     )
