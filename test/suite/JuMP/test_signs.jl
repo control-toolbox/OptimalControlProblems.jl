@@ -114,9 +114,10 @@ end
 
 function test_ocp()
     Test.@testset "costate of a model of the collection" begin
-        # The integrator, `p* ≡ 1`: the raw `JuMP.dual` is -1, the accessor +1.
+        # The integrator, `p* ≡ 1`: the raw `JuMP.dual` is -1, the accessor +1,
+        # for every scheme — all of them stamp the multiplier at the step midpoint.
         N = 10
-        for scheme in (:trapeze, :euler)
+        for scheme in (:trapeze, :euler, :euler_implicit, :midpoint)
             model = EXT.build(INTEGRATOR, N, scheme, :interleaved)
             Main.SolveJuMP.solve!(model)
             p = OCP.costate(model)
