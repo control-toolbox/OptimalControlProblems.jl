@@ -17,4 +17,5 @@ jobs:
     with:
       environment: ModelingToolkit
       enabled: false
+      note: "`CronModelingToolkit.yml` · manual only until the scope exists"
     secrets: inherit

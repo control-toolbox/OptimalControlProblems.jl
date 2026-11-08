@@ -28,4 +28,5 @@ jobs:
       environment: ${{ matrix.environment }}
       mode: robustness
       scope: ${{ matrix.environment }}-robustness
+      note: "`CronRobustness.yml` · monthly (1st, 04:00 UTC) · Julia 1.13, Ubuntu + Windows, CPU · ${{ matrix.environment }} problems under other solver options (#378), reported, never tested"
     secrets: inherit

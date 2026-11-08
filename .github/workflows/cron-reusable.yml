@@ -27,6 +27,11 @@ on:
         required: false
         default: ''
         type: string
+      note:
+        description: One line describing the scope, shown under its name in the reports and issues
+        required: false
+        default: ''
+        type: string
       problems:
         description: >-
           Only these problems (comma-separated; empty, the default: all). A restricted run
@@ -167,6 +172,7 @@ jobs:
             --sha "$GITHUB_SHA" \
             --julia-version '1.13' \
             --package-version "$package_version" \
+            --scope-note "${{ inputs.note }}" \
             "${test_failed_arg[@]}"
 
       - name: Publish report, results and observed state
@@ -204,6 +210,7 @@ jobs:
             --sha "$GITHUB_SHA" \
             --julia-version '1.13' \
             --package-version "$(sed -n 's/^version = \"\(.*\)\"/\1/p' Project.toml | head -1)" \
+            --scope-note "${{ inputs.note }}" \
             --issues \
             "${test_failed_arg[@]}"
 
