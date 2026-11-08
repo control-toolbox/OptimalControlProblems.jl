@@ -15,7 +15,7 @@ function OptimalControlProblems.electric_vehicle(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:electric_vehicle, :OptimalControl)
+    OptimalControlProblems.Catalogue._warn_if_draft(:electric_vehicle, :OptimalControl)
 
     # parameters
     params = parameters_data(:electric_vehicle, parameters)
@@ -55,7 +55,7 @@ function OptimalControlProblems.electric_vehicle(
     dynamics(x, v, u) = [v, h1 * u - h2 * v^2 - h0 - road(x)]
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:electric_vehicle, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:electric_vehicle, params, init)
 
-    return OptimalControlProblems._problem(:electric_vehicle, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:electric_vehicle, :OptimalControl, ocp, init, params)
 end

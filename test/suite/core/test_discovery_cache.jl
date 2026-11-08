@@ -75,17 +75,26 @@ function set_fixture_status(package, status)
     return write(path, metadata)
 end
 
-function remove_include_dependencies(package)
-    path = joinpath(package, "src", "OptimalControlProblems.jl")
+# Remove `pattern` from the file `parts` of `package`; it must be there.
+function remove_line(package, parts, pattern)
+    path = joinpath(package, parts...)
     source = read(path, String)
+    @assert occursin(pattern, source)
+    return write(path, replace(source, pattern => ""))
+end
+
+function remove_include_dependencies(package)
     # The checkout has CRLF line endings on Windows: `\r?\n`.
-    path_dependency = r"    Base\.include_dependency\(path\)\r?\n"
-    @assert occursin(path_dependency, source)
-    source = replace(source, path_dependency => "")
-    directory_dependency = r"    Base\.include_dependency\(joinpath\(dirname\(@__FILE__\), \"\.\.\", \"ext\", spec\.directory\)\)\r?\n"
-    @assert occursin(directory_dependency, source)
-    source = replace(source, directory_dependency => "";)
-    return write(path, source)
+    remove_line(
+        package,
+        ("src", "Metadata", "discovery.jl"),
+        r"    Base\.include_dependency\(path\)\r?\n",
+    )
+    return remove_line(
+        package,
+        ("src", "Modelings", "backends.jl"),
+        r"    Base\.include_dependency\(joinpath\(EXT_PATH, spec\.directory\)\)\r?\n",
+    )
 end
 
 function cleanup(path)

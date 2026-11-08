@@ -15,7 +15,7 @@ function OptimalControlProblems.rocket(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:rocket, :OptimalControlScalarized)
+    OptimalControlProblems.Catalogue._warn_if_draft(:rocket, :OptimalControlScalarized)
 
     # parameters
     params = parameters_data(:rocket, parameters)
@@ -75,7 +75,7 @@ function OptimalControlProblems.rocket(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:rocket, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:rocket, params, init)
 
-    return OptimalControlProblems._problem(:rocket, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:rocket, :OptimalControlScalarized, ocp, init, params)
 end

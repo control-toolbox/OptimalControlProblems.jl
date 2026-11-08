@@ -15,7 +15,7 @@ function OptimalControlProblems.vanderpol(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:vanderpol, :OptimalControl)
+    OptimalControlProblems.Catalogue._warn_if_draft(:vanderpol, :OptimalControl)
 
     # parameters
     params = parameters_data(:vanderpol, parameters)
@@ -40,7 +40,7 @@ function OptimalControlProblems.vanderpol(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:vanderpol, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:vanderpol, params, init)
 
-    return OptimalControlProblems._problem(:vanderpol, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:vanderpol, :OptimalControl, ocp, init, params)
 end

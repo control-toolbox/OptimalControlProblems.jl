@@ -15,7 +15,7 @@ function OptimalControlProblems.space_shuttle(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:space_shuttle, :OptimalControl)
+    OptimalControlProblems.Catalogue._warn_if_draft(:space_shuttle, :OptimalControl)
 
     # Parameters
     params = parameters_data(:space_shuttle, parameters)
@@ -156,7 +156,7 @@ function OptimalControlProblems.space_shuttle(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:space_shuttle, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:space_shuttle, params, init)
 
-    return OptimalControlProblems._problem(:space_shuttle, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:space_shuttle, :OptimalControl, ocp, init, params)
 end

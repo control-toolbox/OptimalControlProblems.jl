@@ -15,7 +15,7 @@ function OptimalControlProblems.cart_pendulum(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:cart_pendulum, :OptimalControl)
+    OptimalControlProblems.Catalogue._warn_if_draft(:cart_pendulum, :OptimalControl)
 
     # parameters
     params = parameters_data(:cart_pendulum, parameters)
@@ -92,7 +92,7 @@ function OptimalControlProblems.cart_pendulum(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:cart_pendulum, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:cart_pendulum, params, init)
 
-    return OptimalControlProblems._problem(:cart_pendulum, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:cart_pendulum, :OptimalControl, ocp, init, params)
 end

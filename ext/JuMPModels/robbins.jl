@@ -25,7 +25,7 @@ function OptimalControlProblems.robbins(
     init=nothing,
     kwargs...,
 )
-    OptimalControlProblems._warn_if_draft(:robbins, :JuMP)
+    OptimalControlProblems.Catalogue._warn_if_draft(:robbins, :JuMP)
 
     # parameters
     params = parameters_data(:robbins, parameters)
@@ -63,6 +63,6 @@ function OptimalControlProblems.robbins(
         ],
     )
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:robbins, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:robbins, params, init)
     return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

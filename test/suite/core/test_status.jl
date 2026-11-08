@@ -80,7 +80,7 @@ function test_status()
         end
 
         Test.@testset "fingerprint of a problem (#314)" begin
-            O = OptimalControlProblems
+            O = OptimalControlProblems.Catalogue
             problem = first(O.problems(; status=:all))
             Test.@test O._fingerprint(problem) == O._fingerprint(problem)
             Test.@test length(O._fingerprint(problem)) == 64
@@ -165,7 +165,7 @@ function test_status()
                     Dict("tol" => 1e-8, "mu_init" => 1e-3)
                 Test.@test parse(Float64, cell("violation")) == 2.5e-9
                 Test.@test cell("fingerprint") ==
-                    OptimalControlProblems._fingerprint(problem)
+                    OptimalControlProblems.Catalogue._fingerprint(problem)
             finally
                 resize!(S.RESULTS, n)
                 rm(tsv; force=true)
@@ -205,7 +205,7 @@ function test_status()
                 Test.@test length(solves) == 1
                 Test.@test solves[1]["problem"] == string(problem)
                 Test.@test solves[1]["fingerprint"] ==
-                    OptimalControlProblems._fingerprint(problem)
+                    OptimalControlProblems.Catalogue._fingerprint(problem)
                 Test.@test solves[1]["trajectory"] == trajectory
             finally
                 resize!(S.RESULTS, n)

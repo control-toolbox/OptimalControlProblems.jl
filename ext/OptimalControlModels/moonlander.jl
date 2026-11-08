@@ -15,7 +15,7 @@ function OptimalControlProblems.moonlander(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:moonlander, :OptimalControl)
+    OptimalControlProblems.Catalogue._warn_if_draft(:moonlander, :OptimalControl)
 
     # parameters
     params = parameters_data(:moonlander, parameters)
@@ -102,7 +102,7 @@ function OptimalControlProblems.moonlander(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:moonlander, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:moonlander, params, init)
 
-    return OptimalControlProblems._problem(:moonlander, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:moonlander, :OptimalControl, ocp, init, params)
 end

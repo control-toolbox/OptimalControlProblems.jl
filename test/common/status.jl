@@ -191,14 +191,14 @@ function result!(
             else
                 nothing
             end,
-            OptimalControlProblems._fingerprint(problem),
+            OptimalControlProblems.Catalogue._fingerprint(problem),
             trajectory,
         ),
     )
     return nothing
 end
 
-modeling(backend) = OptimalControlProblems._modeling_spec(backend).name
+modeling(backend) = OptimalControlProblems.Modelings._modeling_spec(backend).name
 
 # Points kept on the time grid of a trajectory: enough to draw it, small enough to publish.
 const TRAJECTORY_POINTS = 501

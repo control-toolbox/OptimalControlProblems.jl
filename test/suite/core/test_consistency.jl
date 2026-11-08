@@ -25,8 +25,8 @@ function test_files()
         end
         # model directories: exactly the directories of the modeling table
         model_dirs = sort!([d for d in readdir(EXT) if isdir(joinpath(EXT, d)) && endswith(d, "Models")])
-        Test.@test model_dirs == sort!([spec.directory for spec in OCP.MODELING_SPECS])
-        for spec in OCP.MODELING_SPECS
+        Test.@test model_dirs == sort!([spec.directory for spec in OCP.Modelings.MODELING_SPECS])
+        for spec in OCP.Modelings.MODELING_SPECS
             files = names_in(joinpath(EXT, spec.directory), ".jl")
             # every model file belongs to a problem that has metadata
             Test.@test files ⊆ problems
@@ -35,7 +35,7 @@ function test_files()
         end
         # every problem has at least one modeling
         for problem in problems
-            Test.@test any(spec -> isfile(joinpath(EXT, spec.directory, "$problem.jl")), OCP.MODELING_SPECS)
+            Test.@test any(spec -> isfile(joinpath(EXT, spec.directory, "$problem.jl")), OCP.Modelings.MODELING_SPECS)
         end
     end
 end
@@ -43,7 +43,7 @@ end
 """Required and optional fields of the metadata, with their types; statuses."""
 function test_schema()
     Test.@testset "metadata schema" verbose = VERBOSE begin
-        schema = OCP.METADATA_SCHEMA
+        schema = OCP.Metadata.METADATA_SCHEMA
         for problem in OCP.problems(; status=:all)
             data = OCP.problem_metadata(problem)
             for (key, T) in pairs(schema.required)
@@ -56,7 +56,7 @@ function test_schema()
             end
             # a status is declared exactly for the modelings having a model file
             statuses = data[:status]
-            for spec in OCP.MODELING_SPECS
+            for spec in OCP.Modelings.MODELING_SPECS
                 has_file = isfile(joinpath(EXT, spec.directory, "$problem.jl"))
                 Test.@test haskey(statuses, spec.name) == has_file
             end

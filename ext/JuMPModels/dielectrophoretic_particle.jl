@@ -25,7 +25,7 @@ function OptimalControlProblems.dielectrophoretic_particle(
     init=nothing,
     kwargs...,
 )
-    OptimalControlProblems._warn_if_draft(:dielectrophoretic_particle, :JuMP)
+    OptimalControlProblems.Catalogue._warn_if_draft(:dielectrophoretic_particle, :JuMP)
 
     # parameters
     params = parameters_data(:dielectrophoretic_particle, parameters)
@@ -54,6 +54,6 @@ function OptimalControlProblems.dielectrophoretic_particle(
         ],
     )
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:dielectrophoretic_particle, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:dielectrophoretic_particle, params, init)
     return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

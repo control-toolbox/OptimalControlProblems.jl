@@ -25,7 +25,7 @@ function OptimalControlProblems.vanderpol(
     init=nothing,
     kwargs...,
 )
-    OptimalControlProblems._warn_if_draft(:vanderpol, :JuMP)
+    OptimalControlProblems.Catalogue._warn_if_draft(:vanderpol, :JuMP)
 
     # parameters
     params = parameters_data(:vanderpol, parameters)
@@ -48,6 +48,6 @@ function OptimalControlProblems.vanderpol(
         ],
     )
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:vanderpol, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:vanderpol, params, init)
     return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

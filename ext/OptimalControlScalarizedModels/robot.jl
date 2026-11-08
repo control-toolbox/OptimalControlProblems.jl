@@ -15,7 +15,7 @@ function OptimalControlProblems.robot(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:robot, :OptimalControlScalarized)
+    OptimalControlProblems.Catalogue._warn_if_draft(:robot, :OptimalControlScalarized)
 
     # parameters
     params = parameters_data(:robot, parameters)
@@ -124,7 +124,7 @@ function OptimalControlProblems.robot(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:robot, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:robot, params, init)
 
-    return OptimalControlProblems._problem(:robot, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:robot, :OptimalControlScalarized, ocp, init, params)
 end

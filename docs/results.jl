@@ -138,7 +138,7 @@ function publish_results!(results::SolveResults)
         end
         data = Dict(
             "problem" => string(problem),
-            "fingerprint" => OCP._fingerprint(problem),
+            "fingerprint" => OCP.Catalogue._fingerprint(problem),
             "entries" => entries,
         )
         write(joinpath(RESULTS_PUBLIC, "$(problem).json"), JSON.json(data))
@@ -238,7 +238,7 @@ version of the problem: same fingerprint) or `:stale`.
 function freshness(problem::Symbol, modeling::Symbol)
     entries = convergence_entries(problem, modeling)
     isempty(entries) && return :missing
-    current = OCP._fingerprint(problem)
+    current = OCP.Catalogue._fingerprint(problem)
     return all(e -> get(e, "fingerprint", "") == current, entries) ? :current : :stale
 end
 

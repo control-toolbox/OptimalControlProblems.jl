@@ -15,7 +15,7 @@ function OptimalControlProblems.insurance(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:insurance, :OptimalControl)
+    OptimalControlProblems.Catalogue._warn_if_draft(:insurance, :OptimalControl)
 
     # parameters
     params = parameters_data(:insurance, parameters)
@@ -94,7 +94,7 @@ function OptimalControlProblems.insurance(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:insurance, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:insurance, params, init)
 
-    return OptimalControlProblems._problem(:insurance, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:insurance, :OptimalControl, ocp, init, params)
 end

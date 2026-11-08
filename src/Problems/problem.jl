@@ -8,7 +8,7 @@ OptimalControl, and its initial guess. Discretizing and solving it is left to
 `OptimalControl.solve`, where the scheme, the grid, the modeler and the solver are chosen.
 
 A `Problem` is returned by a problem function for the OptimalControl modelings. Read it
-through `model(pb)`, [`initial_guess`](@ref) and `metadata(pb)`.
+through `model(pb)`, [`initial_guess`](@ref OptimalControlProblems.Problems.initial_guess) and `metadata(pb)`.
 
 # Fields
 
@@ -43,7 +43,7 @@ function _problem(
     init::NamedTuple,
     parameters::Union{Nothing,NamedTuple},
 )
-    data = copy(problem_metadata(problem))
+    data = copy(Metadata.problem_metadata(problem))
     data[:parameters] = parameters
     return Problem(problem, modeling, ocp, init, data)
 end
@@ -68,7 +68,7 @@ initial_guess(pb::Problem) = pb.init
 $(TYPEDSIGNATURES)
 
 Return the metadata of the problem: default grid size, the parameters it was built with,
-and its status in each modeling. See [`problem_metadata`](@ref) for the keys.
+and its status in each modeling. See [`problem_metadata`](@ref OptimalControlProblems.Metadata.problem_metadata) for the keys.
 """
 CTBase.Strategies.metadata(pb::Problem) = pb.metadata
 
@@ -124,7 +124,7 @@ julia> OptimalControlProblems.features(:beam).cost
 ```
 """
 function features(problem::Symbol)
-    return features(getfield(@__MODULE__, problem)(OptimalControlBackend()))
+    return features(getfield(Catalogue, problem)(Modelings.OptimalControlBackend()))
 end
 
 """

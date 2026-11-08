@@ -9,11 +9,11 @@ const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING :
 
 function test_parameters()
     Test.@testset "merge (parameters)" verbose = VERBOSE showtiming = SHOWTIMING begin
-        Test.@test OptimalControlProblems.merge(nothing, nothing) === nothing
-        Test.@test OptimalControlProblems.merge((tf=1,), nothing) == (tf=1,)
-        Test.@test OptimalControlProblems.merge((tf=1,), (tf=2,)) == (tf=2,)
-        Test.@test OptimalControlProblems.merge((tf=1, a=2), (tf=2,)) == (tf=2, a=2)
-        Test.@test_throws CTBase.Exceptions.PreconditionError OptimalControlProblems.merge(
+        Test.@test OptimalControlProblems.Metadata.merge(nothing, nothing) === nothing
+        Test.@test OptimalControlProblems.Metadata.merge((tf=1,), nothing) == (tf=1,)
+        Test.@test OptimalControlProblems.Metadata.merge((tf=1,), (tf=2,)) == (tf=2,)
+        Test.@test OptimalControlProblems.Metadata.merge((tf=1, a=2), (tf=2,)) == (tf=2, a=2)
+        Test.@test_throws CTBase.Exceptions.PreconditionError OptimalControlProblems.Metadata.merge(
             nothing, (tf=1,)
         )
     end
@@ -49,7 +49,7 @@ function test_parameters()
     end
     Test.@testset "Bryson–Denham solution" verbose = VERBOSE showtiming = SHOWTIMING begin
         solve(ℓ; t0=0, tf=1, x_t0=(0, 1), x_tf=(0, -1), weight=1, kwargs...) =
-            OptimalControlProblems._bryson_denham_solution(t0, tf, x_t0, x_tf, ℓ; weight, kwargs...)
+            OptimalControlProblems.Metadata._bryson_denham_solution(t0, tf, x_t0, x_tf, ℓ; weight, kwargs...)
         solution = solve(0.1)
         Test.@test solution.objective ≈ 8 / 0.9
         Test.@test solve(0.1; weight=0.5).objective ≈ 4 / 0.9

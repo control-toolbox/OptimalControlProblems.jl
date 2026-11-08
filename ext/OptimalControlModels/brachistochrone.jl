@@ -15,7 +15,7 @@ function OptimalControlProblems.brachistochrone(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems._warn_if_draft(:brachistochrone, :OptimalControl)
+    OptimalControlProblems.Catalogue._warn_if_draft(:brachistochrone, :OptimalControl)
     params = parameters_data(:brachistochrone, parameters)
     g = params[:g]
     t0 = params[:t0]
@@ -53,7 +53,7 @@ function OptimalControlProblems.brachistochrone(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:brachistochrone, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:brachistochrone, params, init)
 
-    return OptimalControlProblems._problem(:brachistochrone, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(:brachistochrone, :OptimalControl, ocp, init, params)
 end

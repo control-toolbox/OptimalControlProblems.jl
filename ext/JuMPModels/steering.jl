@@ -25,7 +25,7 @@ function OptimalControlProblems.steering(
     init=nothing,
     kwargs...,
 )
-    OptimalControlProblems._warn_if_draft(:steering, :JuMP)
+    OptimalControlProblems.Catalogue._warn_if_draft(:steering, :JuMP)
 
     # parameters
     params = parameters_data(:steering, parameters)
@@ -64,6 +64,6 @@ function OptimalControlProblems.steering(
         ],
     )
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:steering, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:steering, params, init)
     return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end

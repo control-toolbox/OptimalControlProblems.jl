@@ -25,7 +25,7 @@ function OptimalControlProblems.space_shuttle(
     init=nothing,
     kwargs...,
 )
-    OptimalControlProblems._warn_if_draft(:space_shuttle, :JuMP)
+    OptimalControlProblems.Catalogue._warn_if_draft(:space_shuttle, :JuMP)
 
     # Parameters
     params = parameters_data(:space_shuttle, parameters)
@@ -143,6 +143,6 @@ function OptimalControlProblems.space_shuttle(
         ],
     )
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems._initial_guess(:space_shuttle, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(:space_shuttle, params, init)
     return build(data, grid_size, scheme, ordering, args...; init=init, kwargs...)
 end
