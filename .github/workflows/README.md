@@ -12,7 +12,8 @@ scope labels. They are staggered at 04:00 UTC:
 | `CronRobustness.yml` | `JuMP-robustness`, `OptimalControl-robustness` | 1st of the month | No |
 
 Each thin workflow calls `cron-reusable.yml` (inputs `mode`: `cron`, or `robustness` for
-`test/robustness/`, #378; `scope`: the environment by default). The reusable workflow runs the CPU tests
+`test/robustness/`, #378; `scope`: the environment by default; `note`: one line describing
+the scope, shown under its name in the reports and the issues). The reusable workflow runs the CPU tests
 (Ubuntu and Windows on Julia 1.13; macOS comes back with #344),
 and, where requested, the GPU tests. It then downloads the report artifacts without
 merging them, updates the summary and regression issues, and publishes `cron/<scope>.md`
@@ -28,7 +29,10 @@ artifact, so the artifact name (Julia version, runner, CPU/GPU) identifies the p
 of every report row. The final job uses the GitHub token to:
 
 - update one repository-wide issue for each of `cron-failure`, `cron-drafts` and
-  `cron-convergence`;
+  `cron-convergence` — one section per scope (with its focus, cadence/`note`, its run, the
+  previous run and a bounded history), an `Overall Scope Status` dashboard table on top, a
+  finding count in the title, and a comment whenever the finding set of a scope changes
+  (`cron-convergence` stays open permanently as a dashboard);
 - add the results of the convergence tests (#360) to the scope report, with their change
   since the previous run of the scope (kept in the state on the `results` branch);
 - maintain one idempotent `cron-bug` issue per failing problem and modeling;
@@ -91,8 +95,9 @@ request that edits `ext/MetaData/<problem>.jl`.
   the previous run of the scope and no longer does, its objective moved by more than
   `OBJECTIVE_CHANGE` (relative, `tools/cron/report.py`), or it reached a solution that is not
   known yet (`new solution`, #378: a new local solution, or one better than the reference;
-  compute the references again if it is to be kept). Nothing fails. Compare the scope
-  report with the previous one on the `results` branch and decide whether the change is
+  compute the references again if it is to be kept). Nothing fails. Open the run and the
+  previous one, both linked in the section (the `results` branch is rewritten each run;
+  the previous values live in `cron/state.json`), and decide whether the change is
   expected (new initial guess, new solver version) or a regression to investigate. An
   expected change of objective means computing the reference objectives again
   ([`tools/references/README.md`](../../tools/references/README.md)).
@@ -110,7 +115,8 @@ request that edits `ext/MetaData/<problem>.jl`.
    `test/cron/<scope>/` directory.
 2. Add the scope to `test/runtests.jl` if it is opt-in.
 3. Add a thin `Cron<Scope>.yml` workflow with a free UTC slot, and call
-   `cron-reusable.yml`.
+   `cron-reusable.yml` — set `note:` to one line saying what the scope is (cadence,
+   platforms, CPU/GPU); it is shown under the scope name in the reports and the issues.
 4. Set `gpu: true` only when the scope has GPU-capable tests.
 5. Run the workflow manually twice: once with a deliberately failing fixture and once
    after fixing it. Verify issue updates and the `results` branch report.

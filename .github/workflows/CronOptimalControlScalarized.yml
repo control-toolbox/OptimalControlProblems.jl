@@ -26,4 +26,5 @@ jobs:
       environment: OptimalControlScalarized
       problems: ${{ inputs.problems }}
       gpu: true
+      note: "`CronOptimalControlScalarized.yml` · weekly (Thursday 04:00 UTC) · Julia 1.13, Ubuntu + Windows, CPU + GPU"
     secrets: inherit

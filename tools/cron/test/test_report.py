@@ -214,11 +214,156 @@ class ReportTest(unittest.TestCase):
             "<!-- cron-scope: comparison -->\n"
             "## comparison\n"
         )
-        replacement = REPORT.issue_section("JuMP", "cron-failure", [], "run")
+        replacement = REPORT.issue_section("JuMP", "failure", [], "run")
         result = REPORT.replace_section(original, "JuMP", replacement)
         self.assertIn("No findings.", result)
         self.assertIn("## comparison", result)
         self.assertNotIn("## old", result)
+
+    def test_a_section_names_its_scope_and_links_its_runs(self):
+        rows = self.rows("fail")
+        section = REPORT.issue_section(
+            "JuMP", "failure", rows, "https://x/actions/runs/1",
+            generated="2026-11-07T04:12:00+00:00", previous_run="https://x/actions/runs/0",
+            note="weekly, CPU",
+        )
+        self.assertIn("<!-- cron-scope: JuMP -->", section)
+        self.assertIn("<!-- cron-status: 1 -->", section)
+        self.assertIn("## JuMP — Nominal Convergence\n", section)
+        self.assertIn("**Focus:**", section)
+        self.assertIn("**Cadence & runners:** weekly, CPU", section)
+        self.assertIn("**⚠️ 1 failure**", section)
+        self.assertIn("Run [1](https://x/actions/runs/1)", section)
+        self.assertIn("2026-11-07 04:12 UTC", section)
+        self.assertIn("blob/results/cron/JuMP.md", section)
+        self.assertIn("[Previous run](https://x/actions/runs/0)", section)
+        self.assertIn("Pkg.test", section)  # the Investigate hints
+        clean = REPORT.issue_section("JuMP", "failure", [], "run")
+        self.assertIn("**✅ Clean**", clean)
+        self.assertNotIn("How to investigate", clean)
+
+    def test_a_missing_report_row_does_not_get_a_bogus_reproduce_command(self):
+        section = REPORT.issue_section(
+            "JuMP", "failure", [REPORT.missing_report_row("JuMP")], "run"
+        )
+        self.assertNotIn("problem=workflow", section)
+        self.assertIn("failed or produced no report", section)
+
+    def test_initial_issue_body_prepopulates_all_known_scopes(self):
+        active = "<!-- cron-scope: JuMP -->\nACTIVE_JUMP_SECTION"
+        body = REPORT.initial_issue_body("convergence", "JuMP", active)
+        self.assertIn("ACTIVE_JUMP_SECTION", body)
+        self.assertIn("<!-- cron-scope: JuMP-robustness -->", body)
+        self.assertIn("<!-- cron-scope: OptimalControl -->", body)
+        self.assertIn("## Overall Scope Status", body)
+        self.assertIn("| [JuMP — Solver Robustness]", body)
+        self.assertIn("*Awaiting run*", body)
+
+    def test_the_platform_column_drops_the_scope_prefix(self):
+        row = self.rows("fail")[0]
+        row["platform"] = "cron-JuMP-1.13-ubuntu-latest"
+        section = REPORT.issue_section("JuMP", "failure", [row], "run")
+        self.assertIn("| 1.13-ubuntu-latest |", section)
+        self.assertNotIn("cron-JuMP", section)
+
+    def test_remember_run_tracks_the_previous_run_per_scope(self):
+        state = {}
+        self.assertEqual("", REPORT.remember_run(state, "JuMP", "run1"))
+        self.assertEqual("run1", REPORT.remember_run(state, "JuMP", "run2"))
+        # the issues call of the same run links the same previous run
+        self.assertEqual("run1", REPORT.remember_run(state, "JuMP", "run2"))
+        self.assertEqual("", REPORT.remember_run(state, "OptimalControl", "run2"))
+
+    def test_summary_issue_gets_a_toc_and_a_counted_title(self):
+        github = FakeGitHub()
+        rows = self.rows("fail")
+        REPORT.update_summary_issue(github, github.data, "failure", "JuMP", rows, "r1")
+        REPORT.update_summary_issue(github, github.data, "failure", "OptimalControl", [], "r2")
+        issue = github.data[0]
+        self.assertIn("## Overall Scope Status", issue["body"])
+        self.assertIn("[JuMP — Nominal Convergence](#jump--nominal-convergence)", issue["body"])
+        self.assertIn("⚠️ **1 failure**", issue["body"])
+        self.assertIn("[OptimalControl — Nominal Convergence](#optimalcontrol--nominal-convergence)", issue["body"])
+        self.assertIn("✅ Clean", issue["body"])
+        self.assertEqual("[Cron] cron-failure — 1 failure", issue["title"])
+        # all scopes clean again: the count leaves the title
+        REPORT.update_summary_issue(github, github.data, "failure", "JuMP", [], "r3")
+        self.assertEqual("[Cron] cron-failure", github.data[0]["title"])
+
+    def test_a_change_of_findings_comments_and_enters_the_history(self):
+        github = FakeGitHub()
+        rows = self.rows("fail")
+        REPORT.update_summary_issue(
+            github, github.data, "failure", "JuMP", rows, "run-1", generated="2026-11-01T04:00:00+00:00"
+        )
+        self.assertEqual(github.comments, [])  # creation notifies, no comment
+        # ...but the first finding seeds the history
+        self.assertIn("new: `beam`", github.data[0]["body"])
+        # a stable non-empty finding set adds neither a comment nor an entry (section_rows unwraps formatting)
+        REPORT.update_summary_issue(
+            github, github.data, "failure", "JuMP", rows, "run-1b", generated="2026-11-02T04:00:00+00:00"
+        )
+        self.assertEqual(github.comments, [])
+        self.assertEqual(1, len(REPORT.section_history(github.data[0]["body"], "JuMP")))
+        REPORT.update_summary_issue(
+            github, github.data, "failure", "JuMP", [], "run-2", generated="2026-11-08T04:00:00+00:00"
+        )
+        self.assertEqual(len(github.comments), 1)
+        self.assertIn("all clear", github.comments[0][1])
+        body = github.data[0]["body"]
+        self.assertIn("<details><summary>📜 <b>Recent history</b></summary>", body)
+        self.assertIn("resolved: `beam` (all clear)", body)
+        self.assertIn("[run](run-2)", body)
+        # a stable empty finding set adds neither a comment nor an entry
+        REPORT.update_summary_issue(
+            github, github.data, "failure", "JuMP", [], "run-3", generated="2026-11-15T04:00:00+00:00"
+        )
+        self.assertEqual(len(github.comments), 1)
+        body = github.data[0]["body"]
+        self.assertEqual(1, body.count("resolved: `beam`"))
+
+    def test_partial_resolution_does_not_claim_all_clear_and_investigate_lists_all_problems(self):
+        github = FakeGitHub()
+        beam = self.rows("fail")[0]
+        chain = dict(beam, problem="chain")
+        REPORT.update_summary_issue(
+            github, github.data, "convergence", "JuMP", [beam, chain], "run-1",
+            generated="2026-11-01T04:00:00+00:00",
+        )
+        body1 = github.data[0]["body"]
+        self.assertIn('problem=beam,chain', body1)
+        self.assertIn("problems/beam/result.json", body1)
+        self.assertIn("problems/chain/result.json", body1)
+        # resolve `beam` while `chain` remains active: not all clear
+        REPORT.update_summary_issue(
+            github, github.data, "convergence", "JuMP", [chain], "run-2",
+            generated="2026-11-08T04:00:00+00:00",
+        )
+        self.assertEqual(len(github.comments), 1)
+        self.assertNotIn("all clear", github.comments[0][1])
+        self.assertIn("- resolved: `beam`", github.comments[0][1])
+        body2 = github.data[0]["body"]
+        self.assertIn("resolved: `beam`", body2)
+        self.assertNotIn("(all clear)", body2)
+        # resolve `chain` as well: convergence is a permanent dashboard, so no "safe to close"
+        REPORT.update_summary_issue(
+            github, github.data, "convergence", "JuMP", [], "run-3",
+            generated="2026-11-15T04:00:00+00:00",
+        )
+        self.assertEqual(len(github.comments), 2)
+        self.assertIn("all clear", github.comments[1][1])
+        self.assertNotIn("safe to close", github.comments[1][1])
+
+    def test_the_history_is_bounded(self):
+        github = FakeGitHub()
+        REPORT.update_summary_issue(github, github.data, "failure", "JuMP", self.rows("fail"), "r0")
+        for index in range(12):  # alternating fail/clean: one entry per run
+            rows = self.rows("fail") if index % 2 else []
+            REPORT.update_summary_issue(github, github.data, "failure", "JuMP", rows, f"r{index+1}")
+        body = github.data[0]["body"]
+        entries = REPORT.section_history(body, "JuMP")
+        self.assertEqual(REPORT.MAX_HISTORY, len(entries))
+        self.assertIn("r12", entries[0])  # newest first
 
 
 
@@ -300,6 +445,9 @@ class ConvergenceTests(unittest.TestCase):
         worse = REPORT.degradations(now, before)
         self.assertEqual(["a", "c"], [row["problem"] for row in worse])
         self.assertEqual("solver=ipopt", worse[0]["test"])
+        # the issue shows before → after, not just `lost` or a bare delta
+        self.assertEqual("converged → not_converged", worse[0]["outcome"])
+        self.assertEqual("objective 1 → 1.01 (+1.00e-02)", worse[1]["outcome"])
 
     def test_a_new_solution_is_flagged_and_a_known_one_is_not(self):
         before = {REPORT.result_key(result_row(p)): {"result": "converged", "objective": "1.0"}
