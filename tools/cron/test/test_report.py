@@ -241,6 +241,31 @@ class ReportTest(unittest.TestCase):
         self.assertIn("**✅ clean**", clean)
         self.assertNotIn("Investigate", clean)
 
+    def test_a_missing_report_row_does_not_get_a_bogus_reproduce_command(self):
+        section = REPORT.issue_section(
+            "JuMP", "failure", [REPORT.missing_report_row("JuMP")], "run"
+        )
+        self.assertNotIn("problem=workflow", section)
+        self.assertIn("produced no report", section)
+
+    def test_the_summary_counts_sections_written_by_an_older_report(self):
+        github = FakeGitHub()
+        # a section in the pre-#432 format (no cron-status marker) still counts in the TOC
+        github.create_issue(
+            "[Cron] cron-convergence",
+            "header\n\n<!-- cron-scope: JuMP-robustness -->\n## cron-convergence\n\n"
+            "| platform | problem | modeling | test | outcome |\n"
+            "| --- | --- | --- | --- | --- |\n"
+            "| p | moonlander | JuMP | cfg | lost |\n",
+            ["cron-convergence"],
+        )
+        REPORT.update_summary_issue(
+            github, github.data, "convergence", "JuMP", [], "run", generated="d"
+        )
+        body = github.data[0]["body"]
+        self.assertIn("[JuMP-robustness](#jump-robustness) | ⚠️ 1 finding |", body)
+        self.assertEqual("[Cron] cron-convergence — 1 finding", github.data[0]["title"])
+
     def test_the_platform_column_drops_the_scope_prefix(self):
         row = self.rows("fail")[0]
         row["platform"] = "cron-JuMP-1.13-ubuntu-latest"

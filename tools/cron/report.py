@@ -29,7 +29,6 @@ SUMMARY_LABELS = {
 FAILURE = {"fail", "error"}
 SCOPE_MARKER = "<!-- cron-scope: {scope} -->"
 STATUS_MARKER = "<!-- cron-status: {count} -->"
-STATUS_RE = re.compile(r"<!-- cron-scope: (.+?) -->\s*<!-- cron-status: (\d+) -->")
 KEY_RE = re.compile(r"<!-- cron-key: (.+?) -->")
 REOPENINGS_RE = re.compile(r"<!-- cron-reopenings: (\d+) -->")
 HISTORY_MARKER = "<!-- cron-history -->"
@@ -431,7 +430,15 @@ def investigate(scope: str, kind: str, rows: list[dict[str, str]]) -> str:
         return ""
     env = scope.removesuffix("-robustness")
     mode = "robustness" if scope.endswith("-robustness") else "cron"
-    repro = f'`Pkg.test(; test_args=["{env}", "{mode}", "problem={rows[0]["problem"]}"])`'
+    repro_rows = [row for row in rows if row["problem"] != "workflow"]
+    if repro_rows:
+        repro = (
+            "Reproduce: "
+            f'`Pkg.test(; test_args=["{env}", "{mode}", '
+            f'"problem={repro_rows[0]["problem"]}"])`'
+        )
+    else:
+        repro = "the run itself failed or produced no report — open its logs"
     legend = {
         "failure": "a `cron-bug` issue may exist for this (problem, modeling)",
         "convergence": (
@@ -442,7 +449,7 @@ def investigate(scope: str, kind: str, rows: list[dict[str, str]]) -> str:
     }[kind]
     return (
         "<details><summary>Investigate</summary>\n\n"
-        f"Reproduce: {repro} · {legend}\n\n"
+        f"{repro} · {legend}\n\n"
         "</details>"
     )
 
@@ -512,8 +519,13 @@ def issue_section(
 
 
 def section_statuses(body: str) -> list[tuple[str, int]]:
-    """`(scope, number of findings)` of every section of `body`, in order."""
-    return [(scope, int(count)) for scope, count in STATUS_RE.findall(body)]
+    """`(scope, number of findings)` of every section of `body`, in order. Table rows are
+    counted rather than the `cron-status` marker, so sections written by an older version
+    of the report still figure in the summary until their scope runs again."""
+    return [
+        (match.group(1), len(section_rows(body, match.group(1))))
+        for match in re.finditer(r"<!-- cron-scope: (.+?) -->", body)
+    ]
 
 
 def summary_markdown(body: str, kind: str) -> str:
