@@ -214,6 +214,17 @@ asked to CUDA in a test file (`TST6`): without a functional device the solves ar
 as skipped (`Broken` in the summary); on a runner named `kkt` or `occidata`, a missing
 device fails `test_contract`.
 
+## ModelingToolkit tests
+
+The environment `ModelingToolkit` (`test/suite/ModelingToolkit/`) solves problems written
+with ModelingToolkit.jl and Corleone shooting (`CONFIGS.ModelingToolkit` in `common/configs.jl`).
+It is opt-in due to its heavy dependencies. Run it with:
+
+```julia
+Pkg.test(; test_args=["ModelingToolkit"])                  # fast suite (test_problem, test_smoke, test_methods)
+Pkg.test(; test_args=["ModelingToolkit", "cron"])          # weekly convergence cron
+```
+
 ## Adding a test
 
 1. Pick the group: `core` for what needs no extension, the modeling environment for one

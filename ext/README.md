@@ -12,6 +12,7 @@ ext/
 ├── Descriptions/<problem>.md      # description of every problem: one file each
 ├── <Modeling>Models/<problem>.jl  # the problem in a modeling, one directory per modeling
 ├── JuMPModels.jl                  # extension of the JuMP modeling
+├── ModelingToolkitModels.jl       # extension of the ModelingToolkit modeling
 └── OptimalControlModels.jl        # extension of the OptimalControl modelings
 ```
 
@@ -46,7 +47,9 @@ ext/
    - scalarized OptimalControl: the same model with scalar components only;
    - JuMP: a method that declares the problem as `ProblemData` (continuous functions, no
      discretization) and calls `build`; the schemes are written once, in
-     `JuMPModels/schemes/`.
+     `JuMPModels/schemes/`;
+   - ModelingToolkit: a method that writes the continuous model with ModelingToolkit.jl
+     (`@variables`, `Differential`, `Symbolics.Integral`, `System`) and returns `_problem(…)`.
 4. **Test it**: `Pkg.test(; test_args=["problem=<problem>"])` runs every test on this problem
    only (see `test/README.md`). The consistency tests check the files and the metadata; the
    smoke tests that it builds and runs; the equivalence tests that two modelings give the same
