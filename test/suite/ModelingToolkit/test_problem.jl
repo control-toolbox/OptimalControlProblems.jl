@@ -1,7 +1,7 @@
 module TestProblemModelingToolkit
 
 using Test: Test
-using ModelingToolkit: ModelingToolkit # loads the ModelingToolkitModels extension
+using ModelingToolkit: ModelingToolkit as MTK
 using OptimalControlProblems: OptimalControlProblems
 using CTModels: CTModels
 using CTBase: CTBase
@@ -27,7 +27,7 @@ function test_problem()
         Main.TestStatus.for_each_problem("problem", backend) do problem
             pb = getfield(OCP, problem)(backend)
             Test.@test pb isa OCP.Problem
-            Test.@test OCP.model(pb) isa ModelingToolkit.AbstractSystem
+            Test.@test OCP.model(pb) isa MTK.AbstractSystem
             Test.@test OCP.initial_guess(pb) isa NamedTuple
             Test.@test issubset(keys(OCP.initial_guess(pb)), (:state, :control, :variable))
             data = OCP.metadata(pb)
@@ -43,9 +43,29 @@ function test_problem()
             Test.@test CTModels.Models.state_dimension(sys) > 0
             Test.@test CTModels.Models.control_dimension(sys) > 0
 
+            # Verify MTK model equations and structure
+            eqs = MTK.equations(sys)
+            Test.@test length(eqs) == CTModels.Models.state_dimension(sys)
+            iv = MTK.independent_variable(sys)
+            Test.@test iv !== nothing
+
+            # Verify costs
+            costs = MTK.get_costs(sys)
+            Test.@test !isempty(costs)
+            cost = costs[1]
+            op = MTK.SymbolicUtils.operation(cost)
+            Test.@test hasproperty(op, :domain)
+            d = op.domain.domain
+            params = OCP.parameters_data(problem)
+            Test.@test Float64(d.left) == Float64(params.t0)
+            Test.@test Float64(d.right) == Float64(params.tf)
+
+            # Verify constraints
+            cons = MTK.get_constraints(sys)
+            Test.@test !isempty(cons)
+
             # The parameters a problem is built with are recorded in its metadata, and the
             # metadata of the collection are left untouched.
-            params = OCP.parameters_data(problem)
             new = isnothing(params) ? nothing : changed(params)
             if !isnothing(new)
                 Test.@test new != params
@@ -75,4 +95,3 @@ end
 end # module TestProblemModelingToolkit
 
 test_problem() = TestProblemModelingToolkit.test_problem()
-
