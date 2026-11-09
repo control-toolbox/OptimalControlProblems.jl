@@ -58,6 +58,7 @@ function generate_api_reference(src_dir::String, ext_dir::String)
             ),
         ),
         (sym=:OptimalControlModels, files=ext("OptimalControlModels.jl")),
+        (sym=:ModelingToolkitModels, files=ext("ModelingToolkitModels.jl")),
     ]
     loaded_extensions = [
         (cfg=cfg, mod=Base.get_extension(OptimalControlProblems, cfg.sym)) for

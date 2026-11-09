@@ -22,7 +22,7 @@ it can represent, and takes at retrieval only what it needs to build it:
 
 | Modeling | Returns | Keywords |
 | :--- | :--- | :--- |
-| OptimalControl, scalarized OptimalControl | a [`Problem`](@ref OptimalControlProblems.Problem): the continuous problem and its initial guess | `parameters`, `init` |
+| OptimalControl, scalarized OptimalControl | a [`Problem`](@ref OptimalControlProblems.Problems.Problem): the continuous problem and its initial guess | `parameters`, `init` |
 | JuMP | a `JuMP.Model`, already discretized | `grid_size`, `scheme`, `ordering`, `parameters`, `init`, and the arguments of `JuMP.Model` |
 
 ```@example get

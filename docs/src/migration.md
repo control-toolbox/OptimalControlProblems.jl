@@ -5,7 +5,7 @@ The breaking changes since 0.5, with how to update your code. The full list is i
 
 ## An OptimalControl problem is the continuous problem
 
-A problem of the OptimalControl modelings returns a [`Problem`](@ref OptimalControlProblems.Problem):
+A problem of the OptimalControl modelings returns a [`Problem`](@ref OptimalControlProblems.Problems.Problem):
 the continuous model and its initial guess. It no longer discretizes, and no longer takes a
 description or `grid_size`: the discretization, the modeler and the solver are chosen in
 `solve`.

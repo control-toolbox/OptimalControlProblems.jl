@@ -76,13 +76,30 @@ const ADAPTERS = Dict{Symbol,NamedTuple}(
     :ModelingToolkit => (
         title="ModelingToolkit",
         summary="The continuous problem, written with ModelingToolkit.jl, solved with direct \
-            shooting via Corleone.jl.",
-        packages=["ModelingToolkit", "Corleone", "Ipopt"],
+            shooting via Corleone.jl. With direct shooting in Corleone, the state path constraint is \
+            enforced at the points of a constraint grid, and controls are piecewise constant on a \
+            control grid.",
+        packages=["ModelingToolkit", "Corleone", "Optimization", "Ipopt"],
         snippet=(problem, grid_size) -> """
             using ModelingToolkit, OptimalControlProblems
+            using Corleone, Ipopt, Optimization, OptimizationMOI, OrdinaryDiffEqTsit5
 
             pb = $(problem)(ModelingToolkitBackend())
-            sys = model(pb)""",
+            sys = model(pb)
+
+            # Discretize path constraints on a constraint grid and setup direct shooting
+            grid = range(0.0, 1.0, length=$(grid_size))
+            ctrl = filter(ModelingToolkit.isinput, ModelingToolkit.unknowns(sys))
+            inits = [u => initial_guess(pb).control for u in ctrl]
+            switches = [u => collect(grid[1:(end - 1)]) for u in ctrl]
+
+            opt_prob = CorleoneDynamicOptProblem(
+                sys, inits, switches...;
+                algorithm=Tsit5(), tspan=(0.0, 1.0),
+            )
+            prob = OptimizationProblem(opt_prob, AutoForwardDiff())
+            res = solve(prob, Ipopt.Optimizer())
+            res.objective""",
         model_start=r"^\s*ModelingToolkit\.@named sys = ModelingToolkit\.System\(",
         checked_against=:OptimalControl,
     ),
