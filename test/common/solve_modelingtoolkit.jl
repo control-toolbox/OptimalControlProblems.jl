@@ -205,4 +205,106 @@ function outcome(res)
     )
 end
 
+"""
+Reconstruct the `Corleone.Trajectory` from an optimization solution `res` and problem `pb`.
+"""
+function dynamic_trajectory(
+    res,
+    pb;
+    grid_size::Int=Main.TestConfigs.SMOKE_GRID,
+    shooting::Symbol=:single,
+)
+    shooting === :single || throw(ArgumentError("unsupported shooting method $shooting"))
+    sys = OCP.model(pb)
+    iv = MTK.independent_variable(sys)
+    t0, tf = _extract_tspan(sys)
+    grid = range(t0, tf, length=grid_size)
+
+    # Discretize path constraints over the grid
+    sys_disc = _discretize_path_constraints(sys, grid)
+
+    # Controls and initial values
+    ctrl_syms = filter(MTK.isinput, MTK.unknowns(sys))
+    inits = [u => 0.0 for u in ctrl_syms]
+    switches = [u => collect(grid[1:(end - 1)]) for u in ctrl_syms]
+
+    opt_prob = Corleone.CorleoneDynamicOptProblem(
+        sys_disc,
+        inits,
+        switches...;
+        algorithm=Tsit5(),
+        tspan=(t0, tf),
+    )
+
+    _, reconstruct = Corleone.pack(Val(:ComponentArrays), opt_prob.ps)
+    current = reconstruct(res.u)
+    traj, _ = opt_prob.layer(
+        (opt_prob.layer.problem, opt_prob.evaluation_grid), current, opt_prob.st
+    )
+    return traj
+end
+
+"""
+The trajectory of a solution `res` for the plots of the documentation (#314).
+Matches the schema of `TestStatus.trajectory` with empty costates as Corleone is a
+direct shooting solver without explicit costates.
+"""
+function trajectory(
+    res,
+    pb;
+    grid_size::Int=Main.TestConfigs.SMOKE_GRID,
+    shooting::Symbol=:single,
+)
+    (hasproperty(res, :u) && !isnothing(res.u)) || return nothing
+    try
+        traj = dynamic_trajectory(res, pb; grid_size=grid_size, shooting=shooting)
+        sys = OCP.model(pb)
+        t = collect(traj.t)
+        n_points = length(t)
+
+        # Points kept on the time grid: at most 501 points like TestStatus.TRAJECTORY_POINTS
+        max_points = 501
+        keep = if n_points <= max_points
+            eachindex(t)
+        else
+            unique(round.(Int, range(1, n_points; length=max_points)))
+        end
+        t_sub = t[keep]
+        r(v) = round(Float64(v); sigdigits=6)
+
+        xs = CTModels.Models.state_components(sys)
+        us = CTModels.Models.control_components(sys)
+        vs = CTModels.Models.variable_components(sys)
+
+        state_dict = Dict{String,Vector{Float64}}()
+        for name in xs
+            sym = Symbol(name)
+            vals = traj[sym]
+            state_dict[name] = [r(vals[i]) for i in keep]
+        end
+
+        control_dict = Dict{String,Vector{Float64}}()
+        for name in us
+            sym = Symbol(name)
+            vals = traj[sym]
+            # Control is piecewise-constant on intervals (length n_points - 1).
+            # Extend to n_points so it aligns with the time grid.
+            full_vals = [vals[min(i, length(vals))] for i in 1:n_points]
+            control_dict[name] = [r(full_vals[i]) for i in keep]
+        end
+
+        return Dict{String,Any}(
+            "time" => r.(t_sub),
+            "state" => state_dict,
+            "control" => control_dict,
+            "costate" => Dict{String,Vector{Float64}}(),
+            "variable" => Float64[],
+            "names" => Dict("state" => xs, "control" => us, "variable" => vs),
+        )
+    catch err
+        @warn "No trajectory for this ModelingToolkit solve" exception = err
+        return nothing
+    end
+end
+
 end # module SolveModelingToolkit

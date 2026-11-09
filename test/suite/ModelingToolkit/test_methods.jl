@@ -59,6 +59,29 @@ function test_methods()
         Test.@test haskey(out, :converged)
         Test.@test haskey(out, :objective)
         Test.@test isfinite(out.objective)
+
+        # 8. trajectory reconstruction
+        dyn_traj = Main.SolveModelingToolkit.dynamic_trajectory(res, pb; grid_size=10)
+        Test.@test dyn_traj isa Main.SolveModelingToolkit.Corleone.Trajectory
+        Test.@test length(dyn_traj.t) == 10
+
+        tr = Main.SolveModelingToolkit.trajectory(res, pb; grid_size=10)
+        Test.@test tr isa Dict{String,Any}
+        Test.@test haskey(tr, "time")
+        Test.@test haskey(tr, "state")
+        Test.@test haskey(tr, "control")
+        Test.@test haskey(tr, "costate")
+        Test.@test haskey(tr, "variable")
+        Test.@test haskey(tr, "names")
+        Test.@test length(tr["time"]) == 10
+        Test.@test isempty(tr["costate"])
+        Test.@test isempty(tr["variable"])
+        Test.@test haskey(tr["state"], "x₁")
+        Test.@test haskey(tr["state"], "x₂")
+        Test.@test haskey(tr["control"], "u")
+        Test.@test length(tr["state"]["x₁"]) == 10
+        Test.@test length(tr["state"]["x₂"]) == 10
+        Test.@test length(tr["control"]["u"]) == 10
     end
 end
 
