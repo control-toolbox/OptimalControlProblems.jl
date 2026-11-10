@@ -208,6 +208,7 @@ function build(
     _start!(X, U, v, init, data, N, M)
 
     # metadata read by the accessors
+    model[:problem_data] = data
     model[:scheme] = scheme
     model[:ordering] = ordering
     # `value` gives the value of a variable: the solution by default, or e.g. `JuMP.start_value`

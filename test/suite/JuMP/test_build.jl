@@ -284,6 +284,7 @@ function test_contract_generic()
                 names = keys(JuMP.object_dictionary(model))
                 Test.@test model[:scheme] === scheme
                 Test.@test model[:ordering] === ordering
+                Test.@test model[:problem_data] === data
                 Test.@test :time_grid ∈ names
                 Test.@test model[:time_grid] isa Function
                 Test.@test length(model[:constraints]) == JuMP.num_constraints(
