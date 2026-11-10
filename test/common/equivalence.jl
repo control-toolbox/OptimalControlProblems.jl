@@ -1,6 +1,7 @@
 # Equivalence of the NLPs of the modelings of a problem (#371, #166): the JuMP NLP and the
 # Exa NLP of OptimalControl against CTDirect's (ADNLP). Used by `suite/comparison/`: the
-# trapezoidal rule for every problem, every scheme on problems chosen by their features (#401).
+# trapezoidal rule and the interleaved ordering for every problem, every scheme and ordering
+# on problems chosen by their features (#401, #441).
 module Equivalence
 
 using Test: Test
@@ -457,8 +458,8 @@ function extreme_path_rows(ocp)
     return ((n + 1):(n + np), (N * (n + np) + 1):(N * (n + np) + np))
 end
 
-function test_jump(problem, scheme, ref)
-    for ordering in ORDERINGS
+function test_jump(problem, scheme, ref, orderings)
+    for ordering in orderings
         Test.@testset "JuMP, $scheme, $ordering" begin
             model = getfield(OCP, problem)(
                 OCP.JuMPBackend(); grid_size=GRID_SIZE, scheme=scheme, ordering=ordering
@@ -538,11 +539,11 @@ function test_exa(problem, scheme, ref)
     end
 end
 
-"""Every comparison of `problem` for the schemes `schemes`."""
-function test_problem(problem, schemes)
+"""Every comparison of `problem` for the schemes `schemes` and the orderings `orderings`."""
+function test_problem(problem, schemes, orderings)
     for scheme in schemes
         ref = reference(problem, scheme)
-        test_jump(problem, scheme, ref)
+        test_jump(problem, scheme, ref, orderings)
         test_exa(problem, scheme, ref)
     end
 end

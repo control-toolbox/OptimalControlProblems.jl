@@ -50,6 +50,21 @@ function test_status()
             Test.@test with_selection(visited, String[]) == all_problems
         end
 
+        Test.@testset "only" begin
+            some = all_problems[1:min(2, end)]
+            seen = Symbol[]
+            before = length(Main.TestStatus.ROWS)
+            with_selection(String[]) do
+                Main.TestStatus.for_each_problem(
+                    problem -> push!(seen, problem), "visited", BACKEND; only=some
+                )
+            end
+            # the others are not visited and have no line in the report
+            Test.@test seen == some
+            lines = Main.TestStatus.ROWS[(before + 1):end]
+            Test.@test [r.problem for r in lines] == seen
+        end
+
         Test.@testset "drafts do not fail the run" begin
             # a draft problem whose test fails is recorded, not reported to the parent
             # (`@testset` takes a name, not a qualified one, on Julia 1.10)
