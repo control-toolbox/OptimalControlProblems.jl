@@ -68,14 +68,16 @@ Only the first two can fail a run (#360).
    of the modeling in each of its configurations, on a small grid (`SMOKE_GRID`), and runs
    a few iterations (`SMOKE_MAX_ITER`): no exception, a finite objective. Convergence is
    not checked. The contracts, methods and API tests (`test_contract`, `test_methods`,
-   `test_problem`, `core`) belong here too.
+   `test_problem`, `core`) belong here too: `suite/JuMP/test_contract` builds two small models
+   per problem, without a solve, to check what the problem file writes (its components, its
+   initial guess, its time grid, and that it forwards every argument to the transcription).
 2. **Model equivalence** — every run; the most important part, since comparing models is
    fair only if they are the same problem. `suite/comparison/` compares them at the
    definition, at the initial guess (see below), not at convergence, and checks that
-   the JuMP NLP is CTDirect's (`test_equivalence`, #371): the trapezoidal rule for every
-   problem (is it the same problem?), every scheme and ordering on a few problems chosen by
-   their features, one per property the schemes treat differently (are the schemes
-   CTDirect's?, #401). The product problems × schemes is not run: it answers neither
+   the JuMP NLP is CTDirect's (`test_equivalence`, #371): the trapezoidal rule and the
+   interleaved ordering for every problem (is it the same problem?), every scheme and
+   ordering on a few problems chosen by their features (are the schemes CTDirect's?, #401,
+   #441). The product problems × schemes × orderings is not run: it answers neither
    question better. Count the nonzeros of an NLP with `Equivalence.nonzeros`, never with
    `meta.nnzh` (#372).
 3. **Convergence** — off by default: in the cron, and on demand with the `convergence`
@@ -128,16 +130,40 @@ collect these files and publish their scope-specific report on the `results` bra
 
 ## What is compared, and what is not
 
-- **Per modeling**, a test checks that the problem builds and runs in each configuration
-  (`test_smoke`) and that the model has the expected structure (contract, methods). A new
-  problem enters as `:draft` and becomes `:valid` when its model is finished and equivalent
-  to the other modelings; whether it converges is reported by the convergence tests.
-- **Between modelings**, the `comparison` environment checks that they describe the same
-  problem: same structure, grid, trajectories and objective at the initial guess (zero
-  iterations). The solutions found by two solvers are **not** compared: after a solve,
-  two modelings are two optimization paths, and a problem with several local solutions
-  ends on one or the other depending on the platform. The equivalence of the models
-  themselves is the NLP equivalence of #284.
+The philosophy of the tests (#441): **the modeling is tested for each problem, the
+discretization once.**
+
+- **For each problem**, the modelings are compared with each other, because a problem is
+  written once per modeling and each copy can be wrong: the same components and dimensions
+  of the state, the control and the variable (`test_features`), the same NLP as CTDirect's
+  to `1e-10` for one configuration, the trapezoidal rule and the interleaved ordering
+  (`test_equivalence`), and the scalarized model against the vector one. A problem builds
+  and runs a few iterations in each configuration (`test_smoke`), and what its file writes
+  (components, initial guess, time grid, forwarded arguments) is checked on small models
+  (`test_contract`).
+- **Once**, the discretization, which is the same code for every problem: the schemes, the
+  orderings, the start values, the arguments given to `JuMP.Model` and the model dictionary
+  are tested on fake problems, scalar and vector, written by hand
+  (`suite/JuMP/test_build`, `test_tableaux`). Against CTDirect, all four schemes and both
+  orderings are tested on **representative problems** (`common/representative.jl`): the
+  fewest that have every property the generic code treats differently (cost, free times,
+  scalar or vector state, control and variable, box, path and boundary constraints),
+  computed from the features, never named. The solution built from a JuMP model and its
+  interpolations are tested on the same problems (`test_solution`). Running every problem
+  with every scheme and ordering would test the same code again.
+- **Not compared**: the solutions found by two solvers. After a solve, two modelings are two
+  optimization paths, and a problem with several local solutions ends on one or the other
+  depending on the platform; convergence is reported, never tested. The equivalence of the
+  models is the NLP equivalence of #284.
+
+How to read a failure: a failure on one problem is an error in the modeling of that problem;
+a failure on the representative problems or in `suite/JuMP/test_build` is an error of the
+generic transcription.
+
+The modelings of OptimalControl (`OptimalControl`, `OptimalControlScalarized`) share their
+tests: `common/optimalcontrol_tests.jl` holds `test_problem`, `test_smoke` and
+`test_convergence`, parameterized by the backend, and each test file is a wrapper that gives
+its backend.
 
 ## Configurations
 

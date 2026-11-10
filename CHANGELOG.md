@@ -76,6 +76,12 @@ See [BREAKING.md](BREAKING.md).
 ### 🛠 Enhancements
 
 - The initial guess of `rocket` is a function of time, independent of the grid.
+- `model[:time_grid]` of a JuMP model takes an optional function that gives the value of a
+  variable: `model[:time_grid](JuMP.start_value)` is the time grid at the initial guess, before
+  any solve, also when a time is free. Without argument it is unchanged.
+- The tests separate what a problem writes (its modeling, tested for each problem) from the
+  discretization, the same for every problem (tested once on fake problems, and on a few
+  representative problems against CTDirect): see `test/README.md` (#441).
 
 ### 📦 Dependencies
 
