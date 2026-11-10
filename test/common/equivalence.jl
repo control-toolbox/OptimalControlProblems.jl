@@ -1,7 +1,9 @@
-# Equivalence of the NLPs of the modelings of a problem (#371, #166): the JuMP NLP and the
-# Exa NLP of OptimalControl against CTDirect's (ADNLP). Used by `suite/comparison/`: the
-# trapezoidal rule and the interleaved ordering for every problem, every scheme and ordering
-# on problems chosen by their features (#401, #441).
+# Equivalence of the NLP of the JuMP modeling of a problem with CTDirect's (ADNLP), #371, #166.
+# Used by `suite/comparison/` (every scheme and ordering, on problems chosen by their features,
+# #401, #441) and by `cron/comparison/` (the trapezoidal rule and the interleaved ordering, on
+# every problem). It tests the discretization of the JuMP models, which this package writes:
+# when it moves to a package of its own, this file goes with it. What OptimalControl and
+# CTDirect do (the Exa modeler, the scalarized model) is their tests', not this package's.
 module Equivalence
 
 using Test: Test
@@ -14,15 +16,12 @@ using OptimalControlProblems: OptimalControlProblems
 
 const OCP = OptimalControlProblems
 
-# The JuMP model of a problem is the NLP of CTDirect (#371, #166), for every scheme and
-# ordering. The variables are matched by their names, the constraints by their values at
-# random points; the JuMP NLP is then put in CTDirect's order (`PermutedNLP`) and compared
-# with `NLPModelsTest.consistent_nlps`: meta, objective, gradient, constraints, Jacobian,
-# Hessian of the Lagrangian and their products, as values. The Exa NLP of OptimalControl is
-# compared with the same reference: exact for the trapezoidal rule; for the other schemes
-# its known gap (#284: one more control, the path constraints at one extreme node) is
-# recognised by computation and reported. The NLPs of the scalarized model are compared
-# exactly with those of the vector model (#399).
+# The JuMP model of a problem is the NLP of CTDirect, for every scheme and ordering. The
+# variables are matched by their names, the constraints by their values at random points; the
+# JuMP NLP is then put in CTDirect's order (`PermutedNLP`) and compared with
+# `NLPModelsTest.consistent_nlps`: meta, objective, gradient, constraints, Jacobian, Hessian of
+# the Lagrangian and their products, as values. No solver is run: the NLPs are built and
+# evaluated.
 const SCHEMES = (:trapeze, :euler, :euler_implicit, :midpoint)
 const ORDERINGS = (:interleaved, :blocks)
 const GRID_SIZE = 4
@@ -36,22 +35,6 @@ function close_to(A::AbstractMatrix, B::AbstractMatrix)
     size(A) == size(B) || return false
     scale = max(1, maximum(abs, A; init=0.0), maximum(abs, B; init=0.0))
     return all(@. isequal(A, B) | (abs(A - B) <= TOL * scale))
-end
-
-"""
-    nonzeros(nlp)
-
-Number of distinct entries of the Jacobian and of the Hessian of the Lagrangian of `nlp`.
-Count the nonzeros with this function, never with `nlp.meta.nnzj` or `nlp.meta.nnzh`: these
-are the lengths of `jac_coord` and `hess_coord`, which may repeat an entry
-(`MathOptNLPModel` returns one per constraint and term, #372).
-"""
-function nonzeros(nlp)
-    distinct(rows, cols) = length(unique(zip(rows, cols)))
-    return (
-        jacobian=distinct(NLPModels.jac_structure(nlp)...),
-        hessian=distinct(NLPModels.hess_structure(nlp)...),
-    )
 end
 
 # -----------------------------------------------------------------------------
@@ -69,20 +52,6 @@ function ctdirect_names(model, M)
         i < M && append!(names, ["$c[$i]" for c in model[:control_components]])
     end
     return append!(names, model[:variable_components])
-end
-
-"""Names of the variables of the Exa model of OptimalControl, with `M` controls: the
-variable, the state at every node, the controls. Its control `j` is CTDirect's control
-`j - offset`."""
-function exa_names(model, M, offset)
-    names = copy(model[:variable_components])
-    for i in 0:nodes(model)
-        append!(names, ["$c[$i]" for c in model[:state_components]])
-    end
-    for j in 0:(M - 1)
-        append!(names, ["$c[$(j - offset)]" for c in model[:control_components]])
-    end
-    return names
 end
 
 """Column, among `names`, of each variable of `reference`."""
@@ -380,15 +349,11 @@ Exact comparison: the checks above, then `consistent_nlps` in CTDirect's order: 
 functions. Not run: the counters, the finite-difference checks of the derivatives, the
 quasi-Newton and slack models; they test the implementations (ADNLPModels, NLPModelsJuMP,
 NLPModelsModifiers), not the equivalence of the formulations.
-
-`allowed` lists checks whose failure is returned instead of failing the test (the initial
-point of Exa, see `test_exa`); the meta is then checked by `compare` only.
 """
-function test_exact(reference, other, cols, ref; allowed=Symbol[])
+function test_exact(reference, other, cols, ref)
     c = compare(reference, other, cols, ref.xs, ref.y)
-    tolerated = intersect(differences(c), allowed)
-    Test.@test setdiff(differences(c), allowed) == Symbol[]
-    setdiff(differences(c), allowed) == Symbol[] || return tolerated
+    Test.@test differences(c) == Symbol[]
+    isempty(differences(c)) || return nothing
     n, m = reference.meta.nvar, reference.meta.ncon
     # the initial point becomes 1, not 0: `consistent_meta` compares it with a relative
     # tolerance only (JuliaSmoothOptimizers/NLPModelsTest.jl#150)
@@ -401,13 +366,13 @@ function test_exact(reference, other, cols, ref; allowed=Symbol[])
     NLPModelsTest.consistent_nlps(
         [recentred, permuted];
         exclude=NOT_BUILT,
-        test_meta=isempty(tolerated),
+        test_meta=true,
         test_counters=false,
         test_derivative=false,
         test_qn=false,
         test_slack=false,
     )
-    return tolerated
+    return nothing
 end
 
 """The points of `nlp` (its initial point and a pseudo-random one) and multipliers."""
@@ -418,44 +383,31 @@ function points(nlp)
     return (; xs, y)
 end
 
-"""CTDirect's NLP (ADNLP) and the Exa NLP of the `backend` model of `problem` for `scheme`."""
-function nlps(backend, problem, scheme)
-    pb = getfield(OCP, problem)(backend)
+"""CTDirect's NLP (ADNLP) of `problem` for `scheme`, and its OCP."""
+function nlps(problem, scheme)
+    pb = getfield(OCP, problem)(OCP.OptimalControlBackend())
     ocp = OCP.model(pb)
     docp = OptimalControl.discretize(
         ocp, OptimalControl.Collocation(; grid_size=GRID_SIZE, scheme=scheme)
     )
     init = OptimalControl.build_initial_guess(ocp, OCP.initial_guess(pb))
     adnlp = OptimalControl.nlp_model(docp, init, OptimalControl.ADNLP())
-    exa = OptimalControl.nlp_model(docp, init, OptimalControl.Exa())
-    return (; adnlp, exa, ocp)
+    return (; adnlp, ocp)
 end
 
-# The references, built once per problem and scheme: the JuMP and the scalarized comparisons
-# share them, and the discretization is mostly compilation (#373).
+# The references, built once per problem and scheme (the discretization is mostly compilation,
+# #373).
 const REFERENCES = Dict{Tuple{Symbol,Symbol},Any}()
 
 """
-CTDirect's NLP (ADNLP) of `problem` for `scheme`, the Exa NLP of OptimalControl, the OCP,
-the points (initial point and a pseudo-random one, in CTDirect's order) and multipliers.
+CTDirect's NLP (ADNLP) of `problem` for `scheme`, the points (initial point and a pseudo-random
+one, in CTDirect's order) and multipliers.
 """
 function reference(problem, scheme)
     return get!(REFERENCES, (problem, scheme)) do
-        r = nlps(OCP.OptimalControlBackend(), problem, scheme)
+        r = nlps(problem, scheme)
         return (; r..., points(r.adnlp)...)
     end
-end
-
-"""
-The constraints of CTDirect's NLP that are the path constraints at the first or the last
-node: in CTDirect's order, the dynamics of step 1 then the path constraints at node 0, ...,
-the path constraints at node N, then the boundary conditions.
-"""
-function extreme_path_rows(ocp)
-    n = OptimalControl.state_dimension(ocp)
-    np = OptimalControl.dim_path_constraints_nl(ocp)
-    N = GRID_SIZE
-    return ((n + 1):(n + np), (N * (n + np) + 1):(N * (n + np) + np))
 end
 
 function test_jump(problem, scheme, ref, orderings)
@@ -474,112 +426,11 @@ function test_jump(problem, scheme, ref, orderings)
     end
 end
 
-# The initial point of the Exa model of OptimalControl may differ from ADNLP's for a
-# time-dependent initial guess (`chain`: the control at the last node): a difference
-# between the two modelers of OptimalControl, not of the equations. It is reported.
-const EXA_ALLOWED = [:x0]
-
-function report_exa(problem, scheme, text)
-    return Main.TestStatus.report!(
-        "NLP equivalence, $scheme", problem, "OptimalControl ADNLP vs Exa", :valid, text
-    )
-end
-
-function test_exa(problem, scheme, ref)
-    Test.@testset "Exa, $scheme" begin
-        model = getfield(OCP, problem)(
-            OCP.JuMPBackend(); grid_size=GRID_SIZE, scheme=scheme
-        )
-        exa, M = ref.exa, controls(model)
-        m = length(model[:control_components])
-        extra_controls = (exa.meta.nvar - ref.adnlp.meta.nvar) ÷ m
-        notes = String[]
-        if extra_controls == 0
-            cols = columns(exa_names(model, M, 0), ctdirect_names(model, M))
-            tolerated = test_exact(ref.adnlp, exa, cols, ref; allowed=EXA_ALLOWED)
-            :x0 in tolerated && push!(notes, "initial point differs from ADNLP's")
-        else
-            # the known gap: one more control, at either end, that enters neither the
-            # dynamics nor the cost; only the path constraints at one extreme node differ
-            gap = nothing
-            for offset in (0, 1)
-                names = exa_names(model, M + 1, offset)
-                cols = columns(names, ctdirect_names(model, M))
-                c = compare(ref.adnlp, exa, cols, ref.xs, ref.y)
-                rows = sort(c.unmatched.reference)
-                # compared by their keys: a constraint of the control only is the same at
-                # nodes 0 and 1 for implicit Euler, so which copy is left unmatched is free
-                keys = signatures(ref.adnlp, ref.xs, 1:(ref.adnlp.meta.nvar))
-                same(r) = sort(keys[rows]) == sort(keys[collect(r)])
-                known =
-                    extra_controls == 1 &&
-                    all(v for (k, v) in c.ok if k ∉ EXA_ALLOWED) &&
-                    !c.used &&
-                    length(c.unmatched.other) == length(rows) &&
-                    (isempty(rows) || any(same, extreme_path_rows(ref.ocp)))
-                known && (gap = (offset=offset, rows=rows, x0=c.ok[:x0]))
-            end
-            Test.@test !isnothing(gap)
-            if !isnothing(gap)
-                node = gap.offset == 0 ? "N" : "0"
-                push!(
-                    notes,
-                    "known gap: N+1 controls, " * (
-                        if isempty(gap.rows)
-                            "no constraint differs"
-                        else
-                            "path constraints at node $node differ"
-                        end
-                    ),
-                )
-                gap.x0 || push!(notes, "initial point differs from ADNLP's")
-            end
-        end
-        isempty(notes) || report_exa(problem, scheme, "Exa: " * join(notes, "; "))
-    end
-end
-
 """Every comparison of `problem` for the schemes `schemes` and the orderings `orderings`."""
 function test_problem(problem, schemes, orderings)
     for scheme in schemes
         ref = reference(problem, scheme)
         test_jump(problem, scheme, ref, orderings)
-        test_exa(problem, scheme, ref)
-    end
-end
-
-"""
-The scalarized model of `problem` against the vector one (#399), with the trapezoidal rule:
-both are transcribed by CTDirect, so another scheme would test CTDirect, not the modeling.
-Their variables are in the same order. ADNLP is compared with the reference, Exa with the
-Exa NLP of the vector model, itself compared with the reference by `test_exa`.
-"""
-function test_scalarized(problem)
-    ref = reference(problem, :trapeze)
-    s = nlps(OCP.OptimalControlScalarizedBackend(), problem, :trapeze)
-    for (name, vector, scalarized, at) in
-        (("ADNLP", ref.adnlp, s.adnlp, ref), ("Exa", ref.exa, s.exa, points(ref.exa)))
-        Test.@testset "scalarized $name" begin
-            n = vector.meta.nvar
-            Test.@test scalarized.meta.nvar == n
-            scalarized.meta.nvar == n && test_exact(vector, scalarized, collect(1:n), at)
-        end
-    end
-end
-
-"""
-`MathOptNLPModel` repeats Hessian entries: `nnzh` is not a count of nonzeros. If this fails,
-it no longer does, and `nonzeros` may be simplified.
-"""
-function test_nonzeros()
-    Test.@testset "nnzh counts repeated entries" begin
-        repeated = map(OCP.problems(OCP.JuMPBackend())) do problem
-            jump = NLPModelsJuMP.MathOptNLPModel(
-                getfield(OCP, problem)(OCP.JuMPBackend(); grid_size=GRID_SIZE)
-            )
-            jump.meta.nnzh > nonzeros(jump).hessian
-        end
-        Test.@test any(repeated)
     end
 end
 

@@ -14,11 +14,12 @@ const E = Main.Equivalence
 const VERBOSE = isdefined(Main, :TestOptions) ? Main.TestOptions.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING : true
 
-# The trapezoidal rule and the interleaved ordering for every problem: are two modelings the
-# same problem? One configuration shows it. Every scheme and ordering on a few problems: are the
-# JuMP schemes CTDirect's? A question on `schemes/build.jl`, not on the problems (#401, #441),
-# also answered by the unit tests of `suite/JuMP/test_build.jl`. The problems are chosen by their
-# features (#376), see `common/representative.jl`.
+# Is the discretization of the JuMP models CTDirect's? Every scheme and ordering, on a few
+# problems chosen by their features (see `common/representative.jl`): the discretization is the
+# same code for every problem (#401, #441). The modelings are compared on every problem by
+# `test_modelings`, without discretizing; the NLP of every problem is compared in the cron
+# (`cron/comparison/`). This tests the JuMP discretization, which this package writes: it goes
+# when it moves to a package of its own.
 function test_equivalence()
     Test.@testset "NLP equivalence with CTDirect" verbose = VERBOSE showtiming = SHOWTIMING begin
         R = Main.Representative
@@ -26,20 +27,9 @@ function test_equivalence()
         @info "Every scheme and ordering on: $(join(selected, ", "))"
         Test.@test R.covered(selected, features) == R.covered(both, features)
         Main.TestStatus.for_each_problem(
-            "NLP equivalence", OCP.JuMPBackend(), OCP.OptimalControlBackend()
+            "NLP equivalence", OCP.JuMPBackend(), OCP.OptimalControlBackend(); only=selected
         ) do problem
-            every = problem in selected
-            E.test_problem(
-                problem, every ? E.SCHEMES : (:trapeze,), every ? E.ORDERINGS : (:interleaved,)
-            )
-        end
-        E.test_nonzeros()
-        Main.TestStatus.for_each_problem(
-            "NLP equivalence, scalarized",
-            OCP.OptimalControlBackend(),
-            OCP.OptimalControlScalarizedBackend(),
-        ) do problem
-            E.test_scalarized(problem)
+            E.test_problem(problem, E.SCHEMES, E.ORDERINGS)
         end
     end
 end
