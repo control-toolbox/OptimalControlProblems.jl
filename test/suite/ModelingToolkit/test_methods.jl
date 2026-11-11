@@ -16,9 +16,11 @@ function test_methods()
         pb = OCP.bryson_denham(backend)
         sys = OCP.model(pb)
 
-        # 1. _extract_tspan
-        tspan = Main.SolveModelingToolkit._extract_tspan(sys)
+        # 1. tspan: from the parameters of the problem, the same as the domain of the integral
+        tspan = Main.SolveModelingToolkit.tspan(pb)
         Test.@test tspan == (0.0, 1.0)
+        domain = MTK.SymbolicUtils.operation(MTK.get_costs(sys)[1]).domain.domain
+        Test.@test (Float64(domain.left), Float64(domain.right)) == tspan
 
         # 2. _is_path_constraint
         iv = MTK.independent_variable(sys)
@@ -55,6 +57,11 @@ function test_methods()
         Test.@test S.control_start((control=t -> 3t,), 1.0, 1) == [3.0]
         Test.@test S.control_start((state=[0.0, 0.0],), 0.0, 1) == [0.0]
         Test.@test_throws DimensionMismatch S.control_start((control=[1, 2],), 0.0, 1)
+        # and it is the value the controls of the problem solved start from
+        other = OCP.bryson_denham(backend; init=(state=[0.0, 0.0], control=0.7))
+        started = S.prepare(other; grid_size=6).dynamic
+        Test.@test S.control_values(started, "u") == fill(0.7, 5)
+        Test.@test S.control_values(S.prepare(pb; grid_size=6).dynamic, "u") == zeros(5)
 
         # 7. prepare: built once, the Optimization problem and the Corleone one
         prepared = S.prepare(pb; grid_size=10)

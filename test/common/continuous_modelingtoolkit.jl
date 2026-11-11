@@ -7,8 +7,8 @@
 #
 # What a ModelingToolkit problem writes, and how it is read:
 # - the dynamics `D(xᵢ(t)) ~ fᵢ`, one equation per state;
-# - the costs (minimized, summed): integrals `Integral(t in (t0, tf))(ℓ)`, whose domain gives the
-#   times, and terms in the state at `t0` or `tf`;
+# - the costs (minimized, summed): integrals `Integral(t in (t0, tf))(ℓ)` and terms in the state at
+#   `t0` or `tf`; the times are those of the parameters of the problem;
 # - the initial state, as the default value of a state that is not tunable;
 # - the constraints `a ~ b`, `a ≲ b`, `a ≳ b`: a constraint in `t` is a path constraint, or a
 #   bound when it constrains one state or one control; one in the state at `t0` or `tf` is a
@@ -131,9 +131,10 @@ end
 """
 The data of the ModelingToolkit `System` `sys` in the fields of the JuMP `ProblemData`, read by
 `Continuous.compare`; the states and the controls in the order of `state_names` and
-`control_names` (those of the OptimalControl model).
+`control_names` (those of the OptimalControl model), the times `(t0, tf)` being `tspan`: a
+`System` does not say them when its cost has no integral.
 """
-function problem_data(sys, state_names, control_names)
+function problem_data(sys, state_names, control_names, tspan)
     CTModels.Models.variable_dimension(sys) == 0 ||
         throw(ArgumentError("a problem with a variable is not supported yet"))
     iv = unwrap(MTK.get_iv(sys))
@@ -141,23 +142,21 @@ function problem_data(sys, state_names, control_names)
     xs = ordered(filter(!MTK.isinput, unknowns), state_names)
     us = ordered(filter(MTK.isinput, unknowns), control_names)
     n, m = length(xs), length(us)
+    t0, tf = Float64.(tspan)
 
     # costs: integrals over (t0, tf) and terms in the state at t0 or tf
-    integrands, terms, times = Any[], Any[], nothing
+    integrands, terms = Any[], Any[]
     for c in MTK.get_costs(sys)
         c = unwrap(c)
         if SU.iscall(c) && SU.operation(c) isa SYM.Integral
             d = SU.operation(c).domain.domain
-            span = (constant(d.left), constant(d.right))
-            isnothing(times) && (times = span)
-            span == times || throw(ArgumentError("integrals over different intervals"))
+            (constant(d.left), constant(d.right)) == (t0, tf) ||
+                throw(ArgumentError("an integral over another interval than (t0, tf)"))
             push!(integrands, only(SU.arguments(c)))
         else
             push!(terms, c)
         end
     end
-    isnothing(times) && throw(ArgumentError("no integral cost: the times are not known"))
-    t0, tf = times
     sig = (; iv, states=unwrap.(xs), controls=unwrap.(us), t0, tf)
 
     # dynamics, in the order of the states

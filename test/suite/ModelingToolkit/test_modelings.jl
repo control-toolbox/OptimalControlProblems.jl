@@ -1,5 +1,7 @@
 isdefined(Main, :Continuous) ||
     include(joinpath(@__DIR__, "..", "..", "common", "continuous.jl"))
+isdefined(Main, :SolveModelingToolkit) ||
+    include(joinpath(@__DIR__, "..", "..", "common", "solve_modelingtoolkit.jl"))
 isdefined(Main, :ContinuousModelingToolkit) ||
     include(joinpath(@__DIR__, "..", "..", "common", "continuous_modelingtoolkit.jl"))
 
@@ -28,14 +30,15 @@ function test_modelings()
             Test.@testset "ModelingToolkit vs $(Main.TestStatus.modeling(other))" begin
                 Main.TestStatus.for_each_problem("test_modelings", mtk, other) do problem
                     build = getfield(OCP, problem)
-                    sys, pb = OCP.model(build(mtk)), build(other)
-                    ocp = OCP.model(pb)
+                    pb_mtk, pb = build(mtk), build(other)
+                    sys, ocp = OCP.model(pb_mtk), OCP.model(pb)
                     xs, us = OCP.state_components(ocp), OCP.control_components(ocp)
                     Test.@testset "components" begin
                         Test.@test sort(OCP.state_components(sys)) == sort(xs)
                         Test.@test sort(OCP.control_components(sys)) == sort(us)
                     end
-                    data = Main.ContinuousModelingToolkit.problem_data(sys, xs, us)
+                    tspan = Main.SolveModelingToolkit.tspan(pb_mtk)
+                    data = Main.ContinuousModelingToolkit.problem_data(sys, xs, us, tspan)
                     checks = Main.Continuous.compare(data, ocp, OCP.initial_guess(pb))
                     for (name, ok) in sort!(collect(checks); by=first)
                         Test.@testset "$name" begin

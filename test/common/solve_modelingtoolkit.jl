@@ -12,19 +12,12 @@ using OrdinaryDiffEqTsit5: Tsit5
 using OptimalControlProblems: OptimalControlProblems as OCP
 
 """
-Extract the time horizon `(t0, tf)` from the integral cost domain in `sys`.
+The time horizon `(t0, tf)` of the problem `pb`, from its parameters: a `System` does not say
+it when the cost has no integral (a Mayer cost).
 """
-function _extract_tspan(sys::MTK.AbstractSystem)
-    costs = MTK.get_costs(sys)
-    isempty(costs) && throw(ArgumentError("system has no cost terms"))
-    cost = costs[1]
-    op = MTK.SymbolicUtils.operation(cost)
-    if hasproperty(op, :domain) && hasproperty(op.domain, :domain)
-        d = op.domain.domain
-        return (Float64(d.left), Float64(d.right))
-    else
-        throw(ArgumentError("cannot extract time horizon from cost $cost"))
-    end
+function tspan(pb)
+    params = OCP.metadata(pb)[:parameters]
+    return (Float64(params.t0), Float64(params.tf))
 end
 
 """
@@ -144,7 +137,7 @@ function prepare(
 )
     shooting === :single || throw(ArgumentError("unsupported shooting method $shooting"))
     sys = OCP.model(pb)
-    t0, tf = _extract_tspan(sys)
+    t0, tf = tspan(pb)
     grid = range(t0, tf, length=grid_size)
 
     # Discretize path constraints over the grid
@@ -187,6 +180,14 @@ function solve(
     opts = solver_options(get(config, :solver, :ipopt); max_iter=max_iter, options=options)
     result = Optimization.solve(prepared.problem, Ipopt.Optimizer(); opts...)
     return (; result, prepared...)
+end
+
+"""
+The values of the control `name` (`"u"`) the problem `dynamic` of a `prepare` starts from:
+one per interval.
+"""
+function control_values(dynamic, name)
+    return dynamic.ps.parameter.parameters[Symbol(name, "(t)")].parameter.ps
 end
 
 """The objective of a solution `sol` of `solve`."""
