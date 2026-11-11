@@ -91,6 +91,8 @@ See [BREAKING.md](BREAKING.md).
   OptimalControl one without discretizing, it shares the API, smoke and convergence tests of
   the other modelings, and a weekly cron reports its solves by direct shooting with Corleone,
   started from the initial guess of the problem, with their trajectories for the documentation.
+- `vanderpol`, `robbins` and `jackson` are written in the ModelingToolkit modeling too, with a
+  Lagrange cost, a Mayer cost, state and control bounds (#439).
 
 ### 📦 Dependencies
 
