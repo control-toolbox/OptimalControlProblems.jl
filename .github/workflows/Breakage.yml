@@ -1,21 +1,29 @@
 name: Breakage
+run-name: "Breakage${{ inputs.pr && format(' #{0}', inputs.pr) || '' }}"
+
+# On a pull request, a label starts its own run through Labels.yml
+# (CTActions docs/workflows/label-dispatch.md).
 
 # The packages that depend on OptimalControlProblems, tested against it; see CTActions
 # docs/workflows/breakage-suite.md.
 
 on:
-  pull_request:
-    types: [labeled, synchronize, reopened]
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      pr:
+        description: 'Pull request number, set by label-dispatch.yml; empty by hand: the baseline run'
+        required: false
+        default: ''
+      target:
+        description: 'packages or applications'
+        required: false
+        default: ''
 
 jobs:
   call:
-    if: >
-      github.event_name != 'pull_request' ||
-      (github.event.action == 'labeled' && github.event.label.name == 'run breakage') ||
-      (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'run breakage'))
+    if: inputs.pr == '' || inputs.target == 'packages'
     uses: control-toolbox/CTActions/.github/workflows/breakage-suite.yml@main
     with:
       use_ct_registry: true

@@ -42,12 +42,16 @@ write("test/suite/core/test_a.jl")
 write("test/suite/JuMP/test_smoke.jl", 'include(joinpath(@__DIR__, "..", "..", "common", "solve_jump.jl"))\n')
 write("test/suite/JuMP/test_methods.jl", 'include(joinpath(@__DIR__, "..", "..", "common", "methods.jl"))\n')
 write("test/suite/OptimalControl/test_methods.jl", 'include(joinpath(@__DIR__, "..", "..", "common", "methods.jl"))\n')
+write("test/suite/OptimalControl/test_smoke.jl", 'include(joinpath(@__DIR__, "..", "..", "common", "optimalcontrol_tests.jl"))\n')
+write("test/suite/OptimalControlScalarized/test_smoke.jl", 'include(joinpath(@__DIR__, "..", "..", "common", "optimalcontrol_tests.jl"))\n')
+write("test/suite/comparison/test_modelings.jl", 'include(joinpath(@__DIR__, "..", "..", "common", "continuous.jl"))\n')
 write("test/suite/comparison/test_init.jl", 'include(joinpath(@__DIR__, "..", "..", "common", "comparison.jl"))\n')
 write("test/suite/GPU/test_contract.jl", 'include(joinpath(@__DIR__, "..", "..", "common", "capabilities.jl"))\n')
 write("test/common/comparison.jl", 'include(joinpath(@__DIR__, "solve_jump.jl"))\n'
       'include(joinpath(@__DIR__, "solve_optimalcontrol.jl"))\n')
+write("test/common/optimalcontrol_tests.jl", 'include(joinpath(@__DIR__, "solve_optimalcontrol.jl"))\n')
 write("test/common/run_environment.jl", 'include(joinpath(@__DIR__, "status.jl"))\n')
-for name in ("solve_jump", "solve_optimalcontrol", "methods", "capabilities", "options",
+for name in ("continuous", "solve_jump", "solve_optimalcontrol", "methods", "capabilities", "options",
              "status", "unused"):
     if not Path(REPO, "test/common", f"{name}.jl").exists():
         write(f"test/common/{name}.jl")
@@ -131,8 +135,19 @@ class TestRules(unittest.TestCase):
     def test_shared_test_file(self):
         # included by the tests of JuMP and, through comparison.jl, of comparison
         self.assertEqual("JuMP comparison", self.scope("test/common/solve_jump.jl"))
-        self.assertEqual("comparison", self.scope("test/common/solve_optimalcontrol.jl"))
+        # solve_optimalcontrol.jl: also through the shared runner of the OptimalControl
+        # modelings (#441), whose own change concerns these two environments only
+        self.assertEqual(
+            "OptimalControl OptimalControlScalarized comparison",
+            self.scope("test/common/solve_optimalcontrol.jl"),
+        )
+        self.assertEqual(
+            "OptimalControl OptimalControlScalarized",
+            self.scope("test/common/optimalcontrol_tests.jl"),
+        )
         self.assertEqual("JuMP OptimalControl", self.scope("test/common/methods.jl"))
+        # the continuous comparison of the modelings is run by comparison only (#441)
+        self.assertEqual("comparison", self.scope("test/common/continuous.jl"))
         # included by an opt-in environment only, or by no test
         self.assertEqual("core", self.scope("test/common/capabilities.jl"))
         self.assertEqual("core", self.scope("test/common/unused.jl"))

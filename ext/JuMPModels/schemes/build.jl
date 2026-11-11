@@ -35,7 +35,7 @@ function _in_order(pieces, ordering)
 end
 
 _at(a, i) = a isa AbstractVector ? a[i + 1] : a            # value at node i (0-based)
-_value(a) = a isa Number ? a : JuMP.value(a)
+_value(a, value) = a isa Number ? a : JuMP.value(value, a)
 
 # One JuMP variable, named as a container element (`x₁[3]`) or a scalar (`tf`).
 function _variable(model, c::Component, name, i)
@@ -208,9 +208,12 @@ function build(
     _start!(X, U, v, init, data, N, M)
 
     # metadata read by the accessors
+    model[:problem_data] = data
     model[:scheme] = scheme
     model[:ordering] = ordering
-    model[:time_grid] = () -> range(_value(t0), _value(tf), N + 1)
+    # `value` gives the value of a variable: the solution by default, or e.g. `JuMP.start_value`
+    model[:time_grid] =
+        (value=JuMP.value) -> range(_value(t0, value), _value(tf, value), N + 1)
     model[:state_components] = [c.name for c in data.state]
     model[:costate_components] = data.costate
     model[:control_components] = [c.name for c in data.control]

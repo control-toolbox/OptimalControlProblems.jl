@@ -1,0 +1,30 @@
+name: Cron comparison
+
+on:
+  schedule:
+    - cron: "0 4 * * 5"
+  workflow_dispatch:
+    inputs:
+      problems:
+        description: "Only these problems, comma-separated (e.g. beam): publishes their results, leaves the reports, the state and the issues"
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  cron:
+    permissions:
+      actions: read
+      contents: write
+      issues: write
+      pull-requests: read
+      statuses: write
+    uses: ./.github/workflows/cron-reusable.yml
+    with:
+      environment: comparison
+      problems: ${{ inputs.problems }}
+      note: "`CronComparison.yml` · weekly (Friday 04:00 UTC) · Julia 1.13, Ubuntu + Windows, CPU"
+    secrets: inherit

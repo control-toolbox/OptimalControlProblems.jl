@@ -76,6 +76,17 @@ See [BREAKING.md](BREAKING.md).
 ### 🛠 Enhancements
 
 - The initial guess of `rocket` is a function of time, independent of the grid.
+- `model[:time_grid]` of a JuMP model takes an optional function that gives the value of a
+  variable: `model[:time_grid](JuMP.start_value)` is the time grid at the initial guess, before
+  any solve, also when a time is free. Without argument it is unchanged.
+- A JuMP model keeps the `ProblemData` it was built from in `model[:problem_data]`: the
+  continuous functions of the problem (times, dynamics, cost, constraints, bounds), which the
+  tests compare with the OptimalControl model without discretizing (#441).
+- The tests separate what a problem writes (its modeling, compared with the other modelings
+  without discretizing, for every problem) from the discretization, the same for every problem
+  (tested once on fake problems, and on a few representative problems against CTDirect): see
+  `test/README.md` (#441). A weekly cron, `comparison`, compares the NLP of every problem with
+  CTDirect's.
 
 ### 📦 Dependencies
 

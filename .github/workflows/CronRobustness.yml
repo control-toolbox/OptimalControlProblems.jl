@@ -23,6 +23,7 @@ jobs:
       contents: write
       issues: write
       pull-requests: read
+      statuses: write
     uses: ./.github/workflows/cron-reusable.yml
     with:
       environment: ${{ matrix.environment }}

@@ -73,6 +73,11 @@ SCOPE_INFO = {
         "focus": "Scalarized modeling where vector states/controls are unrolled into scalar components",
         "cadence": "Weekly (Thursday 04:00 UTC) · Julia 1.13, Ubuntu + Windows (CPU + GPU)",
     },
+    "comparison": {
+        "title": "comparison — NLP Equivalence",
+        "focus": "The JuMP NLP of every problem against CTDirect's (trapezoidal rule, interleaved ordering), no solver (#441)",
+        "cadence": "Weekly (Friday 04:00 UTC) · Julia 1.13, Ubuntu + Windows (CPU)",
+    },
     "ModelingToolkit": {
         "title": "ModelingToolkit — Nominal Convergence",
         "focus": "Symbolic modeling backend with ModelingToolkit.jl",
@@ -856,7 +861,7 @@ DEFAULT_SCOPES = {
         "OptimalControl-robustness",
         "OptimalControlScalarized",
     ],
-    "failure": ["JuMP", "OptimalControl", "OptimalControlScalarized"],
+    "failure": ["JuMP", "OptimalControl", "OptimalControlScalarized", "comparison"],
     "draft": ["JuMP", "OptimalControl", "OptimalControlScalarized"],
     "capability": ["JuMP", "OptimalControl", "OptimalControlScalarized"],
 }
