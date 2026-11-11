@@ -12,7 +12,7 @@ using NLPModelsIpopt
 ## Get the problem
 
 A problem is a function, called with the modeling as argument. With OptimalControl it returns a
-[`Problem`](@ref OptimalControlProblems.Problem): the continuous problem and its initial guess.
+[`Problem`](@ref OptimalControlProblems.Problems.Problem): the continuous problem and its initial guess.
 
 ```@example first
 pb = beam(OptimalControlBackend())

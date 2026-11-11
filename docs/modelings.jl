@@ -75,16 +75,22 @@ const ADAPTERS = Dict{Symbol,NamedTuple}(
     ),
     :ModelingToolkit => (
         title="ModelingToolkit",
-        summary="The continuous problem, written with ModelingToolkit.jl, solved with direct \
-            shooting via Corleone.jl.",
-        packages=["ModelingToolkit", "Corleone", "Ipopt"],
+        summary="The continuous problem, written as a ModelingToolkit.jl `System` with its \
+            costs and constraints. The tests solve it by direct single shooting with Corleone.jl: \
+            the controls are piecewise constant and the state path constraints are imposed at the \
+            nodes of the grid; these choices are not part of the model, so the snippet stops at \
+            the model.",
+        packages=["ModelingToolkit"],
         snippet=(problem, grid_size) -> """
             using ModelingToolkit, OptimalControlProblems
 
             pb = $(problem)(ModelingToolkitBackend())
-            sys = model(pb)""",
+            sys = model(pb)          # a ModelingToolkit.System
+            init = initial_guess(pb) # the initial guess of the problem""",
         model_start=r"^\s*ModelingToolkit\.@named sys = ModelingToolkit\.System\(",
-        checked_against=:OptimalControl,
+        # compared with OptimalControl at the continuous level, in the opt-in ModelingToolkit
+        # environment only (`suite/ModelingToolkit/test_modelings`): not on every pull request
+        checked_against=nothing,
     ),
 )
 

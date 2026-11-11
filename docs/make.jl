@@ -14,12 +14,16 @@ using CTBase               # automatic API reference
 using OptimalControlProblems
 using OptimalControl       # loads the OptimalControl extension
 using JuMP                 # loads the JuMP extension
+using ModelingToolkit: ModelingToolkit # loads the ModelingToolkit extension
 using Plots
 
 # The extensions, by name, for the `@docs` blocks of the API Reference.
 const JuMPModels = Base.get_extension(OptimalControlProblems, :JuMPModels)
 const OptimalControlModels = Base.get_extension(
     OptimalControlProblems, :OptimalControlModels
+)
+const ModelingToolkitModels = Base.get_extension(
+    OptimalControlProblems, :ModelingToolkitModels
 )
 
 # Plots are saved as SVG (SITE12): DocumenterVitepress prefers PNG when both are offered.

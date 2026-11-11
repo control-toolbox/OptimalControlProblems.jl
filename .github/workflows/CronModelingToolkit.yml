@@ -1,7 +1,15 @@
 name: Cron ModelingToolkit
 
 on:
+  schedule:
+    - cron: "0 4 * * 6"
   workflow_dispatch:
+    inputs:
+      problems:
+        description: "Only these problems, comma-separated (e.g. beam): publishes their results, leaves the reports, the state and the issues"
+        required: false
+        default: ''
+        type: string
 
 permissions:
   contents: read
@@ -17,6 +25,6 @@ jobs:
     uses: ./.github/workflows/cron-reusable.yml
     with:
       environment: ModelingToolkit
-      enabled: false
-      note: "`CronModelingToolkit.yml` · manual only until the scope exists"
+      problems: ${{ inputs.problems }}
+      note: "`CronModelingToolkit.yml` · weekly (Saturday 04:00 UTC) · Julia 1.13, Ubuntu + Windows, CPU"
     secrets: inherit

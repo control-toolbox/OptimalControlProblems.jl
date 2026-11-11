@@ -81,7 +81,7 @@ SCOPE_INFO = {
     "ModelingToolkit": {
         "title": "ModelingToolkit — Nominal Convergence",
         "focus": "Symbolic modeling backend with ModelingToolkit.jl",
-        "cadence": "Manual dispatch (disabled until the environment exists)",
+        "cadence": "Weekly (Saturday 04:00 UTC) · Julia 1.13, Ubuntu + Windows (CPU)",
     },
 }
 
@@ -860,9 +860,16 @@ DEFAULT_SCOPES = {
         "OptimalControl",
         "OptimalControl-robustness",
         "OptimalControlScalarized",
+        "ModelingToolkit",
     ],
-    "failure": ["JuMP", "OptimalControl", "OptimalControlScalarized", "comparison"],
-    "draft": ["JuMP", "OptimalControl", "OptimalControlScalarized"],
+    "failure": [
+        "JuMP",
+        "OptimalControl",
+        "OptimalControlScalarized",
+        "comparison",
+        "ModelingToolkit",
+    ],
+    "draft": ["JuMP", "OptimalControl", "OptimalControlScalarized", "ModelingToolkit"],
     "capability": ["JuMP", "OptimalControl", "OptimalControlScalarized"],
 }
 
