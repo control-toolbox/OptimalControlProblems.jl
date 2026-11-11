@@ -24,8 +24,8 @@ would place in CTModels).
 """
 owner(name::Symbol) = Base.binding_module(O, name)
 
-# The layout of the source (#413, ct-conventions MOD1, MOD8 as adapted for a package used
-# directly): one submodule per directory `src/<Name>/<Name>.jl`, the package re-exporting
+# The layout of the source (#413, ct-conventions MOD1, MOD8 for a user-facing
+# package): one submodule per directory `src/<Name>/<Name>.jl`, the package re-exporting
 # their public API.
 function test_modules()
     Test.@testset "submodules and exports" verbose = VERBOSE showtiming = SHOWTIMING begin
