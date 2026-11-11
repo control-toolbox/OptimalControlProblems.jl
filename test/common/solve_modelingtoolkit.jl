@@ -12,12 +12,32 @@ using OrdinaryDiffEqTsit5: Tsit5
 using OptimalControlProblems: OptimalControlProblems as OCP
 
 """
-The time horizon `(t0, tf)` of the problem `pb`, from its parameters: a `System` does not say
-it when the cost has no integral (a Mayer cost).
+Whether the final time of the `System` `sys` is free: the problem has a variable `tf`, a
+parameter to optimize. Corleone integrates on a fixed horizon, so such a problem is written
+in the reduced time `s = (t - t0) / (tf - t0)` on `[0, 1]`, and its derivatives are multiplied
+by the duration `tf - t0`.
+"""
+free_final_time(sys) = "tf" in CTModels.Models.variable_components(sys)
+
+"""
+The physical times `(t0, tf)` of the problem `pb`, from its parameters (a `System` does not say
+them when its cost has no integral, a Mayer cost); `tf` is `nothing` when the final time is
+free, the variable `tf` being then optimized.
+"""
+function times(pb)
+    params = OCP.metadata(pb)[:parameters]
+    t0 = Float64(params.t0)
+    free_final_time(OCP.model(pb)) && return (t0, nothing)
+    return (t0, Float64(params.tf))
+end
+
+"""
+The time horizon the `System` of `pb` is integrated on: `(t0, tf)`, or `(0, 1)` when the final
+time is free (reduced time, see `free_final_time`).
 """
 function tspan(pb)
-    params = OCP.metadata(pb)[:parameters]
-    return (Float64(params.t0), Float64(params.tf))
+    t0, tf = times(pb)
+    return isnothing(tf) ? (0.0, 1.0) : (t0, tf)
 end
 
 """
@@ -125,6 +145,14 @@ function state_start(init, t0, n::Int)
     return _start(init, :state, t0, n)
 end
 
+"""The parameters of the `System` `sys` that are variables of the problem, as `variable_components`."""
+function variable_symbols(sys)
+    return filter(p -> MTK.istunable(p, true) && !MTK.isinput(p), MTK.parameters(sys))
+end
+
+"""The start value of each of the `n` variables, from the initial guess `init` of the problem."""
+variable_start(init, n::Int) = _start(init, :variable, 0.0, n)
+
 function _start(init, key::Symbol, t0, n::Int)
     g = haskey(init, key) ? init[key] : 0.0
     g isa Function && (g = g(t0))
@@ -166,6 +194,11 @@ function prepare(
     states = filter(!MTK.isinput, MTK.unknowns(sys))
     start_x = state_start(init, t0, length(states))
     append!(inits, [x => start_x[i] for (i, x) in enumerate(states) if MTK.istunable(x, false)])
+
+    # The variables (the final time `tf`) are parameters to optimize, started from the guess.
+    vars = variable_symbols(sys)
+    start_v = variable_start(init, length(vars))
+    append!(inits, [v => start_v[i] for (i, v) in enumerate(vars)])
     switches = [u => collect(grid[1:(end - 1)]) for u in ctrl_syms]
 
     dynamic = Corleone.CorleoneDynamicOptProblem(
@@ -207,6 +240,13 @@ one per interval.
 """
 function control_values(dynamic, name)
     return dynamic.ps.parameter.parameters[Symbol(name, "(t)")].parameter.ps
+end
+
+"""
+The values of the variable `name` (`"tf"`) the problem `dynamic` of a `prepare` starts from.
+"""
+function variable_values(dynamic, name)
+    return dynamic.ps.parameter.parameters[Symbol(name)].parameter.ps
 end
 
 """The objective of a solution `sol` of `solve`."""
@@ -279,12 +319,16 @@ states at the nodes of the grid and the controls.
 """
 function dynamic_trajectory(sol)
     dynamic = sol.dynamic
-    _, reconstruct = Corleone.pack(Val(:ComponentArrays), dynamic.ps)
-    current = reconstruct(sol.result.u)
     traj, _ = dynamic.layer(
-        (dynamic.layer.problem, dynamic.evaluation_grid), current, dynamic.st
+        (dynamic.layer.problem, dynamic.evaluation_grid), solved_parameters(sol), dynamic.st
     )
     return traj
+end
+
+"""The parameters of the problem solved by `sol`, at the solution."""
+function solved_parameters(sol)
+    _, reconstruct = Corleone.pack(Val(:ComponentArrays), sol.dynamic.ps)
+    return reconstruct(sol.result.u)
 end
 
 """
@@ -308,6 +352,17 @@ function _trajectory(sol, pb)
     t = collect(traj.t)
     n_points = length(t)
 
+    # The variables at the solution; with a free final time, the time is reduced to [0, 1]
+    # and goes back to the physical time t0 + (tf - t0) s.
+    xs = CTModels.Models.state_components(sys)
+    us = CTModels.Models.control_components(sys)
+    vs = CTModels.Models.variable_components(sys)
+    solved = [only(solved_parameters(sol).parameter.parameters[Symbol(v)].parameter.ps) for v in vs]
+    if free_final_time(sys)
+        t0, _ = times(pb)
+        t = t0 .+ (only(solved[findall(==("tf"), vs)]) - t0) .* t
+    end
+
     # At most TestStatus.TRAJECTORY_POINTS points, as for the other modelings
     max_points = Main.TestStatus.TRAJECTORY_POINTS
     keep = if n_points <= max_points
@@ -316,10 +371,6 @@ function _trajectory(sol, pb)
         unique(round.(Int, range(1, n_points; length=max_points)))
     end
     r(v) = round(Float64(v); sigdigits=6)
-
-    xs = CTModels.Models.state_components(sys)
-    us = CTModels.Models.control_components(sys)
-    vs = CTModels.Models.variable_components(sys)
 
     state = Dict{String,Vector{Float64}}()
     for name in xs
@@ -345,7 +396,7 @@ function _trajectory(sol, pb)
         "state" => state,
         "control" => control,
         "costate" => Dict{String,Vector{Float64}}(),
-        "variable" => Float64[],
+        "variable" => r.(solved),
         "names" => Dict("state" => xs, "control" => us, "variable" => vs),
     )
 end

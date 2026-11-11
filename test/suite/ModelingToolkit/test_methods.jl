@@ -22,6 +22,19 @@ function test_methods()
         domain = MTK.SymbolicUtils.operation(MTK.get_costs(sys)[1]).domain.domain
         Test.@test (Float64(domain.left), Float64(domain.right)) == tspan
 
+        # 1b. a free final time: the system is in the reduced time, tf is a variable to optimize
+        free = OCP.mountain_car(backend)
+        Test.@test Main.SolveModelingToolkit.free_final_time(OCP.model(free))
+        Test.@test !Main.SolveModelingToolkit.free_final_time(sys)
+        Test.@test OCP.variable_components(OCP.model(free)) == ["tf"]
+        Test.@test Main.SolveModelingToolkit.times(free) == (0.0, nothing)
+        Test.@test Main.SolveModelingToolkit.times(pb) == (0.0, 1.0)
+        Test.@test Main.SolveModelingToolkit.tspan(free) == (0.0, 1.0)
+        # started from the guess of the variable
+        started = Main.SolveModelingToolkit.prepare(free; grid_size=6).dynamic
+        Test.@test Main.SolveModelingToolkit.variable_values(started, "tf") ==
+            [OCP.initial_guess(free).variable]
+
         # 2. _is_path_constraint
         iv = MTK.independent_variable(sys)
         cons = MTK.get_constraints(sys)
@@ -99,6 +112,12 @@ function test_methods()
         Test.@test isempty(tr["costate"]) && isempty(tr["variable"])
         Test.@test all(length(tr["state"][x]) == 10 for x in xs)
         Test.@test all(length(tr["control"][u]) == 10 for u in us)
+        # with a free final time, the time axis is the physical one: from t0 to the solved tf
+        sol_free = S.solve(free, cfg; grid_size=10, max_iter=2)
+        tr_free = S.trajectory(sol_free, free)
+        Test.@test tr_free["time"][1] == 0.0
+        Test.@test tr_free["time"][end] ≈ tr_free["variable"][1]
+        Test.@test tr_free["names"]["variable"] == ["tf"]
         params = OCP.metadata(pb)[:parameters]
         Test.@test tr["state"]["x₁"][1] ≈ params.x1_t0
         Test.@test tr["state"]["x₂"][1] ≈ params.x2_t0
