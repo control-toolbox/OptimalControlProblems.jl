@@ -1,6 +1,0 @@
-Status `C:\Users\runneradmin\AppData\Local\Temp\jl_CavtbY\Project.toml`
-  [54762871] CTBase v0.30.13
-  [b6b21f68] Ipopt v1.16.0
-  [4076af6c] JuMP v1.32.1
-  [59046045] OptimalControlProblems v0.5.0 `D:\a\OptimalControlProblems.jl\OptimalControlProblems.jl`
-  [8dfed614] Test v1.11.0
