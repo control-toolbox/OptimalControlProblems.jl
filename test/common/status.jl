@@ -139,12 +139,14 @@ gap(objective, reference) =
 """
     result!(test, problem, backend, configuration; modeler, solver, options, grid_size,
             scheme, converged, reason, objective, iterations, violation, time,
-            trajectory=nothing)
+            trajectory=nothing, reference=nothing)
 
 Record the result of a solve of `problem` in the modeling of `backend`, discretized on
 `grid_size` steps with `scheme`. `modeler`, `solver` and `options` are the `settings` of the
 solve modules, the solver status the `outcome` of a solution, `trajectory` the
-`trajectory` of the solution.
+`trajectory` of the solution. The gap is to `reference`, by default the reference objective
+of the problem for this discretization; a modeling without one (ModelingToolkit, solved by
+shooting) gives the objective of the analytic solution, when there is one (#439).
 """
 function result!(
     test,
@@ -163,8 +165,11 @@ function result!(
     violation,
     time,
     trajectory=nothing,
+    reference=nothing,
 )
-    reference = OptimalControlProblems.reference_objective(problem; grid_size, scheme)
+    if isnothing(reference)
+        reference = OptimalControlProblems.reference_objective(problem; grid_size, scheme)
+    end
     push!(
         RESULTS,
         Result(
