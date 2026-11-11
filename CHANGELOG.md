@@ -87,6 +87,10 @@ See [BREAKING.md](BREAKING.md).
   (tested once on fake problems, and on a few representative problems against CTDirect): see
   `test/README.md` (#441). A weekly cron, `comparison`, compares the NLP of every problem with
   CTDirect's.
+- The ModelingToolkit modeling follows the same tests (#439): its model is compared with the
+  OptimalControl one without discretizing, it shares the API, smoke and convergence tests of
+  the other modelings, and a weekly cron reports its solves by direct shooting with Corleone,
+  started from the initial guess of the problem, with their trajectories for the documentation.
 
 ### 📦 Dependencies
 

@@ -26,5 +26,5 @@ jobs:
     with:
       environment: ModelingToolkit
       problems: ${{ inputs.problems }}
-      note: "`CronModelingToolkit.yml` · weekly (Saturday 04:00 UTC) · Julia 1.13, Ubuntu, CPU"
+      note: "`CronModelingToolkit.yml` · weekly (Saturday 04:00 UTC) · Julia 1.13, Ubuntu + Windows, CPU"
     secrets: inherit

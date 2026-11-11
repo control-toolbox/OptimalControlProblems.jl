@@ -175,10 +175,12 @@ transcription; a failure in the cron is a difference between the JuMP NLP and CT
 `test_tableaux`, `test_equivalence`, `common/equivalence.jl`, `common/representative.jl` and the
 cron `comparison`. They test code that this package writes; their files say so.
 
-The modelings of OptimalControl (`OptimalControl`, `OptimalControlScalarized`) share their
-tests: `common/optimalcontrol_tests.jl` holds `test_problem`, `test_smoke` and
-`test_convergence`, parameterized by the backend, and each test file is a wrapper that gives
-its backend.
+The modelings that return a `Problem` (`OptimalControl`, `OptimalControlScalarized`,
+`ModelingToolkit`) share their tests: `common/modeling_tests.jl` holds `test_problem`,
+`test_smoke` and `test_convergence`, parameterized by the backend and by an adapter, the
+solves of the modeling (`common/optimalcontrol_tests.jl` for the two OptimalControl modelings,
+`common/modelingtoolkit_tests.jl` for ModelingToolkit), and each test file is a wrapper that
+gives its backend.
 
 ## Configurations
 
@@ -261,14 +263,22 @@ device fails `test_contract`.
 
 ## ModelingToolkit tests
 
-The environment `ModelingToolkit` (`test/suite/ModelingToolkit/`) solves problems written
-with ModelingToolkit.jl and Corleone shooting (`CONFIGS.ModelingToolkit` in `common/configs.jl`).
-It is opt-in due to its heavy dependencies. Run it with:
+The environment `ModelingToolkit` (`test/suite/ModelingToolkit/`) solves the problems written
+with ModelingToolkit.jl by direct single shooting with Corleone.jl and Ipopt
+(`CONFIGS.ModelingToolkit` in `common/configs.jl`, `common/solve_modelingtoolkit.jl`): the
+controls are piecewise constant on the grid, started from the initial guess of the problem,
+and the path constraints are imposed at its nodes. It is opt-in, for its heavy dependencies
+(`Pkg.test(; test_args=["ModelingToolkit"])`, or the label `test ModelingToolkit backend`).
 
-```julia
-Pkg.test(; test_args=["ModelingToolkit"])                  # fast suite (test_problem, test_smoke, test_methods)
-Pkg.test(; test_args=["ModelingToolkit", "cron"])          # weekly convergence cron
-```
+It follows the three kinds of tests. Its model equivalence is `suite/ModelingToolkit/test_modelings`:
+the `System` of every problem is read as the data of a JuMP problem
+(`common/continuous_modelingtoolkit.jl`) and compared with the OptimalControl model by
+`Continuous.compare`, as `suite/comparison/test_modelings` does for JuMP. It runs in this
+environment, which therefore loads OptimalControl too, so that the `comparison` environment
+stays free of ModelingToolkit. Its convergence report (`cron/ModelingToolkit`, weekly) has no
+reference objective for a shooting discretization: the gap is to the objective of the analytic
+solution, when the problem has one, and `violation` is the largest violation of the
+constraints of the NLP solved. The costates are not computed by Corleone and are left empty.
 
 ## Adding a test
 
