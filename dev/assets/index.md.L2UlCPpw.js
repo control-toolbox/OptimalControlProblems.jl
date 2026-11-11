@@ -18,9 +18,9 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  Official https://julialang.org release</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Platform Info:</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  OS: Linux (x86_64-linux-gnu)</span></span>
-<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  CPU: 4 × AMD EPYC 7763 64-Core Processor</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  CPU: 4 × AMD EPYC 9V45 96-Core Processor</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  WORD_SIZE: 64</span></span>
-<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  LLVM: libLLVM-18.1.7 (ORCJIT, znver3)</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  LLVM: libLLVM-18.1.7 (ORCJIT, znver5)</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  GC: Built with stock GC</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Threads: 1 default, 1 interactive, 1 GC (on 4 virtual cores)</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Environment:</span></span>
@@ -110,7 +110,7 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [692b3bcd] JLLWrappers v1.8.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [682c06a0] JSON v1.13.4</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4076af6c] JuMP v1.32.1</span></span>
-<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [63c18a36] KernelAbstractions v0.9.45</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [63c18a36] KernelAbstractions v0.9.46</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [40e66cde] LDLFactorizations v0.10.2</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [929cbde3] LLVM v10.4.3</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b964fa9f] LaTeXStrings v1.4.1</span></span>
@@ -127,7 +127,7 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b8f27783] MathOptInterface v1.54.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [442fdcdd] Measures v0.3.3</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e1d29d7a] Missings v1.2.1</span></span>
-<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d8a4904e] MutableArithmetics v1.9.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d8a4904e] MutableArithmetics v1.9.4</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a4795742] NLPModels v0.21.12</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f4238b75] NLPModelsIpopt v0.11.3</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e01155f1] NLPModelsModifiers v0.8.0</span></span>
