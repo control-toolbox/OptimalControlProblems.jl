@@ -217,7 +217,13 @@ def test_args(event, labels, rows, expected, repo):
             problems = ALL
             reason += "; every problem (label)"
     order = repo.environments + sorted(repo.opt_in)
-    if envs == ALL:
+    # ALL leaves out the opt-in environments: one asked for by a label is named, with every
+    # other environment, or the label would be lost when a shared file runs everything
+    opt_in = sorted(set(environments_of_labels(labels)) & repo.opt_in)
+    if envs == ALL and opt_in:
+        args = repo.environments + opt_in
+        reason += "; opt-in environments by label: " + ", ".join(opt_in)
+    elif envs == ALL:
         args = []
     elif not envs:
         args = ["core"]

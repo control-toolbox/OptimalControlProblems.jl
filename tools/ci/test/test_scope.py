@@ -270,6 +270,14 @@ class TestLabels(unittest.TestCase):
         out, _ = run_scope(changed(["docs/src/index.md"]), labels=["test ModelingToolkit backend"])
         self.assertEqual("ModelingToolkit", out)
 
+    def test_opt_in_environment_by_label_with_everything(self):
+        # a shared file runs every environment: the opt-in one of the label is kept
+        out, err = run_scope(changed(["src/a.jl"]), labels=["test ModelingToolkit backend"])
+        self.assertEqual("JuMP OptimalControl OptimalControlScalarized comparison ModelingToolkit", out)
+        self.assertIn("opt-in environments by label: ModelingToolkit", err)
+        out, _ = run_scope(changed(["docs/src/index.md"]), labels=["test everything", "test GPU backend"])
+        self.assertEqual("JuMP OptimalControl OptimalControlScalarized comparison GPU", out)
+
     def test_null_labels(self):
         out, _ = run_scope(changed(["ext/MetaData/beam.jl"]), labels=None)
         self.assertEqual("problem=beam", out)
