@@ -33,9 +33,10 @@ function test_modelings()
                     pb_mtk, pb = build(mtk), build(other)
                     sys, ocp = OCP.model(pb_mtk), OCP.model(pb)
                     xs, us = OCP.state_components(ocp), OCP.control_components(ocp)
+                    # the same components in the same order: the initial guess is indexed by it
                     Test.@testset "components" begin
-                        Test.@test sort(OCP.state_components(sys)) == sort(xs)
-                        Test.@test sort(OCP.control_components(sys)) == sort(us)
+                        Test.@test OCP.state_components(sys) == xs
+                        Test.@test OCP.control_components(sys) == us
                     end
                     tspan = Main.SolveModelingToolkit.tspan(pb_mtk)
                     data = Main.ContinuousModelingToolkit.problem_data(sys, xs, us, tspan)
