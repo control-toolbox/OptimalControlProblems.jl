@@ -107,6 +107,23 @@ function bounded(c)
     throw(ArgumentError("unsupported constraint $c"))
 end
 
+"""
+The rows `(lower, h, upper)` with the one-sided rows on the same expression `h` merged into one
+two-sided row: `l ≤ h` and `h ≤ u` are written `l ≤ h ≤ u` by OptimalControl.
+"""
+function merged(rows)
+    out = Tuple{Float64,Any,Float64}[]
+    for (lo, h, hi) in rows
+        i = findfirst(r -> isequal(r[2], h), out)
+        if isnothing(i)
+            push!(out, (lo, h, hi))
+        else
+            out[i] = (max(out[i][1], lo), h, min(out[i][3], hi))
+        end
+    end
+    return out
+end
+
 """Initial value of the state `x` when it is fixed (not tunable), `nothing` otherwise."""
 function initial_value(sys, x)
     MTK.istunable(x, false) && return nothing
@@ -178,7 +195,7 @@ function problem_data(sys, state_names, control_names, tspan)
     end
     lower_x, upper_x = first.(metadata_bounds.(xs)), last.(metadata_bounds.(xs))
     lower_u, upper_u = first.(metadata_bounds.(us)), last.(metadata_bounds.(us))
-    path, boundary = Tuple{Any,Function,Any}[], Tuple{Any,Function,Any}[]
+    path_rows, boundary_rows = Tuple{Float64,Any,Float64}[], Tuple{Float64,Any,Float64}[]
     for c in MTK.get_constraints(sys)
         lo, h, hi = bounded(c)
         if depends_on_time(h, iv)
@@ -189,13 +206,20 @@ function problem_data(sys, state_names, control_names, tspan)
             elseif !isnothing(k)
                 lower_u[k], upper_u[k] = max(lower_u[k], lo), min(upper_u[k], hi)
             else
-                f = (x, u, v, t) -> evaluate(h, sig, point(; t, x, u))
-                push!(path, (lo, f, hi))
+                push!(path_rows, (lo, h, hi))
             end
         else
-            push!(boundary, (lo, (x0, xf, v) -> evaluate(h, sig, point(; x0, xf)), hi))
+            push!(boundary_rows, (lo, h, hi))
         end
     end
+    path = Tuple{Any,Function,Any}[
+        (lo, (x, u, v, t) -> evaluate(h, sig, point(; t, x, u)), hi) for
+        (lo, h, hi) in merged(path_rows)
+    ]
+    boundary = Tuple{Any,Function,Any}[
+        (lo, (x0, xf, v) -> evaluate(h, sig, point(; x0, xf)), hi) for
+        (lo, h, hi) in merged(boundary_rows)
+    ]
     for (i, x) in enumerate(xs)
         a = initial_value(sys, x)
         isnothing(a) || push!(boundary, (a, (x0, xf, v) -> x0[i], a))
