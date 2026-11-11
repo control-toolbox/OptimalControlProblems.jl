@@ -291,15 +291,19 @@ function selected(problems)
 end
 
 """
-    for_each_problem(f, test, backends...)
+    for_each_problem(f, test, backends...; only=nothing)
 
 Call `f(problem)` in a test set for every problem available in all the modelings of
 `backends` (whatever its status): a plain test set for a `:valid` problem, a
 `DraftTestSet` for a `:draft` one. The outcome of drafts is recorded for the report.
+With `only`, a list of problems, the others are not visited: they have no line in the report
+(a test that runs on a few representative problems, #441).
 """
-function for_each_problem(f, test::AbstractString, backends...)
+function for_each_problem(f, test::AbstractString, backends...; only=nothing)
     modelings = join(map(modeling, backends), " vs ")
-    for problem in selected(OptimalControlProblems.problems(backends...; status=:all))
+    problems = selected(OptimalControlProblems.problems(backends...; status=:all))
+    isnothing(only) || (problems = [p for p in problems if p in only])
+    for problem in problems
         if status(problem, backends) === :valid
             ts = Test.@testset "$problem" begin
                 f(problem)

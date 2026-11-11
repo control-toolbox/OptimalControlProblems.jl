@@ -259,6 +259,13 @@ class ReportTest(unittest.TestCase):
         self.assertIn("| [JuMP — Solver Robustness]", body)
         self.assertIn("*Awaiting run*", body)
 
+    def test_the_comparison_scope_is_known_to_the_failure_issue(self):
+        # a difference between the NLP of a problem and CTDirect's fails the run (#441)
+        self.assertEqual("comparison — NLP Equivalence", REPORT.scope_meta("comparison")["title"])
+        active = "<!-- cron-scope: JuMP -->\nACTIVE_JUMP_SECTION"
+        body = REPORT.initial_issue_body("failure", "JuMP", active)
+        self.assertIn("<!-- cron-scope: comparison -->", body)
+
     def test_the_platform_column_drops_the_scope_prefix(self):
         row = self.rows("fail")[0]
         row["platform"] = "cron-JuMP-1.13-ubuntu-latest"

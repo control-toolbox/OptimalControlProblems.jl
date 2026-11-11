@@ -1,5 +1,7 @@
 isdefined(Main, :Comparison) ||
     include(joinpath(@__DIR__, "..", "..", "common", "comparison.jl"))
+isdefined(Main, :Representative) ||
+    include(joinpath(@__DIR__, "..", "..", "common", "representative.jl"))
 
 module TestSolutionComparison
 
@@ -19,7 +21,9 @@ vec1(a) = Float64.(a)
 const SCHEMES = (:trapeze, :euler, :euler_implicit, :midpoint)
 
 # The solution built from a JuMP model gives back what the JuMP accessors give. Zero
-# iterations: the structure, not a solve (the solves are compared below, on `beam`).
+# iterations: the structure, not a solve (the solves are compared below, on `beam`). The
+# accessors and the builder are generic: they are checked on the representative problems
+# (#441), not on every one.
 function check_solution(problem::Symbol, scheme::Symbol)
     N = Main.TestConfigs.SMALL_GRID
     model = getfield(OCP, problem)(OCP.JuMPBackend(); grid_size=N, scheme=scheme)
@@ -83,7 +87,10 @@ function test_solution()
     Test.@testset "JuMP solution as a CTModels.Solution" verbose = VERBOSE showtiming =
         SHOWTIMING begin
         Main.TestStatus.for_each_problem(
-            "test_solution", OCP.JuMPBackend(), OCP.OptimalControlBackend()
+            "test_solution",
+            OCP.JuMPBackend(),
+            OCP.OptimalControlBackend();
+            only=Main.Representative.selection().selected,
         ) do problem
             for scheme in SCHEMES
                 Test.@testset "$scheme" check_solution(problem, scheme)

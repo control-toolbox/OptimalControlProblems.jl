@@ -11,8 +11,8 @@ const SB = "yes"
 const MAX_ITER = 1000
 const MAX_WALL_TIME = 500.0
 
-# Grid of the comparison at the initial guess (suite/comparison); the convergence report
-# (cron/) uses the default grid of each problem.
+# Grid of the solution and sign tests (suite/comparison/test_solution, suite/JuMP/test_signs);
+# the convergence report (cron/) uses the default grid of each problem.
 const SMALL_GRID = 50
 
 # Smoke solves (`test_smoke`, #360): a small grid and a few iterations show that a problem
