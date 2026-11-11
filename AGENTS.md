@@ -31,10 +31,10 @@ is not the pinned tag, (re)create it:
 
 ```bash
 rm -rf .ct-conventions
-git -c advice.detachedHead=false clone --quiet --depth 1 --branch v0.11.0 https://github.com/control-toolbox/ct-conventions.git .ct-conventions
+git -c advice.detachedHead=false clone --quiet --depth 1 --branch v0.12.0 https://github.com/control-toolbox/ct-conventions.git .ct-conventions
 ```
 
-**Pinned version: ct-conventions v0.11.0.** Cite rules by identifier (`MOD3`, `TST1`), and
+**Pinned version: ct-conventions v0.12.0.** Cite rules by identifier (`MOD3`, `TST1`), and
 state the version you applied in plans and reports.
 
 Read in this order:
@@ -54,7 +54,7 @@ How agents behave on these repositories is described in
 ## Key Conventions
 
 - **English everywhere** — code, docs, commits, issues, PRs (`GEN1`).
-- **No top-level exports** — use `Package.Submodule.symbol` everywhere (`MOD8`).
+- **User-facing package** — it exports its user API at top level, each name exported by a submodule (`MOD8`); internals stay qualified, `Package.Submodule._symbol`.
 - **Qualified imports** — `using Pkg: Pkg`, never bare `using Pkg`; `import` is never used (`MOD3`, `MOD4`).
 - **Fake types at module top-level** — never inside test functions (`TST3`).
 - **Structured errors** — seven typed exceptions; pick by the choice rule (`EXC1`).
