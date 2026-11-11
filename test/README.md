@@ -161,6 +161,10 @@ request changes** (#405), and the scope labels only **add** to it:
 | `test convergence` | add the convergence report (argument `convergence`): the convergence tests of the selected environments run after the others, and report without failing |
 
 Adding or removing a label reruns the CI when a runner label is set. `core` always runs.
+A label starts its own run through `Labels.yml` (CTActions
+[label dispatch](https://github.com/control-toolbox/CTActions/blob/main/docs/workflows/label-dispatch.md)):
+the run is in the Actions tab and as a commit status of the pull request (`CI / github`), not in
+its Checks tab.
 
 **When to add `test convergence`.** When the pull request can change what a solve returns
 (a model, an initial guess, a solver option, a scheme), or changes code that only the
