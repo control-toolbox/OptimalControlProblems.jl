@@ -1,4 +1,4 @@
-import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c=JSON.parse('{"title":"OptimalControlProblems.jl","description":"","frontmatter":{},"headers":[],"relativePath":"index.md","filePath":"index.md","lastUpdated":null}'),l={name:"index.md"};function p(t,s,h,k,r,d){return a(),i("div",null,[...s[0]||(s[0]=[n(`<h1 id="OptimalControlProblems.jl" tabindex="-1">OptimalControlProblems.jl <a class="header-anchor" href="#OptimalControlProblems.jl" aria-label="Permalink to &quot;OptimalControlProblems.jl {#OptimalControlProblems.jl}&quot;">​</a></h1><p><strong>OptimalControlProblems.jl</strong> is a collection of optimal control problems governed by ordinary differential equations, for testing and benchmarking. Each problem comes with its description, its parameters, a shared initial guess and a reference objective, and is written in one or more <strong>modelings</strong>: the continuous problem with <a href="https://control-toolbox.org/OptimalControl.jl/dev/" target="_blank" rel="noreferrer">OptimalControl.jl</a>, a discretized problem with <a href="https://jump.dev" target="_blank" rel="noreferrer">JuMP</a>. The package is part of the <a href="https://github.com/control-toolbox" target="_blank" rel="noreferrer">control-toolbox ecosystem</a>.</p><div class="tip custom-block"><p class="custom-block-title">Each modeling is an extension</p><p>The package alone lists the problems and their metadata. A modeling becomes available when its package is loaded: <code>using OptimalControl</code> for the OptimalControl modelings, <code>using JuMP</code> for JuMP. See <a href="/OptimalControlProblems.jl/dev/getting-started/installation#installation">Installation</a>.</p></div><h2 id="The-modelings" tabindex="-1">The modelings <a class="header-anchor" href="#The-modelings" aria-label="Permalink to &quot;The modelings {#The-modelings}&quot;">​</a></h2><table tabindex="0"><thead><tr><th style="text-align:left;">Modeling</th><th style="text-align:left;">Backend</th><th style="text-align:left;">What you get</th></tr></thead><tbody><tr><td style="text-align:left;">OptimalControl</td><td style="text-align:left;"><code>OptimalControlBackend()</code></td><td style="text-align:left;">The continuous problem, written with the <code>@def</code> syntax of OptimalControl.jl, discretized and solved by <code>OptimalControl.solve</code>.</td></tr><tr><td style="text-align:left;">OptimalControl, scalarized</td><td style="text-align:left;"><code>OptimalControlScalarizedBackend()</code></td><td style="text-align:left;">The same continuous problem, written with scalar components only, as needed by the ExaModels modeler on CPU and GPU.</td></tr><tr><td style="text-align:left;">JuMP</td><td style="text-align:left;"><code>JuMPBackend()</code></td><td style="text-align:left;">A JuMP model, already discretized: the scheme and the grid are chosen when the problem is built.</td></tr><tr><td style="text-align:left;">ModelingToolkit</td><td style="text-align:left;"><code>ModelingToolkitBackend()</code></td><td style="text-align:left;">The continuous problem, written with ModelingToolkit.jl, solved with direct shooting via Corleone.jl.</td></tr></tbody></table><p>Every problem written in two modelings is checked to give the same nonlinear program in both, and the solves of every modeling are compared to one reference objective. Each <a href="/OptimalControlProblems.jl/dev/problems-overview#problems-overview">problem page</a> shows the modelings side by side.</p><h2 id="Quick-start" tabindex="-1">Quick start <a class="header-anchor" href="#Quick-start" aria-label="Permalink to &quot;Quick start {#Quick-start}&quot;">​</a></h2><div class="language-julia vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">julia</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">using</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> OptimalControl, OptimalControlProblems</span></span>
+import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const o=JSON.parse('{"title":"OptimalControlProblems.jl","description":"","frontmatter":{},"headers":[],"relativePath":"index.md","filePath":"index.md","lastUpdated":null}'),l={name:"index.md"};function p(t,s,h,k,r,d){return a(),i("div",null,[...s[0]||(s[0]=[n(`<h1 id="OptimalControlProblems.jl" tabindex="-1">OptimalControlProblems.jl <a class="header-anchor" href="#OptimalControlProblems.jl" aria-label="Permalink to &quot;OptimalControlProblems.jl {#OptimalControlProblems.jl}&quot;">​</a></h1><p><strong>OptimalControlProblems.jl</strong> is a collection of optimal control problems governed by ordinary differential equations, for testing and benchmarking. Each problem comes with its description, its parameters, a shared initial guess and a reference objective, and is written in one or more <strong>modelings</strong>: the continuous problem with <a href="https://control-toolbox.org/OptimalControl.jl/dev/" target="_blank" rel="noreferrer">OptimalControl.jl</a>, a discretized problem with <a href="https://jump.dev" target="_blank" rel="noreferrer">JuMP</a>. The package is part of the <a href="https://github.com/control-toolbox" target="_blank" rel="noreferrer">control-toolbox ecosystem</a>.</p><div class="tip custom-block"><p class="custom-block-title">Each modeling is an extension</p><p>The package alone lists the problems and their metadata. A modeling becomes available when its package is loaded: <code>using OptimalControl</code> for the OptimalControl modelings, <code>using JuMP</code> for JuMP. See <a href="/OptimalControlProblems.jl/dev/getting-started/installation#installation">Installation</a>.</p></div><h2 id="The-modelings" tabindex="-1">The modelings <a class="header-anchor" href="#The-modelings" aria-label="Permalink to &quot;The modelings {#The-modelings}&quot;">​</a></h2><table tabindex="0"><thead><tr><th style="text-align:left;">Modeling</th><th style="text-align:left;">Backend</th><th style="text-align:left;">What you get</th></tr></thead><tbody><tr><td style="text-align:left;">OptimalControl</td><td style="text-align:left;"><code>OptimalControlBackend()</code></td><td style="text-align:left;">The continuous problem, written with the <code>@def</code> syntax of OptimalControl.jl, discretized and solved by <code>OptimalControl.solve</code>.</td></tr><tr><td style="text-align:left;">OptimalControl, scalarized</td><td style="text-align:left;"><code>OptimalControlScalarizedBackend()</code></td><td style="text-align:left;">The same continuous problem, written with scalar components only, as needed by the ExaModels modeler on CPU and GPU.</td></tr><tr><td style="text-align:left;">JuMP</td><td style="text-align:left;"><code>JuMPBackend()</code></td><td style="text-align:left;">A JuMP model, already discretized: the scheme and the grid are chosen when the problem is built.</td></tr><tr><td style="text-align:left;">ModelingToolkit</td><td style="text-align:left;"><code>ModelingToolkitBackend()</code></td><td style="text-align:left;">The continuous problem, written as a ModelingToolkit.jl <code>System</code> with its costs and constraints. The tests solve it by direct single shooting with Corleone.jl: the controls are piecewise constant and the state path constraints are imposed at the nodes of the grid; these choices are not part of the model, so the snippet stops at the model.</td></tr></tbody></table><p>Every problem written in two modelings is checked to give the same nonlinear program in both, and the solves of every modeling are compared to one reference objective. Each <a href="/OptimalControlProblems.jl/dev/problems-overview#problems-overview">problem page</a> shows the modelings side by side.</p><h2 id="Quick-start" tabindex="-1">Quick start <a class="header-anchor" href="#Quick-start" aria-label="Permalink to &quot;Quick start {#Quick-start}&quot;">​</a></h2><div class="language-julia vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">julia</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">using</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> OptimalControl, OptimalControlProblems</span></span>
 <span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">using</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> NLPModelsIpopt</span></span>
 <span class="line"></span>
 <span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">pb </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> beam</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">OptimalControlBackend</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">())   </span><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># the continuous problem</span></span>
@@ -18,9 +18,9 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  Official https://julialang.org release</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Platform Info:</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  OS: Linux (x86_64-linux-gnu)</span></span>
-<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  CPU: 4 × AMD EPYC 9V45 96-Core Processor</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  CPU: 4 × Intel(R) Xeon(R) 6973P-C</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  WORD_SIZE: 64</span></span>
-<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  LLVM: libLLVM-18.1.7 (ORCJIT, znver5)</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  LLVM: libLLVM-18.1.7 (ORCJIT, graniterapids)</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  GC: Built with stock GC</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Threads: 1 default, 1 interactive, 1 GC (on 4 virtual cores)</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Environment:</span></span>
@@ -34,6 +34,7 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4076af6c] JuMP v1.32.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [16fef848] LiveServer v1.6.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [2621e9c9] MadNLP v0.10.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [961ee093] ModelingToolkit v11.46.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f4238b75] NLPModelsIpopt v0.11.3</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [5f98b655] OptimalControl v2.2.1-beta</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [59046045] OptimalControlProblems v0.5.0 \`~/work/OptimalControlProblems.jl/OptimalControlProblems.jl\`</span></span>
@@ -49,10 +50,21 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [47edcb42] ADTypes v1.24.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [14f7f29c] AMD v0.5.4</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a4c015fc] ANSIColoredPrinters v0.0.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [6e696c72] AbstractPlutoDingetjes v1.4.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1520ce14] AbstractTrees v0.4.5</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [7d9f7c33] Accessors v0.1.46</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [79e6a3ab] Adapt v4.8.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [66dad0bd] AliasTables v1.1.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ec485272] ArnoldiMethod v0.4.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4fba245c] ArrayInterface v7.30.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4c555306] ArrayLayouts v1.16.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a9b6321e] Atomix v1.7.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [aae01518] BandedMatrices v1.14.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e2ed5e7c] Bijections v0.2.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b2a6c25c] BinaryHeaps v1.1.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [caf10ac8] BipartiteGraphs v0.1.15</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [8e7c35d0] BlockArrays v1.10.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [70df07ce] BracketingNonlinearSolve v1.12.8</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [fa961155] CEnum v1.0.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [54762871] CTBase v0.30.13</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [790bbbee] CTDirect v1.1.8-beta</span></span>
@@ -68,9 +80,15 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3da002f7] ColorTypes v0.12.5</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [c3611d14] ColorVectorSpace v0.11.2</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [5ae59095] Colors v0.13.4</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [861a8166] Combinatorics v1.0.2</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [38540f10] CommonSolve v0.2.14</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [bbf7d656] CommonSubexpressions v0.3.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f70d9fcc] CommonWorldInvalidations v1.2.2</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [34da2185] Compat v4.18.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b152e2b5] CompositeTypes v0.1.4</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a33af91c] CompositionsBase v0.1.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2569d6c7] ConcreteStructs v0.2.8</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [187b0558] ConstructionBase v1.6.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d38c429a] Contour v0.6.3</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a8cc5b0e] Crayons v4.2.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [9a962f9c] DataAPI v1.16.0</span></span>
@@ -78,6 +96,8 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [864edb3b] DataStructures v0.19.6</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e2d170a0] DataValueInterfaces v1.0.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [8bb1440f] DelimitedFiles v1.9.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2b5f629d] DiffEqBase v7.21.6</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [459566f4] DiffEqCallbacks v4.19.6</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [163ba53b] DiffResults v1.1.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b552c78f] DiffRules v1.17.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a0c0ee7d] DifferentiationInterface v0.7.22</span></span>
@@ -85,23 +105,40 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [ffbed154] DocStringExtensions v0.9.5</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e30172f5] Documenter v1.20.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4710194d] DocumenterVitepress v0.3.9</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [5b8099bc] DomainSets v0.8.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [7c1d4256] DynamicPolynomials v0.6.8</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4e289a0a] EnumX v1.0.7</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f151be2c] EnzymeCore v0.8.27</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [1037b233] ExaModels v0.12.2</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e2ba6199] ExprTools v0.1.11</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [21656369] ExpressionExplorer v1.1.6</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [55351af7] ExproniconLite v0.10.16</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [c87230d0] FFMPEG v0.4.6</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [7034ab61] FastBroadcast v1.5.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [9aa1b823] FastClosures v0.3.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a4df4552] FastPower v1.5.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1a297f60] FillArrays v1.18.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [64ca27bc] FindFirstFunctions v3.4.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [6a86dc24] FiniteDiff v2.33.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [53c48c17] FixedPointNumbers v0.8.6</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1fa38f19] Format v1.3.7</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f6369f11] ForwardDiff v1.4.7</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a85aefff] FunctionMaps v0.1.2</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [069b7b12] FunctionWrappers v1.1.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [77dc65aa] FunctionWrappersWrappers v1.13.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [46192b85] GPUArraysCore v0.2.2</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [28b8d3ca] GR v0.73.27</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d7ba0133] Git v1.5.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [86223c79] Graphs v1.15.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [cd3eb016] HTTP v2.15.2</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [076d061b] HashArrayMappedTries v0.2.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b5f81e59] IOCapture v1.0.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3263718b] ImplicitDiscreteSolve v2.3.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d25df0c9] Inflate v0.1.5</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [842dd82b] InlineStrings v2.0.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [18e54dd8] IntegerMathUtils v0.1.4</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [8197267c] IntervalSets v0.7.15</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3587e190] InverseFunctions v0.1.18</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [41ab1584] InvertedIndices v1.3.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b6b21f68] Ipopt v1.16.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [92d709cd] IrrationalConstants v0.2.7</span></span>
@@ -109,60 +146,102 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1019f520] JLFzf v0.1.11</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [692b3bcd] JLLWrappers v1.8.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [682c06a0] JSON v1.13.4</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ae98c720] Jieko v0.2.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4076af6c] JuMP v1.32.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ccbc3e58] JumpProcesses v10.2.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [63c18a36] KernelAbstractions v0.9.46</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ba0b0d4f] Krylov v0.10.12</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [40e66cde] LDLFactorizations v0.10.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2faa5264] LHLFactorization v2.2.2</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [929cbde3] LLVM v10.4.3</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b964fa9f] LaTeXStrings v1.4.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [23fbe1c1] Latexify v0.16.12</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [0e77f7df] LazilyInitializedFields v1.3.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [87fe0de2] LineSearch v0.1.20</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [5c8ed15e] LinearOperators v2.14.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [7ed4a6bd] LinearSolve v5.18.3</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [16fef848] LiveServer v1.6.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2ab3a3ac] LogExpFunctions v1.0.5</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e6f89c97] LoggingExtras v1.2.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [6c6e2e6c] MIMEs v1.1.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d8e11817] MLStyle v0.4.17</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1914dd2f] MacroTools v0.5.16</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [2621e9c9] MadNLP v0.10.3</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d0879d2d] MarkdownAST v0.1.3</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b8f27783] MathOptInterface v1.54.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [bb5d69b7] MaybeInplace v0.1.8</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [442fdcdd] Measures v0.3.3</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e1d29d7a] Missings v1.2.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [961ee093] ModelingToolkit v11.46.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [7771a370] ModelingToolkitBase v1.80.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [6bb917b9] ModelingToolkitTearing v1.20.9</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2e0e35c7] Moshi v0.3.13</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [46d2c3a1] MuladdMacro v0.2.7</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [102ac46a] MultivariatePolynomials v0.5.20</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d8a4904e] MutableArithmetics v1.9.4</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a4795742] NLPModels v0.21.12</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f4238b75] NLPModelsIpopt v0.11.3</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e01155f1] NLPModelsModifiers v0.8.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [77ba4419] NaNMath v1.1.5</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [be0214bd] NonlinearSolveBase v2.55.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [5959db7a] NonlinearSolveFirstOrder v2.10.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [6fe1bfb0] OffsetArrays v1.18.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [5f98b655] OptimalControl v2.2.1-beta</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [59046045] OptimalControlProblems v0.5.0 \`~/work/OptimalControlProblems.jl/OptimalControlProblems.jl\`</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [bac558e1] OrderedCollections v2.0.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [bbf590c4] OrdinaryDiffEqCore v4.19.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d96e819e] Parameters v0.13.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [69de0a69] Parsers v3.0.6</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ccf2f8ad] PlotThemes v3.3.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [995b91a9] PlotUtils v1.5.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [91a5bcdd] Plots v1.41.7</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e409e4f3] PoissonRandom v0.4.14</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2dfb63ee] PooledArrays v1.4.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d236fae5] PreallocationTools v1.7.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [aea7be01] PrecompileTools v1.4.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [21216c6a] Preferences v1.6.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [08abe8d2] PrettyTables v3.5.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [27ebfcd6] Primes v0.5.7</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [43287f4e] PtrArrays v1.4.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [0c0d3e7f] PureKLU v1.6.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a3311ec8] ReactantCore v0.1.26</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [988b38a3] ReadOnlyArrays v0.2.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [795d4caa] ReadOnlyDicts v1.0.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3cdcf5f2] RecipesBase v1.4.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [01d81517] RecipesPipeline v0.6.12</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [731186ca] RecursiveArrayTools v4.5.6</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [189a3867] Reexport v1.2.2</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2792f1a3] RegistryInstances v0.1.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [05181044] RelocatableFolders v1.0.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ae029012] Requires v1.3.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [802f3686] Reseau v1.6.6</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [9fe22ead] RespecializeParams v1.3.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [37e2e3b7] ReverseDiff v1.18.9</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [7e49a35a] RuntimeGeneratedFunctions v0.5.27</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [9dfe8606] SCCNonlinearSolve v1.16.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [0bca4576] SciMLBase v3.58.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [19f34311] SciMLJacobianOperators v0.1.20</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a6db7da4] SciMLLogging v2.1.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [c0aeaf25] SciMLOperators v1.30.4</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [431bcebd] SciMLPublic v1.3.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [53ae85a6] SciMLStructures v1.10.6</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [7e506255] ScopedValues v1.6.2</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [6c6a2e73] Scratch v1.3.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [91c51154] SentinelArrays v1.4.11</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [efcf1570] Setfield v1.2.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [992d4aef] Showoff v1.1.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [67d14529] SimpleImageMetadata v0.1.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [727e6d20] SimpleNonlinearSolve v2.14.6</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [699a6c99] SimpleTraits v0.9.6</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ed01d8cd] Sobol v1.5.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ff4d7338] SolverCore v0.3.10</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a2af1166] SortingAlgorithms v1.2.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a57abbd0] SparseColumnPivotedQR v2.1.8</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [9f842d2f] SparseConnectivityTracer v1.2.4</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [0a514795] SparseMatrixColorings v0.4.29</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [276daf66] SpecialFunctions v2.9.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [0c0c59c1] StarAlgebras v0.3.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [64909d44] StateSelection v1.11.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [90137ffa] StaticArrays v1.9.24</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1e83bf80] StaticArraysCore v1.4.5</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [10745b16] Statistics v1.11.5</span></span>
@@ -170,16 +249,24 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2913bbd2] StatsBase v0.34.13</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [892a3eda] StringManipulation v0.6.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ec057cc2] StructUtils v2.12.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2efcf032] SymbolicIndexingInterface v0.3.56</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [19f23fe9] SymbolicLimits v1.2.2</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d1185830] SymbolicUtils v4.55.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [0c5d862f] Symbolics v7.48.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3783bdb8] TableTraits v1.0.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [bd369af6] Tables v1.14.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ed4db957] TaskLocalValues v0.1.3</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [62fd8b95] TensorCore v0.1.1</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [8ea1fca8] TermInterface v2.0.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [a759f4b9] TimerOutputs v1.2.3</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3bb67fe8] TranscodingStreams v0.11.3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [781d530d] TruncatedStacktraces v1.4.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [5c2747f8] URIs v1.7.3</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3a884ed6] UnPack v1.0.2</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1cfade01] UnicodeFun v0.4.1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [013be700] UnsafeAtomics v0.4.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [41fe7b60] Unzip v0.2.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d30d5f5c] WeakCacheSets v0.1.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ae81ac8f] ASL_jll v0.1.5+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [6e34b625] Bzip2_jll v1.0.9+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [83423d85] Cairo_jll v1.18.8+1</span></span>
@@ -200,6 +287,7 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3b182d85] Graphite2_jll v1.3.16+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2e76f6c2] HarfBuzz_jll v100.15001.0+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e33a78d0] Hwloc_jll v2.15.0+3</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1d5cc7b8] IntelOpenMP_jll v2025.2.0+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [9cc047cb] Ipopt_jll v300.1400.1902+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [aacddb02] JpegTurbo_jll v3.2.1+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [c1c5ebd0] LAME_jll v3.100.3+0</span></span>
@@ -213,6 +301,7 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [89763e89] Libtiff_jll v4.7.3+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [38a345b3] Libuuid_jll v2.42.4+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d00139f3] METIS_jll v5.1.4+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [856f044c] MKL_jll v2025.2.0+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d7ed1dd3] MUMPS_seq_jll v500.900.100+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [c7aee132] NodeJS_20_jll v20.12.2+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [e7412a2a] Ogg_jll v1.3.6+0</span></span>
@@ -270,6 +359,7 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [9a156e7d] libva_jll v2.24.1+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f27f6e37] libvorbis_jll v1.3.8+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [009596ad] mtdev_jll v1.1.7+0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [1317d2d5] oneTBB_jll v2023.1.0+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [1270edf5] x264_jll v10164.0.1+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">⌅ [dfaa095f] x265_jll v4.1.0+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [d8fb68d0] xkbcommon_jll v1.13.0+0</span></span>
@@ -277,11 +367,13 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [56f22d72] Artifacts v1.11.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [2a0f44e3] Base64 v1.11.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ade2ca70] Dates v1.11.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [8ba89e20] Distributed v1.11.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [f43a241f] Downloads v1.7.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [7b1f6079] FileWatching v1.11.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [9fa8497b] Future v1.11.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b77e0a4c] InteractiveUtils v1.11.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [ac6e5ff7] JuliaSyntaxHighlighting v1.12.0</span></span>
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [4af54fe1] LazyArtifacts v1.11.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [b27032c2] LibCURL v0.6.4</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [76f85450] LibGit2 v1.11.0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [8f399da3] Libdl v1.11.0</span></span>
@@ -319,4 +411,4 @@ import{_ as e,o as a,c as i,aq as n}from"./chunks/framework.BCDCZ_xy.js";const c
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [8e850b90] libblastrampoline_jll v5.15.0+0</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [8e850ede] nghttp2_jll v1.64.0+1</span></span>
 <span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">  [3f19e933] p7zip_jll v17.7.0+0</span></span>
-<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Info Packages marked with ⌃ and ⌅ have new versions available. Those with ⌃ may be upgradable, but those with ⌅ are restricted by compatibility constraints from upgrading. To see why use \`status --outdated -m\`</span></span></code></pre></div></details>`,26)])])}const g=e(l,[["render",p]]);export{c as __pageData,g as default};
+<span class="line"><span style="--shiki-light:#24292e;--shiki-dark:#e1e4e8;">Info Packages marked with ⌃ and ⌅ have new versions available. Those with ⌃ may be upgradable, but those with ⌅ are restricted by compatibility constraints from upgrading. To see why use \`status --outdated -m\`</span></span></code></pre></div></details>`,26)])])}const g=e(l,[["render",p]]);export{o as __pageData,g as default};
