@@ -1,3 +1,4 @@
+# Tests the discretization of the JuMP models, which this package writes: it goes when that code moves to a package of its own (#441).
 module TestBuildJuMP
 
 using Test: Test

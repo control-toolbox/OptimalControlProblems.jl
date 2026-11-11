@@ -4,6 +4,7 @@
 # problem: testing it on all of them would test the same code again, so it is tested on a few
 # problems chosen by their features (#376), the fewest that have every property the generic code
 # treats differently. A problem is never named: the selection is computed from the catalogue.
+# It goes with the tests of the JuMP discretization, when that code moves to a package of its own.
 module Representative
 
 using OptimalControlProblems: OptimalControlProblems

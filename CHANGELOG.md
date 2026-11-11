@@ -82,9 +82,11 @@ See [BREAKING.md](BREAKING.md).
 - A JuMP model keeps the `ProblemData` it was built from in `model[:problem_data]`: the
   continuous functions of the problem (times, dynamics, cost, constraints, bounds), which the
   tests compare with the OptimalControl model without discretizing (#441).
-- The tests separate what a problem writes (its modeling, tested for each problem) from the
-  discretization, the same for every problem (tested once on fake problems, and on a few
-  representative problems against CTDirect): see `test/README.md` (#441).
+- The tests separate what a problem writes (its modeling, compared with the other modelings
+  without discretizing, for every problem) from the discretization, the same for every problem
+  (tested once on fake problems, and on a few representative problems against CTDirect): see
+  `test/README.md` (#441). A weekly cron, `comparison`, compares the NLP of every problem with
+  CTDirect's.
 
 ### 📦 Dependencies
 
