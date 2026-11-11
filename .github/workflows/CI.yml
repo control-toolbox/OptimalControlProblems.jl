@@ -1,12 +1,25 @@
 name: CI
+run-name: "CI ${{ inputs.target }}${{ inputs.pr && format(' #{0}', inputs.pr) || '' }}"
+
+# On a pull request, a label starts its own run through Labels.yml
+# (CTActions docs/workflows/label-dispatch.md): `target` says which runner, `pr` which
+# pull request. The scope of the CI is read from that pull request.
 
 on:
   push:
     branches:
       - main
     tags: '*'
-  pull_request:
-    types: [labeled, unlabeled, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: 'Pull request number, set by label-dispatch.yml'
+        required: false
+        default: ''
+      target:
+        description: 'github, occidata or kkt'
+        required: false
+        default: ''
 
 jobs:
   # Turn the files a pull request changes, and its scope labels, into the arguments of
@@ -17,6 +30,7 @@ jobs:
   # shared change, a removed or renamed file and any unreadable or truncated file list
   # run everything. The rules are in test/README.md.
   scope:
+    if: github.event_name == 'push' || inputs.target == 'github'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -25,15 +39,26 @@ jobs:
       test_args: ${{ steps.scope.outputs.test_args }}
     steps:
       - uses: actions/checkout@v4
-      - id: files
-        if: github.event_name == 'pull_request'
+      # The labels and the number of changed files of the pull request: a dispatched run
+      # has no pull request in its event.
+      - id: pr
+        if: inputs.pr != ''
         env:
           GH_TOKEN: ${{ github.token }}
+          PR: ${{ inputs.pr }}
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR}" \
+            --jq '"labels=\([.labels[].name] | tojson)", "changed_files=\(.changed_files)"' >> "$GITHUB_OUTPUT"
+      - id: files
+        if: inputs.pr != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ inputs.pr }}
         run: |
           # Written only on success: a failed call leaves no list and the scope step
           # runs the complete catalogue.
           if gh api --paginate \
-              "repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files" \
+              "repos/${GITHUB_REPOSITORY}/pulls/${PR}/files" \
               --jq '.[] | [.status, .filename] | @tsv' > changed_files.tsv.new; then
             mv changed_files.tsv.new changed_files.tsv
           else
@@ -48,30 +73,24 @@ jobs:
 
       - id: scope
         env:
-          # null outside pull_request events: the script reads it as no label.
-          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+          # null outside a pull request: the script reads it as no label.
+          LABELS: ${{ steps.pr.outputs.labels || 'null' }}
+          EVENT: ${{ inputs.pr != '' && 'pull_request' || github.event_name }}
+          CHANGED_FILES: ${{ steps.pr.outputs.changed_files }}
         run: |
           args=$(cat changed_files.tsv 2>/dev/null | python3 tools/ci/scope.py \
-            --event "${{ github.event_name }}" \
+            --event "$EVENT" \
             --labels "$LABELS" \
-            --expected-files "${{ github.event.pull_request.changed_files }}" \
+            --expected-files "$CHANGED_FILES" \
             --summary "$GITHUB_STEP_SUMMARY")
           echo "test_args=$args" >> "$GITHUB_OUTPUT"
           echo "test_args: '$args'"
 
-  # On a pull request, run when the runner label is set: on a push, on the runner label
-  # being added, or on a label that changes what runs being added or removed (the scope
-  # labels `test ...`, including `test all problems`, and `release`). Other label events
-  # do not rerun the CI.
+  # On a push, and for the runner label (target github): the scope labels `test ...` and
+  # `release` run it again through Labels.yml (restart_labels).
   call:
     needs: scope
-    if: >
-      github.event_name != 'pull_request' ||
-      (contains(github.event.pull_request.labels.*.name, 'run ci github-runner') &&
-        ((github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
-          github.event.label.name == 'run ci github-runner' ||
-          github.event.label.name == 'release' ||
-          startsWith(github.event.label.name, 'test ')))
+    if: github.event_name == 'push' || inputs.target == 'github'
     uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
     with:
       # Temporary, during the reorganisation of #310: Ubuntu and Julia 1.13 only.
@@ -105,14 +124,9 @@ jobs:
       - run: python3 tools/ci/results.py --reports artifacts --summary "$GITHUB_STEP_SUMMARY" > /dev/null
 
   # GPU tests (environment `GPU`: Exa and MadNLP on the GPU, test/README.md) on the
-  # self-hosted runners, on a pull request with the runner label. A `labeled` event fires
-  # once per label added: react only to the label of the runner, and to the other events
-  # when the label is set.
+  # self-hosted runners, on a pull request with the runner label (target occidata or kkt).
   test-gpu-occidata:
-    if: >
-      github.event_name == 'pull_request' &&
-      ((github.event.action == 'labeled' && github.event.label.name == 'run ci occidata-runner') ||
-      (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'run ci occidata-runner')))
+    if: inputs.target == 'occidata'
     uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
     with:
       versions: '["1.13"]'
@@ -124,10 +138,7 @@ jobs:
       SSH_KEY: ${{ secrets.SSH_KEY }}
 
   test-gpu-kkt:
-    if: >
-      github.event_name == 'pull_request' &&
-      ((github.event.action == 'labeled' && github.event.label.name == 'run ci kkt-runner') ||
-      (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'run ci kkt-runner')))
+    if: inputs.target == 'kkt'
     uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
     with:
       versions: '["1.13"]'
@@ -141,7 +152,7 @@ jobs:
   # On a push (main, tags): a single GPU run, on kkt unless it is offline, else occidata
   # (CTActions ci-gpu.yml).
   test-gpu-main:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'push'
     uses: control-toolbox/CTActions/.github/workflows/ci-gpu.yml@main
     with:
       versions: '["1.13"]'
