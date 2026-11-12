@@ -375,7 +375,10 @@ function test_start()
 
                 # a scalar is the guess of a one-dimensional component
                 model = EXT.build(
-                    FAKE, N, scheme, :interleaved;
+                    FAKE,
+                    N,
+                    scheme,
+                    :interleaved;
                     init=(state=0.5, control=-0.5, variable=1.6),
                 )
                 Test.@test start_of(model, "x") == fill(0.5, N + 1)
@@ -383,9 +386,7 @@ function test_start()
                 Test.@test JuMP.start_value(model[:T]) == 1.6
 
                 # a key that is missing leaves its variables unset
-                model = EXT.build(
-                    VECTOR, N, scheme, :interleaved; init=(state=[1.0, 2.0],)
-                )
+                model = EXT.build(VECTOR, N, scheme, :interleaved; init=(state=[1.0, 2.0],))
                 Test.@test all(isnothing, start_of(model, "u₁"))
                 Test.@test isnothing(JuMP.start_value(model[:T]))
                 Test.@test start_of(model, "x₁") == fill(1.0, N + 1)

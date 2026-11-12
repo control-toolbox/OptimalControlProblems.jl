@@ -104,7 +104,7 @@ function bounded(c)
         h, k = split_constant(l - r)
         return (-Inf, h, -k)
     end
-    throw(ArgumentError("unsupported constraint $c"))
+    return throw(ArgumentError("unsupported constraint $c"))
 end
 
 """Initial value of the state `x` when it is fixed (not tunable), `nothing` otherwise."""
@@ -124,7 +124,7 @@ function ordered(syms, names)
     return map(names) do n
         i = findfirst(s -> name(s) == n, syms)
         isnothing(i) && throw(ArgumentError("no component $n among $(name.(syms))"))
-        syms[i]
+        return syms[i]
     end
 end
 
@@ -214,7 +214,8 @@ function problem_data(sys, state_names, control_names, tspan)
         times=v -> (t0, tf),
         dynamics=(x, u, v, t) -> [evaluate(f, sig, point(; t, x, u)) for f in rhs],
         lagrange=lagrange,
-        cost=(I, x0, xf, v) -> I + sum(evaluate(g, sig, point(; x0, xf)) for g in terms; init=0.0),
+        cost=(I, x0, xf, v) ->
+            I + sum(evaluate(g, sig, point(; x0, xf)) for g in terms; init=0.0),
         path=path,
         boundary=boundary,
     )

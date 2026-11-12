@@ -12,9 +12,7 @@ Default parameters and the modeling status are available through
 """
 
 function OptimalControlProblems.bryson_denham(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:bryson_denham, :OptimalControl)
     params = parameters_data(:bryson_denham, parameters)
@@ -41,5 +39,7 @@ function OptimalControlProblems.bryson_denham(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:bryson_denham, params, init)
 
-    return OptimalControlProblems.Problems._problem(:bryson_denham, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :bryson_denham, :OptimalControl, ocp, init, params
+    )
 end

@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:chain)` and `OptimalControlProblems.status(:chain)`.
 """
 function OptimalControlProblems.chain(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:chain, :OptimalControl)
 
@@ -60,5 +58,7 @@ function OptimalControlProblems.chain(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:chain, params, init)
 
-    return OptimalControlProblems.Problems._problem(:chain, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :chain, :OptimalControl, ocp, init, params
+    )
 end

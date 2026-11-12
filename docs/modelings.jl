@@ -101,8 +101,12 @@ for spec in OptimalControlProblems.Modelings.MODELING_SPECS
 end
 
 """The modelings, in the order of the modeling table, as `(spec, adapter)` pairs."""
-modelings() =
-    [(spec, ADAPTERS[spec.name]) for spec in OptimalControlProblems.Modelings.MODELING_SPECS]
+function modelings()
+    return [
+        (spec, ADAPTERS[spec.name]) for
+        spec in OptimalControlProblems.Modelings.MODELING_SPECS
+    ]
+end
 
 """The modelings in which `problem` exists, whatever its status there."""
 function modelings(problem::Symbol)
@@ -128,7 +132,7 @@ function model_excerpt(text::AbstractString, start::Regex)
     last = findnext(eachindex(lines), first + 1) do i
         l = lines[i]
         isempty(strip(l)) && return false
-        length(l) - length(lstrip(l)) == indent && startswith(lstrip(l), r"end|\)")
+        return length(l) - length(lstrip(l)) == indent && startswith(lstrip(l), r"end|\)")
     end
     block = lines[first:something(last, length(lines))]
     pad = " "^indent

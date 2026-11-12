@@ -133,8 +133,9 @@ end
 const RESULTS = Result[]
 
 """Relative gap of `objective` to `reference` (absolute when the reference is zero)."""
-gap(objective, reference) =
-    abs(objective - reference) / (iszero(reference) ? 1 : abs(reference))
+function gap(objective, reference)
+    return abs(objective - reference) / (iszero(reference) ? 1 : abs(reference))
+end
 
 """
     result!(test, problem, backend, configuration; modeler, solver, options, grid_size,
@@ -242,7 +243,7 @@ function _trajectory(x)
         return Dict(name => [r(f(τ)[i]) for τ in t] for (i, name) in enumerate(names))
     end
     xs, us = O.state_components(x), O.control_components(x)
-    scalar(f) = τ -> (y = f(τ); y isa Number ? [y] : y)
+    scalar(f) = τ -> (y=f(τ); y isa Number ? [y] : y)
     return Dict{String,Any}(
         "time" => r.(t),
         "state" => components(scalar(O.state(x)), xs),
@@ -426,7 +427,9 @@ function results_table(tsv::AbstractString)
     end
     open(tsv, "w") do io
         println(io, join([header; extra], "\t"))
-        foreach(r -> println(io, join([cells(r, full); extra_cells(r)], "\t")), RESULTS)
+        return foreach(
+            r -> println(io, join([cells(r, full); extra_cells(r)], "\t")), RESULTS
+        )
     end
     lines = [
         "",

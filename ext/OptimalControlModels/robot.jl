@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:robot)` and `OptimalControlProblems.status(:robot)`.
 """
 function OptimalControlProblems.robot(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:robot, :OptimalControl)
 
@@ -120,5 +118,7 @@ function OptimalControlProblems.robot(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:robot, params, init)
 
-    return OptimalControlProblems.Problems._problem(:robot, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :robot, :OptimalControl, ocp, init, params
+    )
 end

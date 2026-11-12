@@ -1,4 +1,5 @@
-isdefined(Main, :SolveJuMP) || include(joinpath(@__DIR__, "..", "..", "common", "solve_jump.jl"))
+isdefined(Main, :SolveJuMP) ||
+    include(joinpath(@__DIR__, "..", "..", "common", "solve_jump.jl"))
 
 module TestSignsJuMP
 
@@ -42,7 +43,11 @@ function nlp_equality(; negated::Bool, sense::JuMP.MOI.OptimizationSense)
     model = JuMP.Model()
     JuMP.@variable(model, x)
     JuMP.@variable(model, y)
-    ref = negated ? JuMP.@constraint(model, -x - y == -2) : JuMP.@constraint(model, x + y == 2)
+    ref = if negated
+        JuMP.@constraint(model, -x - y == -2)
+    else
+        JuMP.@constraint(model, x + y == 2)
+    end
     f = x^2 + y^2
     JuMP.@objective(model, sense, sense === JuMP.MOI.MIN_SENSE ? f : -f)
     return model, ref
@@ -102,7 +107,9 @@ function test_rows()
         Main.SolveJuMP.solve!(model)
         Test.@test JuMP.dual(ref) ≈ -6 atol = ATOL
         Test.@test EXT._multiplier(ref) ≈ 6 atol = ATOL
-        model, ref = nlp((m, x) -> JuMP.@constraint(m, -2 <= x <= 0), -5, JuMP.MOI.MIN_SENSE)
+        model, ref = nlp(
+            (m, x) -> JuMP.@constraint(m, -2 <= x <= 0), -5, JuMP.MOI.MIN_SENSE
+        )
         Main.SolveJuMP.solve!(model)
         Test.@test JuMP.dual(ref) ≈ 6 atol = ATOL
         Test.@test EXT._multiplier(ref) ≈ -6 atol = ATOL
@@ -156,8 +163,8 @@ function test_ocp()
         T = collect(Float64, OCP.time_grid(model))
         τ = (T[1:(end - 1)] .+ T[2:end]) ./ 2
         p2(t) = p(t)[2]
-        Test.@test [p2(τ[i]) + p2(τ[i + 1]) for i in 1:(N - 1)] ≈
-            [4 * u(T[i + 1]) for i in 1:(N - 1)] atol = 1e-3
+        Test.@test [p2(τ[i]) + p2(τ[i + 1]) for i in 1:(N - 1)] ≈ [4 * u(T[i + 1]) for i in 1:(N - 1)] atol =
+            1e-3
 
         # Boundary contract: flat extrapolation outside [τ_1, τ_N]
         Test.@test EXT._costate_times(T) == τ

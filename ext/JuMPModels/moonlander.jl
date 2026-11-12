@@ -85,8 +85,7 @@ function OptimalControlProblems.moonlander(
             Component("dθ"),
         ],
         control=[
-            Component("F₁"; lower=F₁_l, upper=F₁_u),
-            Component("F₂"; lower=F₂_l, upper=F₂_u),
+            Component("F₁"; lower=F₁_l, upper=F₁_u), Component("F₂"; lower=F₂_l, upper=F₂_u)
         ],
         variable=[Component("tf"; lower=tf_l, upper=tf_u)],
         costate=["∂p₁", "∂p₂", "∂dp₁", "∂dp₂", "∂θ", "∂dθ"],

@@ -27,7 +27,9 @@ function adapter()
 end
 
 """The API of a problem of the modeling of `backend`: the `Problem`, its metadata, its display."""
-test_problem(backend) = Main.ModelingTests.test_problem(backend; model_type=OptimalControl.Model)
+function test_problem(backend)
+    return Main.ModelingTests.test_problem(backend; model_type=OptimalControl.Model)
+end
 
 """
 Every problem builds, evaluates and runs a few iterations in each configuration; the

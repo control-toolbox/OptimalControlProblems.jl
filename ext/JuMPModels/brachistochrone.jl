@@ -40,11 +40,7 @@ function OptimalControlProblems.brachistochrone(
     u_max = params[:u_max]
 
     data = ProblemData(;
-        state=[
-            Component("px"),
-            Component("py"),
-            Component("v"),
-        ],
+        state=[Component("px"), Component("py"), Component("v")],
         control=[Component("u"; lower=-1.57, upper=1.57)],
         variable=[Component("tf"; lower=0.1, upper=20.0)],
         costate=["∂px", "∂py", "∂v"],

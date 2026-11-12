@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:jackson)` and `OptimalControlProblems.status(:jackson)`.
 """
 function OptimalControlProblems.jackson(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:jackson, :OptimalControl)
 
@@ -59,5 +57,7 @@ function OptimalControlProblems.jackson(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:jackson, params, init)
 
-    return OptimalControlProblems.Problems._problem(:jackson, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :jackson, :OptimalControl, ocp, init, params
+    )
 end

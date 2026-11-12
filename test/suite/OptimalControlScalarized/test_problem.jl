@@ -6,9 +6,11 @@ module TestProblemOptimalControlScalarized
 using OptimalControlProblems: OptimalControlProblems
 
 # The API of a problem of this modeling; written once in `common/optimalcontrol_tests.jl` (#441).
-test_problem() = Main.OptimalControlTests.test_problem(
-    OptimalControlProblems.OptimalControlScalarizedBackend()
-)
+function test_problem()
+    return Main.OptimalControlTests.test_problem(
+        OptimalControlProblems.OptimalControlScalarizedBackend()
+    )
+end
 
 end # module TestProblemOptimalControlScalarized
 

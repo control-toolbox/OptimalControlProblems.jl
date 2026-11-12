@@ -43,5 +43,7 @@ function OptimalControlProblems.vanderpol(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:vanderpol, params, init)
 
-    return OptimalControlProblems.Problems._problem(:vanderpol, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :vanderpol, :OptimalControlScalarized, ocp, init, params
+    )
 end
