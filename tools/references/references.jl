@@ -50,11 +50,15 @@ function read_results(dirs)
             "results recorded before #409, solve again",
         )
         environment = joinpath(root, replace(file, "-results.tsv" => "-environment.toml"))
-        isfile(environment) || error("$(environment) is missing: its results cannot say how they were obtained")
+        isfile(environment) || error(
+            "$(environment) is missing: its results cannot say how they were obtained"
+        )
         for line in lines[2:end]
             cells = split(line, '\t')
             length(cells) == length(header) || continue
-            row = Dict{String,String}(String(h) => String(c) for (h, c) in zip(header, cells))
+            row = Dict{String,String}(
+                String(h) => String(c) for (h, c) in zip(header, cells)
+            )
             row["platform"] = platform
             row["environment"] = environment
             push!(rows, row)
@@ -64,14 +68,16 @@ function read_results(dirs)
 end
 
 """The environment of the run of `row` (`<report>-environment.toml`), read once per file."""
-environment(row) = get!(() -> TOML.parsefile(row["environment"]), ENVIRONMENTS, row["environment"])
+function environment(row)
+    return get!(() -> TOML.parsefile(row["environment"]), ENVIRONMENTS, row["environment"])
+end
 const ENVIRONMENTS = Dict{String,Dict{String,Any}}()
 
 # Statuses of a solve that stopped at an acceptable point, not at the requested tolerance:
 # still a solution (#409), ranked after a strict convergence when one represents a solution.
 const ACCEPTABLE = ("acceptable", "ALMOST_LOCALLY_SOLVED", "SOLVED_TO_ACCEPTABLE_LEVEL")
 
-parse_violation(cell) = isempty(cell) ? Inf : (v = parse(Float64, cell); isnan(v) ? Inf : v)
+parse_violation(cell) = isempty(cell) ? Inf : (v=parse(Float64, cell); isnan(v) ? Inf : v)
 
 """
     representative(rows) -> Dict{String,String}
@@ -158,7 +164,8 @@ function references(rows, defaults; run::AbstractString)
                 "configuration" => r["configuration"],
                 "platform" => r["platform"],
                 "objective" => parse(Float64, r["objective"]),
-            ) for r in sort(group; by=r -> (r["modeling"], r["configuration"], r["platform"]))
+            ) for
+            r in sort(group; by=r -> (r["modeling"], r["configuration"], r["platform"]))
         ]
         get!(tables, problem, Dict{String,Any}())[scheme] = Dict{String,Any}(
             # the objective of the representative of the best solution: a solve that can be
@@ -190,8 +197,9 @@ function solutions(rows)
     groups = Vector{Vector{Dict{String,String}}}()
     for r in sort(rows; by=objective)
         if isempty(groups) ||
-            OptimalControlProblems.References._relative_gap(objective(r), objective(first(last(groups)))) >
-           SAME_SOLUTION
+            OptimalControlProblems.References._relative_gap(
+            objective(r), objective(first(last(groups)))
+        ) > SAME_SOLUTION
             push!(groups, [r])
         else
             push!(last(groups), r)
@@ -202,7 +210,8 @@ function solutions(rows)
         return Dict{String,Any}(
             "objective" => objective(chosen),
             "solves" => length(g),
-            "configurations" => sort!(unique(["$(r["modeling"]) $(r["configuration"])" for r in g])),
+            "configurations" =>
+                sort!(unique(["$(r["modeling"]) $(r["configuration"])" for r in g])),
             "reference" => reference(chosen),
         )
     end
@@ -229,7 +238,7 @@ function write_references(dir, tables)
         merge!(data, schemes)
         open(file, "w") do io
             print(io, HEADER, "\n")
-            TOML.print(io, data; sorted=true)
+            return TOML.print(io, data; sorted=true)
         end
         push!(written, file)
     end
@@ -239,7 +248,9 @@ end
 """Lines of the summary printed by the script: one per problem and scheme."""
 function summary(tables)
     lines = String[]
-    for problem in sort!(collect(keys(tables))), scheme in sort!(collect(keys(tables[problem])))
+    for problem in sort!(collect(keys(tables))),
+        scheme in sort!(collect(keys(tables[problem])))
+
         t = tables[problem][scheme]
         flag = t["agreement"] ? "" : "  <-- $(length(t["solutions"])) solutions"
         push!(

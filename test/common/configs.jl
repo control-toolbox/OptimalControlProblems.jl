@@ -49,7 +49,9 @@ const CONFIGS = (
 # MadNLP: `mu_init` (monotone barrier update) and `barrier=:loqo` (adaptive one), turned into
 # MadNLP's `barrier` option by `SolveOptimalControl.solver`.
 const ROBUSTNESS = (
-    ipopt=((mu_strategy="monotone",), (mu_init=1e-3,), (mu_strategy="monotone", mu_init=1e-3)),
+    ipopt=(
+        (mu_strategy="monotone",), (mu_init=1e-3,), (mu_strategy="monotone", mu_init=1e-3)
+    ),
     madnlp=((mu_init=1e-3,), (mu_init=1e-5,), (barrier=:loqo,)),
 )
 
@@ -62,6 +64,8 @@ const GPU_CONFIGS = (
 )
 
 """Name of a configuration, for test sets and reports."""
-label(config) = join(("$k=$(v isa Tuple ? join(v, ",") : v)" for (k, v) in pairs(config)), " ")
+function label(config)
+    return join(("$k=$(v isa Tuple ? join(v, ",") : v)" for (k, v) in pairs(config)), " ")
+end
 
 end # module TestConfigs

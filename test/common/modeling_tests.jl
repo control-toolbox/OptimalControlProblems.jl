@@ -72,7 +72,8 @@ function test_problem(backend; model_type::Type, check=(problem, pb) -> nothing)
             # The initial guess is the one of the metadata (#377), unless another one is given.
             Test.@test OCP.initial_guess(pb) == OCP.initial_guess_data(problem)
             other = (state=OCP.initial_guess_data(problem).state, control=0)
-            Test.@test OCP.initial_guess(getfield(OCP, problem)(backend; init=other)) === other
+            Test.@test OCP.initial_guess(getfield(OCP, problem)(backend; init=other)) ===
+                other
 
             # Shown with its name, modeling, status and dimensions.
             shown = sprint(show, MIME("text/plain"), pb)
@@ -132,10 +133,16 @@ function test_convergence(backend, adapter)
                     time = @elapsed sol = adapter.solve(pb, config; grid_size=N) # compiled
                     # convergence is reported, not tested (#360); an exception still fails
                     Main.TestStatus.result!(
-                        test, problem, backend, Main.TestConfigs.label(config);
+                        test,
+                        problem,
+                        backend,
+                        Main.TestConfigs.label(config);
                         adapter.settings(config)...,
-                        grid_size=N, scheme=scheme, adapter.outcome(sol)...,
-                        time=time, trajectory=adapter.trajectory(sol, pb),
+                        grid_size=N,
+                        scheme=scheme,
+                        adapter.outcome(sol)...,
+                        time=time,
+                        trajectory=adapter.trajectory(sol, pb),
                         reference=adapter.reference(problem, N, scheme),
                     )
                     Test.@test true # the problem was solved and reported: a line of the report

@@ -15,7 +15,9 @@ const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING :
 # dimensions of the state, the control and the variable (#441). Where they are read: the
 # JuMP model on a small grid, the continuous model of OptimalControl; nothing is solved.
 function test_features()
-    jump, vector, scalarized = OCP.JuMPBackend(), OCP.OptimalControlBackend(), OCP.OptimalControlScalarizedBackend()
+    jump, vector, scalarized = OCP.JuMPBackend(),
+    OCP.OptimalControlBackend(),
+    OCP.OptimalControlScalarizedBackend()
     Test.@testset "features: OptimalControl vs OptimalControlScalarized" verbose = VERBOSE showtiming =
         SHOWTIMING begin
         Main.TestStatus.for_each_problem("test_features", vector, scalarized) do problem

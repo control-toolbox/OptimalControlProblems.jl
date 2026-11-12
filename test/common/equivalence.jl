@@ -99,7 +99,7 @@ not have, with whether they enter the matched part of `other`.
 """
 function compare(reference, other, cols, xs, y)
     extra = setdiff(1:(other.meta.nvar), cols)
-    lift(x) = (z = fill(0.5, other.meta.nvar); z[cols] = x; z)
+    lift(x) = (z=fill(0.5, other.meta.nvar); z[cols]=x; z)
     rows = match_rows(
         signatures(reference, xs, 1:(reference.meta.nvar)),
         signatures(other, lift.(xs), cols),

@@ -34,15 +34,18 @@ robot_meta = OrderedDict(
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
     # initial guess of every modeling (#377), from the parameters
-    :init => p -> begin
-        (; t0, ρ_t0, θ_t0, ϕ_t0, ρ_tf, θ_tf, ϕ_tf) = p
-        tf = 9.1
-        function state(t)
-            s = clamp((t - t0) / (tf - t0), 0.0, 1.0)
-            ϕ = ϕ_t0 + s * (ϕ_tf - ϕ_t0)
-            abs(ϕ) < 1e-6 && (ϕ = 1e-6) # away from zero: the dynamics divide by sin(ϕ)²
-            return [ρ_t0 + s * (ρ_tf - ρ_t0), 0.0, θ_t0 + s * (θ_tf - θ_t0), 0.0, ϕ, 0.0]
-        end
-        return (state=state, control=[0.0, 0.0, 0.0], variable=tf)
-    end,
+    :init =>
+        p -> begin
+            (; t0, ρ_t0, θ_t0, ϕ_t0, ρ_tf, θ_tf, ϕ_tf) = p
+            tf = 9.1
+            function state(t)
+                s = clamp((t - t0) / (tf - t0), 0.0, 1.0)
+                ϕ = ϕ_t0 + s * (ϕ_tf - ϕ_t0)
+                abs(ϕ) < 1e-6 && (ϕ = 1e-6) # away from zero: the dynamics divide by sin(ϕ)²
+                return [
+                    ρ_t0 + s * (ρ_tf - ρ_t0), 0.0, θ_t0 + s * (θ_tf - θ_t0), 0.0, ϕ, 0.0
+                ]
+            end
+            return (state=state, control=[0.0, 0.0, 0.0], variable=tf)
+        end,
 )

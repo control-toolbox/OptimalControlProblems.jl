@@ -74,5 +74,7 @@ function OptimalControlProblems.steering(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:steering, params, init)
 
-    return OptimalControlProblems.Problems._problem(:steering, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :steering, :OptimalControlScalarized, ocp, init, params
+    )
 end

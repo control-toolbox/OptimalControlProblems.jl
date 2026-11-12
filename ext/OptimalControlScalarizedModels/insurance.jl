@@ -98,5 +98,7 @@ function OptimalControlProblems.insurance(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:insurance, params, init)
 
-    return OptimalControlProblems.Problems._problem(:insurance, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :insurance, :OptimalControlScalarized, ocp, init, params
+    )
 end

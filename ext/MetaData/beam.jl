@@ -6,6 +6,12 @@ beam_meta = OrderedDict(
     :init => p -> (state=[0.05, 0.1], control=0.1),
     :reference_solution =>
         p -> _bryson_denham_solution(
-            p.t0, p.tf, (p.x₁_t0, p.x₂_t0), (p.x₁_tf, p.x₂_tf), p.x₁_u; weight=1, lower=p.x₁_l
+            p.t0,
+            p.tf,
+            (p.x₁_t0, p.x₂_t0),
+            (p.x₁_tf, p.x₂_tf),
+            p.x₁_u;
+            weight=1,
+            lower=p.x₁_l,
         ),
 )

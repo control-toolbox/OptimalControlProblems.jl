@@ -6,7 +6,11 @@ module TestSmokeModelingToolkit
 using OptimalControlProblems: OptimalControlProblems
 
 # Written once in `common/modeling_tests.jl` (#441, #439).
-test_smoke() = Main.ModelingToolkitTests.test_smoke(OptimalControlProblems.ModelingToolkitBackend())
+function test_smoke()
+    return Main.ModelingToolkitTests.test_smoke(
+        OptimalControlProblems.ModelingToolkitBackend()
+    )
+end
 
 end # module TestSmokeModelingToolkit
 

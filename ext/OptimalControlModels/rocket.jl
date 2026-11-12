@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:rocket)` and `OptimalControlProblems.status(:rocket)`.
 """
 function OptimalControlProblems.rocket(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:rocket, :OptimalControl)
 
@@ -80,5 +78,7 @@ function OptimalControlProblems.rocket(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:rocket, params, init)
 
-    return OptimalControlProblems.Problems._problem(:rocket, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :rocket, :OptimalControl, ocp, init, params
+    )
 end

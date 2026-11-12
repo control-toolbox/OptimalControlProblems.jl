@@ -6,7 +6,11 @@ module TestProblemModelingToolkit
 using OptimalControlProblems: OptimalControlProblems
 
 # Written once in `common/modeling_tests.jl` (#441, #439).
-test_problem() = Main.ModelingToolkitTests.test_problem(OptimalControlProblems.ModelingToolkitBackend())
+function test_problem()
+    return Main.ModelingToolkitTests.test_problem(
+        OptimalControlProblems.ModelingToolkitBackend()
+    )
+end
 
 end # module TestProblemModelingToolkit
 

@@ -67,7 +67,7 @@ function status_table()
     for problem in OptimalControlProblems.problems(; status=:all)
         statuses = OptimalControlProblems.status(problem)
         cells = map(mods) do (spec, _)
-            haskey(statuses, spec.name) ? string(statuses[spec.name]) : "—"
+            return haskey(statuses, spec.name) ? string(statuses[spec.name]) : "—"
         end
         refs = references(problem)
         table = get(refs, "trapeze", nothing)
@@ -103,8 +103,8 @@ function reports_section(reports)
         # (`new` only says that the configuration was not in the previous run)
         notable = [
             r for r in rows if r["result"] != "converged" ||
-            get(r, "solution", "best") ∉ ("best", "") ||
-            get(r, "change", "") ∉ ("", "new")
+                get(r, "solution", "best") ∉ ("best", "") ||
+                get(r, "change", "") ∉ ("", "new")
         ]
         if isempty(notable)
             out *= "Every solve converged to the best known solution.\n\n"

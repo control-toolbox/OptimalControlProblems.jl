@@ -29,7 +29,9 @@ end
 """Trapezoidal rule of the values `y` of a function at the times `t`: the quadrature of both
 modelings, so that their objectives are compared on the same integral."""
 function quadrature(t, y)
-    return sum((t[i + 1] - t[i]) * (y[i] + y[i + 1]) / 2 for i in 1:(length(t) - 1); init=0.0)
+    return sum(
+        (t[i + 1] - t[i]) * (y[i] + y[i + 1]) / 2 for i in 1:(length(t) - 1); init=0.0
+    )
 end
 
 guess(g, t) = g isa Function ? g(t) : g
@@ -44,10 +46,12 @@ function trajectories(init, n, m, t0, tf)
     return map(AMPLITUDES) do a
         shift(k, i) = a * (1 + 0.1 * i + 0.3 * k)    # positive, different at each node and component
         x = [vec1(haskey(init, :state) ? guess(init.state, s) : fill(0.5, n)) for s in t]
-        u = [vec1(haskey(init, :control) ? guess(init.control, s) : fill(0.5, m)) for s in t]
+        u = [
+            vec1(haskey(init, :control) ? guess(init.control, s) : fill(0.5, m)) for s in t
+        ]
         x = [x[k] .+ shift.(k, 1:n) for k in eachindex(t)]
         u = [u[k] .+ shift.(k, 1:m) for k in eachindex(t)]
-        (; t, x, u)
+        return (; t, x, u)
     end
 end
 
@@ -57,17 +61,17 @@ end
 # -----------------------------------------------------------------------------
 function dynamics(ocp)
     f!, n = OC.dynamics(ocp), OC.state_dimension(ocp)
-    return (t, x, u, v) -> (r = zeros(n); f!(r, t, x, u, v); r)
+    return (t, x, u, v) -> (r=zeros(n); f!(r, t, x, u, v); r)
 end
 
 function path(ocp)
     lb, f!, ub, _ = OC.path_constraints_nl(ocp)
-    return lb, ub, (t, x, u, v) -> (r = zeros(length(lb)); f!(r, t, x, u, v); r)
+    return lb, ub, (t, x, u, v) -> (r=zeros(length(lb)); f!(r, t, x, u, v); r)
 end
 
 function boundary(ocp)
     lb, f!, ub, _ = OC.boundary_constraints_nl(ocp)
-    return lb, ub, (x0, xf, v) -> (r = zeros(length(lb)); f!(r, x0, xf, v); r)
+    return lb, ub, (x0, xf, v) -> (r=zeros(length(lb)); f!(r, x0, xf, v); r)
 end
 
 """Bounds `(lower, upper)` of each of the `dim` components, from the box constraints `box` of
@@ -85,7 +89,8 @@ end
 vector) is not compared, which `compare` reports as a difference."""
 function bounds(components)
     bound(b, default) = isnothing(b) ? default : b
-    return [bound(c.lower, -Inf) for c in components], [bound(c.upper, Inf) for c in components]
+    return [bound(c.lower, -Inf) for c in components],
+    [bound(c.upper, Inf) for c in components]
 end
 
 """
@@ -101,7 +106,9 @@ The checks of the JuMP `ProblemData` `data` against the OptimalControl model `oc
 problem, `init` being its initial guess: a `Dict` from the name of a check to whether it holds.
 """
 function compare(data, ocp, init)
-    n, m, nv = OC.state_dimension(ocp), OC.control_dimension(ocp), OC.variable_dimension(ocp)
+    n, m, nv = OC.state_dimension(ocp),
+    OC.control_dimension(ocp),
+    OC.variable_dimension(ocp)
     v = haskey(init, :variable) ? vec1(init.variable) : ones(nv)
     ok = Dict{Symbol,Bool}()
 
@@ -127,28 +134,45 @@ function compare(data, ocp, init)
     L = OC.has_lagrange_cost(ocp) ? OC.lagrange(ocp) : nothing
     g = OC.has_mayer_cost(ocp) ? OC.mayer(ocp) : nothing
     ok[:objective] = all(trajs) do tr
-        integrand_jump = isnothing(data.lagrange) ? 0.0 : quadrature(tr.t, [data.lagrange(tr.x[k], tr.u[k], v, tr.t[k]) for k in eachindex(tr.t)])
-        integrand_oc = isnothing(L) ? 0.0 : quadrature(tr.t, [L(tr.t[k], tr.x[k], tr.u[k], v) for k in eachindex(tr.t)])
+        integrand_jump = if isnothing(data.lagrange)
+            0.0
+        else
+            quadrature(
+            tr.t, [data.lagrange(tr.x[k], tr.u[k], v, tr.t[k]) for k in eachindex(tr.t)]
+        )
+        end
+        integrand_oc = if isnothing(L)
+            0.0
+        else
+            quadrature(tr.t, [L(tr.t[k], tr.x[k], tr.u[k], v) for k in eachindex(tr.t)])
+        end
         mayer = isnothing(g) ? 0.0 : g(tr.x[1], tr.x[end], v)
-        close_to(
-            [data.cost(integrand_jump, tr.x[1], tr.x[end], v)], [sign * (mayer + integrand_oc)]
+        return close_to(
+            [data.cost(integrand_jump, tr.x[1], tr.x[end], v)],
+            [sign * (mayer + integrand_oc)],
         )
     end
 
     # path constraints, matched by their bounds and values
     lb, ub, c = path(ocp)
-    oc_keys = [key(lb[i], ub[i], [c(p.t, p.x, p.u, v)[i] for p in points]) for i in eachindex(lb)]
+    oc_keys = [
+        key(lb[i], ub[i], [c(p.t, p.x, p.u, v)[i] for p in points]) for i in eachindex(lb)
+    ]
     jump_keys = [
-        key(l, u, [first(vec1(h(p.x, p.u, v, p.t))) for p in points]) for (l, h, u) in data.path
+        key(l, u, [first(vec1(h(p.x, p.u, v, p.t))) for p in points]) for
+        (l, h, u) in data.path
     ]
     ok[:path] = sort(oc_keys) == sort(jump_keys)
 
     # boundary conditions, matched by their bounds and values at the ends of each trajectory
     lb, ub, c = boundary(ocp)
     ends = [(tr.x[1], tr.x[end]) for tr in trajs]
-    oc_keys = [key(lb[i], ub[i], [c(x0, xf, v)[i] for (x0, xf) in ends]) for i in eachindex(lb)]
+    oc_keys = [
+        key(lb[i], ub[i], [c(x0, xf, v)[i] for (x0, xf) in ends]) for i in eachindex(lb)
+    ]
     jump_keys = [
-        key(l, u, [first(vec1(h(x0, xf, v))) for (x0, xf) in ends]) for (l, h, u) in data.boundary
+        key(l, u, [first(vec1(h(x0, xf, v))) for (x0, xf) in ends]) for
+        (l, h, u) in data.boundary
     ]
     ok[:boundary] = sort(oc_keys) == sort(jump_keys)
 
@@ -160,7 +184,9 @@ function compare(data, ocp, init)
     )
         lower, upper = box(b, dim)
         jump_lower, jump_upper = bounds(components)
-        by_node = any(x -> x isa AbstractVector, jump_lower) || any(x -> x isa AbstractVector, jump_upper)
+        by_node =
+            any(x -> x isa AbstractVector, jump_lower) ||
+            any(x -> x isa AbstractVector, jump_upper)
         ok[name] = !by_node && close_to(lower, jump_lower) && close_to(upper, jump_upper)
     end
     return ok

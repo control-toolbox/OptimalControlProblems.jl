@@ -9,7 +9,9 @@ const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING :
 
 function test_draft()
     Test.@testset "JuMP draft warning" verbose = VERBOSE showtiming = SHOWTIMING begin
-        problem = first(OptimalControlProblems.problems(OptimalControlProblems.JuMPBackend()))
+        problem = first(
+            OptimalControlProblems.problems(OptimalControlProblems.JuMPBackend())
+        )
         build = getfield(OptimalControlProblems, problem)
         data = OptimalControlProblems.problem_metadata(problem)
         original = data[:status]

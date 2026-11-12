@@ -7,9 +7,11 @@ using OptimalControlProblems: OptimalControlProblems
 
 # The convergence report on the default grid; written once in `common/modeling_tests.jl`
 # (#441, #439). The gap is to the objective of the analytic solution, when there is one.
-test_convergence() = Main.ModelingToolkitTests.test_convergence(
-    OptimalControlProblems.ModelingToolkitBackend()
-)
+function test_convergence()
+    return Main.ModelingToolkitTests.test_convergence(
+        OptimalControlProblems.ModelingToolkitBackend()
+    )
+end
 
 end # module TestConvergenceModelingToolkit
 
