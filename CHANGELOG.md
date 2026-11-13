@@ -94,6 +94,10 @@ See [BREAKING.md](BREAKING.md).
 - `vanderpol`, `robbins` and `jackson` are written in the ModelingToolkit modeling too, with a
   Lagrange cost, a Mayer cost, state and control bounds (#439).
 
+### 📚 Documentation
+
+- ct-conventions pinned at `v0.13.0` and ct-agents at `v0.5.0` in `AGENTS.md`; the `Release` workflow of CTActions is called from `.github/workflows/Release.yml`.
+
 ### 📦 Dependencies
 
 - OptimalControl 2.2, CTModels 0.19, CTBase 0.30.
