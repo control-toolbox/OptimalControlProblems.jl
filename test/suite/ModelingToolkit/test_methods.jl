@@ -57,6 +57,10 @@ function test_methods()
         Test.@test S.control_start((control=t -> 3t,), 1.0, 1) == [3.0]
         Test.@test S.control_start((state=[0.0, 0.0],), 0.0, 1) == [0.0]
         Test.@test_throws DimensionMismatch S.control_start((control=[1, 2],), 0.0, 1)
+        # the states of free initial value start from the state guess, in the same way
+        Test.@test S.state_start((state=[0.1, 0.2],), 0.0, 2) == [0.1, 0.2]
+        Test.@test S.state_start((state=t -> [t, 2t],), 0.5, 2) == [0.5, 1.0]
+        Test.@test S.state_start((control=0.5,), 0.0, 2) == [0.0, 0.0]
         # and it is the value the controls of the problem solved start from
         other = OCP.bryson_denham(backend; init=(state=[0.0, 0.0], control=0.7))
         started = S.prepare(other; grid_size=6).dynamic

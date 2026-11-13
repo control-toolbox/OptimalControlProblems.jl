@@ -13,8 +13,10 @@ const OC = OptimalControl
 
 # The perturbations of the initial guess, and the points of each trajectory (fractions of the
 # time interval): the objective is not affine, several trajectories tell two objectives apart.
+# The fractions are not all round: a time that depends on the time periodically (the light of
+# `bioreactor`, of period 10 on [0, 200]) would be the same at every round fraction.
 const AMPLITUDES = (0.0, 0.01, 0.05)
-const FRACTIONS = (0.0, 0.25, 0.5, 0.75, 1.0)
+const FRACTIONS = (0.0, 0.137, 0.25, 0.5, 0.618, 0.75, 1.0)
 const TOL = 1e-10
 
 vec1(a::Number) = [Float64(a)]

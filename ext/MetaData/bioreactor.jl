@@ -23,7 +23,7 @@ bioreactor_meta = OrderedDict(
         b_t0_l=0.5,
         b_t0_u=3,
     ),
-    :status => (OptimalControl=:valid, JuMP=:valid),
+    :status => (OptimalControl=:valid, JuMP=:valid, ModelingToolkit=:valid),
     # initial guess of every modeling (#377), from the parameters
     :init => p -> (state=[50, 50, 50], control=0.5),
 )
