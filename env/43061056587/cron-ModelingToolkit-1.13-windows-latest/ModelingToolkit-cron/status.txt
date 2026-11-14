@@ -1,0 +1,15 @@
+Status `C:\Users\runneradmin\AppData\Local\Temp\jl_imu6qz\Project.toml`
+  [54762871] CTBase v0.30.13
+⌅ [34c4fa32] CTModels v0.19.8
+  [b0b7db55] ComponentArrays v0.15.50
+  [2751e0db] Corleone v2.0.0
+  [f6369f11] ForwardDiff v1.4.7
+  [b6b21f68] Ipopt v1.16.0
+  [961ee093] ModelingToolkit v11.46.1
+  [5f98b655] OptimalControl v2.2.1-beta
+  [59046045] OptimalControlProblems v0.5.0 `D:\a\OptimalControlProblems.jl\OptimalControlProblems.jl`
+  [7f7a1694] Optimization v5.9.1
+  [fd9f6733] OptimizationMOI v1.6.1
+  [b1df2697] OrdinaryDiffEqTsit5 v2.1.5
+  [8dfed614] Test v1.11.0
+Info Packages marked with ⌅ have new versions available but compatibility constraints restrict them from upgrading. To see why use `status --outdated`
