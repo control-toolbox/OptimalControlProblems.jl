@@ -138,8 +138,9 @@ function compare(data, ocp, init)
             0.0
         else
             quadrature(
-            tr.t, [data.lagrange(tr.x[k], tr.u[k], v, tr.t[k]) for k in eachindex(tr.t)]
-        )
+                tr.t,
+                [data.lagrange(tr.x[k], tr.u[k], v, tr.t[k]) for k in eachindex(tr.t)],
+            )
         end
         integrand_oc = if isnothing(L)
             0.0
