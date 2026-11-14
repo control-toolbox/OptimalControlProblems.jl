@@ -97,6 +97,7 @@ See [BREAKING.md](BREAKING.md).
 ### 📚 Documentation
 
 - ct-conventions pinned at `v0.13.0` and ct-agents at `v0.5.0` in `AGENTS.md`; the `Release` workflow of CTActions is called from `.github/workflows/Release.yml`.
+- ct-conventions pinned at `v0.14.0` in `AGENTS.md`.
 
 ### 📦 Dependencies
 
