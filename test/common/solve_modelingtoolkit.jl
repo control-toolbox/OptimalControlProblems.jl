@@ -118,18 +118,30 @@ The start value of each of the `m` controls, from the initial guess `init` of th
 guess. Corleone starts every interval of a control from one value.
 """
 function control_start(init, t0, m::Int)
-    g = haskey(init, :control) ? init.control : 0.0
+    return _start(init, :control, t0, m)
+end
+
+"""
+The start value of each of the `n` states, from the initial guess `init` of the problem, as
+`control_start`; used for the states whose initial value is free, `0.0` without a state guess.
+"""
+function state_start(init, t0, n::Int)
+    return _start(init, :state, t0, n)
+end
+
+function _start(init, key::Symbol, t0, n::Int)
+    g = haskey(init, key) ? init[key] : 0.0
     g isa Function && (g = g(t0))
-    v = g isa Number ? fill(Float64(g), m) : Float64.(vec(collect(g)))
-    length(v) == m ||
-        throw(DimensionMismatch("control guess of length $(length(v)), $m controls"))
+    v = g isa Number ? fill(Float64(g), n) : Float64.(vec(collect(g)))
+    length(v) == n || throw(DimensionMismatch("$key guess of length $(length(v)), $n $(key)s"))
     return v
 end
 
 """
 Prepare the solve of the ModelingToolkit problem `pb` with Corleone, built once: the path
 constraints imposed at the `grid_size` nodes of the grid, the controls piecewise constant
-between them and started from the initial guess of the problem. Returns the
+between them and started from the initial guess of the problem, as the states whose initial
+value is free (`tunable = true`). Returns the
 `Optimization.OptimizationProblem` (`problem`) and the `Corleone.CorleoneDynamicOptProblem`
 it was built from (`dynamic`), from which the trajectory of a solution is recovered.
 """
@@ -149,8 +161,15 @@ function prepare(
 
     # Controls: started from the initial guess, switching at the nodes of the grid
     ctrl_syms = filter(MTK.isinput, MTK.unknowns(sys))
-    start = control_start(OCP.initial_guess(pb), t0, length(ctrl_syms))
+    init = OCP.initial_guess(pb)
+    start = control_start(init, t0, length(ctrl_syms))
     inits = [u => start[i] for (i, u) in enumerate(ctrl_syms)]
+
+    # States whose initial value is free: started from the initial guess. The order of the
+    # states is the one of `state_components`, that of the OptimalControl model.
+    states = filter(!MTK.isinput, MTK.unknowns(sys))
+    start_x = state_start(init, t0, length(states))
+    append!(inits, [x => start_x[i] for (i, x) in enumerate(states) if MTK.istunable(x, false)])
     switches = [u => collect(grid[1:(end - 1)]) for u in ctrl_syms]
 
     dynamic = Corleone.CorleoneDynamicOptProblem(
