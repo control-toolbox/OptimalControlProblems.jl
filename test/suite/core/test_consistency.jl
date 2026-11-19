@@ -115,8 +115,11 @@ function test_reference_objectives()
                 Test.@test first(entry.solutions) == entry.value
                 Test.@test issorted(entry.solutions)
                 Test.@test entry.agreement == (length(entry.solutions) == 1)
-                kind(x) =
-                    OCP.solution_kind(problem, x; grid_size=entry.grid_size, scheme=scheme)
+                function kind(x)
+                    return OCP.solution_kind(
+                        problem, x; grid_size=entry.grid_size, scheme=scheme
+                    )
+                end
                 Test.@test kind(entry.value) === :best
                 Test.@test all(s -> kind(s) in (:best, :local), entry.solutions)
                 Test.@test all(s -> kind(s) === :local, entry.solutions[2:end])
@@ -174,7 +177,7 @@ function test_no_handwritten_list()
             in_docstring = false
             for (i, line) in enumerate(eachline(file))
                 # docstrings may show a problem as an example; code may not name one
-                isodd(count("\"\"\"", line)) && (in_docstring=(!in_docstring); continue)
+                isodd(count("\"\"\"", line)) && (in_docstring = (!in_docstring); continue)
                 in_docstring && continue
                 m = match(pattern, line)
                 isnothing(m) && continue
@@ -194,6 +197,55 @@ least one list entry (#379).
 function cites_sources(text::AbstractString)
     m = match(r"^#+ References[^\n]*\n(.*?)(?=^#|\z)"ms, text)
     return !isnothing(m) && occursin(r"^\s*[-*] \S"m, m[1])
+end
+
+"""
+The outline of a description (#449, T2): its `###` headings, in this order. The parameters
+section is optional and has one of the names of `PARAMETER_HEADINGS`; the qualitative
+behaviour is optional too (`balanced_field` has none yet).
+"""
+const OUTLINE = (
+    "Mathematical formulation",
+    "Parameters",
+    "Qualitative behaviour",
+    "Characteristics",
+    "References",
+)
+const REQUIRED_HEADINGS = ("Mathematical formulation", "Characteristics", "References")
+const PARAMETER_HEADINGS = ("Parameters", "Parameter values", "System parameters")
+
+"""Whether the `###` headings of `text` follow `OUTLINE`, with every required heading."""
+function follows_outline(text::AbstractString)
+    headings = [
+        h in PARAMETER_HEADINGS ? "Parameters" : h for
+        h in (m[1] for m in eachmatch(r"^### (.+?)\s*$"m, text))
+    ]
+    all(in(OUTLINE), headings) || return false
+    issorted(headings; by=h -> findfirst(==(h), OUTLINE)) || return false
+    allunique(headings) || return false
+    return all(in(headings), REQUIRED_HEADINGS)
+end
+
+"""Every description has the same outline."""
+function test_outline()
+    Test.@testset "outline" verbose = VERBOSE begin
+        for problem in OCP.problems(; status=:all)
+            text = read(joinpath(EXT, "Descriptions", "$problem.md"), String)
+            Test.@test follows_outline(text)
+        end
+        complete = "### Mathematical formulation\n### Parameter values\n### Qualitative behaviour\n### Characteristics\n### References\n"
+        Test.@test follows_outline(complete)
+        Test.@test follows_outline(
+            "### Mathematical formulation\n### Characteristics\n### References\n"
+        )
+        Test.@test !follows_outline("### Characteristics\n### References\n")
+        Test.@test !follows_outline(
+            "### Mathematical formulation\n### References\n### Characteristics\n"
+        )
+        Test.@test !follows_outline(
+            "### Mathematical formulation\n### Characteristics\n### References and relevance\n",
+        )
+    end
 end
 
 """Every description cites its sources (#379)."""
@@ -244,6 +296,7 @@ function test_consistency()
         test_reference_objectives()
         test_no_handwritten_list()
         test_sources()
+        test_outline()
         test_reference_solutions()
     end
 end

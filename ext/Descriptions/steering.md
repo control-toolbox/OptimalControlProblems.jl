@@ -45,10 +45,8 @@ Analytical solutions exist for simplified cases, while numerical methods are req
 
 ### Characteristics
 
-- Four-dimensional state with single scalar control,  
-- Time-optimal objective,  
-- Control constraints and boundary conditions,  
-- Bang–bang control structure with possible singular arcs,  
+- Time-optimal objective.
+- Bang–bang control structure with possible singular arcs.
 - Serves as a benchmark for time-optimal control methods.
 
 ### References

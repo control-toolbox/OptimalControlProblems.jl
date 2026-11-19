@@ -51,9 +51,8 @@ where $x_0$ and $x_f$ are the initial and final particle positions, $\alpha$ is 
 
 ### Characteristics
 
-- Nonlinear dynamics with **bilinear and quadratic terms** in the control.  
-- **Time-optimal objective** with control bounds.  
-- Free end-time formulation.  
+- Nonlinear dynamics with **bilinear and quadratic terms** in the control.
+- **Time-optimal objective**.
 - Widely used as a benchmark in numerical optimal control for **microfluidic particle manipulation**.
 
 ### References

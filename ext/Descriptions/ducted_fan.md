@@ -37,9 +37,7 @@ The weight $\mu > 0$ balances control effort and transition time.
 
 ### Characteristics
 
-- Nonlinear six-dimensional dynamics.  
-- Free final time.  
-- Multiple input and state inequality constraints.  
+- Nonlinear dynamics.
 - Benchmark for testing constrained nonlinear OCP solvers.
 
 ### References

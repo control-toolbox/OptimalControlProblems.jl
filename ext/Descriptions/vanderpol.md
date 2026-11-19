@@ -34,10 +34,8 @@ The problem can be stated as
 
 ### Characteristics
 
-- Two-dimensional nonlinear dynamics with cubic damping,  
-- Quadratic cost on both states and control,  
-- Fixed final time,  
-- Unconstrained control (extensions may include bounds),  
+- Nonlinear dynamics with cubic damping.
+- Quadratic cost on both states and control.
 - Useful benchmark for testing optimal control algorithms and integration schemes.
 
 ### References

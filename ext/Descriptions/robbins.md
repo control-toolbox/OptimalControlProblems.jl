@@ -1,4 +1,8 @@
-The **Robbins benchmark problem** is a classical optimal control problem introduced by Robbins (1980), involving a **third-order state constraint**:
+The **Robbins benchmark problem** is a classical optimal control problem introduced by Robbins (1980), involving a **third-order state constraint**.
+
+### Mathematical formulation
+
+The state $x_1$ is driven through its third derivative and must stay nonnegative:
 
 ```math
 x_1^{(3)}(t) = u(t), \qquad x_1(t) \ge 0,

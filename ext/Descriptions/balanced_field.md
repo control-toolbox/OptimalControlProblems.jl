@@ -9,11 +9,11 @@ The state vector is $x(t) = (r(t), v(t), h(t), \gamma(t))$ and the control is th
 ```math
 \begin{aligned}
 \min_{\alpha, t_f} \quad & r(t_f) \\
-	\text{s.t.} \quad & \dot{r}(t) = v(t) \cos \gamma(t), \\
+\text{s.t.} \quad & \dot{r}(t) = v(t) \cos \gamma(t), \\
 & \dot{v}(t) = \frac{T \cos \alpha(t) - D}{m} - g \sin \gamma(t), \\
 & \dot{h}(t) = v(t) \sin \gamma(t), \\
 & \dot{\gamma}(t) = \frac{T \sin \alpha(t) + L}{m v(t)} - \frac{g \cos \gamma(t)}{v(t)}, \\
-& h(t_f) = 10.668 	ext{ m (35 ft)}, \\
+& h(t_f) = 10.668 \text{ m (35 ft)}, \\
 & \gamma(t_f) = 5^\circ.
 \end{aligned}
 ```
@@ -33,11 +33,8 @@ The parameters are based on a mid-size jet aircraft (nominal values from Dymos):
 
 ### Characteristics
 
-- Multi-state nonlinear dynamics,
-- Free final time $t_f$,
-- Ground effect inclusion in the drag model ($K$ coefficient),
-- Control bounds on the angle of attack $\alpha$,
-- Boundary conditions representing $V_1$ conditions and final climb requirements.
+- Nonlinear dynamics, with a ground effect in the drag model ($K$ coefficient).
+- Boundary conditions representing the $V_1$ conditions and the final climb requirements.
 
 ### References
 

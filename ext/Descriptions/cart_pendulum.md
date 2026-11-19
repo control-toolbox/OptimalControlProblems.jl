@@ -63,8 +63,7 @@ Underactuation makes the problem challenging because the pendulum cannot be actu
 
 ### Characteristics
 
-- Nonlinear, underactuated dynamics.  
-- Minimum-time objective with state and control constraints.  
+- Nonlinear, underactuated dynamics.
 - Serves as a benchmark for trajectory optimisation and control of underactuated systems.
 
 ### References

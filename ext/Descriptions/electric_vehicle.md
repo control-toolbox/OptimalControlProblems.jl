@@ -5,8 +5,6 @@ The objective is to **minimise a combination of mechanical energy consumption an
 
 Here, we denote the final time as $t_f$, with $t_f = 1$ s.
 
----
-
 ### Mathematical formulation
 
 ```math
@@ -27,8 +25,6 @@ r(x) = \alpha_0 + \alpha_1 x + \alpha_2 x^2 + \alpha_3 x^3,
 
 and the parameters $h_0$, $h_1$, $h_2$, $b_1$, $b_2$, and $\alpha_i$ define vehicle dynamics, drag, and slope effects.
 
----
-
 ### System parameters
 
 | Parameter | Symbol | Value | Description |
@@ -42,24 +38,18 @@ and the parameters $h_0$, $h_1$, $h_2$, $b_1$, $b_2$, and $\alpha_i$ define vehi
 | Road profile | $\alpha_0,\dots,\alpha_3$ | 3, 0.4, -1, 0.1 | Cubic coefficients modelling road slope |
 | Final time | $t_f$ | 1 s | Duration of the trajectory |
 
----
-
 ### Qualitative behaviour
 
 - The optimal solution balances **traction and braking** to respect the velocity boundary conditions while minimising energy consumption.  
 - Road slope variations $r(x)$ introduce nonlinearities, strongly influencing the structure of the optimal control.  
 - For flat roads, the solution often exhibits a **bang–singular–bang profile**, while slopes lead to asymmetric trajectories.  
 
----
-
 ### Characteristics
 
-- Nonlinear second-order dynamics including drag, gravity, and slope effects.  
-- Mixed linear–quadratic cost reflecting energy and smoothness trade-offs.  
-- Fixed-time ($t_f = 1$ s), fixed-distance trip with zero final velocity.  
+- Nonlinear second-order dynamics including drag, gravity, and slope effects.
+- Mixed linear–quadratic cost reflecting energy and smoothness trade-offs.
+- Fixed-distance trip with zero final velocity.
 - Benchmark for testing energy-optimal trajectory generation and direct transcription methods in electric vehicles.
-
----
 
 ### References
 

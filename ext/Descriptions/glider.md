@@ -36,8 +36,6 @@ U_\text{updraft}(x) = u_c\, (1 - r) e^{-r}, \quad r = \left( \frac{x}{r_0} - 2.5
 
 where $m, g, S, \rho, c_0, c_1, u_c, r_0$ are constants describing the glider and the thermal properties.
 
----
-
 ### System parameters
 
 | Parameter | Symbol | Value | Description |
@@ -52,8 +50,6 @@ where $m, g, S, \rho, c_0, c_1, u_c, r_0$ are constants describing the glider an
 | Lift coefficient bounds | $c_L$ | [0, 1.4] | Control input |
 | Final time | $t_f$ | free | s |
 
----
-
 ### Qualitative behaviour
 
 - The optimal trajectory exploits the thermal updraft to maximise horizontal distance.  
@@ -61,16 +57,10 @@ where $m, g, S, \rho, c_0, c_1, u_c, r_0$ are constants describing the glider an
 - The dynamics are nonlinear due to the coupling of lift, drag, and relative velocity in the thermal.  
 - Horizontal velocity is maintained positive, and the trajectory respects the control and state constraints.
 
----
-
 ### Characteristics
 
-- Nonlinear four-dimensional dynamics with one control input.  
-- Free final time.  
-- Mixed state and control constraints.  
+- Nonlinear dynamics.
 - Widely used as a benchmark for trajectory optimisation and direct transcription methods in nonlinear optimal control.
-
----
 
 ### References
 

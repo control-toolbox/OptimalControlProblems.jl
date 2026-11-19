@@ -3,8 +3,6 @@ It consists of controlling a three-dimensional system in which the first two sta
 The objective is to **minimise the third state at the final time**, while satisfying bounds on states and control, as well as initial and terminal conditions.  
 The problem exhibits **singular arcs**, making it a useful benchmark for testing direct transcription and nonlinear programming methods.
 
----
-
 ### Mathematical formulation
 
 The problem can be stated as
@@ -24,8 +22,6 @@ The problem can be stated as
 
 where $x_1, x_2, x_3$ are the state variables, $u$ is the control input, and $k_1, k_2, k_3$ are system parameters.
 
----
-
 ### System parameters
 
 | Parameter | Symbol | Value | Description |
@@ -37,8 +33,6 @@ where $x_1, x_2, x_3$ are the state variables, $u$ is the control input, and $k_
 | Control bounds | $u$ | [0,1] | Single control input |
 | State bounds | $x$ | $[0,1.1]^3$ | Box constraints for $x_1, x_2, x_3$ |
 
----
-
 ### Qualitative behaviour
 
 - The first two states interact linearly under the effect of the control, while the third state accumulates according to $1-u(t)$.  
@@ -46,16 +40,11 @@ where $x_1, x_2, x_3$ are the state variables, $u$ is the control input, and $k_
 - Optimal trajectories typically include **bang–bang segments** interleaved with singular arcs.  
 - State and control constraints are respected at all times, and the final cost depends only on $x_3(t_f)$.
 
----
-
 ### Characteristics
 
-- Linear–nonlinear three-dimensional dynamics with **one control input**.  
-- State and control bounds.  
-- Terminal cost depends on a single state.  
+- Linear–nonlinear dynamics.
+- Terminal cost depends on a single state.
 - Serves as a benchmark for testing solvers handling singular arcs and constrained optimal control.
-
----
 
 ### References
 

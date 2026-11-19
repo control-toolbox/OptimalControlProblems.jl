@@ -49,9 +49,8 @@ The dynamics are nonlinear due to the dependence of the moments of inertia $I_\t
 
 ### Characteristics
 
-- Nonlinear, second-order dynamics in spherical coordinates,  
-- Free final time with state and control constraints,  
-- Bang–bang control structure in the time-optimal solution,  
+- Nonlinear, second-order dynamics in spherical coordinates.
+- Bang–bang control structure in the time-optimal solution.
 - Serves as a benchmark for direct transcription and NLP solvers in robotic motion planning.
 
 ### References
