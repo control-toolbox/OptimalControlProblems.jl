@@ -76,6 +76,28 @@ function test_schema()
 end
 
 """
+The unit and the meaning of every parameter (`:parameter_info`), in the order of the
+parameters: the page of a problem shows them, so they are written once, in the metadata.
+"""
+function test_parameter_info()
+    Test.@testset "parameter info" verbose = VERBOSE begin
+        for problem in OCP.problems(; status=:all)
+            data = OCP.problem_metadata(problem)
+            haskey(data, :parameter_info) || continue
+            info = data[:parameter_info]
+            parameters = data[:parameters]
+            Test.@test keys(info) == (isnothing(parameters) ? () : keys(parameters))
+            for entry in values(info)
+                Test.@test entry isa NamedTuple
+                Test.@test keys(entry) == (:unit, :meaning)
+                Test.@test entry.unit isa Union{Nothing,String}
+                Test.@test entry.meaning isa String && !isempty(entry.meaning)
+            end
+        end
+    end
+end
+
+"""
 Every problem `:valid` somewhere has a reference: another modeling where it is `:valid`, or
 a reference objective at its default grid (#375).
 """
@@ -297,6 +319,7 @@ function test_consistency()
         test_reference_objectives()
         test_no_handwritten_list()
         test_sources()
+        test_parameter_info()
         test_outline()
         test_reference_solutions()
     end

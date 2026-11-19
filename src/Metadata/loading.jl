@@ -13,7 +13,11 @@ const METADATA_SCHEMA = (
         status=NamedTuple,
         init=Function,
     ),
-    optional=(notes=AbstractString, reference_solution=Function),
+    optional=(
+        parameter_info=NamedTuple,
+        notes=AbstractString,
+        reference_solution=Function,
+    ),
     generated=(reference_objective=NamedTuple,),
 )
 const METADATA_STORAGE = OrderedDict{Symbol,OrderedDict}()
