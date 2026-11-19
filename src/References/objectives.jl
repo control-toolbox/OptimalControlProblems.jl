@@ -37,11 +37,22 @@ function _references(
     Base.include_dependency(file)
     entries = Pair{Symbol,NamedTuple}[]
     for (scheme, table) in TOML.parsefile(file)
-        table isa AbstractDict ||
-            error("Reference objective $(scheme) of $(problem): not a table")
+        table isa AbstractDict || throw(
+            CTBase.Exceptions.IncorrectArgument(
+                "invalid reference objective $(scheme) of $(problem)";
+                got="a $(typeof(table))",
+                expected="a table",
+                suggestion="write $(file) again with tools/references/update.jl",
+            ),
+        )
         values = map(keys(REFERENCE_FIELDS)) do key
-            haskey(table, string(key)) || error(
-                "Missing field $(key) in the reference objective $(scheme) of $(problem)",
+            haskey(table, string(key)) || throw(
+                CTBase.Exceptions.IncorrectArgument(
+                    "invalid reference objective $(scheme) of $(problem)";
+                    got="no field $(key)",
+                    expected="the fields $(join(keys(REFERENCE_FIELDS), ", "))",
+                    suggestion="write $(file) again with tools/references/update.jl",
+                ),
             )
             return REFERENCE_FIELDS[key](table[string(key)])
         end

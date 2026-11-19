@@ -8,15 +8,29 @@ const VERBOSE = isdefined(Main, :TestOptions) ? Main.TestOptions.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING : true
 
 function test_parameters()
-    Test.@testset "merge (parameters)" verbose = VERBOSE showtiming = SHOWTIMING begin
-        Test.@test OptimalControlProblems.Metadata.merge(nothing, nothing) === nothing
-        Test.@test OptimalControlProblems.Metadata.merge((tf=1,), nothing) == (tf=1,)
-        Test.@test OptimalControlProblems.Metadata.merge((tf=1,), (tf=2,)) == (tf=2,)
-        Test.@test OptimalControlProblems.Metadata.merge((tf=1, a=2), (tf=2,)) ==
-            (tf=2, a=2)
-        Test.@test_throws CTBase.Exceptions.PreconditionError OptimalControlProblems.Metadata.merge(
-            nothing, (tf=1,)
+    Test.@testset "parameters_data (merge)" verbose = VERBOSE showtiming = SHOWTIMING begin
+        problem = first(OptimalControlProblems.problems(; status=:all))
+        defaults = OptimalControlProblems.parameters_data(problem)
+        key = first(keys(defaults))
+        Test.@test OptimalControlProblems.parameters_data(problem, nothing) == defaults
+        merged = OptimalControlProblems.parameters_data(problem, NamedTuple{(key,)}((-1,)))
+        Test.@test keys(merged) == keys(defaults)
+        Test.@test merged[key] == -1
+        # a problem without parameters takes none: no problem of the collection has
+        # none, so one is added for the test
+        storage = OptimalControlProblems.Metadata.METADATA_STORAGE
+        storage[:_no_parameters] = OptimalControlProblems.Metadata.OrderedDict{Symbol,Any}(
+            :parameters => nothing
         )
+        try
+            Test.@test OptimalControlProblems.parameters_data(:_no_parameters, nothing) ===
+                nothing
+            Test.@test_throws CTBase.Exceptions.PreconditionError OptimalControlProblems.parameters_data(
+                :_no_parameters, (tf=1,)
+            )
+        finally
+            delete!(storage, :_no_parameters)
+        end
     end
     Test.@testset "problem_metadata" verbose = VERBOSE showtiming = SHOWTIMING begin
         problem = first(OptimalControlProblems.problems(; status=:all))
