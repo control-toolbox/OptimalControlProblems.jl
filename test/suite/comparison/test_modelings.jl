@@ -28,7 +28,9 @@ function test_modelings()
                     build = getfield(OCP, problem)
                     data = build(jump; grid_size=2)[:problem_data]
                     pb = build(other)
-                    checks = Main.Continuous.compare(data, OCP.model(pb), OCP.initial_guess(pb))
+                    checks = Main.Continuous.compare(
+                        data, OCP.model(pb), OCP.initial_guess(pb)
+                    )
                     for (name, ok) in sort!(collect(checks); by=first)
                         Test.@testset "$name" begin
                             Test.@test ok

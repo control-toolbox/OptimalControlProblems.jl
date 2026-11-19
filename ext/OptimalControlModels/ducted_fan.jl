@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:ducted_fan)` and `OptimalControlProblems.status(:ducted_fan)`.
 """
 function OptimalControlProblems.ducted_fan(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:ducted_fan, :OptimalControl)
 
@@ -98,5 +96,7 @@ function OptimalControlProblems.ducted_fan(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:ducted_fan, params, init)
 
-    return OptimalControlProblems.Problems._problem(:ducted_fan, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :ducted_fan, :OptimalControl, ocp, init, params
+    )
 end

@@ -373,7 +373,9 @@ function compare_panel(problem::Symbol, mods, refs)
             """
             for (i, s) in enumerate(solutions)
                 counts = map(mods) do (spec, _)
-                    n = count(c -> first(split(c)) == string(spec.name), s["configurations"])
+                    n = count(
+                        c -> first(split(c)) == string(spec.name), s["configurations"]
+                    )
                     return n == 0 ? "—" : string(n)
                 end
                 label = i == 1 ? "best" : "local $(i - 1)"

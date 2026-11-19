@@ -50,7 +50,7 @@ function test_tableaux()
 
         Test.@testset "a stage inside the step needs stage unknowns" begin
             # Hermite–Simpson (Lobatto IIIA, 3 stages): the middle stage is not a node
-            A = [0 0 0; 5/24 1/3 -1/24; 1/6 2/3 1/6]
+            A = [0 0 0; 5 / 24 1 / 3 -1 / 24; 1 / 6 2 / 3 1 / 6]
             tab = ext.ButcherTableau(:lobatto_iiia_3, A, [1 / 6, 2 / 3, 1 / 6], [0, 0.5, 1])
             Test.@test ext.is_fsal(tab)
             Test.@test_throws CTBase.Exceptions.NotImplemented ext.stage_positions(tab)

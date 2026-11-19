@@ -29,13 +29,20 @@ function test_contract()
 
             # the default model: components, initial guess of the metadata (#377), time grid
             model = build(OCP.JuMPBackend(); grid_size=2)
-            names = [model[:state_components]; model[:control_components]; model[:variable_components]]
+            names = [
+                model[:state_components];
+                model[:control_components];
+                model[:variable_components]
+            ]
             Test.@test !isempty(model[:state_components])
             Test.@test !isempty(model[:control_components])
             Test.@test allunique(names)
-            Test.@test length(model[:costate_components]) == length(model[:state_components])
-            Test.@test all(x -> JuMP.start_value(x) isa Real && isfinite(JuMP.start_value(x)),
-                JuMP.all_variables(model))
+            Test.@test length(model[:costate_components]) ==
+                length(model[:state_components])
+            Test.@test all(
+                x -> JuMP.start_value(x) isa Real && isfinite(JuMP.start_value(x)),
+                JuMP.all_variables(model),
+            )
             # the initial time grid, read at the start values: no solve, even for a free time
             T = collect(model[:time_grid](JuMP.start_value))
             Test.@test length(T) == 3
@@ -49,7 +56,13 @@ function test_contract()
             other = merge(guess, (state=double(guess.state), control=double(guess.control)))
             options = (grid_size=3, scheme=:midpoint, ordering=:blocks)
             base = build(OCP.JuMPBackend(); options...)
-            changed = build(OCP.JuMPBackend(), Ipopt.Optimizer; options..., init=other, add_bridges=false)
+            changed = build(
+                OCP.JuMPBackend(),
+                Ipopt.Optimizer;
+                options...,
+                init=other,
+                add_bridges=false,
+            )
             Test.@test changed[:scheme] === :midpoint
             Test.@test changed[:ordering] === :blocks
             Test.@test nodes(changed) == 4
@@ -59,7 +72,8 @@ function test_contract()
             reference, doubled = starts(base), starts(changed)
             Test.@test keys(doubled) == keys(reference)
             Test.@test all(
-                doubled[name] ≈ (name in fixed ? 1 : 2) * reference[name] for name in keys(reference)
+                doubled[name] ≈ (name in fixed ? 1 : 2) * reference[name] for
+                name in keys(reference)
             )
         end
     end

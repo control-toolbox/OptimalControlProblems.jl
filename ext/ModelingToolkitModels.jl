@@ -76,4 +76,3 @@ function CTModels.Models.variable_dimension(sys::ModelingToolkit.AbstractSystem)
 end
 
 end # module ModelingToolkitModels
-

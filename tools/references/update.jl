@@ -25,7 +25,8 @@ function main(args)
             i += 1
         end
     end
-    isempty(dirs) && error("usage: julia --project=. tools/references/update.jl [--run <url>] <dir>...")
+    isempty(dirs) &&
+        error("usage: julia --project=. tools/references/update.jl [--run <url>] <dir>...")
     defaults = Dict(
         problem => (
             grid_size=OptimalControlProblems.grid_size_data(problem),
@@ -34,11 +35,15 @@ function main(args)
     )
     rows = ReferenceObjectives.read_results(dirs)
     tables = ReferenceObjectives.references(rows, defaults; run=run)
-    files = ReferenceObjectives.write_references(OptimalControlProblems.References.REFERENCES_PATH, tables)
+    files = ReferenceObjectives.write_references(
+        OptimalControlProblems.References.REFERENCES_PATH, tables
+    )
     foreach(println, ReferenceObjectives.summary(tables))
     missing_problems = setdiff(keys(defaults), keys(tables))
-    isempty(missing_problems) ||
-        println("No converged solve, no reference: ", join(sort!(collect(missing_problems)), ", "))
+    isempty(missing_problems) || println(
+        "No converged solve, no reference: ",
+        join(sort!(collect(missing_problems)), ", "),
+    )
     println("$(length(rows)) results read, $(length(files)) files written.")
     return nothing
 end

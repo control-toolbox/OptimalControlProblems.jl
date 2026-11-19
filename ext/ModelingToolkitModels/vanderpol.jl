@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:vanderpol)` and `OptimalControlProblems.status(:vanderpol)`.
 """
 function OptimalControlProblems.vanderpol(
-    ::ModelingToolkitBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::ModelingToolkitBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:vanderpol, :ModelingToolkit)
     params = OptimalControlProblems.parameters_data(:vanderpol, parameters)
@@ -28,10 +26,7 @@ function OptimalControlProblems.vanderpol(
     ModelingToolkit.@variables x₂(..) = x₂_t0 [tunable = false]
     ModelingToolkit.@variables u(..) [input = true]
 
-    eqs = [
-        D(x₁(t)) ~ x₂(t),
-        D(x₂(t)) ~ ε * ω * (1 - x₁(t)^2) * x₂(t) - ω^2 * x₁(t) + u(t),
-    ]
+    eqs = [D(x₁(t)) ~ x₂(t), D(x₂(t)) ~ ε * ω * (1 - x₁(t)^2) * x₂(t) - ω^2 * x₁(t) + u(t)]
     costs = [
         ModelingToolkit.Symbolics.Integral(t in (t0, tf))(
             0.5 * (x₁(t)^2 + x₂(t)^2 + u(t)^2)

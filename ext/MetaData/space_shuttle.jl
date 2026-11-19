@@ -51,22 +51,23 @@ space_shuttle_meta = OrderedDict(
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
     # initial guess of every modeling (#377), from the parameters
-    :init => p -> begin
-        (; t0, h_t0, ϕ_t0, θ_t0, v_t0, γ_t0, ψ_t0, h_tf, v_tf, γ_tf, α_s, β_s) = p
-        # linear interpolation for h, v, γ, constant for the rest
-        tf = 2000
-        s(t) = (t - t0) / (tf - t0)
-        return (
-            state=t -> [
-                h_t0 + s(t) * (h_tf - h_t0),
-                ϕ_t0,
-                θ_t0,
-                v_t0 + s(t) * (v_tf - v_t0),
-                γ_t0 + s(t) * (γ_tf - γ_t0),
-                ψ_t0,
-            ],
-            control=[α_s, β_s],
-            variable=tf,
-        )
-    end,
+    :init =>
+        p -> begin
+            (; t0, h_t0, ϕ_t0, θ_t0, v_t0, γ_t0, ψ_t0, h_tf, v_tf, γ_tf, α_s, β_s) = p
+            # linear interpolation for h, v, γ, constant for the rest
+            tf = 2000
+            s(t) = (t - t0) / (tf - t0)
+            return (
+                state=t -> [
+                    h_t0 + s(t) * (h_tf - h_t0),
+                    ϕ_t0,
+                    θ_t0,
+                    v_t0 + s(t) * (v_tf - v_t0),
+                    γ_t0 + s(t) * (γ_tf - γ_t0),
+                    ψ_t0,
+                ],
+                control=[α_s, β_s],
+                variable=tf,
+            )
+        end,
 )

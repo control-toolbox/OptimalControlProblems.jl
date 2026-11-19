@@ -1,4 +1,5 @@
-isdefined(Main, :TestMethods) || include(joinpath(@__DIR__, "..", "..", "common", "methods.jl"))
+isdefined(Main, :TestMethods) ||
+    include(joinpath(@__DIR__, "..", "..", "common", "methods.jl"))
 
 module TestMethodsOptimalControlScalarized
 
@@ -10,8 +11,11 @@ const VERBOSE = isdefined(Main, :TestOptions) ? Main.TestOptions.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING : true
 
 function test_methods()
-    Test.@testset "OptimalControlScalarized methods of the extension" verbose = VERBOSE showtiming = SHOWTIMING begin
-        Main.TestMethods.test_methods(OptimalControlProblems.OptimalControlScalarizedBackend(), :OptimalControlModels)
+    Test.@testset "OptimalControlScalarized methods of the extension" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
+        Main.TestMethods.test_methods(
+            OptimalControlProblems.OptimalControlScalarizedBackend(), :OptimalControlModels
+        )
     end
 end
 

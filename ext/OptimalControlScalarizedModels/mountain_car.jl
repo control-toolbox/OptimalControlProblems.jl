@@ -15,7 +15,9 @@ function OptimalControlProblems.mountain_car(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems.Catalogue._warn_if_draft(:mountain_car, :OptimalControlScalarized)
+    OptimalControlProblems.Catalogue._warn_if_draft(
+        :mountain_car, :OptimalControlScalarized
+    )
 
     # parameters
     params = parameters_data(:mountain_car, parameters)
@@ -68,5 +70,7 @@ function OptimalControlProblems.mountain_car(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:mountain_car, params, init)
 
-    return OptimalControlProblems.Problems._problem(:mountain_car, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :mountain_car, :OptimalControlScalarized, ocp, init, params
+    )
 end

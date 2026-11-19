@@ -1,4 +1,5 @@
-isdefined(Main, :TestMethods) || include(joinpath(@__DIR__, "..", "..", "common", "methods.jl"))
+isdefined(Main, :TestMethods) ||
+    include(joinpath(@__DIR__, "..", "..", "common", "methods.jl"))
 
 module TestMethodsJuMP
 

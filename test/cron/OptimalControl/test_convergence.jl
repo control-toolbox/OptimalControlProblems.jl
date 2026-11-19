@@ -7,9 +7,11 @@ using OptimalControlProblems: OptimalControlProblems
 
 # The convergence report on the default grid; written once in `common/optimalcontrol_tests.jl`
 # (#441).
-test_convergence() = Main.OptimalControlTests.test_convergence(
-    OptimalControlProblems.OptimalControlBackend()
-)
+function test_convergence()
+    return Main.OptimalControlTests.test_convergence(
+        OptimalControlProblems.OptimalControlBackend()
+    )
+end
 
 end # module TestConvergenceOptimalControl
 

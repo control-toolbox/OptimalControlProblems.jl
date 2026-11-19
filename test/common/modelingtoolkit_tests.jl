@@ -47,8 +47,11 @@ function check(problem, pb)
 end
 
 """The API of a problem of the modeling: the `Problem`, its metadata, its display."""
-test_problem(backend) =
-    Main.ModelingTests.test_problem(backend; model_type=MTK.AbstractSystem, check=check)
+function test_problem(backend)
+    return Main.ModelingTests.test_problem(
+        backend; model_type=MTK.AbstractSystem, check=check
+    )
+end
 
 """Every problem builds and runs a few iterations; the convergence is in the cron (#360)."""
 test_smoke(backend) = Main.ModelingTests.test_smoke(backend, adapter())

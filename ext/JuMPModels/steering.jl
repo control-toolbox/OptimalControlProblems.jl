@@ -43,10 +43,7 @@ function OptimalControlProblems.steering(
     x₄_tf = params[:x₄_tf]
 
     data = ProblemData(;
-        state=[
-            Component("x$(c)") for
-            (k, c) in enumerate("₁₂₃₄")
-        ],
+        state=[Component("x$(c)") for (k, c) in enumerate("₁₂₃₄")],
         control=[Component("u"; lower=u_min, upper=u_max)],
         variable=[Component("tf"; lower=tf_l)],
         costate=["∂x₁", "∂x₂", "∂x₃", "∂x₄"],

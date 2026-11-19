@@ -19,7 +19,9 @@ function test_robustness()
     backend = OptimalControlProblems.OptimalControlBackend()
     Test.@testset "OptimalControl robustness report (default grid)" verbose = VERBOSE showtiming =
         SHOWTIMING begin
-        for config in C.CONFIGS.OptimalControl, options in getfield(C.ROBUSTNESS, config.solver)
+        for config in C.CONFIGS.OptimalControl,
+            options in getfield(C.ROBUSTNESS, config.solver)
+
             label = C.label(merge(config, options))
             Test.@testset "$label" begin
                 test = "test_robustness $label"
@@ -29,9 +31,15 @@ function test_robustness()
                     sol = nothing
                     time = @elapsed sol = S.solve(pb, config; grid_size=N, options=options)
                     Main.TestStatus.result!(
-                        test, problem, backend, label;
+                        test,
+                        problem,
+                        backend,
+                        label;
                         S.settings(config; options=options)...,
-                        grid_size=N, scheme=C.SCHEME, S.outcome(sol)..., time=time,
+                        grid_size=N,
+                        scheme=C.SCHEME,
+                        S.outcome(sol)...,
+                        time=time,
                     )
                     Test.@test true
                 end

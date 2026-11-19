@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:bioreactor)` and `OptimalControlProblems.status(:bioreactor)`.
 """
 function OptimalControlProblems.bioreactor(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:bioreactor, :OptimalControl)
 
@@ -84,5 +82,7 @@ function OptimalControlProblems.bioreactor(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:bioreactor, params, init)
 
-    return OptimalControlProblems.Problems._problem(:bioreactor, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :bioreactor, :OptimalControl, ocp, init, params
+    )
 end

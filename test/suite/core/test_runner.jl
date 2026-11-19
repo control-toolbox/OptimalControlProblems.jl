@@ -21,7 +21,8 @@ function test_runner()
             Test.@test sel(["*kwargs*"]) == (["JuMP", "OptimalControl"], ["*kwargs*"])
             # named: only those, patterns apart
             Test.@test sel(["JuMP"]) == (["JuMP"], String[])
-            Test.@test sel(["ModelingToolkit", "*solve*"]) == (["ModelingToolkit"], ["*solve*"])
+            Test.@test sel(["ModelingToolkit", "*solve*"]) ==
+                (["ModelingToolkit"], ["*solve*"])
             # `core` alone: no other environment (it always runs in-process)
             Test.@test sel(["core"]) == (String[], String[])
             Test.@test sel(["core", "JuMP"]) == (["JuMP"], String[])
@@ -30,19 +31,24 @@ function test_runner()
         Test.@testset "mode" begin
             Test.@test R.split_mode(String[]) == (:suite, String[])
             Test.@test R.split_mode(["JuMP", "cron"]) == (:cron, ["JuMP"])
-            Test.@test R.split_mode(["convergence", "*solve*"]) == (:convergence, ["*solve*"])
-            Test.@test R.split_mode(["robustness", "OptimalControl"]) == (:robustness, ["OptimalControl"])
+            Test.@test R.split_mode(["convergence", "*solve*"]) ==
+                (:convergence, ["*solve*"])
+            Test.@test R.split_mode(["robustness", "OptimalControl"]) ==
+                (:robustness, ["OptimalControl"])
             Test.@test_throws ArgumentError R.split_mode(["cron", "convergence"])
             Test.@test_throws ArgumentError R.split_mode(["cron", "robustness"])
             mktempdir() do root
                 suite, cron = joinpath(root, "suite"), joinpath(root, "cron")
                 robustness = joinpath(root, "robustness")
-                mkpath(joinpath(suite, "a")); mkpath(joinpath(cron, "a")); mkpath(joinpath(suite, "b"))
+                mkpath(joinpath(suite, "a"))
+                mkpath(joinpath(cron, "a"))
+                mkpath(joinpath(suite, "b"))
                 mkpath(joinpath(robustness, "a"))
                 dirs(group, mode) = R.directories(group, suite, cron, robustness; mode=mode)
                 Test.@test dirs("a", :suite) == [joinpath(suite, "a")]
                 Test.@test dirs("a", :cron) == [joinpath(cron, "a")]
-                Test.@test dirs("a", :convergence) == [joinpath(suite, "a"), joinpath(cron, "a")]
+                Test.@test dirs("a", :convergence) ==
+                    [joinpath(suite, "a"), joinpath(cron, "a")]
                 # the robustness directories run only when asked for, alone
                 Test.@test dirs("a", :robustness) == [joinpath(robustness, "a")]
                 Test.@test isempty(dirs("b", :robustness))
@@ -57,7 +63,8 @@ function test_runner()
             Test.@test R.split_problems(["JuMP", "problem=a,b", "*solve*"]) ==
                 (["a", "b"], ["JuMP", "*solve*"])
             # several arguments add up, duplicates and empty names go
-            Test.@test R.split_problems(["problem=a,,b", "problem=b,c"]) == (["a", "b", "c"], String[])
+            Test.@test R.split_problems(["problem=a,,b", "problem=b,c"]) ==
+                (["a", "b", "c"], String[])
         end
 
         Test.@testset "run" begin

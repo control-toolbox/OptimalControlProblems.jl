@@ -7,9 +7,11 @@ using OptimalControlProblems: OptimalControlProblems
 
 # Every problem builds, evaluates and runs a few iterations in each configuration; written once
 # in `common/optimalcontrol_tests.jl` (#441).
-test_smoke() = Main.OptimalControlTests.test_smoke(
-    OptimalControlProblems.OptimalControlScalarizedBackend()
-)
+function test_smoke()
+    return Main.OptimalControlTests.test_smoke(
+        OptimalControlProblems.OptimalControlScalarizedBackend()
+    )
+end
 
 end # module TestSmokeOptimalControlScalarized
 

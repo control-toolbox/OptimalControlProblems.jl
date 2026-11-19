@@ -50,7 +50,11 @@ function OptimalControlProblems.dielectrophoretic_particle(
     end
 
     # initial guess: from the metadata (#377), unless given
-    init = OptimalControlProblems.Metadata._initial_guess(:dielectrophoretic_particle, params, init)
+    init = OptimalControlProblems.Metadata._initial_guess(
+        :dielectrophoretic_particle, params, init
+    )
 
-    return OptimalControlProblems.Problems._problem(:dielectrophoretic_particle, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :dielectrophoretic_particle, :OptimalControlScalarized, ocp, init, params
+    )
 end

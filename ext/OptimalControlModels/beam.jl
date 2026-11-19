@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:beam)` and `OptimalControlProblems.status(:beam)`.
 """
 function OptimalControlProblems.beam(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:beam, :OptimalControl)
 
@@ -46,5 +44,7 @@ function OptimalControlProblems.beam(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:beam, params, init)
 
-    return OptimalControlProblems.Problems._problem(:beam, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :beam, :OptimalControl, ocp, init, params
+    )
 end

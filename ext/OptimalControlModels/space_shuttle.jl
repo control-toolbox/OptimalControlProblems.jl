@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:space_shuttle)` and `OptimalControlProblems.status(:space_shuttle)`.
 """
 function OptimalControlProblems.space_shuttle(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:space_shuttle, :OptimalControl)
 
@@ -158,5 +156,7 @@ function OptimalControlProblems.space_shuttle(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:space_shuttle, params, init)
 
-    return OptimalControlProblems.Problems._problem(:space_shuttle, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :space_shuttle, :OptimalControl, ocp, init, params
+    )
 end

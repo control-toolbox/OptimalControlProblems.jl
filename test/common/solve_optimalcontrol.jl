@@ -65,7 +65,11 @@ end
 
 """Solve the `Problem` `pb` with `config`; the default grid of the problem if `grid_size` is `nothing`."""
 function solve(
-    pb, config; grid_size::Int, max_iter::Int=Main.TestConfigs.MAX_ITER, options::NamedTuple=(;)
+    pb,
+    config;
+    grid_size::Int,
+    max_iter::Int=Main.TestConfigs.MAX_ITER,
+    options::NamedTuple=(;),
 )
     return OptimalControl.solve(
         OptimalControlProblems.model(pb);

@@ -104,7 +104,9 @@ function directories(
     mode::Symbol,
 )
     roots = Dict(
-        :suite => (suite,), :cron => (cron,), :convergence => (suite, cron),
+        :suite => (suite,),
+        :cron => (cron,),
+        :convergence => (suite, cron),
         :robustness => (robustness,),
     )[mode]
     return String[joinpath(r, group) for r in roots if isdir(joinpath(r, group))]

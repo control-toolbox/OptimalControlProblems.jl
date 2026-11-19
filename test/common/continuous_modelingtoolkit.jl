@@ -109,7 +109,7 @@ function bounded(c)
         h, k = split_constant(l - r)
         return (-Inf, h, -k)
     end
-    throw(ArgumentError("unsupported constraint $c"))
+    return throw(ArgumentError("unsupported constraint $c"))
 end
 
 """
@@ -146,7 +146,7 @@ function ordered(syms, names)
     return map(names) do n
         i = findfirst(s -> name(s) == n, syms)
         isnothing(i) && throw(ArgumentError("no component $n among $(name.(syms))"))
-        syms[i]
+        return syms[i]
     end
 end
 

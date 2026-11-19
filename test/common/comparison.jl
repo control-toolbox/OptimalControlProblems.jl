@@ -4,7 +4,8 @@
 # equivalence is the NLP equivalence of #284 (`common/equivalence.jl`), the components are
 # compared by `test_features`, and convergence is tested per modeling.
 isdefined(Main, :SolveJuMP) || include(joinpath(@__DIR__, "solve_jump.jl"))
-isdefined(Main, :SolveOptimalControl) || include(joinpath(@__DIR__, "solve_optimalcontrol.jl"))
+isdefined(Main, :SolveOptimalControl) ||
+    include(joinpath(@__DIR__, "solve_optimalcontrol.jl"))
 
 module Comparison
 

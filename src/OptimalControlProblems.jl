@@ -24,10 +24,7 @@ using .Problems
 # (#413). The other public functions (`status`, `features`, `reference_objective`, …) are
 # called qualified, `OptimalControlProblems.status(problem)`.
 export JuMPBackend,
-    ModelingToolkitBackend,
-    OptimalControlBackend,
-    OptimalControlScalarizedBackend,
-    problems
+    ModelingToolkitBackend, OptimalControlBackend, OptimalControlScalarizedBackend, problems
 export time_grid, state, costate, control, variable, iterations, objective
 export control_components,
     control_dimension,

@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:bryson_denham)` and `OptimalControlProblems.status(:bryson_denham)`.
 """
 function OptimalControlProblems.bryson_denham(
-    ::ModelingToolkitBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::ModelingToolkitBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:bryson_denham, :ModelingToolkit)
     params = OptimalControlProblems.parameters_data(:bryson_denham, parameters)
@@ -32,9 +30,7 @@ function OptimalControlProblems.bryson_denham(
     eqs = [D(x₁(t)) ~ x₂(t), D(x₂(t)) ~ u(t)]
     costs = [ModelingToolkit.Symbolics.Integral(t in (t0, tf))(0.5 * u(t)^2)]
     constraints = [
-        x₁(tf) ~ x1_tf,
-        x₂(tf) ~ x2_tf,
-        ModelingToolkit.Symbolics.:≲(x₁(t), x1_max),
+        x₁(tf) ~ x1_tf, x₂(tf) ~ x2_tf, ModelingToolkit.Symbolics.:≲(x₁(t), x1_max)
     ]
 
     ModelingToolkit.@named sys = ModelingToolkit.System(
@@ -48,4 +44,3 @@ function OptimalControlProblems.bryson_denham(
         :bryson_denham, :ModelingToolkit, sys, init, params
     )
 end
-

@@ -48,8 +48,12 @@ function _sub_iv(expr, iv, τ)
         return τ
     elseif expr isa MTK.Symbolics.Equation
         return MTK.Symbolics.Equation(_sub_iv(expr.lhs, iv, τ), _sub_iv(expr.rhs, iv, τ))
-    elseif hasproperty(expr, :relational_op) && hasproperty(expr, :lhs) && hasproperty(expr, :rhs)
-        return typeof(expr)(_sub_iv(expr.lhs, iv, τ), _sub_iv(expr.rhs, iv, τ), expr.relational_op)
+    elseif hasproperty(expr, :relational_op) &&
+        hasproperty(expr, :lhs) &&
+        hasproperty(expr, :rhs)
+        return typeof(expr)(
+            _sub_iv(expr.lhs, iv, τ), _sub_iv(expr.rhs, iv, τ), expr.relational_op
+        )
     elseif MTK.SymbolicUtils.iscall(expr)
         op = MTK.SymbolicUtils.operation(expr)
         args = MTK.SymbolicUtils.arguments(expr)
@@ -103,7 +107,7 @@ function _discretize_path_constraints(sys::MTK.AbstractSystem, grid::AbstractVec
             name=MTK.nameof(sys),
             constraints=new_cons,
             costs=MTK.get_costs(sys),
-        )
+        ),
     )
 end
 
@@ -178,7 +182,7 @@ function prepare(
     shooting === :single || throw(ArgumentError("unsupported shooting method $shooting"))
     sys = OCP.model(pb)
     t0, tf = tspan(pb)
-    grid = range(t0, tf, length=grid_size)
+    grid = range(t0, tf; length=grid_size)
 
     # Discretize path constraints over the grid
     sys_disc = _discretize_path_constraints(sys, grid)
@@ -202,11 +206,7 @@ function prepare(
     switches = [u => collect(grid[1:(end - 1)]) for u in ctrl_syms]
 
     dynamic = Corleone.CorleoneDynamicOptProblem(
-        sys_disc,
-        inits,
-        switches...;
-        algorithm=Tsit5(),
-        tspan=(t0, tf),
+        sys_disc, inits, switches...; algorithm=Tsit5(), tspan=(t0, tf)
     )
     problem = Optimization.OptimizationProblem(dynamic, Optimization.AutoForwardDiff())
     return (; problem, dynamic)

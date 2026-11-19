@@ -15,7 +15,9 @@ function OptimalControlProblems.balanced_field(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems.Catalogue._warn_if_draft(:balanced_field, :OptimalControlScalarized)
+    OptimalControlProblems.Catalogue._warn_if_draft(
+        :balanced_field, :OptimalControlScalarized
+    )
 
     # parameters
     params = parameters_data(:balanced_field, parameters)
@@ -85,5 +87,7 @@ function OptimalControlProblems.balanced_field(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:balanced_field, params, init)
 
-    return OptimalControlProblems.Problems._problem(:balanced_field, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :balanced_field, :OptimalControlScalarized, ocp, init, params
+    )
 end

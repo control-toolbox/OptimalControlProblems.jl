@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:glider)` and `OptimalControlProblems.status(:glider)`.
 """
 function OptimalControlProblems.glider(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:glider, :OptimalControl)
 
@@ -93,5 +91,7 @@ function OptimalControlProblems.glider(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:glider, params, init)
 
-    return OptimalControlProblems.Problems._problem(:glider, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :glider, :OptimalControl, ocp, init, params
+    )
 end

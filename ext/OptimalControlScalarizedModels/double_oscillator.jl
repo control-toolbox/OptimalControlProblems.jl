@@ -15,7 +15,9 @@ function OptimalControlProblems.double_oscillator(
     parameters::Union{Nothing,NamedTuple}=nothing,
     init=nothing,
 )
-    OptimalControlProblems.Catalogue._warn_if_draft(:double_oscillator, :OptimalControlScalarized)
+    OptimalControlProblems.Catalogue._warn_if_draft(
+        :double_oscillator, :OptimalControlScalarized
+    )
 
     # parameters
     params = parameters_data(:double_oscillator, parameters)
@@ -53,5 +55,7 @@ function OptimalControlProblems.double_oscillator(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:double_oscillator, params, init)
 
-    return OptimalControlProblems.Problems._problem(:double_oscillator, :OptimalControlScalarized, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :double_oscillator, :OptimalControlScalarized, ocp, init, params
+    )
 end

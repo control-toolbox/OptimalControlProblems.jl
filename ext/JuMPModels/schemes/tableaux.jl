@@ -100,7 +100,7 @@ function stage_positions(tab::ButcherTableau)
     θ = map(1:s) do j
         iszero(tab.A[j, :]) && return 0.0
         tab.A[j, :] == tab.b && return 1.0
-        throw(
+        return throw(
             CTBase.Exceptions.NotImplemented(
                 "Stage $j of the tableau $(tab.name) is not a node of the step";
                 required_method="stage unknowns in the JuMP models",

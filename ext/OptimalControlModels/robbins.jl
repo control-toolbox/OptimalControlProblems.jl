@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:robbins)` and `OptimalControlProblems.status(:robbins)`.
 """
 function OptimalControlProblems.robbins(
-    ::OptimalControlBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::OptimalControlBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:robbins, :OptimalControl)
 
@@ -51,5 +49,7 @@ function OptimalControlProblems.robbins(
     # initial guess: from the metadata (#377), unless given
     init = OptimalControlProblems.Metadata._initial_guess(:robbins, params, init)
 
-    return OptimalControlProblems.Problems._problem(:robbins, :OptimalControl, ocp, init, params)
+    return OptimalControlProblems.Problems._problem(
+        :robbins, :OptimalControl, ocp, init, params
+    )
 end

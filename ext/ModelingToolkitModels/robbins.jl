@@ -11,17 +11,19 @@ Default parameters and the modeling status are available through
 `problem_metadata(:robbins)` and `OptimalControlProblems.status(:robbins)`.
 """
 function OptimalControlProblems.robbins(
-    ::ModelingToolkitBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::ModelingToolkitBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:robbins, :ModelingToolkit)
     params = OptimalControlProblems.parameters_data(:robbins, parameters)
     t0, tf = float(params[:t0]), float(params[:tf])
     α, β, γ = params[:α], params[:β], params[:γ]
     x₁_l = float(params[:x₁_l])
-    x₁_t0, x₂_t0, x₃_t0 = float(params[:x₁_t0]), float(params[:x₂_t0]), float(params[:x₃_t0])
-    x₁_tf, x₂_tf, x₃_tf = float(params[:x₁_tf]), float(params[:x₂_tf]), float(params[:x₃_tf])
+    x₁_t0, x₂_t0, x₃_t0 = float(params[:x₁_t0]),
+    float(params[:x₂_t0]),
+    float(params[:x₃_t0])
+    x₁_tf, x₂_tf, x₃_tf = float(params[:x₁_tf]),
+    float(params[:x₂_tf]),
+    float(params[:x₃_tf])
 
     t = ModelingToolkit.t_nounits
     D = ModelingToolkit.Differential(t)

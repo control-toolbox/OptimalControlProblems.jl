@@ -39,9 +39,7 @@ function OptimalControlProblems.beam(
     x₂_tf = params[:x₂_tf]
 
     data = ProblemData(;
-        state=[
-            Component("x₁"; lower=x₁_l, upper=x₁_u), Component("x₂")
-        ],
+        state=[Component("x₁"; lower=x₁_l, upper=x₁_u), Component("x₂")],
         control=[Component("u")],
         costate=["∂x₁", "∂x₂"],
         times=v -> (t0, tf),
