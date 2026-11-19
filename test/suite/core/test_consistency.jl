@@ -202,7 +202,8 @@ end
 """
 The outline of a description (#449, T2): its `###` headings, in this order. The parameters
 section is optional and has one of the names of `PARAMETER_HEADINGS`; the qualitative
-behaviour is optional too (`balanced_field` has none yet).
+behaviour is optional too: a page whose description has none gets a placeholder
+(`with_behaviour` in `docs/problems.jl`).
 """
 const OUTLINE = (
     "Mathematical formulation",

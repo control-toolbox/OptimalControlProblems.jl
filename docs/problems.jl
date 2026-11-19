@@ -392,11 +392,30 @@ end
 # -----------------------------------
 # Page
 # -----------------------------------
+# A description without a qualitative behaviour gets one that points to the figures of the
+# modeling tabs (#449, T2): the outline of every page stays the same.
+function with_behaviour(description::AbstractString)
+    occursin(r"^### Qualitative behaviour"m, description) && return description
+    placeholder = """
+    ### Qualitative behaviour
+
+    Not described yet: the solution is plotted in the tab of each modeling, under *Solution*.
+
+    """
+    return replace(
+        description,
+        "\n### Characteristics" => "\n" * placeholder * "### Characteristics";
+        count=1,
+    )
+end
+
 function problem_page(problem::Symbol)
     mods = modelings(problem)
     refs = references(problem)
     statuses = OCP.status(problem)
-    description = read(joinpath(ROOT, "ext", "Descriptions", "$(problem).md"), String)
+    description = with_behaviour(
+        read(joinpath(ROOT, "ext", "Descriptions", "$(problem).md"), String)
+    )
 
     views = Any[(id="problem", label="Problem", kind="problem")]
     for (spec, adapter) in mods
