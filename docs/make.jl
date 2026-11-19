@@ -2,6 +2,8 @@
 # To serve it: `npx serve docs/build/1 --listen 5173`
 # Or, with Julia only:
 # `julia --project=docs -e 'using LiveServer; LiveServer.serve(dir="docs/build/1", single_page=true)'`
+# To keep the site browsable while it is rebuilt (make.jl clears docs/build/ first):
+# `docs/preview.sh serve` once, then `docs/preview.sh build` after each change.
 
 # Append (not prepend): docs/Manifest.toml must win for shared deps; the repo root is only
 # needed to find the local package (SITE18).
