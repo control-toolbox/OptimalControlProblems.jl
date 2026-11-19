@@ -32,13 +32,6 @@ x(0) = (1, -2, 0), \qquad x(T) = (0,0,0),
 
 and horizon $T=10$. In our simulations we use parameters $\alpha=3$, $\beta=0$, $\gamma=0.5$.
 
-### Parameter values
-
-- Weight on state $x_1$: $\alpha = 3$  
-- Weight on squared state: $\beta = 0$  
-- Weight on squared control: $\gamma = 0.5$  
-- Final time: $T = 10$  
-
 ### Qualitative behaviour
 
 The exact solution exhibits **infinitely many isolated contact points**, where the state constraint $x_1(t)=0$ is active.  

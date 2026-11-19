@@ -32,22 +32,6 @@ v_{\min} \le v(t) \le v_{\max}, \\[0.5em]
 
 The final time $T$ is free but bounded.  
 
-### Parameters
-
-| Parameter | Symbol | Value |
-|-----------|--------|-------|
-| Initial altitude | $h_s$ | $2.6 \times 10^5$ ft |
-| Initial velocity | $v_s$ | $2.56 \times 10^4$ ft/s |
-| Initial flight path angle | $\gamma_s$ | $-1^\circ$ |
-| Initial azimuth | $\psi_s$ | $90^\circ$ |
-| Final altitude | $h_t$ | $0.8 \times 10^5$ ft |
-| Final velocity | $v_t$ | $0.25 \times 10^4$ ft/s |
-| Final flight path angle | $\gamma_t$ | $-5^\circ$ |
-| Mass | $m$ | $w/g_0$ |
-| Reference area | $S$ | 2690 |
-| Earth's radius | $R_e$ | 20902900 ft |
-| Gravitational parameter | $\mu$ | $0.14076539 \cdot 10^{17}$ |
-
 ### Qualitative behaviour
 
 - The optimal trajectory balances **lift** and **drag** to control heating and deceleration while extending crossrange.  

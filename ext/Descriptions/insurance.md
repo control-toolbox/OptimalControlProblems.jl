@@ -71,20 +71,6 @@ f_x(t) &= \lambda e^{-\lambda t} + \frac{e^{-\lambda t_f}}{t_f}, \\
 
 These constraints encode **revenue balance**, **health evolution**, **utility computation**, and **auxiliary relationships**.
 
-### System parameters
-
-| Parameter | Symbol | Value | Description |
-|-----------|--------|-------|-------------|
-| Risk aversion | $\gamma$ | 0.2 | Health cost scaling |
-| Illness rate | $\lambda$ | 0.25 | Hazard parameter |
-| Baseline health | $h_0$ | 1.5 | Initial health level |
-| Weight factor | $w$ | 1 | Revenue baseline |
-| Sensitivity | $s$ | 10 | Utility sensitivity to revenue |
-| Exponent | $\alpha$ | 4 | Expense nonlinearity |
-| Expense rate | $k$ | 0 | Time-varying adjustment |
-| Shock | $\sigma$ | 0 | Auxiliary multiplier |
-| Final time | $t_f$ | 10 | s |
-
 ### Qualitative behaviour
 
 - The optimal strategy balances **insurance coverage**, **health investment**, and **expenses** to maximise utility under constraints.  

@@ -25,7 +25,10 @@ electric_vehicle_meta = OrderedDict(
         h0=(unit=nothing, meaning="constant resistance in the dynamics of v"),
         h1=(unit=nothing, meaning="gain of the control u in the dynamics of v"),
         h2=(unit=nothing, meaning="coefficient of the quadratic drag v²"),
-        α0=(unit=nothing, meaning="coefficient of degree 0 of the road profile, a cubic in x"),
+        α0=(
+            unit=nothing,
+            meaning="coefficient of degree 0 of the road profile, a cubic in x",
+        ),
         α1=(unit=nothing, meaning="coefficient of degree 1 of the road profile"),
         α2=(unit=nothing, meaning="coefficient of degree 2 of the road profile"),
         α3=(unit=nothing, meaning="coefficient of degree 3 of the road profile"),
@@ -34,7 +37,12 @@ electric_vehicle_meta = OrderedDict(
         x_tf=(unit="m", meaning="final position, the length of the trip"),
         v_tf=(unit="m/s", meaning="final velocity"),
     ),
-    :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid, ModelingToolkit=:valid),
+    :status => (
+        OptimalControl=:valid,
+        OptimalControlScalarized=:valid,
+        JuMP=:valid,
+        ModelingToolkit=:valid,
+    ),
     # initial guess of every modeling (#377), from the parameters
     :init => p -> (state=[0.1, 0.1], control=0.1),
 )

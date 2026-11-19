@@ -30,7 +30,10 @@ jackson_meta = OrderedDict(
         b_u=(unit=nothing, meaning="upper bound of the concentration b"),
         x₃_l=(unit=nothing, meaning="lower bound of x₃"),
         x₃_u=(unit=nothing, meaning="upper bound of x₃"),
-        u_l=(unit=nothing, meaning="lower bound of the control u, the fraction of the first catalyst"),
+        u_l=(
+            unit=nothing,
+            meaning="lower bound of the control u, the fraction of the first catalyst",
+        ),
         u_u=(unit=nothing, meaning="upper bound of the control u"),
         a_t0=(unit=nothing, meaning="initial concentration a"),
         b_t0=(unit=nothing, meaning="initial concentration b"),

@@ -16,7 +16,10 @@ bryson_denham_meta = OrderedDict(
         x2_t0=(unit=nothing, meaning="initial velocity x₂"),
         x1_tf=(unit=nothing, meaning="final position x₁"),
         x2_tf=(unit=nothing, meaning="final velocity x₂"),
-        x1_max=(unit=nothing, meaning="upper bound of the position x₁ (the state constraint)"),
+        x1_max=(
+            unit=nothing,
+            meaning="upper bound of the position x₁ (the state constraint)",
+        ),
     ),
     :status => (
         OptimalControl=:valid,

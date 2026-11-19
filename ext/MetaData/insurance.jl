@@ -29,14 +29,29 @@ insurance_meta = OrderedDict(
     :parameter_info => (
         t0=(unit=nothing, meaning="initial time"),
         tf=(unit=nothing, meaning="final time"),
-        γ=(unit=nothing, meaning="rate at which the health H deteriorates, H = h0 − γ (t − t0)(1 − v(m))"),
-        λ=(unit=nothing, meaning="rate of the exponential law of the time of illness, in the density fx"),
+        γ=(
+            unit=nothing,
+            meaning="rate at which the health H deteriorates, H = h0 − γ (t − t0)(1 − v(m))",
+        ),
+        λ=(
+            unit=nothing,
+            meaning="rate of the exponential law of the time of illness, in the density fx",
+        ),
         h0=(unit=nothing, meaning="initial health level"),
         w=(unit=nothing, meaning="wealth in the revenue R = w − P + I − m − ε"),
-        s=(unit=nothing, meaning="sensitivity of the utility to the revenue, U = 1 − exp(−s R) + H"),
+        s=(
+            unit=nothing,
+            meaning="sensitivity of the utility to the revenue, U = 1 − exp(−s R) + H",
+        ),
         k=(unit=nothing, meaning="coefficient of the loss ε = k (t − t0) / (tf − t + 1)"),
-        σ=(unit=nothing, meaning="loading of the premium, P = x₃(tf) with ẋ₃ = (1 + σ) I fx"),
-        α=(unit=nothing, meaning="exponent of the efficacy v(m) = m^(α/2) / (1 + m^(α/2)) of the expenses"),
+        σ=(
+            unit=nothing,
+            meaning="loading of the premium, P = x₃(tf) with ẋ₃ = (1 + σ) I fx",
+        ),
+        α=(
+            unit=nothing,
+            meaning="exponent of the efficacy v(m) = m^(α/2) / (1 + m^(α/2)) of the expenses",
+        ),
         I_l=(unit=nothing, meaning="lower bound of the indemnity I"),
         I_u=(unit=nothing, meaning="upper bound of the indemnity I"),
         m_l=(unit=nothing, meaning="lower bound of the medical expenses m"),
@@ -50,7 +65,10 @@ insurance_meta = OrderedDict(
         P_l=(unit=nothing, meaning="lower bound of the premium P"),
         I_t0=(unit=nothing, meaning="initial indemnity"),
         m_t0=(unit=nothing, meaning="initial medical expenses"),
-        x₃_t0=(unit=nothing, meaning="initial value of x₃, the accumulated cost of the indemnity"),
+        x₃_t0=(
+            unit=nothing,
+            meaning="initial value of x₃, the accumulated cost of the indemnity",
+        ),
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
     # initial guess of every modeling (#377), from the parameters

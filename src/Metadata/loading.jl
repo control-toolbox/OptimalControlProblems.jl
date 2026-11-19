@@ -10,14 +10,11 @@ const METADATA_SCHEMA = (
     required=(
         grid_size=Int,
         parameters=Union{Nothing,NamedTuple},
+        parameter_info=NamedTuple,
         status=NamedTuple,
         init=Function,
     ),
-    optional=(
-        parameter_info=NamedTuple,
-        notes=AbstractString,
-        reference_solution=Function,
-    ),
+    optional=(notes=AbstractString, reference_solution=Function),
     generated=(reference_objective=NamedTuple,),
 )
 const METADATA_STORAGE = OrderedDict{Symbol,OrderedDict}()

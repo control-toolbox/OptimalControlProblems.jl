@@ -29,7 +29,10 @@ ducted_fan_meta = OrderedDict(
     ),
     :parameter_info => (
         t0=(unit="s", meaning="initial time"),
-        r=(unit="m", meaning="distance from the centre of mass to the point where the force u₁ applies"),
+        r=(
+            unit="m",
+            meaning="distance from the centre of mass to the point where the force u₁ applies",
+        ),
         J=(unit="kg·m²", meaning="moment of inertia"),
         m=(unit="kg", meaning="mass"),
         mg=(unit="N", meaning="weight"),

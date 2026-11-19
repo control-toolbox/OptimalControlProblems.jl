@@ -1,5 +1,6 @@
 The **Aircraft Balanced Field Length Calculation** is a classic aeronautical engineering problem used to determine the minimum runway length required for a safe takeoff or a safe stop in the event of an engine failure.  
-This implementation focuses on the **takeoff climb** phase with one engine out, starting from the critical engine failure speed $V_1$.
+This implementation focuses on the **takeoff climb** phase with one engine out, starting from the critical engine failure speed $V_1$.  
+The parameters are those of a mid-size jet aircraft, the nominal values of the Dymos example.
 
 ### Mathematical formulation
 
@@ -19,17 +20,6 @@ The state vector is $x(t) = (r(t), v(t), h(t), \gamma(t))$ and the control is th
 ```
 
 The aerodynamic forces $L$ and $D$ depend on the angle of attack $\alpha$, velocity $v$, and altitude $h$ (ground effect).
-
-### Parameters
-
-The parameters are based on a mid-size jet aircraft (nominal values from Dymos):
-
-| Parameter | Symbol | Value |
-|-----------|--------|-------|
-| Mass | $m$ | 79015.8 kg |
-| Surface | $S$ | 124.7 m² |
-| Thrust (1 engine) | $T$ | 120102.0 N |
-| Screen height | $h_{tf}$ | 10.668 m |
 
 ### Characteristics
 

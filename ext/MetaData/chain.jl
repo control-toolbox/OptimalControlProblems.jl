@@ -10,7 +10,12 @@ chain_meta = OrderedDict(
         x₂_t0=(unit=nothing, meaning="initial value of x₂"),
         x₃_t0=(unit=nothing, meaning="initial value of x₃"),
     ),
-    :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid, ModelingToolkit=:valid),
+    :status => (
+        OptimalControl=:valid,
+        OptimalControlScalarized=:valid,
+        JuMP=:valid,
+        ModelingToolkit=:valid,
+    ),
     # initial guess of every modeling (#377), from the parameters
     :init => p -> begin
         (; t0, tf, a, b) = p

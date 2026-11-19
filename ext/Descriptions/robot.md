@@ -28,19 +28,6 @@ I_\phi(t) = (L-\rho(t))^3 + \rho(t)^3, \\[0.5em]
 
 The horizon is **free**, as the total transfer time $T$ is optimised.
 
-### Parameter values
-
-| Parameter | Symbol | Value |
-|-----------|--------|-------|
-| Total arm length | $L$ | 5 |
-| Initial radial position | $\rho_0$ | 4.5 |
-| Initial vertical angle | $\phi_0$ | $\pi/4$ |
-| Final horizontal angle | $\theta_f$ | $2\pi/3$ |
-| Maximum radial control | $u_\rho^{\max}$ | 1 |
-| Maximum horizontal control | $u_\theta^{\max}$ | 1 |
-| Maximum vertical control | $u_\phi^{\max}$ | 1 |
-| Minimum final time | $T_{\min}$ | 0.1 |
-
 ### Qualitative behaviour
 
 The optimal solution exploits the **degrees of freedom of the spherical coordinate system** to minimise the motion time.  

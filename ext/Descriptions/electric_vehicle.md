@@ -25,19 +25,6 @@ r(x) = \alpha_0 + \alpha_1 x + \alpha_2 x^2 + \alpha_3 x^3,
 
 and the parameters $h_0$, $h_1$, $h_2$, $b_1$, $b_2$, and $\alpha_i$ define vehicle dynamics, drag, and slope effects.
 
-### System parameters
-
-| Parameter | Symbol | Value | Description |
-|-----------|--------|-------|-------------|
-| Trip distance | $D$ | 10 m | Total length of the trajectory |
-| Friction term | $h_0$ | 0.1 | Constant resistance |
-| Acceleration gain | $h_1$ | 1 | Input scaling for acceleration |
-| Quadratic velocity damping | $h_2$ | 1e-3 | Air drag effect |
-| Energy weight | $b_1$ | 1 | Linear contribution of input power |
-| Control weight | $b_2$ | 1 | Quadratic penalty on control effort |
-| Road profile | $\alpha_0,\dots,\alpha_3$ | 3, 0.4, -1, 0.1 | Cubic coefficients modelling road slope |
-| Final time | $t_f$ | 1 s | Duration of the trajectory |
-
 ### Qualitative behaviour
 
 - The optimal solution balances **traction and braking** to respect the velocity boundary conditions while minimising energy consumption.  

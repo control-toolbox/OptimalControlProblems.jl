@@ -9,7 +9,10 @@ rocket_meta = OrderedDict(
         m_t0=(unit=nothing, meaning="initial mass, and upper bound of the mass"),
         g0=(unit=nothing, meaning="gravitational acceleration at the initial altitude"),
         Tc=(unit=nothing, meaning="maximum thrust, in units of the initial weight m_t0 g0"),
-        hc=(unit=nothing, meaning="scale height of the atmosphere in the drag"),
+        hc=(
+            unit=nothing,
+            meaning="decay rate of the air density with the altitude, exp(−hc (h − h_t0) / h_t0)",
+        ),
         vc=(unit=nothing, meaning="drag coefficient factor, Dc = vc m_t0 / (2 g0)"),
         mc=(unit=nothing, meaning="final mass, as a fraction of the initial mass"),
         T_l=(unit=nothing, meaning="lower bound of the thrust T"),

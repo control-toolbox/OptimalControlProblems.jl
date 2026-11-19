@@ -45,21 +45,6 @@ c = \frac{1}{2} \sqrt{g_0 h_0}
 T_{\max} = T_c m_0 g_0
 ```
 
-### Parameters
-
-| Parameter                  | Symbol | Value                  |
-|----------------------------|--------|------------------------|
-| Initial altitude           | $h_0$  | 1                      |
-| Initial velocity           | $v_0$  | 0                      |
-| Initial mass               | $m_0$  | 1                      |
-| Gravitational constant     | $g_0$  | 1                      |
-| Thrust coefficient         | $T_c$  | 3.5                    |
-| Drag coefficient           | $D_c$  | $\frac{1}{2} v_c \frac{m_0}{g_0}$ |
-| Characteristic altitude    | $h_c$  | 500                    |
-| Characteristic velocity    | $v_c$  | 620                    |
-| Characteristic mass ratio  | $m_c$  | 0.6                    |
-| Final mass                 | $m_f$  | $m_c m_0$              |
-
 ### Qualitative behaviour
 
 The optimal trajectory often exhibits a **bang–singular–bang structure**, with thrust at maximum, then along a singular arc, and finally at minimum.  

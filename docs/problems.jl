@@ -122,7 +122,10 @@ function parameters_section(problem::Symbol)
         join(("| `$(k)` | `$(v)` | | |" for (k, v) in pairs(params)), "\n")
     else
         join(
-            ("| `$(k)` | `$(v)` | $(unit(k)) | $(info[k].meaning) |" for (k, v) in pairs(params)),
+            (
+                "| `$(k)` | `$(v)` | $(unit(k)) | $(info[k].meaning) |" for
+                (k, v) in pairs(params)
+            ),
             "\n",
         )
     end

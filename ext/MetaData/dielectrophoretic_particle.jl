@@ -6,7 +6,10 @@ dielectrophoretic_particle_meta = OrderedDict(
         x_t0=(unit=nothing, meaning="initial position x of the particle"),
         y_t0=(unit=nothing, meaning="initial value of y"),
         x_tf=(unit=nothing, meaning="final position x of the particle"),
-        α=(unit=nothing, meaning="coefficient of the quadratic term α u² in the dynamics of x"),
+        α=(
+            unit=nothing,
+            meaning="coefficient of the quadratic term α u² in the dynamics of x",
+        ),
         c=(unit=nothing, meaning="damping coefficient in the dynamics of y"),
         u_l=(unit=nothing, meaning="lower bound of the control u"),
         u_u=(unit=nothing, meaning="upper bound of the control u"),

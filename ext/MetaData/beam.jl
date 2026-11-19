@@ -5,13 +5,21 @@ beam_meta = OrderedDict(
         t0=(unit=nothing, meaning="initial time"),
         tf=(unit=nothing, meaning="final time"),
         x₁_l=(unit=nothing, meaning="lower bound of the position x₁"),
-        x₁_u=(unit=nothing, meaning="upper bound of the position x₁ (the state constraint)"),
+        x₁_u=(
+            unit=nothing,
+            meaning="upper bound of the position x₁ (the state constraint)",
+        ),
         x₁_t0=(unit=nothing, meaning="initial position x₁"),
         x₂_t0=(unit=nothing, meaning="initial velocity x₂"),
         x₁_tf=(unit=nothing, meaning="final position x₁"),
         x₂_tf=(unit=nothing, meaning="final velocity x₂"),
     ),
-    :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid, ModelingToolkit=:valid),
+    :status => (
+        OptimalControl=:valid,
+        OptimalControlScalarized=:valid,
+        JuMP=:valid,
+        ModelingToolkit=:valid,
+    ),
     # initial guess of every modeling (#377), from the parameters
     :init => p -> (state=[0.05, 0.1], control=0.1),
     :reference_solution =>

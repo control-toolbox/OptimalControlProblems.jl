@@ -21,16 +21,6 @@ The problem can be stated as
 \end{aligned}
 ```
 
-### Parameters
-
-| Parameter | Symbol | Value |
-|-----------|--------|-------|
-| Power coefficient | $a$ | 0.001 |
-| Gravity coefficient | $b$ | 0.0025 |
-| Frequency coefficient | $c$ | 3.0 |
-| Initial position | $x_0$ | -0.5 |
-| Target position | $x_f$ | 0.5 |
-
 ### Qualitative behaviour
 
 - The car must oscillate back and forth in the valley to build enough kinetic energy to climb the right hill.

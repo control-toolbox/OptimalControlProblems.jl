@@ -34,15 +34,6 @@ t_f \ge 0,
 
 where $x_0$ and $x_f$ are the initial and final particle positions, $\alpha$ is a coefficient representing nonlinear interaction with the field, and $c$ is a damping coefficient.
 
-### System parameters
-
-| Parameter | Symbol | Value |
-|-----------|--------|-------|
-| Initial particle position | $x_0$ | 1 |
-| Final particle position | $x_f$ | 2 |
-| Nonlinear coefficient | $\alpha$ | -0.75 |
-| Damping coefficient | $c$ | 1 |
-
 ### Qualitative behaviour
 
 - The optimal control typically saturates at the bounds $u = \pm 1$, characteristic of **time-optimal problems**.  

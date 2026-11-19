@@ -37,7 +37,10 @@ balanced_field_meta = OrderedDict(
         e=(unit=nothing, meaning="Oswald efficiency factor"),
         CL0=(unit=nothing, meaning="lift coefficient at zero angle of attack"),
         CL_max=(unit=nothing, meaning="maximum lift coefficient, reached at α_max"),
-        h_w=(unit="m", meaning="height of the wing above the centre of gravity, in the ground effect"),
+        h_w=(
+            unit="m",
+            meaning="height of the wing above the centre of gravity, in the ground effect",
+        ),
         span=(unit="m", meaning="wingspan"),
         α_max=(unit="rad", meaning="angle of attack at the maximum lift coefficient"),
         T=(unit="N", meaning="thrust, one engine out"),
@@ -47,9 +50,18 @@ balanced_field_meta = OrderedDict(
         γ_t0=(unit="rad", meaning="initial flight path angle"),
         h_tf=(unit="m", meaning="final altitude, the screen height of 35 ft"),
         γ_tf=(unit="rad", meaning="final flight path angle, 5°"),
-        v_min=(unit="m/s", meaning="lower bound of the velocity (not used by the models yet, which use 1)"),
-        v_max=(unit="m/s", meaning="upper bound of the velocity (not used by the models yet)"),
-        α_min=(unit="rad", meaning="lower bound of the angle of attack (not used by the models yet, which use 0)"),
+        v_min=(
+            unit="m/s",
+            meaning="lower bound of the velocity (not used by the models yet, which use 1)",
+        ),
+        v_max=(
+            unit="m/s",
+            meaning="upper bound of the velocity (not used by the models yet)",
+        ),
+        α_min=(
+            unit="rad",
+            meaning="lower bound of the angle of attack (not used by the models yet, which use 0)",
+        ),
         α_max_ctrl=(unit="rad", meaning="upper bound of the angle of attack"),
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),

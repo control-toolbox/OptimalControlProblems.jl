@@ -21,16 +21,6 @@ p_1(t_f) = 5.0, \; p_2(t_f) = 5.0, \; dp_1(t_f) = dp_2(t_f) &= 0.
 
 Here, $x(t) = (p_1, p_2, dp_1, dp_2, \theta, d\theta)$, and the total thrust in the lander frame $F_{\text{tot}}$ is obtained by rotating the engine thrusts according to the lander's orientation.
 
-### Parameter values
-
-- Mass: $m = 1$  
-- Lunar gravity: $g = 9.81$  
-- Moment of inertia: $I = 0.1$  
-- Distance between thrusters: $D = 1$  
-- Maximum thrust: $F_{\max} = 2g$  
-- Target position: $p_{\rm target} = [5.0, 5.0]$  
-- Final time bounds: $t_f \in [0.1, 1.0]$  
-
 ### Qualitative behaviour
 
 The optimal solution typically exhibits a **bang–bang structure**, where thrusts switch between minimum and maximum values, ensuring minimal landing time while satisfying position and velocity constraints.  

@@ -30,7 +30,10 @@ bioreactor_meta = OrderedDict(
         c=(unit=nothing, meaning="scaling of the methane production in the cost"),
         γ=(unit=nothing, meaning="conversion of algae into substrate"),
         halfperiod=(unit=nothing, meaning="half of the period of the light cycle"),
-        Ks=(unit=nothing, meaning="half-saturation constant of the Monod growth of the biomass"),
+        Ks=(
+            unit=nothing,
+            meaning="half-saturation constant of the Monod growth of the biomass",
+        ),
         μ2m=(unit=nothing, meaning="maximum growth rate of the biomass"),
         μbar=(unit=nothing, meaning="maximum growth rate of the algae, at full light"),
         r=(unit=nothing, meaning="decay rate of the algae"),
