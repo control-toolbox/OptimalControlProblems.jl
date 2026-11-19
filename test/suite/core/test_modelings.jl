@@ -79,6 +79,9 @@ function test_modelings()
         Test.@test_throws CTBase.Exceptions.ExtensionError OptimalControlProblems.features(
             problem
         )
+        Test.@test_throws CTBase.Exceptions.IncorrectArgument OptimalControlProblems.features(
+            :not_a_problem
+        )
     end
 
     Test.@testset "generated documentation" verbose = VERBOSE showtiming = SHOWTIMING begin

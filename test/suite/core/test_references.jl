@@ -210,7 +210,9 @@ function test_references()
         # a file that misses a field is an error at load time
         broken = joinpath(dir, "broken.toml")
         write(broken, "[trapeze]\nvalue = 1.0\n")
-        Test.@test_throws ErrorException OCP.References._references(:alpha, broken)
+        Test.@test_throws CTBase.Exceptions.IncorrectArgument OCP.References._references(
+            :alpha, broken
+        )
         Test.@test isnothing(OCP.References._references(:alpha, joinpath(dir, "none.toml")))
 
         # a file written before #409 loads, without references, so that the tool can write
