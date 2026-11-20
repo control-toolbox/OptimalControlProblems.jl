@@ -116,7 +116,8 @@ end
 
 """
 Every problem solved on its default grid in each configuration, and reported, not tested
-(#360); an exception still fails. The second solve is timed, once compiled.
+(#360); an exception still fails. The solve is timed once compiled: by a first solve on the
+default grid, or by the `warmup` of the adapter when it has one (a cheaper solve, #435).
 """
 function test_convergence(backend, adapter)
     name = modeling(backend)
@@ -129,7 +130,12 @@ function test_convergence(backend, adapter)
                     pb = getfield(OCP, problem)(backend)
                     N = OCP.grid_size_data(problem)
                     scheme = adapter.scheme(config)
-                    sol = adapter.solve(pb, config; grid_size=N)
+                    warmup = get(adapter, :warmup, nothing)
+                    if isnothing(warmup)
+                        adapter.solve(pb, config; grid_size=N)
+                    else
+                        warmup(pb, config)
+                    end
                     time = @elapsed sol = adapter.solve(pb, config; grid_size=N) # compiled
                     # convergence is reported, not tested (#360); an exception still fails
                     Main.TestStatus.result!(
