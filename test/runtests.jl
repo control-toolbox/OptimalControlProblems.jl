@@ -15,6 +15,7 @@
 #
 #   julia --project -e 'using Pkg; Pkg.test()'                       # core + all environments
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["JuMP"])'   # core + one environment
+#   julia --project -e 'using Pkg; Pkg.test(; test_args=["+ModelingToolkit"])' # + an opt-in one
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["cron"])'   # slow tests (cron/ dirs)
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["convergence"])' # suite + cron/ dirs
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["robustness"])'  # robustness/ dirs
@@ -23,7 +24,7 @@
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["ModelingToolkit", "cron", "problem=beam,chain", "budget=3600"])'
 #
 # `test_args` is a list of: environment names (none given: every environment except the
-# opt-in ones below), the word `cron` (run `cron/<group>/test_*.jl` instead of
+# opt-in ones below; `+<name>` adds one to them), the word `cron` (run `cron/<group>/test_*.jl` instead of
 # `suite/<group>/test_*.jl`), the word `convergence` (run both: the convergence report,
 # off by default, #360) or the word `robustness` (run `robustness/<group>/test_*.jl` only:
 # the robustness report of the monthly cron, #378), and file patterns (`*` and `?` allowed, with or without

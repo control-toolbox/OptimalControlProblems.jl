@@ -37,6 +37,7 @@ test/
 using Pkg
 Pkg.test()                                              # core and every environment
 Pkg.test(; test_args=["JuMP"])                          # core and one environment
+Pkg.test(; test_args=["+ModelingToolkit"])              # every environment and an opt-in one
 Pkg.test(; test_args=["core"])                          # core only
 Pkg.test(; test_args=["cron"])                          # slow tests (cron/), every environment
 Pkg.test(; test_args=["OptimalControl", "convergence"]) # suite and convergence report
@@ -49,7 +50,8 @@ Pkg.test(; test_args=["ModelingToolkit", "cron", "problem=beam,chain", "budget=3
 `test_args` is a list of:
 
 - environment names: run those only; none given runs every environment except the opt-in
-  ones (`OPT_IN` in `runtests.jl`);
+  ones (`OPT_IN` in `runtests.jl`); `+<name>` adds one to them (the coverage workflow runs
+  `+ModelingToolkit`, so that the ModelingToolkit extension is covered);
 - `cron`: run `cron/<group>/test_*.jl` instead of `suite/<group>/test_*.jl` (what the
   cron workflows run);
 - `convergence`: run `suite/<group>/test_*.jl` and then `cron/<group>/test_*.jl`, that is the
