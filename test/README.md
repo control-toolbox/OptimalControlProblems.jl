@@ -11,7 +11,7 @@ test/
 ├── Project.toml    # light environment of the dispatcher and of core (Test, Aqua, CTBase)
 ├── common/         # shared code, included by the tests (configurations, statuses, solvers)
 ├── suite/<group>/  # fast tests, run on every pull request
-├── cron/<group>/   # slow tests of the same group, run by the weekly cron
+├── cron/<group>/   # slow tests of the same group, run by the crons
 └── robustness/<group>/ # robustness report of the group, run by the monthly cron (#378)
 ```
 
@@ -42,6 +42,7 @@ Pkg.test(; test_args=["OptimalControl", "convergence"]) # suite and convergence 
 Pkg.test(; test_args=["JuMP", "cron", "*convergence*"]) # environments, mode and file globs
 Pkg.test(; test_args=["problem=beam"])                  # one problem, in every environment
 Pkg.test(; test_args=["JuMP", "problem=beam,robot"])    # some problems, in one environment
+Pkg.test(; test_args=["ModelingToolkit", "cron", "problem=beam,chain", "budget=3600"]) # a rotation
 ```
 
 `test_args` is a list of:
@@ -57,6 +58,13 @@ Pkg.test(; test_args=["JuMP", "problem=beam,robot"])    # some problems, in one 
 - `problem=a,b`: test only these problems, for instance the one you add. A name that is
   not in the catalogue is an error (a selection matching nothing would test nothing and
   pass). `core` still runs entirely.
+- `budget=<seconds>` (with `problem=`), and optionally `timeout=<seconds>` (45 min by
+  default): the rotation of the crons (#435). Each problem runs in its own Julia process,
+  in the order of `problem=`, and no new one starts once the budget is spent; a process past
+  its timeout is stopped. A problem whose process crashed or was stopped gets the report row
+  `process (crashed)` or `process (timeout after … s)`, an `error`
+  (`TestStatus.write_process_report`). Each problem writes its own report,
+  `test/reports/<environment>-cron-<problem>.md`.
 
 In cron mode, an environment without a `cron/<name>/` directory is skipped.
 
@@ -275,7 +283,7 @@ the `System` of every problem is read as the data of a JuMP problem
 (`common/continuous_modelingtoolkit.jl`) and compared with the OptimalControl model by
 `Continuous.compare`, as `suite/comparison/test_modelings` does for JuMP. It runs in this
 environment, which therefore loads OptimalControl too, so that the `comparison` environment
-stays free of ModelingToolkit. Its convergence report (`cron/ModelingToolkit`, weekly) has no
+stays free of ModelingToolkit. Its convergence report (`cron/ModelingToolkit`, daily, a rotation with a budget, #435) has no
 reference objective for a shooting discretization: the gap is to the objective of the analytic
 solution, when the problem has one, and `violation` is the largest violation of the
 constraints of the NLP solved. The costates are not computed by Corleone and are left empty.

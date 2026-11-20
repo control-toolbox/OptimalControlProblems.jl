@@ -249,6 +249,20 @@ class ReportTest(unittest.TestCase):
         self.assertNotIn("problem=workflow", section)
         self.assertIn("failed or produced no report", section)
 
+    def test_a_platform_without_report_is_a_finding(self):
+        # #435: the ubuntu runner died, windows reported a failure of its own
+        rows = [{"platform": "cron-MTK-1.13-windows-latest", "problem": "beam"}]
+        self.assertEqual(
+            ["cron-MTK-1.13-ubuntu-latest"],
+            REPORT.missing_platforms(rows, "MTK", "1.13", ["ubuntu-latest", "windows-latest"]),
+        )
+        self.assertEqual([], REPORT.missing_platforms(rows, "MTK", "1.13", ["windows-latest"]))
+        self.assertEqual([], REPORT.missing_platforms(rows, "MTK", "1.13", []))
+        row = REPORT.missing_report_row("MTK", "cron-MTK-1.13-ubuntu-latest")
+        section = REPORT.issue_section("MTK", "failure", [row], "run")
+        self.assertIn("1.13-ubuntu-latest", section)
+        self.assertIn("failed or produced no report", section)
+
     def test_initial_issue_body_prepopulates_all_known_scopes(self):
         active = "<!-- cron-scope: JuMP -->\nACTIVE_JUMP_SECTION"
         body = REPORT.initial_issue_body("convergence", "JuMP", active)
@@ -594,6 +608,111 @@ class ResultsTests(unittest.TestCase):
             self.assertIsNone(entry["trajectory"])
             self.assertIsNone(entry["environment"])
             self.assertEqual("JuMP-robustness", entry["scope"])
+
+    # ------- rotation (#435) -------
+
+    def write_run(self, directory, problems):
+        """Reports of one platform for `problems`, a {problem: outcome} dict, as the per-problem
+        processes of a rotating cron write them (`<env>-cron-<problem>.md`)."""
+        platform = pathlib.Path(directory) / "cron-MTK-1.13-ubuntu-latest"
+        platform.mkdir(parents=True, exist_ok=True)
+        for problem, outcome in problems.items():
+            (platform / f"MTK-cron-{problem}.md").write_text(
+                "| test | problem | modelings | status | outcome |\n"
+                "| --- | --- | --- | --- | --- |\n"
+                f"| test_convergence | {problem} | MTK | valid | {outcome} |\n"
+            )
+
+    def run_report(self, reports, state, output, run_url, rotation="beam,chain,robot"):
+        import subprocess
+        import sys
+
+        subprocess.run(
+            [
+                sys.executable, str(ROOT / "tools/cron/report.py"),
+                "--reports-dir", str(reports),
+                "--scope", "MTK",
+                "--run-url", run_url,
+                "--state-file", str(state),
+                "--output", str(output),
+                "--rotation", rotation,
+            ],
+            check=True,
+        )
+
+    def test_a_rotation_keeps_the_last_result_of_the_problems_that_did_not_run(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            state, output = root / "state.json", root / "MTK.md"
+            self.write_run(root / "run1", {"beam": "fail", "chain": "pass"})
+            self.run_report(root / "run1", state, output, "https://x/runs/1")
+            # robot has not run yet: listed as such
+            self.assertIn("| robot | not tested yet | |", output.read_text())
+            self.write_run(root / "run2", {"robot": "pass"})
+            self.run_report(root / "run2", state, output, "https://x/runs/2")
+
+            latest = json.loads(state.read_text())["latest"]["MTK"]
+            self.assertEqual(sorted(latest), ["beam", "chain", "robot"])
+            self.assertEqual(latest["beam"]["run"], "https://x/runs/1")
+            self.assertEqual(latest["robot"]["run"], "https://x/runs/2")
+            # the failure of beam is still a finding: it did not run again
+            rows = REPORT.latest_lists(latest, "rows")
+            failures = REPORT.findings(rows)["failure"]
+            self.assertEqual([row["problem"] for row in failures], ["beam"])
+            report = output.read_text()
+            self.assertIn("| test_convergence | beam | MTK | valid | fail |", report)
+            self.assertIn("## Rotation (#435)", report)
+            self.assertRegex(report, r"\| robot \| [^|]*\(this run\)")
+
+            # beam runs again and passes: now it is resolved
+            self.write_run(root / "run3", {"beam": "pass"})
+            self.run_report(root / "run3", state, output, "https://x/runs/3")
+            latest = json.loads(state.read_text())["latest"]["MTK"]
+            self.assertEqual(REPORT.findings(REPORT.latest_lists(latest, "rows"))["failure"], [])
+
+    def test_a_problem_left_out_of_the_scope_is_dropped(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            state, output = root / "state.json", root / "MTK.md"
+            self.write_run(root / "run1", {"beam": "pass", "chain": "fail"})
+            self.run_report(root / "run1", state, output, "https://x/runs/1")
+            # chain has no model file any more
+            self.write_run(root / "run2", {"beam": "pass"})
+            self.run_report(root / "run2", state, output, "https://x/runs/2", rotation="beam")
+            latest = json.loads(state.read_text())["latest"]["MTK"]
+            self.assertEqual(sorted(latest), ["beam"])
+
+    def test_a_crashed_process_is_a_failure_of_its_problem(self):
+        # the row that `TestStatus.write_process_report` writes for a crashed or stopped process
+        row = {
+            "test": "process (timeout after 2700 s)",
+            "problem": "chain",
+            "modelings": "MTK",
+            "status": "valid",
+            "outcome": "error",
+            "platform": "cpu",
+        }
+        self.assertEqual(REPORT.findings([row])["failure"], [row])
+
+    def test_rotation_results_replace_those_of_the_problems_that_ran(self):
+        state = {}
+        first = [
+            {"platform": "p", "problem": "beam", "modeling": "M", "configuration": "c",
+             "result": "converged", "objective": "1.0"},
+            {"platform": "p", "problem": "chain", "modeling": "M", "configuration": "c",
+             "result": "converged", "objective": "2.0"},
+        ]
+        REPORT.remember_results(state, "MTK", first, "run-1", rotation=True)
+        second = [
+            {"platform": "p", "problem": "beam", "modeling": "M", "configuration": "c",
+             "result": "converged", "objective": "1.5"},
+        ]
+        previous = REPORT.remember_results(state, "MTK", second, "run-2", rotation=True)
+        results = state["convergence"]["MTK"]["results"]
+        self.assertEqual(results["p|beam|M|c"]["objective"], "1.5")
+        # chain did not run: its result is kept, and it is no change
+        self.assertEqual(results["p|chain|M|c"]["objective"], "2.0")
+        self.assertEqual(previous["p|beam|M|c"]["objective"], "1.0")
 
     def test_slug(self):
         self.assertEqual("modeler-adnlp_solver-ipopt", REPORT.slug("modeler=adnlp solver=ipopt"))

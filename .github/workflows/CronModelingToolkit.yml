@@ -2,11 +2,12 @@ name: Cron ModelingToolkit
 
 on:
   schedule:
-    - cron: "0 4 * * 6"
+    # daily: a rotation (#435), each run tests the problems tested longest ago for an hour
+    - cron: "0 4 * * *"
   workflow_dispatch:
     inputs:
       problems:
-        description: "Only these problems, comma-separated (e.g. beam): publishes their results, leaves the reports, the state and the issues"
+        description: "These problems first, comma-separated (e.g. beam), then the others while the budget lasts"
         required: false
         default: ''
         type: string
@@ -26,5 +27,6 @@ jobs:
     with:
       environment: ModelingToolkit
       problems: ${{ inputs.problems }}
-      note: "`CronModelingToolkit.yml` · weekly (Saturday 04:00 UTC) · Julia 1.13, Ubuntu + Windows, CPU"
+      budget: 3600
+      note: "`CronModelingToolkit.yml` · daily (04:00 UTC), a rotation with a budget of 1 h (#435) · Julia 1.13, Ubuntu + Windows, CPU"
     secrets: inherit

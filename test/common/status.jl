@@ -243,7 +243,7 @@ function _trajectory(x)
         return Dict(name => [r(f(τ)[i]) for τ in t] for (i, name) in enumerate(names))
     end
     xs, us = O.state_components(x), O.control_components(x)
-    scalar(f) = τ -> (y=f(τ); y isa Number ? [y] : y)
+    scalar(f) = τ -> (y = f(τ); y isa Number ? [y] : y)
     return Dict{String,Any}(
         "time" => r.(t),
         "state" => components(scalar(O.state(x)), xs),
@@ -327,6 +327,40 @@ function for_each_problem(f, test::AbstractString, backends...; only=nothing)
 end
 
 const REPORTS = joinpath(dirname(@__DIR__), "reports")
+
+"""
+    write_process_report(report, problem, environment, outcome; timeout)
+
+The report of a problem whose process gave no report of its own (#435): stopped by a signal
+(`:crashed`, e.g. out of memory) or after `timeout` seconds (`:timeout`). One row, an
+`error` of the test `process`, so that the cron reports it for this problem only.
+"""
+function write_process_report(
+    report::AbstractString,
+    problem::AbstractString,
+    environment::AbstractString,
+    outcome::Symbol;
+    timeout::Real,
+)
+    file = joinpath(REPORTS, "$report.md")
+    isfile(file) && return file
+    reason = outcome === :timeout ? "timeout after $(round(Int, timeout)) s" : "crashed"
+    status = get(
+        OptimalControlProblems.status(Symbol(problem)), Symbol(environment), :valid
+    )
+    mkpath(REPORTS)
+    write(
+        file,
+        """
+        # Test report: $report
+
+        | test | problem | modelings | status | outcome |
+        | --- | --- | --- | --- | --- |
+        | process ($reason) | $problem | $environment | $status | error |
+        """,
+    )
+    return file
+end
 
 """
 Print the report and write it to `test/reports/<name>.md`, with the results of the solves

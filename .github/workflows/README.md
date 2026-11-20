@@ -9,7 +9,7 @@ scope labels. They are staggered at 04:00 UTC:
 | `CronOptimalControl.yml` | `OptimalControl` | Wednesday | Yes |
 | `CronOptimalControlScalarized.yml` | `OptimalControlScalarized` | Thursday | Yes |
 | `CronComparison.yml` | `comparison` | Friday | No |
-| `CronModelingToolkit.yml` | `ModelingToolkit` | Saturday | No |
+| `CronModelingToolkit.yml` | `ModelingToolkit` | Daily, a rotation (see below) | No |
 | `CronRobustness.yml` | `JuMP-robustness`, `OptimalControl-robustness` | 1st of the month | No |
 
 Each thin workflow calls `cron-reusable.yml` (inputs `mode`: `cron`, or `robustness` for
@@ -69,8 +69,34 @@ a run restricted to some problems (`problem=`) leaves the other problems as they
 environment is removed once no entry refers to it. Everything is written by
 `tools/cron/report.py` (`--results-dir`), tested in `tools/cron/test/`.
 
+## Rotation with a time budget
+
+A cron with a `budget` input (seconds; 0, the default, runs every problem) is a rotation
+(#435): `ModelingToolkit` for now, with 1 h, daily. Its `select` job orders the problems of
+the modeling, those with a file in `ext/<M>Models/`, from the one tested longest ago to the
+last tested. The date is that of its last result on `results`, and a problem never tested
+comes first (`tools/cron/select.py`). The tests then run each problem in its own Julia
+process, in that order, and start no new one once the budget is spent
+(`test_args`: `problem=<order> budget=<s>`, see `test/README.md`). A process that crashes
+(e.g. out of memory) or runs past its timeout (45 min) is reported as an `error` of its
+problem only, so the problem at fault is named and the others are tested. A runner killed
+before it uploads its report (run 44747569284: the Ubuntu runner died during a problem) is a
+`workflow` error of its platform: the report expects one report from each runner of the
+`runs_on` input (`--runners` of `tools/cron/report.py`).
+
+A run of a rotation tests some problems only, so its reports and issues are built from the
+**last result of every problem** (`--rotation` of `tools/cron/report.py`, the `latest` entry
+of `cron/state.json`):
+- a problem that did not run keeps its findings, and is never "resolved" by a run that
+  did not test it;
+- the regression issues of a problem change only when it runs;
+- the scope report ends with the date each problem was last tested.
+
+A run that crashed wrote no result, so its problems come first again in the next run. The
+`problems` input of a rotation puts those problems first; the run then goes on as usual.
+
 A convergence cron dispatched by hand takes an optional `problems` input (`beam` or
-`beam,chain`): it solves those problems only, and publishes their results and environments.
+`beam,chain`). Without a budget, it solves those problems only, and publishes their results and environments.
 Its report and its state are written aside, unpublished, and the issues are left as they
 are: a restricted run cannot tell about the problems it did not solve, so `cron/<scope>.md`,
 `cron/state.json` and the issues stay those of the last complete run. Use it to check a

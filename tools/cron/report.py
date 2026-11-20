@@ -81,7 +81,7 @@ SCOPE_INFO = {
     "ModelingToolkit": {
         "title": "ModelingToolkit — Nominal Convergence",
         "focus": "Symbolic modeling backend with ModelingToolkit.jl",
-        "cadence": "Weekly (Saturday 04:00 UTC) · Julia 1.13, Ubuntu + Windows (CPU)",
+        "cadence": "Daily (04:00 UTC), a rotation with a budget of 1 h (#435) · Julia 1.13, Ubuntu + Windows (CPU)",
     },
 }
 
@@ -235,21 +235,101 @@ def result_key(row: dict[str, str]) -> str:
 
 
 def remember_results(
-    state: dict, scope: str, results: list[dict[str, str]], run_url: str
+    state: dict,
+    scope: str,
+    results: list[dict[str, str]],
+    run_url: str,
+    rotation: bool = False,
 ) -> dict[str, dict[str, str]]:
     """Store the results of this run in `state` and return those of the previous run.
 
     The report is written twice per run (report, then issues): the previous results are
-    kept with the run they belong to, so that both calls compare with the same run."""
+    kept with the run they belong to, so that both calls compare with the same run. In a
+    rotation (#435) a run tests some problems only: the results of the others are kept, and
+    those of a problem that ran replace all of its own."""
     entry = state.setdefault("convergence", {}).setdefault(scope, {})
     if entry.get("run") != run_url:
         entry["previous"] = entry.get("results", {})
         entry["run"] = run_url
-    entry["results"] = {
+    current = {
         result_key(row): {"result": row["result"], "objective": row["objective"]}
         for row in results
     }
+    if rotation:
+        ran = {row["problem"] for row in results}
+        kept = {
+            key: value
+            for key, value in entry.get("previous", {}).items()
+            if key.split("|")[1] not in ran
+        }
+        current = {**kept, **current}
+    entry["results"] = current
     return entry.get("previous", {})
+
+
+def remember_latest(
+    state: dict,
+    scope: str,
+    rows: list[dict[str, str]],
+    results: list[dict[str, str]],
+    degradation_rows: list[dict[str, str]],
+    run_url: str,
+    generated: str,
+    scope_problems: list[str],
+) -> dict[str, dict]:
+    """The last test rows, results and convergence findings of every problem of `scope`, this
+    run's for the problems it tested (#435): a rotating cron tests some problems per run, and
+    its reports and issues are built from the last result of each problem, so that a problem
+    that did not run keeps its findings instead of looking resolved. Problems no longer in
+    `scope_problems` (no model file any more) are dropped. Returns the entry, by problem."""
+    entry = state.setdefault("latest", {}).setdefault(scope, {})
+    ran = ({row["problem"] for row in rows} | {row["problem"] for row in results}) - {
+        "workflow"
+    }
+    for problem in ran:
+        entry[problem] = {
+            "run": run_url,
+            "date": generated,
+            "rows": [row for row in rows if row["problem"] == problem],
+            "results": [row for row in results if row["problem"] == problem],
+            "degradations": [row for row in degradation_rows if row["problem"] == problem],
+        }
+    for problem in [p for p in entry if p not in scope_problems]:
+        del entry[problem]
+    return entry
+
+
+def latest_lists(entry: dict[str, dict], kind: str) -> list[dict[str, str]]:
+    """The `kind` (`rows`, `results` or `degradations`) of every problem of a `latest` entry,
+    by problem."""
+    return [row for problem in sorted(entry) for row in entry[problem][kind]]
+
+
+def rotation_markdown(
+    entry: dict[str, dict], run_url: str, scope_problems: list[str] | None = None
+) -> str:
+    """The table of the problems of a rotating cron (#435): when each was last tested, those
+    of `scope_problems` not tested yet first."""
+    lines = [
+        "",
+        "## Rotation (#435)",
+        "",
+        "Each run tests the problems tested longest ago, while its time budget lasts; the "
+        "tables above show the last result of every problem.",
+        "",
+        "| problem | last tested | run |",
+        "| --- | --- | --- |",
+    ]
+    for problem in sorted(p for p in scope_problems or [] if p not in entry):
+        lines.append(f"| {problem} | not tested yet | |")
+    for problem in sorted(entry, key=lambda p: (entry[p]["date"], p)):
+        item = entry[problem]
+        mark = " (this run)" if item["run"] == run_url else ""
+        lines.append(
+            f"| {problem} | {item['date'][:16].replace('T', ' ')}{mark} | "
+            f"[{run_id(item['run'])}]({item['run']}) |"
+        )
+    return "\n".join(lines) + "\n"
 
 
 def remember_run(state: dict, scope: str, run_url: str) -> str:
@@ -537,9 +617,11 @@ def issue_section(
     previous_run: str = "",
     note: str = "",
     history: list[str] | None = None,
+    rotation: str = "",
 ) -> str:
     """One scope section of a summary issue: title with scope name, focus and cadence,
-    status line with run link, and the findings table."""
+    status line with run link, the rotation line of a rotating cron, and the findings
+    table."""
     meta = scope_meta(scope)
     word = STATUS_WORD[kind]
     status = f"**⚠️ {len(rows)} {word}{'s' * (len(rows) != 1)}**" if rows else "**✅ Clean**"
@@ -562,6 +644,8 @@ def issue_section(
         " · ".join(bits),
         "",
     ]
+    if rotation:
+        lines += [rotation, ""]
     if rows:
         outcome_header = "Change" if kind == "convergence" else "Outcome"
         lines += [
@@ -921,6 +1005,7 @@ def update_summary_issue(
     generated: str = "",
     previous_run: str = "",
     note: str = "",
+    rotation: str = "",
 ) -> None:
     label = SUMMARY_LABELS[kind]
     candidates = [issue for issue in all_issues if label in labels(issue)]
@@ -932,7 +1017,7 @@ def update_summary_issue(
     if issue is None:
         history = [change_entry(generated, run_url, rows, [])] if rows else []
         section = issue_section(
-            scope, kind, rows, run_url, generated, previous_run, note, history
+            scope, kind, rows, run_url, generated, previous_run, note, history, rotation
         )
         body = initial_issue_body(kind, scope, section)
         github.create_issue(
@@ -956,7 +1041,7 @@ def update_summary_issue(
             ),
         )
     section = issue_section(
-        scope, kind, rows, run_url, generated, previous_run, note, history
+        scope, kind, rows, run_url, generated, previous_run, note, history, rotation
     )
     body = replace_section(old_body, scope, section)
     total = sum(count for _, count in section_statuses(body))
@@ -1252,15 +1337,25 @@ def prune_environments(results_dir: pathlib.Path) -> None:
                 shutil.rmtree(folder)
 
 
-def missing_report_row(scope: str) -> dict[str, str]:
+def missing_report_row(scope: str, platform: str = "workflow") -> dict[str, str]:
     return {
         "test": "report",
         "problem": "workflow",
         "modelings": scope,
         "status": "valid",
         "outcome": "error",
-        "platform": "workflow",
+        "platform": platform,
     }
+
+
+def missing_platforms(
+    rows: list[dict[str, str]], scope: str, julia_version: str, runners: list[str]
+) -> list[str]:
+    """The platforms of the CPU job (`cron-<scope>-<version>-<runner>`) with no report in
+    this run: a job killed before uploading it (#435, a runner that died)."""
+    seen = {row.get("platform", "") for row in rows}
+    expected = [f"cron-{scope}-{julia_version}-{runner}" for runner in runners]
+    return [platform for platform in expected if platform not in seen]
 
 
 def main() -> None:
@@ -1278,7 +1373,13 @@ def main() -> None:
     parser.add_argument("--issues", action="store_true")
     parser.add_argument("--no-github", action="store_true")
     parser.add_argument("--scope-note", default="")
+    # a rotating cron (#435): the problems of the scope, all of them, comma-separated
+    parser.add_argument("--rotation", default="")
+    # the runners of the CPU job, comma-separated: one report expected from each
+    parser.add_argument("--runners", default="")
     args = parser.parse_args()
+    scope_problems = [p for p in args.rotation.split(",") if p]
+    rotation = bool(scope_problems)
 
     now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
     rows = parse_reports(args.reports_dir)
@@ -1287,8 +1388,29 @@ def main() -> None:
     state = {}
     if args.state_file.exists():
         state = json.loads(args.state_file.read_text())
-    previous = remember_results(state, args.scope, results, args.run_url)
+    previous = remember_results(state, args.scope, results, args.run_url, rotation)
     previous_run = remember_run(state, args.scope, args.run_url)
+    # the rows, results and convergence findings the reports and issues are built from: this
+    # run's, or in a rotation the last of every problem (#435)
+    run_rows = rows
+    convergence_rows = degradations(results, previous)
+    rotation_line = ""
+    if rotation:
+        latest = remember_latest(
+            state, args.scope, rows, results, convergence_rows, args.run_url, now,
+            scope_problems,
+        )
+        rows = latest_lists(latest, "rows")
+        report_results = latest_lists(latest, "results")
+        convergence_rows = latest_lists(latest, "degradations")
+        tested = sorted(p for p, item in latest.items() if item["run"] == args.run_url)
+        rotation_line = (
+            f"**Rotation (#435):** this run tested {len(tested)} of {len(scope_problems)} "
+            f"problems ({', '.join(f'`{p}`' for p in tested) or 'none'}); the others keep "
+            "their last result."
+        )
+    else:
+        report_results = results
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
@@ -1300,10 +1422,11 @@ def main() -> None:
             args.sha,
             args.julia_version,
             args.package_version,
-            results,
+            report_results,
             previous,
             note=args.scope_note,
         )
+        + (rotation_markdown(latest, args.run_url, scope_problems) if rotation else "")
     )
     if args.results_dir is not None and results:
         publish_results(
@@ -1312,13 +1435,19 @@ def main() -> None:
 
     grouped = findings(rows)
     failure_rows = grouped["failure"]
-    if not rows:
-        failure_rows = [missing_report_row(args.scope)]
-    elif args.tests_failed and not failure_rows:
-        failure_rows = [missing_report_row(args.scope)]
+    # this run gave no report, or failed without saying where: the workflow is the finding;
+    # a platform without a report is one, even when the others reported failures
+    runners = [r for r in args.runners.split(",") if r]
+    missing = missing_platforms(run_rows, args.scope, args.julia_version, runners)
+    if not run_rows:
+        failure_rows = failure_rows + [missing_report_row(args.scope)]
+    elif missing:
+        failure_rows = failure_rows + [missing_report_row(args.scope, m) for m in missing]
+    elif args.tests_failed and not findings(run_rows)["failure"]:
+        failure_rows = failure_rows + [missing_report_row(args.scope)]
 
     if not args.issues:
-        prepare_state(rows, args.scope, args.tests_failed, state)
+        prepare_state(run_rows, args.scope, args.tests_failed, state)
         args.state_file.parent.mkdir(parents=True, exist_ok=True)
         args.state_file.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n")
         return
@@ -1333,7 +1462,7 @@ def main() -> None:
                 ("failure", failure_rows),
                 ("draft", grouped["draft"]),
                 ("capability", grouped["capability"]),
-                ("convergence", degradations(results, previous)),
+                ("convergence", convergence_rows),
             ):
                 update_summary_issue(
                     github,
@@ -1345,12 +1474,14 @@ def main() -> None:
                     generated=now,
                     previous_run=previous_run,
                     note=args.scope_note,
+                    rotation=rotation_line,
                 )
+            # the regression issues of a problem change only when it runs
             update_bug_issues(
                 github,
                 all_issues,
-                rows,
-                grouped["failure"],
+                run_rows,
+                findings(run_rows)["failure"],
                 args.scope,
                 args.run_url,
                 now,
