@@ -1,32 +1,10 @@
+isdefined(Main, :JuMPTests) ||
+    include(joinpath(@__DIR__, "..", "..", "common", "jump_tests.jl"))
+
 module TestDraftJuMP
 
-using Test: Test
-using JuMP: JuMP
-using OptimalControlProblems: OptimalControlProblems
-
-const VERBOSE = isdefined(Main, :TestOptions) ? Main.TestOptions.VERBOSE : true
-const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING : true
-
-function test_draft()
-    Test.@testset "JuMP draft warning" verbose = VERBOSE showtiming = SHOWTIMING begin
-        problem = first(
-            OptimalControlProblems.problems(OptimalControlProblems.JuMPBackend())
-        )
-        build = getfield(OptimalControlProblems, problem)
-        data = OptimalControlProblems.problem_metadata(problem)
-        original = data[:status]
-        # no warning for a valid problem
-        Test.@test_logs build(OptimalControlProblems.JuMPBackend(); grid_size=2)
-        data[:status] = merge(original, (JuMP=:draft,))
-        try
-            Test.@test_logs (:warn, Regex("$problem is a draft for JuMP")) match_mode = :any build(
-                OptimalControlProblems.JuMPBackend(); grid_size=2
-            )
-        finally
-            data[:status] = original
-        end
-    end
-end
+# A draft warns when it is built, a valid problem does not, written once in `common/modeling_tests.jl` (#449 T4).
+test_draft() = Main.JuMPTests.test_draft()
 
 end # module TestDraftJuMP
 

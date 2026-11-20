@@ -73,4 +73,7 @@ test_smoke(backend) = Main.ModelingTests.test_smoke(backend, adapter())
 """Every problem solved on its default grid, and reported, not tested (#360)."""
 test_convergence(backend) = Main.ModelingTests.test_convergence(backend, adapter())
 
+"""A draft warns when it is built, a valid problem does not."""
+test_draft(backend) = Main.ModelingTests.test_draft(backend, adapter())
+
 end # module ModelingToolkitTests

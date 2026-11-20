@@ -1,15 +1,21 @@
-# The tests every modeling that returns a `Problem` shares (#441, #439): the API of a problem,
-# the smoke solves, the convergence report. Written once and parameterized by the backend and
-# by an adapter, a named tuple of what differs between the modelings:
+# The tests every modeling shares (#441, #439, #449 T4): the draft warning, the smoke solves,
+# the convergence and robustness reports, and for the modelings that return a `Problem` its
+# API. Written once and parameterized by the backend and by an adapter, a named tuple of what
+# differs between the modelings:
 #
-# - `solve(pb, config; grid_size[, max_iter])`: a solution of `pb` with `config`;
+# - `build(problem, grid_size)` (optional): what a problem function gives, solved by `solve`;
+#   by default `problem(backend)`, the `Problem`, which takes no grid (JuMP: the model, built
+#   on the grid);
+# - `solve(pb, config; grid_size[, max_iter, options])`: a solution of `pb` with `config`;
 # - `objective(sol)`: its objective;
-# - `settings(config)`: `(modeler, solver, options)`, as `TestStatus.result!` records them;
+# - `settings(config[; options])`: `(modeler, solver, options)`, as `TestStatus.result!`
+#   records them;
 # - `scheme(config)`: the discretization, for the report;
 # - `outcome(sol)`: `(converged, reason, objective, iterations, violation)`;
 # - `trajectory(sol, pb)`: the trajectory for the documentation, or `nothing`;
 # - `reference(problem, grid_size, scheme)`: the objective the gap of the report is computed
-#   against; `nothing` for the reference objective of the problem for this discretization.
+#   against; `nothing` for the reference objective of the problem for this discretization;
+# - `warmup(pb, config)` (optional): a cheaper solve that compiles before the timed one.
 #
 # The configurations come from `Main.TestConfigs.CONFIGS.<modeling>`; the names of the test
 # sets and of the lines of the report are those of the modeling.
@@ -27,6 +33,34 @@ modeling(backend) = Main.TestStatus.modeling(backend)
 
 """Configurations to solve with for `backend`, see `Main.TestConfigs.CONFIGS`."""
 configs(backend) = getfield(Main.TestConfigs.CONFIGS, modeling(backend))
+
+"""What the problem function of `problem` gives for `backend`, to solve on `grid_size` steps."""
+function build(adapter, backend, problem::Symbol, grid_size::Int)
+    haskey(adapter, :build) && return adapter.build(problem, grid_size)
+    return getfield(OCP, problem)(backend)
+end
+
+"""
+A problem that is a draft in the modeling of `backend` warns when it is built, and one that
+is valid does not: the call `_warn_if_draft` of every model file (checked by the linter).
+"""
+function test_draft(backend, adapter)
+    name = modeling(backend)
+    Test.@testset "$name draft warning" verbose = VERBOSE showtiming = SHOWTIMING begin
+        problem = first(OCP.problems(backend))
+        data = OCP.problem_metadata(problem)
+        original = data[:status]
+        grid_size = Main.TestConfigs.SMOKE_GRID
+        Test.@test_logs build(adapter, backend, problem, grid_size)
+        data[:status] = merge(original, NamedTuple{(name,)}((:draft,)))
+        try
+            Test.@test_logs (:warn, Regex("$problem is a draft for $name")) match_mode =
+                :any build(adapter, backend, problem, grid_size)
+        finally
+            data[:status] = original
+        end
+    end
+end
 
 """
 `params` with its last nonzero numerical value changed by a relative 1e-6, small enough to
@@ -102,8 +136,8 @@ function test_smoke(backend, adapter)
             Test.@testset "$(Main.TestConfigs.label(config))" begin
                 test = "test_smoke $(Main.TestConfigs.label(config))"
                 Main.TestStatus.for_each_problem(test, backend) do problem
-                    pb = getfield(OCP, problem)(backend)
                     o = Main.TestConfigs
+                    pb = build(adapter, backend, problem, o.SMOKE_GRID)
                     sol = adapter.solve(
                         pb, config; grid_size=o.SMOKE_GRID, max_iter=o.SMOKE_MAX_ITER
                     )
@@ -127,8 +161,8 @@ function test_convergence(backend, adapter)
             Test.@testset "$(Main.TestConfigs.label(config))" begin
                 test = "test_convergence $(Main.TestConfigs.label(config))"
                 Main.TestStatus.for_each_problem(test, backend) do problem
-                    pb = getfield(OCP, problem)(backend)
                     N = OCP.grid_size_data(problem, backend)
+                    pb = build(adapter, backend, problem, N)
                     scheme = adapter.scheme(config)
                     warmup = get(adapter, :warmup, nothing)
                     if isnothing(warmup)
@@ -152,6 +186,47 @@ function test_convergence(backend, adapter)
                         reference=adapter.reference(problem, N, scheme),
                     )
                     Test.@test true # the problem was solved and reported: a line of the report
+                end
+            end
+        end
+    end
+end
+
+"""
+Robustness of the initial guess (#378): every problem solved on the default grid of the
+modeling under the solver options of `Main.TestConfigs.ROBUSTNESS`, in each configuration.
+Reported, not tested (#360): which known solution each solve reached is in the report
+(`solution`); an exception still fails.
+"""
+function test_robustness(backend, adapter)
+    C = Main.TestConfigs
+    name = modeling(backend)
+    Test.@testset "$name robustness report (default grid)" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
+        for config in configs(backend), options in getfield(C.ROBUSTNESS, config.solver)
+            label = C.label(merge(config, options))
+            Test.@testset "$label" begin
+                test = "test_robustness $label"
+                Main.TestStatus.for_each_problem(test, backend) do problem
+                    N = OCP.grid_size_data(problem, backend)
+                    pb = build(adapter, backend, problem, N)
+                    sol = nothing
+                    time = @elapsed sol = adapter.solve(
+                        pb, config; grid_size=N, options=options
+                    )
+                    Main.TestStatus.result!(
+                        test,
+                        problem,
+                        backend,
+                        label;
+                        adapter.settings(config; options=options)...,
+                        grid_size=N,
+                        scheme=adapter.scheme(config),
+                        adapter.outcome(sol)...,
+                        time=time,
+                        reference=adapter.reference(problem, N, adapter.scheme(config)),
+                    )
+                    Test.@test true
                 end
             end
         end

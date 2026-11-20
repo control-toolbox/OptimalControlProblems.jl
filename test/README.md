@@ -98,6 +98,40 @@ Only the first two can fail a run (#360).
    exception still fails. This is what helps tune an initial guess: look at the results and
    adapt.
 
+### What each modeling tests
+
+The tests every modeling shares are written once, in `common/modeling_tests.jl`, and given the
+solves of the modeling by an adapter (`common/jump_tests.jl`, `optimalcontrol_tests.jl`,
+`modelingtoolkit_tests.jl`); the file of a modeling is a wrapper (#449 T4). The other tests are
+specific, for the reason given.
+
+| Test | JuMP | OptimalControl | OptimalControl, scalarized | ModelingToolkit |
+| :--- | :---: | :---: | :---: | :---: |
+| `test_draft` (shared) | ✓ | ✓ | ✓ | ✓ |
+| `test_smoke` (shared) | ✓ | ✓ | ✓ | ✓ |
+| `cron/…/test_convergence` (shared) | ✓ | ✓ | ✓ | ✓ |
+| `robustness/…/test_robustness` (shared) | ✓ | ✓ | — ¹ | — ¹ |
+| `test_problem` (shared) | — ² | ✓ | ✓ | ✓ |
+| `test_methods` | ✓ | ✓ | ✓ | ✓ |
+| `test_modelings` (the continuous problem) | in `comparison` | reference | in `comparison` | ✓ ³ |
+| `test_features` (features, components) | components, in `comparison` | ✓ ⁴ | in `comparison` | components, in `test_modelings` |
+| `test_reference_solution` | — ⁵ | ✓ ⁵ | — ⁵ | — ⁵ |
+| `test_contract`, `test_build`, `test_tableaux`, `test_signs` | ✓ ⁶ | — | — | — |
+
+1. The robustness of the initial guess is reported for one modeling of each kind of
+   transcription, monthly: JuMP and OptimalControl. The function is shared, so another
+   modeling needs a wrapper and a cron.
+2. A JuMP problem function returns the discretized model, not a `Problem`.
+3. Against the OptimalControl model, in its own environment, so that `comparison` stays free
+   of ModelingToolkit.
+4. The features are computed from the OptimalControl model (`OptimalControlProblems.features`):
+   checked against the functions of OptimalControl; the scalarized model has the same
+   features, and the other modelings the same components and dimensions.
+5. The analytic solutions are properties of the continuous problem: checked once, on the
+   OptimalControl model.
+6. The JuMP discretization is written by this package (see "What is compared, and what is
+   not").
+
 The reference objectives are computed from these results, never typed: see
 [`tools/references/README.md`](../tools/references/README.md). `core/test_consistency.jl`
 fails when a reference no longer matches the default grid or parameters of its problem, or
