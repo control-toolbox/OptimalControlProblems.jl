@@ -1,6 +1,6 @@
 """
 A collection of optimal control problems, each available in one or more modelings
-(OptimalControl, its scalarized form, JuMP), loaded by the extensions.
+(OptimalControl, its scalarized form, JuMP, ModelingToolkit), loaded by the extensions.
 
 The code is split into submodules (ct-conventions `MOD1`, `MOD2`), in dependency order:
 `Modelings`, `Metadata`, `References`, `Catalogue`, `Problems`. The package re-exports their

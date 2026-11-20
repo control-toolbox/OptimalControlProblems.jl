@@ -92,10 +92,5 @@ $(TYPEDSIGNATURES)
 Return the status of `problem` in each modeling where it exists.
 """
 function status(problem::Symbol)
-    haskey(Metadata.METADATA_STORAGE, problem) || throw(
-        CTBase.Exceptions.IncorrectArgument(
-            "There is no problem named $problem in metadata"
-        ),
-    )
-    return Metadata.METADATA_STORAGE[problem][:status]
+    return Metadata.problem_metadata(problem)[:status]
 end

@@ -98,108 +98,6 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Merge two `Nothing` values.
-
-# Arguments
-
-- `::Nothing`: first argument.
-- `::Nothing`: second argument.
-
-# Returns
-
-- `nothing::Nothing`: always returns `nothing`.
-
-# Example
-
-```julia-repl
-julia> merge(nothing, nothing)
-nothing
-```
-"""
-merge(::Nothing, ::Nothing) = nothing
-
-"""
-$(TYPEDSIGNATURES)
-
-Merge a `NamedTuple` with `nothing`.  
-
-# Arguments
-
-- `A::NamedTuple`: a named tuple to keep.
-- `::Nothing`: placeholder, ignored.
-
-# Returns
-
-- `::NamedTuple`: returns `A` unchanged.
-
-# Example
-
-```julia-repl
-julia> merge((a=1,), nothing)
-(a = 1,)
-```
-"""
-merge(A::NamedTuple, ::Nothing) = A
-
-"""
-$(TYPEDSIGNATURES)
-
-Throw an error when attempting to merge `nothing` with a `NamedTuple`.  
-
-# Arguments
-
-- `::Nothing`: indicates there is no data to merge.
-- `::NamedTuple`: the data that cannot be merged.
-
-# Returns
-
-- This function always throws `CTBase.Exceptions.PreconditionError`.
-
-# Example
-
-```julia-repl
-julia> merge(nothing, (a=1,))
-ERROR: PreconditionError: there is nothing to merge
-```
-"""
-function merge(::Nothing, ::NamedTuple)
-    return throw(
-        CTBase.Exceptions.PreconditionError(
-            "there is nothing to merge";
-            reason="parameters are given to update, but there are no defaults to update",
-        ),
-    )
-end
-
-"""
-$(TYPEDSIGNATURES)
-
-Merge two `NamedTuple`s, with the second one overriding keys from the first when duplicated.
-
-# Arguments
-
-- `A::NamedTuple`: first set of key–value pairs.
-- `B::NamedTuple`: second set of key–value pairs, takes precedence if keys overlap.
-
-# Returns
-
-- `::NamedTuple`: merged named tuple containing keys from both `A` and `B`.
-
-# Example
-
-```julia-repl
-julia> merge((a=1, b=2), (b=3, c=4))
-(a = 1, b = 3, c = 4)
-```
-"""
-function merge(A::NamedTuple, B::NamedTuple)
-    f(; kwargs...) = kwargs
-    return NamedTuple(f(; A..., B...))
-end
-
-"""
-$(TYPEDSIGNATURES)
-
 Return the parameter set associated with a given problem.
 
 # Arguments
@@ -245,21 +143,16 @@ julia> parameters_data(:beam, (tf = 2,))
 ```
 """
 function parameters_data(problem::Symbol, parameters::Union{Nothing,NamedTuple})
-    try
-        return merge(parameters_data(problem), parameters)
-    catch e
-        if e isa CTBase.Exceptions.PreconditionError
-            throw(
-                CTBase.Exceptions.PreconditionError(
-                    "there are no parameters to merge";
-                    reason="problem $(problem) has no parameters",
-                    suggestion="call $(problem) without the parameters keyword",
-                ),
-            )
-        else
-            rethrow(e)
-        end
-    end
+    defaults = parameters_data(problem)
+    isnothing(parameters) && return defaults
+    isnothing(defaults) && throw(
+        CTBase.Exceptions.PreconditionError(
+            "there are no parameters to merge";
+            reason="problem $(problem) has no parameters",
+            suggestion="call $(problem) without the parameters keyword",
+        ),
+    )
+    return Base.merge(defaults, parameters)
 end
 
 """

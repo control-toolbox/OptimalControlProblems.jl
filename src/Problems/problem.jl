@@ -124,6 +124,7 @@ julia> OptimalControlProblems.features(:beam).cost
 ```
 """
 function features(problem::Symbol)
+    Metadata.problem_metadata(problem)  # throws on an unknown problem
     return features(getfield(Catalogue, problem)(Modelings.OptimalControlBackend()))
 end
 

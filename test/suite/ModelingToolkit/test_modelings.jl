@@ -38,8 +38,8 @@ function test_modelings()
                         Test.@test OCP.state_components(sys) == xs
                         Test.@test OCP.control_components(sys) == us
                     end
-                    tspan = Main.SolveModelingToolkit.tspan(pb_mtk)
-                    data = Main.ContinuousModelingToolkit.problem_data(sys, xs, us, tspan)
+                    times = Main.SolveModelingToolkit.times(pb_mtk)
+                    data = Main.ContinuousModelingToolkit.problem_data(sys, xs, us, times)
                     checks = Main.Continuous.compare(data, ocp, OCP.initial_guess(pb))
                     for (name, ok) in sort!(collect(checks); by=first)
                         Test.@testset "$name" begin

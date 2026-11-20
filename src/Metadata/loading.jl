@@ -19,24 +19,32 @@ const METADATA_SCHEMA = (
 )
 const METADATA_STORAGE = OrderedDict{Symbol,OrderedDict}()
 
+# A field of a metadata file that is missing, unknown or of the wrong type.
+function _metadata_error(problem, key, got, expected)
+    return CTBase.Exceptions.IncorrectArgument(
+        "invalid metadata field $(key) of $(problem)";
+        got,
+        expected,
+        suggestion="fix ext/MetaData/$(problem).jl, see METADATA_SCHEMA",
+    )
+end
+
 for problem in PROBLEM_NAMES
     raw = eval(Symbol(problem, :_meta))
     data = OrderedDict{Symbol,Any}()
     for (key, T) in pairs(METADATA_SCHEMA.required)
-        haskey(raw, key) || error("Missing metadata $(key) for $(problem)")
-        raw[key] isa T || error(
-            "Type mismatch: Expected $(T) for $(key) of $(problem), but got $(typeof(raw[key]))",
-        )
+        haskey(raw, key) || throw(_metadata_error(problem, key, "no field", "a $(T)"))
+        raw[key] isa T ||
+            throw(_metadata_error(problem, key, "a $(typeof(raw[key]))", "a $(T)"))
         data[key] = raw[key]
     end
     for (key, value) in raw
         haskey(METADATA_SCHEMA.required, key) && continue
-        haskey(METADATA_SCHEMA.optional, key) ||
-            error("Unknown metadata $(key) for $(problem)")
-        T = METADATA_SCHEMA.optional[key]
-        value isa T || error(
-            "Type mismatch: Expected $(T) for $(key) of $(problem), but got $(typeof(value))",
+        haskey(METADATA_SCHEMA.optional, key) || throw(
+            _metadata_error(problem, key, "an unknown field", "a field of METADATA_SCHEMA"),
         )
+        T = METADATA_SCHEMA.optional[key]
+        value isa T || throw(_metadata_error(problem, key, "a $(typeof(value))", "a $(T)"))
         data[key] = value
     end
     METADATA_STORAGE[problem] = data
