@@ -33,9 +33,9 @@ function OptimalControlProblems.bryson_denham(
     x1_max = params[:x1_max]
 
     data = ProblemData(;
-        state=[Component("x1"; upper=x1_max), Component("x2")],
+        state=[Component("x₁"; upper=x1_max), Component("x₂")],
         control=[Component("u")],
-        costate=["p1", "p2"],
+        costate=["∂x₁", "∂x₂"],
         times=v -> (t0, tf),
         dynamics=(x, u, v, t) -> [x[2], u[1]],
         lagrange=(x, u, v, t) -> 0.5 * u[1]^2,
