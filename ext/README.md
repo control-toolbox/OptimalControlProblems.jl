@@ -41,8 +41,11 @@ ext/
    - `:status`, one entry per modeling where the problem has a file, `:draft` to start with;
    - `:init`, the initial guess shared by every modeling, a function of the parameters
      returning `(state=…, control=…, variable=…)`;
-   - optionally `:notes` (why a modeling is a draft) and `:reference_solution` (the analytic
-     solution of the continuous problem, see `src/Metadata/solutions.jl`).
+   - optionally `:notes` (why a modeling is a draft), `:reference_solution` (the analytic
+     solution of the continuous problem, see `src/Metadata/solutions.jl`) and `:grid_sizes`
+     (the grid in a modeling where the default of the modeling does not suit the problem:
+     `grid_size_data(problem, backend)` reads `:grid_size`, but ModelingToolkit, solved by
+     shooting, takes a coarser one).
 
    The schema is `METADATA_SCHEMA` in `src/Metadata/loading.jl`, checked when the
    package loads.

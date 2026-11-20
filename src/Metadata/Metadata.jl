@@ -4,13 +4,14 @@ The metadata of the problems: the list of the problems (one file per problem in
 them: `problem_metadata`, `grid_size_data`, `parameters_data`, `initial_guess_data`. The
 analytic solutions used by some metadata files (`reference_solution`) are defined here too.
 
-Depends on no other submodule.
+Depends on `Modelings`: the grid of a problem depends on the modeling (`grid_size_data`).
 """
 module Metadata
 
 using CTBase: CTBase
 using DocStringExtensions: TYPEDSIGNATURES
 using OrderedCollections: OrderedDict
+using ..Modelings: Modelings
 
 include(joinpath(@__DIR__, "discovery.jl"))
 include(joinpath(@__DIR__, "solutions.jl"))

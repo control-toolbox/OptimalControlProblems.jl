@@ -150,7 +150,10 @@ function template(modeling::Symbol, problem::Symbol, backend::AbstractString)
     elseif modeling === :JuMP
         push!(
             items,
-            ("the keyword `grid_size`", Regex("grid_size::Int=grid_size_data\\(:$p\\)")),
+            (
+                "the keyword `grid_size`",
+                Regex("grid_size::Int=grid_size_data\\(:$p, JuMPBackend\\(\\)\\)"),
+            ),
         )
         push!(items, ("the keyword `scheme`", r"scheme::Symbol=:trapeze"))
     end
@@ -269,6 +272,18 @@ function checks(src::ProblemSource)
             cites_sources(src.description), "description", "a `### References` with entries"
         )
     end
+
+    # the metadata: a grid per modeling only where the problem has a model
+    grid_sizes = get(src.metadata, :grid_sizes, (;))
+    odd = [
+        m for (m, n) in pairs(grid_sizes) if !haskey(statuses, m) || !(n isa Int && n > 0)
+    ]
+    add(
+        isempty(odd),
+        "metadata",
+        "`:grid_sizes`: a positive `Int` per modeling with a status" *
+        (isempty(odd) ? "" : ": not $(join(odd, ", "))"),
+    )
 
     # the metadata: the unit and meaning of every parameter
     parameters = src.metadata[:parameters]

@@ -32,6 +32,33 @@ function test_parameters()
             delete!(storage, :_no_parameters)
         end
     end
+    Test.@testset "grid_size_data by modeling" verbose = VERBOSE showtiming = SHOWTIMING begin
+        OCP = OptimalControlProblems
+        mtk = OCP.Metadata.MODELING_TOOLKIT_GRID_SIZE
+        for problem in OCP.problems(; status=:all)
+            haskey(OCP.problem_metadata(problem), :grid_sizes) && continue
+            N = OCP.grid_size_data(problem)
+            Test.@test OCP.grid_size_data(problem, OCP.JuMPBackend()) == N
+            Test.@test OCP.grid_size_data(problem, OCP.OptimalControlBackend()) == N
+            Test.@test OCP.grid_size_data(problem, OCP.ModelingToolkitBackend()) ==
+                min(N, mtk)
+        end
+        # the grid of a problem in a modeling, given in its metadata: no problem of the
+        # collection has one, so one is added for the test
+        storage = OCP.Metadata.METADATA_STORAGE
+        storage[:_grid_sizes] = OCP.Metadata.OrderedDict{Symbol,Any}(
+            :grid_size => 500, :grid_sizes => (ModelingToolkit=120, JuMP=200)
+        )
+        try
+            Test.@test OCP.grid_size_data(:_grid_sizes) == 500
+            Test.@test OCP.grid_size_data(:_grid_sizes, OCP.ModelingToolkitBackend()) == 120
+            Test.@test OCP.grid_size_data(:_grid_sizes, OCP.JuMPBackend()) == 200
+            Test.@test OCP.grid_size_data(:_grid_sizes, OCP.OptimalControlBackend()) == 500
+        finally
+            delete!(storage, :_grid_sizes)
+        end
+    end
+
     Test.@testset "problem_metadata" verbose = VERBOSE showtiming = SHOWTIMING begin
         problem = first(OptimalControlProblems.problems(; status=:all))
         data = OptimalControlProblems.problem_metadata(problem)

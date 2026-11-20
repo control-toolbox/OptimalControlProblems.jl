@@ -18,7 +18,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.electric_vehicle(
     ::JuMPBackend,
     args...;
-    grid_size::Int=grid_size_data(:electric_vehicle),
+    grid_size::Int=grid_size_data(:electric_vehicle, JuMPBackend()),
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,

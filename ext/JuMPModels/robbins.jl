@@ -18,7 +18,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.robbins(
     ::JuMPBackend,
     args...;
-    grid_size::Int=grid_size_data(:robbins),
+    grid_size::Int=grid_size_data(:robbins, JuMPBackend()),
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,

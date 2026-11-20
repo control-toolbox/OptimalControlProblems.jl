@@ -117,7 +117,7 @@ function parameters_section(problem::Symbol)
     isnothing(params) &&
         return "### [Parameters](@id $(anchor(problem, :parameters)))\n\nThe problem has no parameters.\n"
     info = get(OCP.problem_metadata(problem), :parameter_info, nothing)
-    unit(k) = (u = info[k].unit; isnothing(u) ? "–" : u)
+    unit(k) = (u=info[k].unit; isnothing(u) ? "–" : u)
     rows = if isnothing(info)
         join(("| `$(k)` | `$(v)` | | |" for (k, v) in pairs(params)), "\n")
     else
@@ -250,7 +250,7 @@ function modeling_panel(problem::Symbol, spec, adapter, refs)
     status = OCP.status(problem)[spec.name]
     file = problem_file(problem, spec)
     text = read(joinpath(ROOT, file), String)
-    grid_size = OCP.grid_size_data(problem)
+    grid_size = OCP.grid_size_data(problem, spec.backend())
     notes = get(OCP.problem_metadata(problem), :notes, nothing)
     draft = if status === :draft
         """

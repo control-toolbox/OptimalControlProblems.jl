@@ -18,7 +18,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.beam(
     ::JuMPBackend,
     args...;
-    grid_size::Int=grid_size_data(:beam),
+    grid_size::Int=grid_size_data(:beam, JuMPBackend()),
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,

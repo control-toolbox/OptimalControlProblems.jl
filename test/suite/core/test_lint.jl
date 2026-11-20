@@ -64,13 +64,16 @@ end
 
 info(names...) = NamedTuple{names}(Tuple((unit=nothing, meaning="m") for _ in names))
 
-function metadata(; status=(OptimalControl=:valid,), parameter_info=:default)
+function metadata(;
+    status=(OptimalControl=:valid,), parameter_info=:default, grid_sizes=nothing
+)
     parameters = (t0=0, tf=1, x_t0=0, x_u=1, guess=0.5)
     data = Dict{Symbol,Any}(:grid_size => 100, :parameters => parameters, :status => status)
     parameter_info === nothing || (
         data[:parameter_info] =
             parameter_info === :default ? info(keys(parameters)...) : parameter_info
     )
+    isnothing(grid_sizes) || (data[:grid_sizes] = grid_sizes)
     return data
 end
 
@@ -147,6 +150,14 @@ function test_lint()
             )
             bad = merge(info(:t0, :tf, :x_t0, :x_u), (guess=(unit=nothing, meaning=""),))
             Test.@test fails(example(; parameter_info=bad), "not guess")
+        end
+
+        Test.@testset "grid per modeling" begin
+            Test.@test !fails(example(; grid_sizes=(OptimalControl=50,)), "`:grid_sizes`")
+            Test.@test fails(example(; grid_sizes=(JuMP=50,)), "`:grid_sizes`: a positive")
+            Test.@test fails(
+                example(; grid_sizes=(OptimalControl=0,)), "not OptimalControl"
+            )
         end
 
         Test.@testset "template of a model" begin

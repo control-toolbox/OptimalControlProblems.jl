@@ -128,7 +128,7 @@ function test_convergence(backend, adapter)
                 test = "test_convergence $(Main.TestConfigs.label(config))"
                 Main.TestStatus.for_each_problem(test, backend) do problem
                     pb = getfield(OCP, problem)(backend)
-                    N = OCP.grid_size_data(problem)
+                    N = OCP.grid_size_data(problem, backend)
                     scheme = adapter.scheme(config)
                     warmup = get(adapter, :warmup, nothing)
                     if isnothing(warmup)

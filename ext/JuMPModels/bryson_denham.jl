@@ -18,7 +18,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.bryson_denham(
     ::JuMPBackend,
     args...;
-    grid_size::Int=grid_size_data(:bryson_denham),
+    grid_size::Int=grid_size_data(:bryson_denham, JuMPBackend()),
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,

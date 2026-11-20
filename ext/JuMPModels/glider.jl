@@ -18,7 +18,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.glider(
     ::JuMPBackend,
     args...;
-    grid_size::Int=grid_size_data(:glider),
+    grid_size::Int=grid_size_data(:glider, JuMPBackend()),
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
