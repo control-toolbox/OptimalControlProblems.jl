@@ -22,7 +22,8 @@ test/
   developed, so that each extension is shown to load alone.
 - `cron/<group>/` holds the slow tests of a group; they run in the environment of
   `suite/<group>/`, as `robustness/<group>/` does.
-- `robustness/<group>/test_robustness.jl` solves every problem on its default grid under
+- `robustness/<group>/test_robustness.jl` solves every problem on the default grid of the
+  modeling (`grid_size_data(problem, backend)`) under
   other options of each solver (`TestConfigs.ROBUSTNESS`): does the initial guess still
   lead to the best known solution? Reported, never tested. Run it with the word
   `robustness` (`Pkg.test(; test_args=["OptimalControl", "robustness"])`); it runs only
@@ -171,7 +172,17 @@ not test OptimalControl or CTDirect.
   `cron-failure` issue of the scope `comparison`.
 - **Not compared**: the solutions found by two solvers. After a solve, two modelings are two
   optimization paths, and a problem with several local solutions ends on one or the other
-  depending on the platform; convergence is reported, never tested. Not tested either: the
+  depending on the platform; convergence is reported, never tested. The one exception is
+  `beam`, solved by JuMP and by CTDirect on the same small NLP in `test_solution`, which
+  checks the solution built from a JuMP model, costate signs included (#326).
+- **The modelings are independent** (#435) but for the definition of the problems
+  (parameters, initial guess, description): each has its configurations
+  (`CONFIGS.<modeling>`), its default grid (`grid_size_data(problem, backend)`: the grid of
+  the problem, coarser for ModelingToolkit, or the entry of the modeling in `:grid_sizes`)
+  and its reference objectives, computed from its own solves (`[<modeling>.<scheme>]` in
+  `ext/MetaData/references/`, #474). The gap of a solve in the reports is to the reference of
+  its modeling; the problem pages show how close the modelings are, computed when they are
+  built. Not tested either: the
   Exa modeler against ADNLP and the NLP of the scalarized model, which are properties of
   OptimalControl.
 
@@ -275,7 +286,12 @@ The environment `ModelingToolkit` (`test/suite/ModelingToolkit/`) solves the pro
 with ModelingToolkit.jl by direct single shooting with Corleone.jl and Ipopt
 (`CONFIGS.ModelingToolkit` in `common/configs.jl`, `common/solve_modelingtoolkit.jl`): the
 controls are piecewise constant on the grid, started from the initial guess of the problem,
-and the path constraints are imposed at its nodes. It is opt-in, for its heavy dependencies
+and the path constraints are imposed at its nodes. As in the examples of Corleone, the grid
+is coarse (`grid_size_data(problem, ModelingToolkitBackend())`, at most
+`MODELING_TOOLKIT_GRID_SIZE` = 50 steps: one integration per control interval) and the
+Hessian is a quasi-Newton one (`hessian_approximation = "limited-memory"`): the exact one,
+by ForwardDiff through every integration, is dense and costly (#435). The convergence test
+compiles on the smoke grid first (the `warmup` of the adapter), then times the solve. It is opt-in, for its heavy dependencies
 (`Pkg.test(; test_args=["ModelingToolkit"])`, or the label `test ModelingToolkit backend`).
 
 It follows the three kinds of tests. Its model equivalence is `suite/ModelingToolkit/test_modelings`:
@@ -283,10 +299,11 @@ the `System` of every problem is read as the data of a JuMP problem
 (`common/continuous_modelingtoolkit.jl`) and compared with the OptimalControl model by
 `Continuous.compare`, as `suite/comparison/test_modelings` does for JuMP. It runs in this
 environment, which therefore loads OptimalControl too, so that the `comparison` environment
-stays free of ModelingToolkit. Its convergence report (`cron/ModelingToolkit`, daily, a rotation with a budget, #435) has no
-reference objective for a shooting discretization: the gap is to the objective of the analytic
-solution, when the problem has one, and `violation` is the largest violation of the
-constraints of the NLP solved. The costates are not computed by Corleone and are left empty.
+stays free of ModelingToolkit. Its convergence report (`cron/ModelingToolkit`, daily, a rotation with a budget, #435) gives
+the gap to the reference objective of ModelingToolkit for the single shooting
+(`[ModelingToolkit.shooting_single]`, #474), else to the objective of the analytic solution,
+when the problem has one; `violation` is the largest violation of the constraints of the NLP
+solved. The costates are not computed by Corleone and are left empty.
 
 ## Adding a test
 

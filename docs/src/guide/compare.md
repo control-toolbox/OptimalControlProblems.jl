@@ -57,7 +57,7 @@ To compare two modelings, build them the same way and compare the objectives to 
 using OptimalControl, JuMP, Ipopt, NLPModelsIpopt, OptimalControlProblems
 
 problem = :beam
-N = grid_size_data(problem)
+N = grid_size_data(problem, OptimalControlBackend())
 reference = OptimalControlProblems.reference_objective(
     problem, OptimalControlBackend(); grid_size=N, scheme=:trapeze
 )

@@ -33,7 +33,7 @@ function test_robustness()
                         backend,
                         label;
                         Main.SolveJuMP.settings(config; options=options)...,
-                        grid_size=OptimalControlProblems.grid_size_data(problem),
+                        grid_size=OptimalControlProblems.grid_size_data(problem, backend),
                         scheme=C.SCHEME,
                         Main.SolveJuMP.outcome(model)...,
                         time=time,

@@ -12,7 +12,7 @@ using NLPModelsIpopt
 using MadNLP
 
 pb = beam(OptimalControlBackend())
-N = grid_size_data(:beam)
+N = grid_size_data(:beam, OptimalControlBackend())
 nothing # hide
 ```
 

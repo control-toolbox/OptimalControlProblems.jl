@@ -27,7 +27,7 @@ function test_robustness()
                 test = "test_robustness $label"
                 Main.TestStatus.for_each_problem(test, backend) do problem
                     pb = getfield(OptimalControlProblems, problem)(backend)
-                    N = OptimalControlProblems.grid_size_data(problem)
+                    N = OptimalControlProblems.grid_size_data(problem, backend)
                     sol = nothing
                     time = @elapsed sol = S.solve(pb, config; grid_size=N, options=options)
                     Main.TestStatus.result!(

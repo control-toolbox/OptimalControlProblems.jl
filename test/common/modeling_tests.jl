@@ -56,7 +56,7 @@ function test_problem(backend; model_type::Type, check=(problem, pb) -> nothing)
             data = OCP.metadata(pb)
             Test.@test data[:parameters] == OCP.parameters_data(problem)
             Test.@test data[:status] == OCP.status(problem)
-            Test.@test data[:grid_size] == OCP.grid_size_data(problem)
+            Test.@test data[:grid_size] == OCP.problem_metadata(problem)[:grid_size]
 
             # The parameters a problem is built with are recorded in its metadata, and the
             # metadata of the collection are left untouched.

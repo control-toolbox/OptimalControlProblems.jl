@@ -30,7 +30,9 @@ function test_convergence()
                         OptimalControlProblems.JuMPBackend(),
                         Main.TestConfigs.label(config);
                         Main.SolveJuMP.settings(config)...,
-                        grid_size=OptimalControlProblems.grid_size_data(problem),
+                        grid_size=OptimalControlProblems.grid_size_data(
+                            problem, OptimalControlProblems.JuMPBackend()
+                        ),
                         scheme=Main.TestConfigs.SCHEME,
                         Main.SolveJuMP.outcome(model)...,
                         time=time,

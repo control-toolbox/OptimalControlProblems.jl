@@ -11,7 +11,7 @@ using JuMP, Ipopt, OptimalControlProblems
 ## Build and solve
 
 ```@example jump
-nlp = beam(JuMPBackend(); grid_size=grid_size_data(:beam), scheme=:trapeze)
+nlp = beam(JuMPBackend(); grid_size=grid_size_data(:beam, JuMPBackend()), scheme=:trapeze)
 set_optimizer(nlp, Ipopt.Optimizer)
 set_silent(nlp)
 optimize!(nlp)
