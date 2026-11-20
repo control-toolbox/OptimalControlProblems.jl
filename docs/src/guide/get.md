@@ -56,7 +56,7 @@ The [problem page](@ref description-beam) of each problem lists its parameters.
 | :--- | :--- |
 | `problem_metadata(:p)` | every metadata field, without building the problem |
 | `metadata(pb)` | the metadata of a built `Problem`, with the parameters it was built with |
-| `grid_size_data(:p)` | the default number of steps |
+| `grid_size_data(:p, backend)` | the default number of steps in the modeling of `backend` |
 | `parameters_data(:p)` | the default parameters |
 | `OptimalControlProblems.initial_guess_data(:p)` | the shared initial guess (see [Initial guess](@ref initial-guess)) |
 | `OptimalControlProblems.reference_objective(:p, backend; grid_size, scheme)` | the reference objective of the discretized problem in the modeling of `backend`, or `nothing` |

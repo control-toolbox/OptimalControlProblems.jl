@@ -9,7 +9,7 @@ using OptimalControl, JuMP, Ipopt, NLPModelsIpopt, OptimalControlProblems
 using Plots
 
 pb = beam(OptimalControlBackend())
-N = grid_size_data(:beam)
+N = grid_size_data(:beam, OptimalControlBackend())
 sol = solve(
     model(pb), :collocation, :adnlp, :ipopt;
     init=initial_guess(pb), grid_size=N, scheme=:trapeze, display=false,

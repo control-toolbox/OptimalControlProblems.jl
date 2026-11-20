@@ -19,7 +19,8 @@ Return a dictionary containing the metadata of `problem`, without building it.
 The metadata of a built problem is read with `metadata(pb)` on the [`Problem`](@ref OptimalControlProblems.Problems.Problem).
 The following keys are valid:
 
-- `grid_size::Int`: the default number of steps. For example:
+- `grid_size::Int`: the default number of steps of the problem, the grid of the modelings
+  but for ModelingToolkit (see `grid_size_data`). For example:
 ```julia
 :grid_size => 500,
 ```
@@ -77,39 +78,18 @@ function problem_metadata(problem::Symbol)
 end
 
 """
-$(TYPEDSIGNATURES)
-
-Return the number of discretisation steps, from the metadata, for a given optimal control problem.
-
-# Arguments
-
-- `problem::Symbol`: The name of the problem.
-
-# Returns
-
-- `Int`: The number of discretisation steps (`N`) of the specified problem.
-
-# Example
-
-```julia-repl
-julia> grid_size_data(:beam)
-500
-```
-"""
-function grid_size_data(problem::Symbol)
-    return problem_metadata(problem)[:grid_size]
-end
-
-"""
 The default number of steps of a ModelingToolkit problem: it is solved by direct shooting
 (Corleone), one integration per control interval, which needs a coarser grid than a
 collocation (#435). At most the grid of the problem.
 """
 const MODELING_TOOLKIT_GRID_SIZE = 50
 
-_grid_size(problem::Symbol, ::Modelings.AbstractModelBackend) = grid_size_data(problem)
+# the default of a modeling: the grid of the problem (`:grid_size`), coarser for shooting
+function _grid_size(problem::Symbol, ::Modelings.AbstractModelBackend)
+    return problem_metadata(problem)[:grid_size]
+end
 function _grid_size(problem::Symbol, ::Modelings.ModelingToolkitBackend)
-    return min(grid_size_data(problem), MODELING_TOOLKIT_GRID_SIZE)
+    return min(problem_metadata(problem)[:grid_size], MODELING_TOOLKIT_GRID_SIZE)
 end
 
 """
@@ -117,8 +97,11 @@ $(TYPEDSIGNATURES)
 
 Return the default number of steps of `problem` in the modeling of `backend`: the entry of
 the modeling in the field `:grid_sizes` of the metadata when there is one, otherwise the
-default of the modeling, the grid of the problem (`grid_size_data(problem)`) but for
+default of the modeling, the grid of the problem (the field `:grid_size`) but for
 ModelingToolkit, solved by shooting on a coarser grid (`MODELING_TOOLKIT_GRID_SIZE`).
+
+The grid depends on the modeling: the modelings are independent (#435), so there is no
+grid of a problem without a modeling.
 
 # Example
 

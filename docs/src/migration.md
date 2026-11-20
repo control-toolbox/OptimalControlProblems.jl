@@ -30,6 +30,21 @@ problem_metadata(:beam)[:grid_size]                                # [!code ++]
 metadata(beam(OptimalControlBackend()))[:grid_size]                # [!code ++]
 ```
 
+## The grid and the references depend on the modeling
+
+The modelings are independent: each has its default grid (the grid of the problem, coarser
+for ModelingToolkit, solved by shooting) and its reference objectives, computed from its own
+solves. The functions take the backend.
+
+```julia
+grid_size_data(:beam)                                              # [!code --]
+grid_size_data(:beam, OptimalControlBackend())                     # [!code ++]
+OptimalControlProblems.reference_objective(:beam)                  # [!code --]
+OptimalControlProblems.reference_objective(:beam, JuMPBackend())   # [!code ++]
+```
+
+`solution_kind`, `references` and `best_reference` take the backend the same way.
+
 ## Errors
 
 Passing `parameters` to a problem that has none throws

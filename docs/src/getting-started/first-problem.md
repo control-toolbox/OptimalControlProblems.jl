@@ -29,7 +29,7 @@ problem, an ADNLPModels model and Ipopt. The reference objectives of the collect
 computed with the trapezoidal rule, which is not the default scheme of `solve`: give it.
 
 ```@example first
-N = grid_size_data(:beam)
+N = grid_size_data(:beam, OptimalControlBackend())
 sol = solve(
     model(pb), :collocation, :adnlp, :ipopt;
     init=initial_guess(pb),

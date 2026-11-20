@@ -37,7 +37,7 @@ function test_parameters()
         mtk = OCP.Metadata.MODELING_TOOLKIT_GRID_SIZE
         for problem in OCP.problems(; status=:all)
             haskey(OCP.problem_metadata(problem), :grid_sizes) && continue
-            N = OCP.grid_size_data(problem)
+            N = OCP.problem_metadata(problem)[:grid_size]
             Test.@test OCP.grid_size_data(problem, OCP.JuMPBackend()) == N
             Test.@test OCP.grid_size_data(problem, OCP.OptimalControlBackend()) == N
             Test.@test OCP.grid_size_data(problem, OCP.ModelingToolkitBackend()) ==
@@ -50,19 +50,20 @@ function test_parameters()
             :grid_size => 500, :grid_sizes => (ModelingToolkit=120, JuMP=200)
         )
         try
-            Test.@test OCP.grid_size_data(:_grid_sizes) == 500
             Test.@test OCP.grid_size_data(:_grid_sizes, OCP.ModelingToolkitBackend()) == 120
             Test.@test OCP.grid_size_data(:_grid_sizes, OCP.JuMPBackend()) == 200
             Test.@test OCP.grid_size_data(:_grid_sizes, OCP.OptimalControlBackend()) == 500
         finally
             delete!(storage, :_grid_sizes)
         end
+        # no grid without a modeling: the modelings are independent (#435)
+        Test.@test !hasmethod(OCP.grid_size_data, Tuple{Symbol})
     end
 
     Test.@testset "problem_metadata" verbose = VERBOSE showtiming = SHOWTIMING begin
         problem = first(OptimalControlProblems.problems(; status=:all))
         data = OptimalControlProblems.problem_metadata(problem)
-        Test.@test data[:grid_size] == OptimalControlProblems.grid_size_data(problem)
+        Test.@test data[:grid_size] isa Int
         Test.@test data[:parameters] == OptimalControlProblems.parameters_data(problem)
         # the initial guess comes from the parameters (#377)
         guess = OptimalControlProblems.initial_guess_data(problem)

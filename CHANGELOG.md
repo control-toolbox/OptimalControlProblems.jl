@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 💥 Breaking Changes
 
+#### `grid_size_data(problem)` replaced by `grid_size_data(problem, backend)`
+
+- **The grid depends on the modeling**: `grid_size_data(problem, backend)` is the default
+  grid of `problem` in the modeling of `backend` (#473); the one-argument form is removed.
+  The field `:grid_size` of the metadata is still the grid of the problem, the default of the
+  modelings but for ModelingToolkit (coarser, solved by shooting).
+- **Why**: the modelings are independent (#435), and a grid without a modeling was the wrong
+  one for ModelingToolkit and for any problem with `:grid_sizes`.
+
+**Migration**:
+
+```julia
+# Before
+N = grid_size_data(:beam)
+
+# After
+N = grid_size_data(:beam, OptimalControlBackend())
+```
+
 #### The references are by modeling
 
 - **`reference_objective`, `solution_kind`, `references` and `best_reference` take the
