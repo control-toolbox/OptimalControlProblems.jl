@@ -1,11 +1,12 @@
 module JuMPModels
 
-using OptimalControlProblems
-using JuMP
+# the names the model files use everywhere (MOD4): the backend, the parameters, the grid
+using OptimalControlProblems:
+    OptimalControlProblems, JuMPBackend, parameters_data, grid_size_data
+using JuMP: JuMP
 using CTBase: CTBase
 using CTModels: CTModels
-using DocStringExtensions
-using OrderedCollections: OrderedDict
+using DocStringExtensions: TYPEDEF, TYPEDSIGNATURES
 
 # The schemes, written once for every problem. They live in a subdirectory: every file
 # directly under `JuMPModels/` is a problem.
@@ -231,12 +232,12 @@ julia> x(0.5)
 function CTModels.Components.state(model::JuMP.GenericModel)
 
     # time grid
-    T = time_grid(model)
+    T = CTModels.Components.time_grid(model)
     N = length(T) - 1
 
     # get components and dimension
-    x_vars = state_components(model)
-    dim_x = state_dimension(model)
+    x_vars = CTModels.Models.state_components(model)
+    dim_x = CTModels.Models.state_dimension(model)
 
     # get state from the model
     X = zeros(N + 1, dim_x)
@@ -280,8 +281,8 @@ julia> u(0.25)
 function CTModels.Components.control(model::JuMP.GenericModel)
 
     # time grid and control at its nodes
-    T = time_grid(model)
-    dim_u = control_dimension(model)
+    T = CTModels.Components.time_grid(model)
+    dim_u = CTModels.Models.control_dimension(model)
     U = _control_at_nodes(model, length(T) - 1)
 
     # interpolate: linear between the nodes for a scheme with final control, steppost
@@ -400,8 +401,8 @@ julia> p(0.75)
 ```
 """
 function CTModels.Components.costate(model::JuMP.GenericModel)
-    T = time_grid(model)
-    dim_x = state_dimension(model)
+    T = CTModels.Components.time_grid(model)
+    dim_x = CTModels.Models.state_dimension(model)
     P = _values(model, costate_components(model), _multiplier)
     return _interpolate_costate(T, P, dim_x)
 end
@@ -432,8 +433,8 @@ julia> v = OptimalControlProblems.variable(model)
 function CTModels.Components.variable(model::JuMP.GenericModel)
 
     # get components and dimension
-    v_vars = variable_components(model)
-    dim_v = variable_dimension(model)
+    v_vars = CTModels.Models.variable_components(model)
+    dim_v = CTModels.Models.variable_dimension(model)
     if dim_v == 0
         return Float64[]
     end
@@ -467,7 +468,7 @@ julia> OptimalControlProblems.objective(model)
 ```
 """
 function CTModels.Components.objective(model::JuMP.GenericModel)
-    return objective_value(model)
+    return JuMP.objective_value(model)
 end
 
 """
@@ -487,7 +488,7 @@ julia> OptimalControlProblems.iterations(model)
 ```
 """
 function CTModels.Solutions.iterations(model::JuMP.GenericModel)
-    return barrier_iterations(model)
+    return JuMP.barrier_iterations(model)
 end
 
 """
@@ -535,10 +536,17 @@ function OptimalControlProblems.solution(
     )
     ocp = CTModels.Solutions.model(pb)
     dims = (
-        state=(length(state_components(model)), CTModels.Models.state_dimension(ocp)),
-        control=(length(control_components(model)), CTModels.Models.control_dimension(ocp)),
+        state=(
+            length(CTModels.Models.state_components(model)),
+            CTModels.Models.state_dimension(ocp),
+        ),
+        control=(
+            length(CTModels.Models.control_components(model)),
+            CTModels.Models.control_dimension(ocp),
+        ),
         variable=(
-            length(variable_components(model)), CTModels.Models.variable_dimension(ocp)
+            length(CTModels.Models.variable_components(model)),
+            CTModels.Models.variable_dimension(ocp),
         ),
     )
     for (name, (n_jump, n_ocp)) in pairs(dims)
@@ -553,12 +561,14 @@ function OptimalControlProblems.solution(
         )
     end
 
-    T = collect(Float64, time_grid(model))
+    T = collect(Float64, CTModels.Components.time_grid(model))
     N = length(T) - 1
-    X = _values(model, state_components(model), JuMP.value)
+    X = _values(model, CTModels.Models.state_components(model), JuMP.value)
     U = _control_at_nodes(model, N)
     P = _values(model, costate_components(model), _multiplier)
-    v = Float64[JuMP.value(model[Symbol(c)]) for c in variable_components(model)]
+    v = Float64[
+        JuMP.value(model[Symbol(c)]) for c in CTModels.Models.variable_components(model)
+    ]
 
     status = JuMP.termination_status(model)
     iterations = try
@@ -589,7 +599,7 @@ end
 # The control at the `N+1` nodes, one column per component. A scheme without final control
 # has one control per step: the last one is repeated at the last node, as CTDirect does.
 function _control_at_nodes(model::JuMP.GenericModel, N::Int)
-    U = _values(model, control_components(model), JuMP.value)
+    U = _values(model, CTModels.Models.control_components(model), JuMP.value)
     return size(U, 1) == N ? vcat(U, U[end:end, :]) : U
 end
 

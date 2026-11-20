@@ -77,7 +77,8 @@ function OptimalControlProblems.cart_pendulum(
         ddCOG = L * ω * [-sin(θ), cos(θ)] + L / 2 * [cos(θ), sin(θ)] * α(ddx) + [ddx, 0]
         FXFY = m * ddCOG + [0, m * g]
         eq = -FXFY[1] + Fex - mcart * ddx # # eq = J ddx + c
-        J = mcart # should be -(m+mcart) but was mcart?
+        # ∂eq/∂ddx would be -(m + mcart): to check against the source (#449, T6/T7)
+        J = mcart
         c = eq - J * ddx
 
         #
