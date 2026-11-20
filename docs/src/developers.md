@@ -42,3 +42,12 @@ nothing for the problem pages: their results come from the crons. To build it lo
 julia --project=docs docs/make.jl
 npx serve docs/build/1 --listen 5173
 ```
+
+`make.jl` clears `docs/build/` before it builds, so a server on it shows nothing until the
+build ends. To keep the previous site browsable meanwhile, serve the preview once and rebuild
+through it; the preview is replaced only when a build succeeds:
+
+```bash
+docs/preview.sh serve          # http://localhost:5175, in its own terminal
+docs/preview.sh build          # after each change; prints "preview updated"
+```
