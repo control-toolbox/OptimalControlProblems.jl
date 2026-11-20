@@ -37,7 +37,6 @@ The control $u(t)$ is continuous and varies smoothly to trace the cycloidal arc.
 ### Characteristics
 
 - **Nonlinear dynamics** involving trigonometric functions of the control.
-- **Free final time** problem (time-optimal).
 - Analytical solution is a **Cycloid**.
 - Historically significant as the first problem solved using techniques that evolved into the Calculus of Variations.
 

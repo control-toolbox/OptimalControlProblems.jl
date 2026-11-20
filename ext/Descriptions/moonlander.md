@@ -38,9 +38,8 @@ Orientation dynamics $\theta(t)$ and $d\theta(t)$ play a critical role in direct
 
 ### Characteristics
 
-- Nonlinear coupled dynamics with orientation-dependent thrust,  
-- Control constraints and bounded final time ensuring feasibility,  
-- Terminal position and velocity constraints for a soft landing,  
+- Nonlinear coupled dynamics with orientation-dependent thrust.
+- Terminal position and velocity constraints for a soft landing.
 - Benchmark problem for testing direct transcription and NLP solvers.
 
 ### References

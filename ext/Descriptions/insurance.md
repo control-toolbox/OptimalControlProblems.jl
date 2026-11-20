@@ -3,8 +3,6 @@ It consists of controlling insurance coverage, expenses, revenue, health, and ut
 The system dynamics model the evolution of insurance participation, expenses, and auxiliary variables, while respecting bounds on all state and control variables.  
 The controls represent health investments, insurance revenue, health outcomes, and utility contributions.
 
----
-
 ### Mathematical formulation
 
 The **objective** is to maximise expected utility:
@@ -15,8 +13,6 @@ The **objective** is to maximise expected utility:
 ```
 
 where $f_x(t)$ is the probability density of illness events.
-
----
 
 #### State, control, and auxiliary bounds
 
@@ -30,16 +26,12 @@ The variables are subject to:
 \end{aligned}
 ```
 
----
-
 #### Initial and terminal conditions
 
 ```math
 (I, m, x_3)|_{t=0} = (0, 0.001, 0), \quad 
 P - x_3(t_f) = 0
 ```
-
----
 
 #### Dynamics
 
@@ -64,8 +56,6 @@ v = \frac{m(t)^{\alpha/2}}{1 + m(t)^{\alpha/2}}, \quad
 v' = \frac{\alpha}{2} \frac{m(t)^{\alpha/2 - 1}}{(1 + m(t)^{\alpha/2})^2}.
 ```
 
----
-
 #### Algebraic / auxiliary constraints
 
 ```math
@@ -81,8 +71,6 @@ f_x(t) &= \lambda e^{-\lambda t} + \frac{e^{-\lambda t_f}}{t_f}, \\
 
 These constraints encode **revenue balance**, **health evolution**, **utility computation**, and **auxiliary relationships**.
 
----
-
 ### System parameters
 
 | Parameter | Symbol | Value | Description |
@@ -97,8 +85,6 @@ These constraints encode **revenue balance**, **health evolution**, **utility co
 | Shock | $\sigma$ | 0 | Auxiliary multiplier |
 | Final time | $t_f$ | 10 | s |
 
----
-
 ### Qualitative behaviour
 
 - The optimal strategy balances **insurance coverage**, **health investment**, and **expenses** to maximise utility under constraints.  
@@ -106,16 +92,11 @@ These constraints encode **revenue balance**, **health evolution**, **utility co
 - The dynamics incorporate moral hazard effects and diminishing returns on expenses.  
 - Auxiliary variables track utility and revenue derivatives, ensuring consistent constraints.
 
----
-
 ### Characteristics
 
-- Nonlinear three-dimensional state dynamics with five control variables and one auxiliary.  
-- Fixed final time with state and control bounds.  
-- Models health insurance optimisation under ex post moral hazard and risk-sensitive utility.  
+- Nonlinear dynamics, with an auxiliary control.
+- Models health insurance optimisation under ex post moral hazard and risk-sensitive utility.
 - Serves as a benchmark for testing constrained nonlinear OCP solvers.
-
----
 
 ### References
 

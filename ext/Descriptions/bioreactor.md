@@ -51,9 +51,8 @@ The positivity constraint on biomass $b(t)$ is usually active at the beginning o
 
 ### Characteristics
 
-- Nonlinear coupled dynamics with periodic forcing,  
-- Control and state constraints ensuring feasibility,  
-- Bang–bang and singular arc structures in the optimal control,  
+- Nonlinear coupled dynamics with periodic forcing.
+- Bang–bang and singular arc structures in the optimal control.
 - Serves as a benchmark for optimal control methods with periodic and constrained systems.
 
 ### References

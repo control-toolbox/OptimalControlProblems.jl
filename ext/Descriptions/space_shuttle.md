@@ -56,13 +56,10 @@ The final time $T$ is free but bounded.
 
 ### Characteristics
 
-- Nonlinear, six–state dynamics with two controls.  
-- Strongly nonlinear aerodynamic coefficients.  
-- Free final time with bounded range.  
-- Path constraints on states and controls.  
+- Nonlinear dynamics with strongly nonlinear aerodynamic coefficients.
 - Widely used as a benchmark in optimal control and trajectory optimisation.
 
-### References and relevance
+### References
 
 - **Betts, J.T. (2010)**. *Practical Methods for Optimal Control and Estimation Using Nonlinear Programming*. SIAM.  
   Provides a comprehensive discussion of trajectory optimisation for aerospace vehicles, including space shuttle reentry problems. It details numerical methods applicable to nonlinear, constrained, free-final-time problems.  

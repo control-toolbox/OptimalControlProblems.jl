@@ -68,9 +68,8 @@ This behaviour illustrates the complexity of the problem and the challenges in n
 
 ### Characteristics
 
-- Nonlinear coupled dynamics with drag and gravity,  
-- Singular arcs in the optimal control,  
-- State and control constraints,  
+- Nonlinear coupled dynamics with drag and gravity.
+- Singular arcs in the optimal control.
 - Classical benchmark for testing optimal control algorithms, especially in aerospace applications.
 
 ### References

@@ -40,8 +40,8 @@ The control typically balances horizontal movement to minimise the vertical disp
 
 ### Characteristics
 
-- Nonlinear dynamics with three states and one control.  
-- Minimum vertical displacement objective with boundary constraints.  
+- Nonlinear dynamics.
+- Minimum vertical displacement objective.
 - Serves as a benchmark for trajectory optimisation and direct transcription methods in nonlinear optimal control.
 
 ### References

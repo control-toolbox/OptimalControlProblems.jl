@@ -42,10 +42,9 @@ where $F(t) = \sin\left(\frac{2 \pi}{T} t\right)$ is a prescribed periodic forci
 
 ### Characteristics
 
-- Coupled linear–nonlinear dynamics with external periodic forcing.  
-- Control input enters through a damping term, introducing nonlinearity in the system response.  
-- Bounded control with symmetric limits.  
-- Widely used to benchmark numerical methods for constrained optimal control in mechanical systems.  
+- Coupled linear–nonlinear dynamics with external periodic forcing.
+- Control input enters through a damping term, introducing nonlinearity in the system response.
+- Widely used to benchmark numerical methods for constrained optimal control in mechanical systems.
 - Serves as a testbed for averaging methods and bang–bang control design.
 
 ### References
