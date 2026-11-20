@@ -20,6 +20,7 @@
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["robustness"])'  # robustness/ dirs
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["JuMP", "cron", "*beam*"])'
 #   julia --project -e 'using Pkg; Pkg.test(; test_args=["JuMP", "problem=beam,robot"])'
+#   julia --project -e 'using Pkg; Pkg.test(; test_args=["ModelingToolkit", "cron", "problem=beam,chain", "budget=3600"])'
 #
 # `test_args` is a list of: environment names (none given: every environment except the
 # opt-in ones below), the word `cron` (run `cron/<group>/test_*.jl` instead of
@@ -29,6 +30,11 @@
 # `test_` and `.jl`);
 # - `problem=a,b`: test only these problems (a name not in the catalogue is an error), for
 #   instance the one you add; `core` and the environments are unchanged otherwise.
+# - `budget=<seconds>` (and `timeout=<seconds>`): the rotation of the crons (#435). Each
+#   problem of `problem=` runs in its own Julia process, in the order given (the cron lists
+#   the problems tested longest ago first), while the budget lasts; a process past `timeout`
+#   is stopped, and a problem whose process crashed or was stopped is reported as an error of
+#   this problem (`TestStatus.write_process_report`).
 #
 # Test files follow TST1: a module and an entry function `test_<name>()`. Their discovery,
 # their selection by the patterns and their execution are `CTBase.DevTools.run_tests`; the
@@ -73,6 +79,7 @@ function run_environment(
     dirs::Vector{String},
     report::AbstractString,
     patterns::Vector{String},
+    budget=nothing,
 )
     # In GitHub Actions the project is kept (see `finally`), also past the exit of Julia.
     keep = get(ENV, "GITHUB_ACTIONS", "false") == "true"
@@ -87,13 +94,31 @@ function run_environment(
         setup = "using Pkg: Pkg; Pkg.develop(path=ARGS[1]); Pkg.instantiate()"
         run(`$julia --project=$project -e $setup $ROOT`)
         script = joinpath(@__DIR__, "common", "run_environment.jl")
-        problem_args =
-            isempty(problem_names) ? String[] : ["problem=" * join(problem_names, ",")]
         tests = join(dirs, "|")
-        run(
-            `$julia --project=$project $script $tests $name $report $problem_args $patterns`
-        )
-        return true
+        if isnothing(budget)
+            problem_args =
+                isempty(problem_names) ? String[] : ["problem=" * join(problem_names, ",")]
+            run(
+                `$julia --project=$project $script $tests $name $report $problem_args $patterns`,
+            )
+            return true
+        end
+        # the rotation (#435): one process per problem, in order, while the budget lasts
+        outcomes, skipped =
+            TestSelection.run_within_budget(problem_names, budget.seconds) do p
+                problem_report = "$report-$p"
+                rm(joinpath(TestStatus.REPORTS, "$problem_report.md"); force=true)
+                cmd = `$julia --project=$project $script $tests $name $problem_report problem=$p $patterns`
+                outcome = TestSelection.run_process(cmd; timeout=budget.timeout)
+                outcome in (:crashed, :timeout) && TestStatus.write_process_report(
+                    problem_report, p, name, outcome; timeout=budget.timeout
+                )
+                println("Problem $p: $outcome")
+                return outcome
+            end
+        isempty(skipped) ||
+            println("Budget spent, left for a later run: ", join(skipped, ", "))
+        return all(o -> last(o) === :success, outcomes)
     catch err
         @error "Environment $name failed" exception = err
         return false
@@ -107,7 +132,11 @@ function run_environment(
 end
 
 mode, args = TestSelection.split_mode(String.(ARGS))
+budget, args = TestSelection.split_budget(args)
 problem_names, rest = TestSelection.split_problems(args)
+isnothing(budget) ||
+    !isempty(problem_names) ||
+    throw(ArgumentError("`budget=` needs `problem=`: the problems to run, in order"))
 TestStatus.select_problems!(problem_names)
 available = environments()
 selected, patterns = TestSelection.select_environments(rest, available, OPT_IN; core=CORE)
@@ -135,7 +164,7 @@ Test.@testset "OptimalControlProblems tests" verbose = Main.TestOptions.VERBOSE 
         Test.@testset "environment $name" begin
             report = mode in (:cron, :robustness) ? "$name-$mode" : name
             Test.@test run_environment(
-                name; dirs=dirs(name), report=report, patterns=patterns
+                name; dirs=dirs(name), report=report, patterns=patterns, budget=budget
             )
         end
     end

@@ -40,6 +40,15 @@ on:
         required: false
         default: ''
         type: string
+      budget:
+        description: >-
+          Time budget of a run, in seconds (#435). 0, the default: every problem, in one
+          process per environment. Otherwise a rotation: the problems of the modeling, tested
+          longest ago first (tools/cron/select.py), one process each, while the budget lasts;
+          the reports and issues keep the last result of every problem.
+        required: false
+        default: 0
+        type: number
     secrets:
       SSH_KEY:
         required: false
@@ -52,11 +61,64 @@ permissions:
   contents: read
 
 jobs:
+  # The arguments of the tests: in a rotation (budget > 0), the problems of the modeling, the
+  # ones tested longest ago first, read from the `results` branch (#435).
+  select:
+    if: inputs.enabled
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      test_args: ${{ steps.args.outputs.test_args }}
+      problems: ${{ steps.args.outputs.problems }}
+    steps:
+      - name: Checkout package
+        uses: actions/checkout@v4
+
+      - name: Test arguments
+        id: args
+        shell: bash
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          MODE: ${{ inputs.mode }}
+          PROBLEMS: ${{ inputs.problems }}
+          BUDGET: ${{ inputs.budget }}
+          SCOPE: ${{ inputs.scope || inputs.environment }}
+        run: |
+          set -euo pipefail
+          args="$ENVIRONMENT $MODE"
+          problems=""
+          if [ "$BUDGET" != "0" ]; then
+            results=""
+            if git ls-remote --exit-code origin results >/dev/null 2>&1; then
+              git fetch --depth 1 origin results
+              git worktree add --detach "$RUNNER_TEMP/results" FETCH_HEAD
+              results="$RUNNER_TEMP/results"
+            fi
+            problems=$(python3 tools/cron/select.py --scope "$SCOPE" \
+              --models-dir "ext/${ENVIRONMENT}Models" --metadata-dir ext/MetaData \
+              ${results:+--results-dir "$results"})
+            if [ -z "$problems" ]; then
+              echo "::error::a budget needs the problems of ext/${ENVIRONMENT}Models/"
+              exit 1
+            fi
+            # problems given by hand come first, in their order
+            order="${PROBLEMS:+$PROBLEMS,}$problems"
+            order=$(echo "$order" | tr ',' '\n' | awk 'NF && !seen[$0]++' | paste -sd, -)
+            args="$args problem=$order budget=$BUDGET"
+          elif [ -n "$PROBLEMS" ]; then
+            args="$args problem=$PROBLEMS"
+          fi
+          echo "test_args=$args" >> "$GITHUB_OUTPUT"
+          echo "problems=$problems" >> "$GITHUB_OUTPUT"
+          echo "Test arguments: $args"
+
   # The called CTActions workflows request `actions`, `contents` and `pull-requests` read
   # (their `changes` job) and `statuses` write (their `status-start` and `status-end` jobs); a
   # nested job cannot be granted less than it requests.
   cpu:
     if: inputs.enabled
+    needs: select
     permissions:
       actions: read
       contents: read
@@ -70,7 +132,7 @@ jobs:
       # keep every platform running after a failure: one report per platform is needed
       fail_fast: false
       use_ct_registry: true
-      test_args: ${{ inputs.environment }} ${{ inputs.mode }}${{ inputs.problems && format(' problem={0}', inputs.problems) || '' }}
+      test_args: ${{ needs.select.outputs.test_args }}
       upload_artifact_path: test/reports
       upload_artifact_name: cron-${{ inputs.scope || inputs.environment }}
     secrets:
@@ -78,6 +140,7 @@ jobs:
 
   gpu:
     if: inputs.enabled && inputs.gpu
+    needs: select
     permissions:
       actions: read
       contents: read
@@ -87,7 +150,7 @@ jobs:
     with:
       versions: '["1.13"]'
       use_ct_registry: true
-      test_args: ${{ inputs.environment }} ${{ inputs.mode }}${{ inputs.problems && format(' problem={0}', inputs.problems) || '' }}
+      test_args: ${{ needs.select.outputs.test_args }}
       upload_artifact_path: test/reports
       upload_artifact_name: cron-${{ inputs.scope || inputs.environment }}-gpu
       fail_fast: false
@@ -98,7 +161,7 @@ jobs:
 
   publish:
     if: always() && inputs.enabled
-    needs: [cpu, gpu]
+    needs: [select, cpu, gpu]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -113,8 +176,11 @@ jobs:
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       TESTS_FAILED: ${{ needs.cpu.result != 'success' || needs.gpu.result == 'failure' }}
       RESULTS_DIR: /tmp/cron-results
-      # a restricted run writes its report and state aside, unpublished (`problems` input)
-      PARTIAL: ${{ inputs.problems != '' }}
+      # a restricted run writes its report and state aside, unpublished (`problems` input);
+      # not in a rotation, where every run tests some problems and updates their results
+      PARTIAL: ${{ inputs.problems != '' && inputs.budget == 0 }}
+      # a rotation (#435): every problem of the scope, for the reports and issues
+      ROTATION: ${{ needs.select.outputs.problems }}
     steps:
       - name: Checkout package
         uses: actions/checkout@v4
@@ -178,6 +244,7 @@ jobs:
             --julia-version '1.13' \
             --package-version "$package_version" \
             --scope-note "$SCOPE_NOTE" \
+            --rotation "$ROTATION" \
             "${test_failed_arg[@]}"
 
       - name: Publish report, results and observed state
@@ -216,6 +283,7 @@ jobs:
             --julia-version '1.13' \
             --package-version "$(sed -n 's/^version = \"\(.*\)\"/\1/p' Project.toml | head -1)" \
             --scope-note "$SCOPE_NOTE" \
+            --rotation "$ROTATION" \
             --issues \
             "${test_failed_arg[@]}"
 

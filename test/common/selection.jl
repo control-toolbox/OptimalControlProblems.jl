@@ -90,6 +90,81 @@ end
 
 const MODES = ("cron", "convergence", "robustness")
 
+# The time a problem may take in a rotation (#435) before its process is stopped, by default.
+const DEFAULT_TIMEOUT = 2700.0
+
+"""
+    split_budget(args) -> (budget, rest)
+
+Take the `budget=<seconds>` and `timeout=<seconds>` arguments out of `args` (#435). With a
+budget, the problems of an environment run one per process, in the order of `problem=`,
+while the budget lasts (see [`run_within_budget`](@ref)); `timeout` is the time a problem
+may take before its process is stopped ([`DEFAULT_TIMEOUT`](@ref) by default). `budget` is
+`nothing` without `budget=`, a `NamedTuple` `(seconds, timeout)` otherwise.
+"""
+function split_budget(args)
+    values = Dict{String,Float64}()
+    rest = String[]
+    for arg in args
+        key = findfirst(k -> startswith(arg, k * "="), ("budget", "timeout"))
+        if isnothing(key)
+            push!(rest, arg)
+            continue
+        end
+        name = ("budget", "timeout")[key]
+        value = tryparse(Float64, chopprefix(arg, name * "="))
+        (isnothing(value) || value <= 0) &&
+            throw(ArgumentError("`$arg`: $name must be a positive number of seconds"))
+        values[name] = value
+    end
+    haskey(values, "budget") || return nothing, rest
+    return (seconds=values["budget"], timeout=get(values, "timeout", DEFAULT_TIMEOUT)), rest
+end
+
+"""
+    run_within_budget(f, problems, seconds; clock=time) -> (outcomes, skipped)
+
+Call `f(problem)` for the `problems` in their order while less than `seconds` have passed
+since the start (#435): the first one always runs, a problem starts only if the budget is
+not spent. Returns the `problem => f(problem)` pairs, in order, and the problems left for a
+later run.
+"""
+function run_within_budget(f, problems, seconds::Real; clock=time)
+    start = clock()
+    outcomes = Pair{String,Symbol}[]
+    skipped = String[]
+    for problem in problems
+        if clock() - start >= seconds
+            push!(skipped, problem)
+        else
+            push!(outcomes, problem => f(problem))
+        end
+    end
+    return outcomes, skipped
+end
+
+"""
+    run_process(cmd; timeout) -> Symbol
+
+Run `cmd`, its output shown, and stop it after `timeout` seconds. Returns `:success`,
+`:failed` (a non-zero exit code: a test failed), `:crashed` (stopped by a signal, e.g. out of
+memory) or `:timeout`.
+"""
+function run_process(cmd::Cmd; timeout::Real)
+    process = run(ignorestatus(cmd); wait=false)
+    start = time()
+    while process_running(process)
+        if time() - start > timeout
+            kill(process)
+            wait(process)
+            return :timeout
+        end
+        sleep(1)
+    end
+    success(process) && return :success
+    return process.termsignal == 0 ? :failed : :crashed
+end
+
 """
     directories(group, suite, cron, robustness; mode) -> Vector{String}
 

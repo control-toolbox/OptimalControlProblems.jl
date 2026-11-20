@@ -67,6 +67,50 @@ function test_runner()
                 (["a", "b", "c"], String[])
         end
 
+        Test.@testset "budget (#435)" begin
+            Test.@test R.split_budget(["JuMP", "problem=a"]) ==
+                (nothing, ["JuMP", "problem=a"])
+            Test.@test R.split_budget(["budget=3600", "cron"]) ==
+                ((seconds=3600.0, timeout=R.DEFAULT_TIMEOUT), ["cron"])
+            Test.@test R.split_budget(["timeout=60", "budget=600"]) ==
+                ((seconds=600.0, timeout=60.0), String[])
+            # a timeout alone changes nothing: the rotation needs a budget
+            Test.@test R.split_budget(["timeout=60"]) == (nothing, String[])
+            Test.@test_throws ArgumentError R.split_budget(["budget=0"])
+            Test.@test_throws ArgumentError R.split_budget(["budget=one"])
+
+            # a clock that advances 10 s per problem: the budget is checked before each one
+            now = Ref(0.0)
+            clock() = now[]
+            ran = String[]
+            outcomes, skipped = R.run_within_budget(["a", "b", "c", "d"], 25; clock) do p
+                push!(ran, p)
+                now[] += 10
+                return :success
+            end
+            Test.@test ran == ["a", "b", "c"]
+            Test.@test outcomes == ["a" => :success, "b" => :success, "c" => :success]
+            Test.@test skipped == ["d"]
+            # the first problem always runs, even past the budget
+            now[] = 0.0
+            outcomes, skipped = R.run_within_budget(["a", "b"], 5; clock) do p
+                now[] += 10
+                return :failed
+            end
+            Test.@test outcomes == ["a" => :failed]
+            Test.@test skipped == ["b"]
+
+            julia = Base.julia_cmd()
+            Test.@test R.run_process(`$julia --startup-file=no -e 0`; timeout=60) ===
+                :success
+            Test.@test R.run_process(
+                `$julia --startup-file=no -e "exit(1)"`; timeout=60
+            ) === :failed
+            Test.@test R.run_process(
+                `$julia --startup-file=no -e "sleep(60)"`; timeout=2
+            ) === :timeout
+        end
+
         Test.@testset "run" begin
             RAN = Main.TEST_RAN
             mktempdir() do dir
