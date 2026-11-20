@@ -59,7 +59,7 @@ The [problem page](@ref description-beam) of each problem lists its parameters.
 | `grid_size_data(:p)` | the default number of steps |
 | `parameters_data(:p)` | the default parameters |
 | `OptimalControlProblems.initial_guess_data(:p)` | the shared initial guess (see [Initial guess](@ref initial-guess)) |
-| `OptimalControlProblems.reference_objective(:p; grid_size, scheme)` | the reference objective of the discretized problem, or `nothing` |
+| `OptimalControlProblems.reference_objective(:p, backend; grid_size, scheme)` | the reference objective of the discretized problem in the modeling of `backend`, or `nothing` |
 | `OptimalControlProblems.reference_solution_data(:p)` | the analytic solution of the continuous problem, when known |
 | `OptimalControlProblems.features(:p)` | dimensions, kind of cost, free times, constraints |
 | `OptimalControlProblems.status(:p)` | the status in each modeling |

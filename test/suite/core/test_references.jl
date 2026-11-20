@@ -16,24 +16,36 @@ isdefined(@__MODULE__, :ReferenceObjectives) || include(TOOL)
 # A reference type that does not implement the contract (TST3: at the top level).
 struct FakeReference <: OptimalControlProblems.AbstractReference end
 
-# Fake problems: the tool is tested on its own, apart from the collection.
+# Fake problems: the tool is tested on its own, apart from the collection. The grid of a
+# problem depends on the modeling (`grid_size_data(problem, backend)`).
 const DEFAULTS = Dict(
-    :alpha => (grid_size=100, parameters="(a = 1,)"),
-    :omega => (grid_size=50, parameters="nothing"),
+    :alpha => (
+        grid_sizes=Dict("JuMP" => 100, "OptimalControl" => 100, "ModelingToolkit" => 20),
+        parameters="(a = 1,)",
+    ),
+    :omega => (grid_sizes=Dict("JuMP" => 50), parameters="nothing"),
 )
 const HEADER = "test\tproblem\tmodeling\tconfiguration\tgrid_size\tscheme\tresult\treason\tobjective\titerations\ttime\tgap\tmodeler\tsolver\toptions\tviolation"
 
 # A row of a results file; `reason` and `violation` choose the representative of a solution
 # (#409): a strict convergence before an acceptable one, then the smallest violation.
 function row(
-    test, problem, modeling, grid, result, objective; reason="R", violation="1.0e-9"
+    test,
+    problem,
+    modeling,
+    grid,
+    result,
+    objective;
+    reason="R",
+    violation="1.0e-9",
+    configuration="c=1",
 )
     return join(
         (
             test,
             problem,
             modeling,
-            "c=1",
+            configuration,
             grid,
             "trapeze",
             result,
@@ -84,7 +96,7 @@ function results_dir()
                 row(
                     "test_convergence c=1",
                     "alpha",
-                    "A",
+                    "JuMP",
                     "100",
                     "converged",
                     "1.99999999";
@@ -94,31 +106,73 @@ function results_dir()
                 row(
                     "test_convergence c=1",
                     "alpha",
-                    "B",
+                    "JuMP",
                     "100",
                     "converged",
                     "2.0";
                     violation="1.0e-6",
+                    configuration="c=2",
                 ),
                 # strict, the smallest violation: the representative of the solution
                 row(
                     "test_convergence c=1",
                     "alpha",
-                    "G",
+                    "JuMP",
                     "100",
                     "converged",
                     "2.0000000001";
                     violation="1.0e-12",
+                    configuration="c=3",
                 ),
-                row("test_convergence c=1", "alpha", "C", "100", "not_converged", "1.0"), # not converged
-                row("test_convergence c=1", "alpha", "D", "10", "converged", "1.5"), # not the default grid
-                row("test_smoke c=1", "alpha", "E", "100", "converged", "1.0"), # not a convergence test
+                row("test_convergence c=1", "alpha", "JuMP", "100", "not_converged", "1.0"), # not converged
+                row("test_convergence c=1", "alpha", "JuMP", "10", "converged", "1.5"), # not the default grid
+                row("test_smoke c=1", "alpha", "JuMP", "100", "converged", "1.0"), # not a convergence test
                 row(
-                    "test_robustness c=1 mu=1", "alpha", "F", "100", "converged", "2.00001"
+                    "test_robustness c=1 mu=1",
+                    "alpha",
+                    "JuMP",
+                    "100",
+                    "converged",
+                    "2.00001";
+                    configuration="c=4",
                 ), # same solution
-                row("test_convergence c=1", "omega", "A", "50", "converged", "3.0"),
-                row("test_convergence c=1", "omega", "B", "50", "converged", "3.3"),
-                row("test_convergence c=1", "gamma", "A", "50", "converged", "1.0"), # unknown problem
+                # another modeling: its own reference, whatever the others reach
+                row(
+                    "test_convergence c=1",
+                    "alpha",
+                    "OptimalControl",
+                    "100",
+                    "converged",
+                    "2.5",
+                ),
+                # its own grid: ModelingToolkit on 20 steps
+                row(
+                    "test_convergence c=1",
+                    "alpha",
+                    "ModelingToolkit",
+                    "20",
+                    "converged",
+                    "2.2",
+                ),
+                row(
+                    "test_convergence c=1",
+                    "alpha",
+                    "ModelingToolkit",
+                    "100",
+                    "converged",
+                    "9.0",
+                ), # not its grid
+                row("test_convergence c=1", "omega", "JuMP", "50", "converged", "3.0"),
+                row(
+                    "test_convergence c=1",
+                    "omega",
+                    "JuMP",
+                    "50",
+                    "converged",
+                    "3.3";
+                    configuration="c=2",
+                ),
+                row("test_convergence c=1", "gamma", "JuMP", "50", "converged", "1.0"), # unknown problem
             ],
             "\n",
         ) * "\n",
@@ -127,7 +181,15 @@ function results_dir()
         joinpath(dir, "local-results.tsv"),
         HEADER *
         "\n" *
-        row("test_convergence c=1", "omega", "C", "50", "converged", "3.0") *
+        row(
+            "test_convergence c=1",
+            "omega",
+            "JuMP",
+            "50",
+            "converged",
+            "3.0";
+            configuration="c=3",
+        ) *
         "\n",
     )
     environment(joinpath(dir, "local-results.tsv"); run="local")
@@ -138,22 +200,29 @@ function test_references()
     Test.@testset "reference objectives" verbose = VERBOSE showtiming = SHOWTIMING begin
         R = ReferenceObjectives
         rows = R.read_results([results_dir()])
-        Test.@test length(rows) == 11
-        Test.@test count(r -> r["platform"] == "cron-ubuntu", rows) == 10
+        Test.@test length(rows) == 14
+        Test.@test count(r -> r["platform"] == "cron-ubuntu", rows) == 13
         Test.@test count(r -> r["platform"] == "local", rows) == 1
 
         tables = R.references(rows, DEFAULTS; run="https://run")
         Test.@test sort!(collect(keys(tables))) == [:alpha, :omega]
-        alpha = tables[:alpha]["trapeze"]
+        # one table per modeling and scheme (#435): the modelings are independent
+        Test.@test sort!(collect(keys(tables[:alpha]))) ==
+            ["JuMP", "ModelingToolkit", "OptimalControl"]
+        Test.@test tables[:alpha]["OptimalControl"]["trapeze"]["value"] == 2.5
+        mtk = tables[:alpha]["ModelingToolkit"]["trapeze"]
+        Test.@test mtk["value"] == 2.2 && mtk["grid_size"] == 20
+        alpha = tables[:alpha]["JuMP"]["trapeze"]
         # the objective of the representative of the best solution, at the default grid, from
         # convergence and robustness tests (#409): strict, then the smallest violation
         Test.@test alpha["value"] == 2.0000000001
         Test.@test length(alpha["results"]) == 4
+        Test.@test all(r -> r["modeling"] == "JuMP", alpha["results"])
         # within SAME_SOLUTION (1e-5): one solution, the configurations agree
         Test.@test length(alpha["solutions"]) == 1
         Test.@test alpha["solutions"][1]["solves"] == 4
         reference = alpha["solutions"][1]["reference"]
-        Test.@test reference["modeling"] == "G"
+        Test.@test reference["configuration"] == "c=3"
         Test.@test reference["objective"] == alpha["value"]
         Test.@test reference["violation"] == 1e-12
         Test.@test reference["status"] == "R"
@@ -170,13 +239,14 @@ function test_references()
         Test.@test acceptable["reason"] == "acceptable"
         Test.@test alpha["agreement"]
         Test.@test alpha["grid_size"] == 100 && alpha["parameters"] == "(a = 1,)"
-        omega = tables[:omega]["trapeze"]
+        omega = tables[:omega]["JuMP"]["trapeze"]
         Test.@test omega["value"] == 3.0
         Test.@test omega["spread"] ≈ 0.1
         # 3.0 twice and 3.3: two solutions, best first
         Test.@test [s["objective"] for s in omega["solutions"]] == [3.0, 3.3]
-        Test.@test omega["solutions"][1]["configurations"] == ["A c=1", "C c=1"]
+        Test.@test omega["solutions"][1]["configurations"] == ["JuMP c=1", "JuMP c=3"]
         Test.@test !omega["agreement"]
+        Test.@test any(contains("omega JuMP trapeze"), R.summary(tables))
         Test.@test any(contains("2 solutions"), R.summary(tables))
 
         # written, then read back by the package as its metadata reads it
@@ -185,33 +255,44 @@ function test_references()
         Test.@test basename.(files) == ["alpha.toml", "omega.toml"]
         Test.@test startswith(read(files[1], String), "# Reference objectives")
         read_back = OCP.References._references(:alpha, files[1])
-        Test.@test read_back.trapeze.value == 2.0000000001
-        Test.@test read_back.trapeze.source === :computed
-        Test.@test read_back.trapeze.run == "https://run"
-        Test.@test read_back.trapeze.solutions == [2.0000000001]
+        Test.@test read_back.JuMP.trapeze.value == 2.0000000001
+        Test.@test read_back.OptimalControl.trapeze.value == 2.5
+        Test.@test read_back.ModelingToolkit.trapeze.grid_size == 20
+        Test.@test read_back.JuMP.trapeze.source === :computed
+        Test.@test read_back.JuMP.trapeze.run == "https://run"
+        Test.@test read_back.JuMP.trapeze.solutions == [2.0000000001]
         # the known solution with how it was obtained (#409)
-        ref = only(read_back.trapeze.references)
+        ref = only(read_back.JuMP.trapeze.references)
         Test.@test ref isa OCP.NumericalReference
         Test.@test (ref.problem, ref.scheme, ref.grid_size) == (:alpha, :trapeze, 100)
         Test.@test OCP.objective(ref) == 2.0000000001
         Test.@test (ref.modeling, ref.modeler, ref.solver, ref.status) ==
-            (:G, :adnlp, :ipopt, :R)
+            (:JuMP, :adnlp, :ipopt, :R)
         Test.@test ref.options == (mu_strategy="adaptive", tol=1e-8)
         Test.@test ref.julia == v"1.13.3" && ref.machine.os == "Linux"
         Test.@test ref.versions.Ipopt_jll == "300.1400.1902+0"
         Test.@test ref.solves == 4 && ref.violation == 1e-12
-        Test.@test OCP.References._references(:omega, files[2]).trapeze.solutions ==
+        Test.@test OCP.References._references(:omega, files[2]).JuMP.trapeze.solutions ==
             [3.0, 3.3]
-        # a scheme not recomputed is kept
-        R.write_references(dir, Dict(:alpha => Dict{String,Any}("midpoint" => alpha)))
-        Test.@test keys(OCP.References._references(:alpha, files[1])) ⊇
-            (:trapeze, :midpoint)
+        # a table not recomputed is kept: another scheme, another modeling
+        R.write_references(
+            dir, Dict(:alpha => Dict{String,Any}("JuMP" => Dict("midpoint" => alpha)))
+        )
+        again = OCP.References._references(:alpha, files[1])
+        Test.@test keys(again.JuMP) ⊇ (:trapeze, :midpoint)
+        Test.@test again.OptimalControl.trapeze.value == 2.5
 
         # a file that misses a field is an error at load time
         broken = joinpath(dir, "broken.toml")
-        write(broken, "[trapeze]\nvalue = 1.0\n")
+        write(broken, "[JuMP.trapeze]\nvalue = 1.0\n")
         Test.@test_throws CTBase.Exceptions.IncorrectArgument OCP.References._references(
             :alpha, broken
+        )
+        # a table that is not a modeling (a file written before #435) is an error
+        unknown = joinpath(dir, "unknown.toml")
+        write(unknown, "[trapeze]\nvalue = 1.0\n")
+        Test.@test_throws CTBase.Exceptions.IncorrectArgument OCP.References._references(
+            :alpha, unknown
         )
         Test.@test isnothing(OCP.References._references(:alpha, joinpath(dir, "none.toml")))
 
@@ -220,8 +301,10 @@ function test_references()
         old = joinpath(dir, "old.toml")
         table = deepcopy(alpha)
         foreach(s -> delete!(s, "reference"), table["solutions"])
-        R.write_references(dir, Dict(:old => Dict{String,Any}("trapeze" => table)))
-        Test.@test isempty(OCP.References._references(:old, old).trapeze.references)
+        R.write_references(
+            dir, Dict(:old => Dict{String,Any}("JuMP" => Dict("trapeze" => table)))
+        )
+        Test.@test isempty(OCP.References._references(:old, old).JuMP.trapeze.references)
 
         # results recorded before #409, or without their environment, cannot say how a
         # solution was obtained: an error
@@ -240,24 +323,32 @@ end
 function test_reference_api()
     Test.@testset "reference values" verbose = VERBOSE showtiming = SHOWTIMING begin
         Test.@test_throws CTBase.Exceptions.NotImplemented OCP.objective(FakeReference())
+        backends = [spec.backend() for spec in OCP.Modelings.MODELING_SPECS]
         for problem in OCP.problems(; status=:all)
-            found = OCP.references(problem)
-            best = OCP.best_reference(problem)
-            if isempty(found)
-                Test.@test isnothing(best)
-                Test.@test isnothing(OCP.reference_objective(problem))
-            else
-                Test.@test best === first(found)
-                Test.@test OCP.objective(best) == OCP.reference_objective(problem)
-                Test.@test issorted(OCP.objective.(found))
-                Test.@test all(r -> r.problem === problem, found)
-                Test.@test all(
-                    r -> OCP.solution_kind(problem, OCP.objective(r)) in (:best, :local),
-                    found,
-                )
+            for backend in backends
+                found = OCP.references(problem, backend)
+                best = OCP.best_reference(problem, backend)
+                name = OCP.Modelings._modeling_spec(backend).name
+                if isempty(found)
+                    Test.@test isnothing(best)
+                    Test.@test isnothing(OCP.reference_objective(problem, backend))
+                else
+                    Test.@test best === first(found)
+                    Test.@test OCP.objective(best) ==
+                        OCP.reference_objective(problem, backend)
+                    Test.@test issorted(OCP.objective.(found))
+                    Test.@test all(r -> r.problem === problem, found)
+                    # the references of a modeling come from its solves only (#435)
+                    Test.@test all(r -> r.modeling === name, found)
+                    Test.@test all(
+                        r -> OCP.solution_kind(problem, backend, OCP.objective(r)) in
+                        (:best, :local),
+                        found,
+                    )
+                end
+                # another discretization has no reference
+                Test.@test isempty(OCP.references(problem, backend; grid_size=1))
             end
-            # another discretization has no reference
-            Test.@test isempty(OCP.references(problem; grid_size=1))
             analytic = OCP.analytic_reference(problem)
             data = OCP.reference_solution_data(problem)
             Test.@test isnothing(analytic) == isnothing(data)

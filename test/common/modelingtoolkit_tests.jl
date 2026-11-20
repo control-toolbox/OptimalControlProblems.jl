@@ -14,10 +14,14 @@ using OptimalControlProblems: OptimalControlProblems
 const OCP = OptimalControlProblems
 
 """
-The objective of the analytic solution of `problem`, the reference of the gap in the report:
-a shooting solve has no reference objective of its own discretization; `nothing` without one.
+The reference of the gap in the report: the reference objective of `problem` in
+ModelingToolkit for this discretization (#435), else the objective of its analytic solution,
+else `nothing`.
 """
-function analytic_objective(problem, grid_size, scheme)
+function reference(problem, grid_size, scheme)
+    backend = OCP.ModelingToolkitBackend()
+    value = OCP.reference_objective(problem, backend; grid_size, scheme)
+    isnothing(value) || return value
     ref = OCP.analytic_reference(problem)
     return isnothing(ref) ? nothing : ref.objective
 end
@@ -42,7 +46,7 @@ function adapter()
         scheme=S.scheme,
         outcome=S.outcome,
         trajectory=S.trajectory,
-        reference=analytic_objective,
+        reference=reference,
     )
 end
 

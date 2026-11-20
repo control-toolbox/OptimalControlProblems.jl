@@ -61,19 +61,25 @@ function status_table()
     mods = modelings()
     header = join((adapter.title for (_, adapter) in mods), " | ")
     out = """
-    | Problem | $(header) | Reference objective | Distinct solutions |
-    | :--- |$(repeat(" :--- |", length(mods))) ---: | ---: |
+    Each cell: the status of the problem in the modeling, and its reference objective in the
+    modeling, at the default grid and discretization of the modeling (each modeling has its
+    own, #435), with the number of distinct solutions when there are several.
+
+    | Problem | $(header) |
+    | :--- |$(repeat(" :--- |", length(mods)))
     """
     for problem in OptimalControlProblems.problems(; status=:all)
         statuses = OptimalControlProblems.status(problem)
         cells = map(mods) do (spec, _)
-            return haskey(statuses, spec.name) ? string(statuses[spec.name]) : "—"
+            haskey(statuses, spec.name) || return "—"
+            backend = spec.backend()
+            value = OptimalControlProblems.reference_objective(problem, backend)
+            isnothing(value) && return string(statuses[spec.name])
+            n = length(OptimalControlProblems.references(problem, backend))
+            several = n > 1 ? " ($(n) solutions)" : ""
+            return "$(statuses[spec.name]) · $(objective_string(value))$(several)"
         end
-        refs = references(problem)
-        table = get(refs, "trapeze", nothing)
-        value = isnothing(table) ? "—" : objective_string(table["value"])
-        nsolutions = isnothing(table) ? "—" : string(length(get(table, "solutions", [])))
-        out *= "| $(problem_link(problem)) | $(join(cells, " | ")) | $(value) | $(nsolutions) |\n"
+        out *= "| $(problem_link(problem)) | $(join(cells, " | ")) |\n"
     end
     return out
 end

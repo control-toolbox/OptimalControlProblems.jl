@@ -146,8 +146,8 @@ Record the result of a solve of `problem` in the modeling of `backend`, discreti
 `grid_size` steps with `scheme`. `modeler`, `solver` and `options` are the `settings` of the
 solve modules, the solver status the `outcome` of a solution, `trajectory` the
 `trajectory` of the solution. The gap is to `reference`, by default the reference objective
-of the problem for this discretization; a modeling without one (ModelingToolkit, solved by
-shooting) gives the objective of the analytic solution, when there is one (#439).
+of the problem in this modeling for this discretization (#435); a modeling may give another
+one (ModelingToolkit: the objective of the analytic solution while it has none, #439).
 """
 function result!(
     test,
@@ -169,7 +169,9 @@ function result!(
     reference=nothing,
 )
     if isnothing(reference)
-        reference = OptimalControlProblems.reference_objective(problem; grid_size, scheme)
+        reference = OptimalControlProblems.reference_objective(
+            problem, backend; grid_size, scheme
+        )
     end
     push!(
         RESULTS,
@@ -193,7 +195,9 @@ function result!(
             Float64(violation),
             isnothing(reference) ? nothing : gap(objective, reference),
             if converged
-                OptimalControlProblems.solution_kind(problem, objective; grid_size, scheme)
+                OptimalControlProblems.solution_kind(
+                    problem, backend, objective; grid_size, scheme
+                )
             else
                 nothing
             end,

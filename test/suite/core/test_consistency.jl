@@ -74,23 +74,27 @@ end
 
 """
 Every problem `:valid` somewhere has a reference: another modeling where it is `:valid`, or
-a reference objective at its default grid (#375).
+a reference objective in one of its modelings, at the default grid of the modeling (#375).
 """
 function test_comparison_rule()
     Test.@testset "comparison rule" verbose = VERBOSE begin
         for problem in OCP.problems(; status=:all)
             valid = [name for (name, s) in pairs(OCP.status(problem)) if s === :valid]
             isempty(valid) && continue
-            Test.@test length(valid) >= 2 || !isnothing(OCP.reference_objective(problem))
+            Test.@test length(valid) >= 2 || any(
+                spec -> !isnothing(OCP.reference_objective(problem, spec.backend())),
+                OCP.Modelings.MODELING_SPECS,
+            )
         end
     end
 end
 
 """
-The reference objectives (#375) match the problem: computed at its default grid with its
-default parameters, otherwise they are stale and must be computed again
-(`tools/references/update.jl`). A problem `:valid` somewhere without a reference objective
-is reported, not failed (the comparison rule fails when it has no other reference).
+The reference objectives (#375) match the problem: computed, in each modeling, at the default
+grid of the problem in the modeling with its default parameters, otherwise they are stale
+and must be computed again (`tools/references/update.jl`). A modeling where the problem is
+`:valid` without a reference objective is reported, not failed (the comparison rule fails
+when the problem has no reference at all).
 """
 function test_reference_objectives()
     Test.@testset "reference objectives" verbose = VERBOSE begin
@@ -102,9 +106,14 @@ function test_reference_objectives()
         end
         for problem in OCP.problems(; status=:all)
             data = OCP.problem_metadata(problem)
-            references = get(data, :reference_objective, (;))
-            for (scheme, entry) in pairs(references)
-                Test.@test entry.grid_size == data[:grid_size]
+            tables = get(data, :reference_objective, (;))
+            for (modeling, references) in pairs(tables),
+                (scheme, entry) in pairs(references)
+
+                backend = only(
+                    s.backend() for s in OCP.Modelings.MODELING_SPECS if s.name === modeling
+                )
+                Test.@test entry.grid_size == OCP.grid_size_data(problem, backend)
                 Test.@test entry.parameters == repr(data[:parameters])
                 Test.@test entry.source in (:computed,)
                 Test.@test isfinite(entry.value)
@@ -114,7 +123,7 @@ function test_reference_objectives()
                 Test.@test entry.agreement == (length(entry.solutions) == 1)
                 function kind(x)
                     return OCP.solution_kind(
-                        problem, x; grid_size=entry.grid_size, scheme=scheme
+                        problem, backend, x; grid_size=entry.grid_size, scheme=scheme
                     )
                 end
                 Test.@test kind(entry.value) === :best
@@ -127,16 +136,24 @@ function test_reference_objectives()
                 Test.@test length(entry.references) == length(entry.solutions)
                 Test.@test [r.objective for r in entry.references] == entry.solutions
                 Test.@test all(
-                    r -> r.grid_size == entry.grid_size && r.scheme === scheme,
+                    r ->
+                        r.grid_size == entry.grid_size &&
+                        r.scheme === scheme &&
+                        r.modeling === modeling,
                     entry.references,
                 )
             end
-            valid = [name for (name, s) in pairs(OCP.status(problem)) if s === :valid]
-            (isempty(valid) || !isnothing(OCP.reference_objective(problem))) && continue
+            # each modeling where the problem is `:valid` without its reference: reported
+            missing_references = [
+                spec.name for spec in OCP.Modelings.MODELING_SPECS if
+                get(OCP.status(problem), spec.name, :none) === :valid &&
+                    isnothing(OCP.reference_objective(problem, spec.backend()))
+            ]
+            isempty(missing_references) && continue
             Main.TestStatus.report!(
                 "reference objectives",
                 problem,
-                join(valid, ", "),
+                join(missing_references, ", "),
                 :valid,
                 "no reference objective",
             )
@@ -174,7 +191,7 @@ function test_no_handwritten_list()
             in_docstring = false
             for (i, line) in enumerate(eachline(file))
                 # docstrings may show a problem as an example; code may not name one
-                isodd(count("\"\"\"", line)) && (in_docstring = (!in_docstring); continue)
+                isodd(count("\"\"\"", line)) && (in_docstring=(!in_docstring); continue)
                 in_docstring && continue
                 m = match(pattern, line)
                 isnothing(m) && continue

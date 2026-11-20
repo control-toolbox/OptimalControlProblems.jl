@@ -29,7 +29,7 @@ sol = solve(
     display=false,
 )
 objective(sol)
-@assert isapprox(objective(sol), OptimalControlProblems.reference_objective(:beam); rtol=1e-6) # hide
+@assert isapprox(objective(sol), OptimalControlProblems.reference_objective(:beam, OptimalControlBackend()); rtol=1e-6) # hide
 ```
 
 ## Explicit mode
@@ -46,7 +46,7 @@ sol = solve(
     display=false,
 )
 objective(sol)
-@assert isapprox(objective(sol), OptimalControlProblems.reference_objective(:beam); rtol=1e-6) # hide
+@assert isapprox(objective(sol), OptimalControlProblems.reference_objective(:beam, OptimalControlBackend()); rtol=1e-6) # hide
 ```
 
 ## The scheme and the grid
@@ -63,7 +63,9 @@ objective(sol)
 ```
 
 ```@example oc
-OptimalControlProblems.reference_objective(:beam; grid_size=100, scheme=:midpoint)
+OptimalControlProblems.reference_objective(
+    :beam, OptimalControlBackend(); grid_size=100, scheme=:midpoint
+)
 ```
 
 `nothing`: the collection stores the references of the default grid only. The
@@ -85,7 +87,7 @@ sol = solve(
     init=initial_guess(pb_s), grid_size=N, scheme=:trapeze, display=false,
 )
 objective(sol)
-@assert isapprox(objective(sol), OptimalControlProblems.reference_objective(:beam); rtol=1e-6) # hide
+@assert isapprox(objective(sol), OptimalControlProblems.reference_objective(:beam, OptimalControlBackend()); rtol=1e-6) # hide
 ```
 
 ## On a GPU

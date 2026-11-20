@@ -24,7 +24,7 @@ In dependency order: a submodule uses only those above it (`MOD7`).
   (decision of #413), so `using OptimalControlProblems` brings them into scope.
 - Each **submodule exports** its public API, and the package loads every submodule, so all of
   it is reachable from the package: `OptimalControlProblems.status(:beam)`,
-  `OptimalControlProblems.reference_objective(:beam)`.
+  `OptimalControlProblems.reference_objective(:beam, JuMPBackend())`.
 - What a submodule does **not** export is internal, reached through the submodule:
   `OptimalControlProblems.Metadata.METADATA_SCHEMA`,
   `OptimalControlProblems.Catalogue._warn_if_draft`. The extensions and the tests call these
