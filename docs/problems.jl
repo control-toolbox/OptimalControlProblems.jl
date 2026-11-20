@@ -68,7 +68,10 @@ end
 # -----------------------------------
 # Data of a problem
 # -----------------------------------
-"""The reference objectives of `problem`, one table per scheme, or an empty dictionary."""
+"""
+The reference objectives of `problem`, one table per modeling and scheme
+(`refs[modeling][scheme]`, #435), or an empty dictionary.
+"""
 function references(problem::Symbol)
     file = joinpath(ROOT, "ext", "MetaData", "references", "$(problem).toml")
     return isfile(file) ? TOML.parsefile(file) : Dict{String,Any}()
@@ -147,19 +150,19 @@ function reference_section(problem::Symbol, refs)
         out *= "No reference objective has been computed for this problem yet.\n"
     else
         out *= """
-        The best objective among the solves that converged, for every modeling and
-        configuration, on the default grid. See
+        The best objective among the solves that converged, in each modeling, on the default
+        grid of the modeling: the modelings are independent, each has its own reference. See
         [how the references are computed]($(REPOSITORY)/blob/main/tools/references/README.md).
 
-        | Scheme | Grid | Reference objective | Solves | Distinct solutions | Agreement |
-        | :--- | ---: | ---: | ---: | ---: | :--- |
+        | Modeling | Scheme | Grid | Reference objective | Solves | Distinct solutions | Configurations agree |
+        | :--- | :--- | ---: | ---: | ---: | ---: | :--- |
         """
-        for (scheme, table) in sort!(collect(refs); by=first)
+        for (modeling, scheme, table) in reference_tables(refs)
             solves = length(get(table, "results", []))
             nsolutions = length(get(table, "solutions", []))
             agreement =
                 table["agreement"] ? "yes, within $(gap_string(table["spread"]))" : "no"
-            out *= "| `:$(scheme)` | $(table["grid_size"]) | $(objective_string(table["value"])) | $(solves) | $(nsolutions) | $(agreement) |\n"
+            out *= "| $(ADAPTERS[Symbol(modeling)].title) | `:$(scheme)` | $(table["grid_size"]) | $(objective_string(table["value"])) | $(solves) | $(nsolutions) | $(agreement) |\n"
         end
         out *= "\n" * solutions_text(refs)
     end
@@ -176,10 +179,18 @@ function reference_section(problem::Symbol, refs)
     return out
 end
 
+"""The tables of `refs`, `(modeling, scheme, table)`, sorted."""
+function reference_tables(refs)
+    return [
+        (modeling, scheme, table) for (modeling, schemes) in sort!(collect(refs); by=first)
+        for (scheme, table) in sort!(collect(schemes); by=first)
+    ]
+end
+
 # Distinct solutions, said in words: the reader learns whether the problem has local solutions.
 function solutions_text(refs)
     lines = String[]
-    for (scheme, table) in sort!(collect(refs); by=first)
+    for (modeling, scheme, table) in reference_tables(refs)
         solutions = get(table, "solutions", [])
         length(solutions) <= 1 && continue
         best = table["value"]
@@ -189,11 +200,12 @@ function solutions_text(refs)
         ]
         push!(
             lines,
-            "With `:$(scheme)`, the solves reached $(length(solutions)) distinct solutions: " *
+            "In $(ADAPTERS[Symbol(modeling)].title) with `:$(scheme)`, the solves reached " *
+            "$(length(solutions)) distinct solutions: " *
             "besides the best one, " *
             join(others, "; ") *
             ". " *
-            "See the comparison of the modelings for which configurations reached which.",
+            "See the results of the modeling for which configurations reached which.",
         )
     end
     return isempty(lines) ? "" : join(lines, "\n\n") * "\n"
@@ -208,11 +220,33 @@ function results_rows(table, modeling::Symbol)
     return grouped
 end
 
+"""
+The reference objectives of the other modelings on the same discretization (scheme and
+grid) as `table`, and their gap to it: computed here, never stored, since each modeling has
+its own references (#435).
+"""
+function agreement_line(refs, spec, scheme, table)
+    others = String[]
+    for (modeling, schemes) in sort!(collect(refs); by=first)
+        modeling == string(spec.name) && continue
+        other = get(schemes, scheme, nothing)
+        (isnothing(other) || other["grid_size"] != table["grid_size"]) && continue
+        gap = relative_gap(other["value"], table["value"])
+        push!(
+            others,
+            "$(ADAPTERS[Symbol(modeling)].title) $(objective_string(other["value"])) (gap $(gap_string(gap)))",
+        )
+    end
+    isempty(others) && return ""
+    return "Other modelings on this discretization: $(join(others, ", ")).\n\n"
+end
+
 function results_section(problem::Symbol, spec, refs)
     out = "#### [Results](@id $(anchor(problem, spec.name, :results)))\n\n"
+    mine = get(refs, string(spec.name), Dict{String,Any}())
     tables = [
         (s, t) for
-        (s, t) in sort!(collect(refs); by=first) if !isempty(results_rows(t, spec.name))
+        (s, t) in sort!(collect(mine); by=first) if !isempty(results_rows(t, spec.name))
     ]
     if isempty(tables)
         return out *
@@ -221,9 +255,10 @@ function results_section(problem::Symbol, spec, refs)
     for (scheme, table) in tables
         best = table["value"]
         out *= """
-        Solved on the default grid ($(table["grid_size"]) steps) with the scheme `:$(scheme)`,
-        by the convergence and robustness crons. The gap is relative to the reference objective,
-        $(objective_string(best)); it is shown as it is, never tested.
+        Solved on the default grid of this modeling ($(table["grid_size"]) steps) with the
+        scheme `:$(scheme)`, by the convergence and robustness crons. The gap is relative to the
+        reference objective of this modeling, $(objective_string(best)); it is shown as it is,
+        never tested.
 
         | Configuration | Options | Platforms | Objective | Gap to reference |
         | :--- | :--- | :--- | ---: | ---: |
@@ -241,7 +276,7 @@ function results_section(problem::Symbol, spec, refs)
             gap = maximum(relative_gap(o, best) for o in objectives)
             out *= "| $(base) | $(options) | $(platforms) | $(objective_range(objectives)) | $(gap_string(gap)) |\n"
         end
-        out *= "\n"
+        out *= "\n" * agreement_line(refs, spec, scheme, table)
     end
     return out
 end
@@ -353,46 +388,38 @@ function compare_panel(problem::Symbol, mods, refs)
         """
     end
 
-    for (scheme, table) in sort!(collect(refs); by=first)
-        best = table["value"]
+    # Results side by side: each modeling against its own reference, and the references of
+    # the modelings against each other on the same discretization, computed here (#435)
+    schemes = sort!(unique(scheme for (_, scheme, _) in reference_tables(refs)))
+    for scheme in schemes
+        tables = Dict(m => t for (m, s, t) in reference_tables(refs) if s == scheme)
+        best = minimum(t["value"] for t in values(tables))
         out *= """
         #### [Results side by side, `:$(scheme)`](@id $(anchor(problem, :compare, scheme)))
 
-        | Modeling | Status | Solves | Objective | Largest gap to reference |
-        | :--- | :--- | ---: | ---: | ---: |
+        Each modeling against its own reference objective; the last column compares the
+        references, on modelings that share the grid of the best one.
+
+        | Modeling | Status | Grid | Solves | Objective | Gap to its reference | Reference, gap to the best |
+        | :--- | :--- | ---: | ---: | ---: | ---: | ---: |
         """
+        grid = only(unique(t["grid_size"] for t in values(tables) if t["value"] == best))
         for (spec, adapter) in mods
-            rows = results_rows(table, spec.name)
             status = string(OCP.status(problem)[spec.name])
+            table = get(tables, string(spec.name), nothing)
+            rows = isnothing(table) ? Dict() : results_rows(table, spec.name)
             if isempty(rows)
-                out *= "| $(adapter.title) | $(status) | 0 | — | — |\n"
+                out *= "| $(adapter.title) | $(status) | — | 0 | — | — | — |\n"
                 continue
             end
             objectives = [r["objective"] for group in values(rows) for r in group]
-            gap = maximum(relative_gap(o, best) for o in objectives)
-            out *= "| $(adapter.title) | $(status) | $(length(objectives)) | $(objective_range(objectives)) | $(gap_string(gap)) |\n"
-        end
-        solutions = get(table, "solutions", [])
-        if !isempty(solutions)
-            header = join((adapter.title for (_, adapter) in mods), " | ")
-            out *= """
-
-            Which solution each modeling reached: the number of configurations of each
-            modeling whose solves reached it.
-
-            | Solution | Objective | Gap to best | $(header) |
-            | :--- | ---: | ---: |$(repeat(" ---: |", length(mods)))
-            """
-            for (i, s) in enumerate(solutions)
-                counts = map(mods) do (spec, _)
-                    n = count(
-                        c -> first(split(c)) == string(spec.name), s["configurations"]
-                    )
-                    return n == 0 ? "—" : string(n)
-                end
-                label = i == 1 ? "best" : "local $(i - 1)"
-                out *= "| $(label) | $(objective_string(s["objective"])) | $(gap_string(relative_gap(s["objective"], best))) | $(join(counts, " | ")) |\n"
+            gap = maximum(relative_gap(o, table["value"]) for o in objectives)
+            versus = if table["grid_size"] == grid
+                "$(objective_string(table["value"])), $(gap_string(relative_gap(table["value"], best)))"
+            else
+                "$(objective_string(table["value"])), other grid"
             end
+            out *= "| $(adapter.title) | $(status) | $(table["grid_size"]) | $(length(objectives)) | $(objective_range(objectives)) | $(gap_string(gap)) | $(versus) |\n"
         end
         out *= "\n"
     end

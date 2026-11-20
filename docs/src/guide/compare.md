@@ -58,7 +58,9 @@ using OptimalControl, JuMP, Ipopt, NLPModelsIpopt, OptimalControlProblems
 
 problem = :beam
 N = grid_size_data(problem)
-reference = OptimalControlProblems.reference_objective(problem; grid_size=N, scheme=:trapeze)
+reference = OptimalControlProblems.reference_objective(
+    problem, OptimalControlBackend(); grid_size=N, scheme=:trapeze
+)
 
 pb = OptimalControlProblems.beam(OptimalControlBackend())
 sol = solve(

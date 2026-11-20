@@ -16,7 +16,7 @@ set_optimizer(nlp, Ipopt.Optimizer)
 set_silent(nlp)
 optimize!(nlp)
 termination_status(nlp), objective_value(nlp)
-@assert isapprox(objective_value(nlp), OptimalControlProblems.reference_objective(:beam); rtol=1e-6) # hide
+@assert isapprox(objective_value(nlp), OptimalControlProblems.reference_objective(:beam, JuMPBackend()); rtol=1e-6) # hide
 ```
 
 ## The keywords

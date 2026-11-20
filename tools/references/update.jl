@@ -27,9 +27,15 @@ function main(args)
     end
     isempty(dirs) &&
         error("usage: julia --project=. tools/references/update.jl [--run <url>] <dir>...")
+    # the default grid of each problem in each modeling: the references are by modeling
+    specs = OptimalControlProblems.Modelings.MODELING_SPECS
     defaults = Dict(
         problem => (
-            grid_size=OptimalControlProblems.grid_size_data(problem),
+            grid_sizes=Dict(
+                string(spec.name) =>
+                    OptimalControlProblems.grid_size_data(problem, spec.backend()) for
+                spec in specs
+            ),
             parameters=repr(OptimalControlProblems.problem_metadata(problem)[:parameters]),
         ) for problem in OptimalControlProblems.problems(; status=:all)
     )

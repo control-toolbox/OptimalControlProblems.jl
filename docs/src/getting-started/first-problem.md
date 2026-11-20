@@ -42,12 +42,12 @@ objective(sol)
 
 ## Check the result
 
-The collection stores a reference objective for each problem, discretized on its default grid
-with the trapezoidal rule: the best objective reached by every modeling and configuration
-tested.
+The collection stores a reference objective for each problem and modeling, discretized on
+the default grid of the modeling with the trapezoidal rule: the best objective reached by the
+configurations of the modeling tested.
 
 ```@example first
-reference = OptimalControlProblems.reference_objective(:beam)
+reference = OptimalControlProblems.reference_objective(:beam, OptimalControlBackend())
 ```
 
 ```@example first

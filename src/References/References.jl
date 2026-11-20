@@ -7,7 +7,8 @@ known solution says how it was obtained, as a `NumericalReference`; an analytic 
 an `AnalyticReference` (#409): `references`, `best_reference`, `analytic_reference`, and
 `objective(ref)`.
 
-Depends on `Metadata`, whose metadata it completes with the field `:reference_objective`.
+Depends on `Modelings` (the references of each modeling are independent) and `Metadata`,
+whose metadata it completes with the field `:reference_objective`.
 """
 module References
 
@@ -16,6 +17,7 @@ using CTModels: CTModels
 using DocStringExtensions: TYPEDEF, TYPEDFIELDS, TYPEDSIGNATURES
 using TOML: TOML
 
+using ..Modelings: Modelings
 using ..Metadata: Metadata
 
 include(joinpath(@__DIR__, "types.jl"))

@@ -51,10 +51,10 @@ OptimalControlProblems.initial_guess_data(:beam)
 ```
 
 ```@example tour
-OptimalControlProblems.reference_objective(:beam)
+OptimalControlProblems.reference_objective(:beam, OptimalControlBackend())
 ```
 
-The reference objective depends on the scheme and the grid: it is the objective of the
+The reference objective depends on the modeling, the scheme and the grid: it is the objective of the
 discretized problem. When the continuous problem has a known solution, it is in the metadata
 too:
 
