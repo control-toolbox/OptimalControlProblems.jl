@@ -1,6 +1,7 @@
 # The tests of the OptimalControl modelings (OptimalControl and OptimalControlScalarized), written
-# once and parameterized by the backend (#441): the API of a problem, the smoke solves, the
-# convergence report. A test file of a modeling is a wrapper that gives its backend (TST1).
+# once and parameterized by the backend (#441): the API of a problem, the draft warning, the
+# smoke solves, the convergence and robustness reports. A test file of a modeling is a wrapper
+# that gives its backend (TST1).
 # The tests themselves are shared with every modeling that returns a `Problem`
 # (`common/modeling_tests.jl`, #439); this module gives them the OptimalControl solves
 # (`Main.SolveOptimalControl`).
@@ -42,5 +43,11 @@ Every problem solved on its default grid in each configuration, and reported, no
 (#360); an exception still fails.
 """
 test_convergence(backend) = Main.ModelingTests.test_convergence(backend, adapter())
+
+"""A draft warns when it is built, a valid problem does not."""
+test_draft(backend) = Main.ModelingTests.test_draft(backend, adapter())
+
+"""The robustness report of the initial guess (#378), on the default grid of the modeling."""
+test_robustness(backend) = Main.ModelingTests.test_robustness(backend, adapter())
 
 end # module OptimalControlTests
