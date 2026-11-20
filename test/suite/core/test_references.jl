@@ -272,6 +272,12 @@ function test_references()
         Test.@test ref.julia == v"1.13.3" && ref.machine.os == "Linux"
         Test.@test ref.versions.Ipopt_jll == "300.1400.1902+0"
         Test.@test ref.solves == 4 && ref.violation == 1e-12
+        # shown in one line, and in full with what says how it was obtained
+        Test.@test sprint(show, ref) == "NumericalReference(:alpha, 2.0000000001)"
+        shown = sprint(show, MIME("text/plain"), ref)
+        Test.@test startswith(shown, "Known solution of alpha, trapeze on 100 steps")
+        Test.@test occursin("solved by:  JuMP, adnlp + ipopt, R", shown)
+        Test.@test occursin("run:        https://run/1 (cron-ubuntu)", shown)
         Test.@test OCP.References._references(:omega, files[2]).JuMP.trapeze.solutions ==
             [3.0, 3.3]
         # a table not recomputed is kept: another scheme, another modeling
@@ -354,6 +360,8 @@ function test_reference_api()
             Test.@test isnothing(analytic) == isnothing(data)
             isnothing(analytic) && continue
             Test.@test analytic isa OCP.AnalyticReference
+            Test.@test sprint(show, analytic) ==
+                "AnalyticReference(:$(problem), $(OCP.objective(analytic)))"
             Test.@test OCP.objective(analytic) == data.objective
             Test.@test analytic.source == data.source
         end
