@@ -12,7 +12,7 @@ A collection of optimal control problems, each available in one or more modeling
 src/           # Module: problem registry and model backends (AbstractModelBackend)
 ext/           # Weak-dependency extensions, one per modeling:
                # OptimalControlModels, OptimalControlScalarizedModels, JuMPModels,
-               # MetaData, Descriptions
+               # MetaData (the metadata and the description of each problem)
 test/          # Test suite: one file per modeling plus shared checks (aqua, init, solution)
 docs/          # Documentation site (Documenter)
 .ct-conventions/  # ct-conventions, cloned at the pinned tag (git-ignored)

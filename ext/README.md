@@ -8,8 +8,8 @@ problems: the lists are computed from the files.
 ```text
 ext/
 ├── MetaData/<problem>.jl          # metadata of every problem: one file each
+├── MetaData/<problem>.md          # description of every problem, next to its metadata
 ├── MetaData/references/<problem>.toml  # reference objectives, generated (tools/references)
-├── Descriptions/<problem>.md      # description of every problem: one file each
 ├── <Modeling>Models/<problem>.jl  # the problem in a modeling, one directory per modeling
 ├── JuMPModels.jl                  # extension of the JuMP modeling
 ├── ModelingToolkitModels.jl       # extension of the ModelingToolkit modeling
@@ -37,7 +37,7 @@ ext/
 
    The schema is `METADATA_SCHEMA` in `src/Metadata/loading.jl`, checked when the
    package loads.
-2. **Description**, `Descriptions/<problem>.md`: the problem in words and its mathematical
+2. **Description**, `MetaData/<problem>.md`, next to the metadata: the problem in words and its mathematical
    formulation, and a `### References` section with at least one entry (checked).
 3. **Models**: one file per modeling, `<Modeling>Models/<problem>.jl`. Copy the file of a
    problem with the same features (kind of cost, free times, constraints) in the same modeling:

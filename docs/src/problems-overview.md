@@ -28,7 +28,7 @@ the latest convergence reports.
 | :--- | :--- |
 | Modelings | the files of the problem: a problem exists in a modeling when its file does |
 | Status | the metadata, `valid` or `draft` per modeling |
-| Description | `ext/Descriptions/<problem>.md` |
+| Description | `ext/MetaData/<problem>.md`, next to the metadata |
 | Parameters, default grid, initial guess | the metadata, `ext/MetaData/<problem>.jl` |
 | Features | computed from the OptimalControl model |
 | Reference objective | computed from the convergence and robustness crons, per scheme, on the default grid |

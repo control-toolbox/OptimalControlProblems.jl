@@ -116,7 +116,7 @@ class TestRules(unittest.TestCase):
 
     def test_metadata_and_description(self):
         self.assertEqual("problem=beam", self.scope("ext/MetaData/beam.jl"))
-        self.assertEqual("problem=robot", self.scope("ext/Descriptions/robot.md"))
+        self.assertEqual("problem=robot", self.scope("ext/MetaData/robot.md"))
         self.assertEqual("problem=beam", self.scope("ext/MetaData/references/beam.toml"))
 
     def test_metadata_file_not_a_problem(self):
@@ -285,11 +285,11 @@ class TestLabels(unittest.TestCase):
 
 class TestSummary(unittest.TestCase):
     def test_narrowed(self):
-        md = run_summary(changed(["ext/JuMPModels/beam.jl", "ext/Descriptions/robot.md"]))
+        md = run_summary(changed(["ext/JuMPModels/beam.jl", "ext/MetaData/robot.md"]))
         self.assertIn("**Problems**: `beam`, `robot`", md)
         self.assertIn("**Environments**: all", md)
         self.assertIn("| modified | `ext/JuMPModels/beam.jl` | `JuMP`, `comparison` | `beam` |", md)
-        self.assertIn("| modified | `ext/Descriptions/robot.md` | all | `robot` |", md)
+        self.assertIn("| modified | `ext/MetaData/robot.md` | all | `robot` |", md)
 
     def test_core_only(self):
         md = run_summary(changed(["docs/make.jl"]))

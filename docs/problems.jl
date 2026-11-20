@@ -426,7 +426,7 @@ function problem_page(problem::Symbol)
     refs = references(problem)
     statuses = OCP.status(problem)
     description = with_behaviour(
-        read(joinpath(ROOT, "ext", "Descriptions", "$(problem).md"), String)
+        read(joinpath(ROOT, "ext", "MetaData", "$(problem).md"), String)
     )
 
     views = Any[(id="problem", label="Problem", kind="problem")]
