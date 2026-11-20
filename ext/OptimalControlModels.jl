@@ -1,9 +1,12 @@
 module OptimalControlModels
 
-using OptimalControlProblems
-using OptimalControl
-using DocStringExtensions
-using OrderedCollections: OrderedDict
+# the names the model files use everywhere (MOD4): the backends, the parameters, `@def`
+using OptimalControlProblems:
+    OptimalControlProblems,
+    OptimalControlBackend,
+    OptimalControlScalarizedBackend,
+    parameters_data
+using OptimalControl: OptimalControl, @def
 
 # Include only files belonging to this modeling. The file presence is the
 # source of truth for availability.
