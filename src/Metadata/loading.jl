@@ -14,7 +14,7 @@ const METADATA_SCHEMA = (
         status=NamedTuple,
         init=Function,
     ),
-    optional=(notes=AbstractString, reference_solution=Function),
+    optional=(notes=AbstractString, reference_solution=Function, grid_sizes=NamedTuple),
     generated=(reference_objective=NamedTuple,),
 )
 const METADATA_STORAGE = OrderedDict{Symbol,OrderedDict}()

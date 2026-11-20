@@ -23,6 +23,11 @@ The following keys are valid:
 ```julia
 :grid_size => 500,
 ```
+- `grid_sizes::NamedTuple` (optional): the number of steps of the problem in some modelings,
+  where it differs from the default of the modeling (see `grid_size_data`). For example:
+```julia
+:grid_sizes => (ModelingToolkit=100,),
+```
 - `parameters::Union{Nothing,NamedTuple}`: the list of parameters. For example:
 ```julia
 :parameters => (
@@ -93,6 +98,39 @@ julia> grid_size_data(:beam)
 """
 function grid_size_data(problem::Symbol)
     return problem_metadata(problem)[:grid_size]
+end
+
+"""
+The default number of steps of a ModelingToolkit problem: it is solved by direct shooting
+(Corleone), one integration per control interval, which needs a coarser grid than a
+collocation (#435). At most the grid of the problem.
+"""
+const MODELING_TOOLKIT_GRID_SIZE = 50
+
+_grid_size(problem::Symbol, ::Modelings.AbstractModelBackend) = grid_size_data(problem)
+function _grid_size(problem::Symbol, ::Modelings.ModelingToolkitBackend)
+    return min(grid_size_data(problem), MODELING_TOOLKIT_GRID_SIZE)
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+Return the default number of steps of `problem` in the modeling of `backend`: the entry of
+the modeling in the field `:grid_sizes` of the metadata when there is one, otherwise the
+default of the modeling, the grid of the problem (`grid_size_data(problem)`) but for
+ModelingToolkit, solved by shooting on a coarser grid (`MODELING_TOOLKIT_GRID_SIZE`).
+
+# Example
+
+```julia-repl
+julia> grid_size_data(:beam, JuMPBackend())
+500
+```
+"""
+function grid_size_data(problem::Symbol, backend::Modelings.AbstractModelBackend)
+    grid_sizes = get(problem_metadata(problem), :grid_sizes, (;))
+    name = Modelings._modeling_spec(backend).name
+    return haskey(grid_sizes, name) ? grid_sizes[name] : _grid_size(problem, backend)
 end
 
 """

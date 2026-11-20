@@ -18,7 +18,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.space_shuttle(
     ::JuMPBackend,
     args...;
-    grid_size::Int=grid_size_data(:space_shuttle),
+    grid_size::Int=grid_size_data(:space_shuttle, JuMPBackend()),
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,

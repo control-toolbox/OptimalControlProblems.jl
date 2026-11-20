@@ -18,7 +18,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.double_oscillator(
     ::JuMPBackend,
     args...;
-    grid_size::Int=grid_size_data(:double_oscillator),
+    grid_size::Int=grid_size_data(:double_oscillator, JuMPBackend()),
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,

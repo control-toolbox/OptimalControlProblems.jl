@@ -72,6 +72,10 @@ See [BREAKING.md](BREAKING.md).
   `objective(sol)` and `iterations(sol)` work on it. The JuMP costate uses the sign
   convention of `rules/signs.md` (`-JuMP.dual`, the same as OptimalControl, #326) and is
   stamped at the step midpoints.
+- `grid_size_data(problem, backend)`: the default grid of a problem in a modeling, the grid
+  of the problem but for ModelingToolkit, solved by shooting on a coarser one (at most 50
+  steps); a problem can set it per modeling with the optional metadata field `:grid_sizes`
+  (#435).
 
 ### 🛠 Enhancements
 

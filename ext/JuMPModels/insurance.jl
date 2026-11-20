@@ -18,7 +18,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.insurance(
     ::JuMPBackend,
     args...;
-    grid_size::Int=grid_size_data(:insurance),
+    grid_size::Int=grid_size_data(:insurance, JuMPBackend()),
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,

@@ -18,7 +18,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.cart_pendulum(
     ::JuMPBackend,
     args...;
-    grid_size::Int=grid_size_data(:cart_pendulum),
+    grid_size::Int=grid_size_data(:cart_pendulum, JuMPBackend()),
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,

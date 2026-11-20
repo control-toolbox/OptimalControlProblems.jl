@@ -18,7 +18,7 @@ Default parameters and the modeling status are available through
 function OptimalControlProblems.dielectrophoretic_particle(
     ::JuMPBackend,
     args...;
-    grid_size::Int=grid_size_data(:dielectrophoretic_particle),
+    grid_size::Int=grid_size_data(:dielectrophoretic_particle, JuMPBackend()),
     scheme::Symbol=:trapeze,
     ordering::Symbol=:interleaved,
     parameters::Union{Nothing,NamedTuple}=nothing,
