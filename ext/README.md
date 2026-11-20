@@ -28,7 +28,10 @@ ext/
 
 1. **Metadata**, `MetaData/<problem>.jl`: an `OrderedDict` named `<problem>_meta` with
    - `:grid_size`, the default number of steps;
-   - `:parameters`, a `NamedTuple` of the default parameters, or `nothing`;
+   - `:parameters`, a `NamedTuple` of the default parameters, or `nothing`; every bound of
+     the problem is one of them, never a number written in a model;
+   - `:parameter_info`, the unit (`nothing` if none) and the meaning of each parameter, in
+     their order, shown on the page of the problem;
    - `:status`, one entry per modeling where the problem has a file, `:draft` to start with;
    - `:init`, the initial guess shared by every modeling, a function of the parameters
      returning `(state=…, control=…, variable=…)`;
@@ -37,8 +40,11 @@ ext/
 
    The schema is `METADATA_SCHEMA` in `src/Metadata/loading.jl`, checked when the
    package loads.
-2. **Description**, `MetaData/<problem>.md`, next to the metadata: the problem in words and its mathematical
-   formulation, and a `### References` section with at least one entry (checked).
+2. **Description**, `MetaData/<problem>.md`, next to the metadata: the problem in words, then
+   the sections `### Mathematical formulation`, `### Qualitative behaviour` (optional),
+   `### Characteristics` (what cannot be computed: the page shows the dimensions and the kinds
+   of constraints) and `### References`, with at least one entry. No parameters section: the
+   page generates it from the metadata.
 3. **Models**: one file per modeling, `<Modeling>Models/<problem>.jl`. Copy the file of a
    problem with the same features (kind of cost, free times, constraints) in the same modeling:
    - OptimalControl: a method `OptimalControlProblems.<problem>(::OptimalControlBackend;
@@ -50,13 +56,20 @@ ext/
      `JuMPModels/schemes/`;
    - ModelingToolkit: a method that writes the continuous model with ModelingToolkit.jl
      (`@variables`, `Differential`, `Symbolics.Integral`, `System`) and returns `_problem(…)`.
-4. **Test it**: `Pkg.test(; test_args=["problem=<problem>"])` runs every test on this problem
+4. **Lint it**: `julia --project tools/lint/problems.jl <problem>` checks what the steps above
+   ask, the same way for every problem: the files and a status per model file, the outline and
+   sources of the description, `:parameter_info`, and in each model file the method and its
+   keywords, the draft warning, `parameters_data`, `_initial_guess`, the parameters it reads
+   (all used, all of the problem) and no bound written in the code (a bound is a parameter).
+   Its report also lists what other tools check (☑️) and what is left to check by hand (ℹ️):
+   no failure does not mean the problem is right. `test_lint` runs it on every problem.
+5. **Test it**: `Pkg.test(; test_args=["problem=<problem>"])` runs every test on this problem
    only (see `test/README.md`). The consistency tests check the files and the metadata; the
    smoke tests that it builds and runs; the equivalence tests that two modelings give the same
    NLP.
-5. **Valid**: once the tests pass in a modeling, set its status to `:valid`. A problem valid in
+6. **Valid**: once the tests pass in a modeling, set its status to `:valid`. A problem valid in
    one modeling only needs a reference objective (the comparison rule, checked).
-6. **Reference objective**: computed from the convergence crons by
+7. **Reference objective**: computed from the convergence crons by
    `tools/references/update.jl` (see `tools/references/README.md`).
 
 The documentation page of the problem is generated from these files: nothing to write in
