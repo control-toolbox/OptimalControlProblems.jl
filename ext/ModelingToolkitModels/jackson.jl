@@ -15,7 +15,7 @@ function OptimalControlProblems.jackson(
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:jackson, :ModelingToolkit)
     params = OptimalControlProblems.parameters_data(:jackson, parameters)
-    t0, tf = float(params[:t0]), float(params[:tf])
+    tf = float(params[:tf])
     k1, k2, k3 = params[:k1], params[:k2], params[:k3]
     a_l, a_u = float(params[:a_l]), float(params[:a_u])
     b_l, b_u = float(params[:b_l]), float(params[:b_u])

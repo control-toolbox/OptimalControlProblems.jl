@@ -38,11 +38,13 @@ function OptimalControlProblems.brachistochrone(
     yf = params[:yf]
     u_min = params[:u_min]
     u_max = params[:u_max]
+    tf_l = params[:tf_l]
+    tf_u = params[:tf_u]
 
     data = ProblemData(;
         state=[Component("px"), Component("py"), Component("v")],
-        control=[Component("u"; lower=-1.57, upper=1.57)],
-        variable=[Component("tf"; lower=0.1, upper=20.0)],
+        control=[Component("u"; lower=u_min, upper=u_max)],
+        variable=[Component("tf"; lower=tf_l, upper=tf_u)],
         costate=["∂px", "∂py", "∂v"],
         times=v -> (t0, v[1]),
         # Dymos formulation

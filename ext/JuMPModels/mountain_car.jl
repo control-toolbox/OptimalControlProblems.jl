@@ -30,7 +30,6 @@ function OptimalControlProblems.mountain_car(
     # parameters
     params = parameters_data(:mountain_car, parameters)
     t0 = params[:t0]
-    tf_start = params[:tf_start]
     tf_min = params[:tf_min]
     pos_t0 = params[:pos_t0]
     vel_t0 = params[:vel_t0]

@@ -52,6 +52,9 @@ function OptimalControlProblems.balanced_field(
     γ_tf = params[:γ_tf]
 
     α_min = params[:α_min]
+    v_min = params[:v_min]
+    h_min = params[:h_min]
+    tf_min = params[:tf_min]
     α_max_ctrl = params[:α_max_ctrl]
 
     # Constants
@@ -79,12 +82,12 @@ function OptimalControlProblems.balanced_field(
     data = ProblemData(;
         state=[
             Component("r"),
-            Component("v"; lower=1.0),
-            Component("h"; lower=0.0),
+            Component("v"; lower=v_min),
+            Component("h"; lower=h_min),
             Component("γ"),
         ],
-        control=[Component("α"; lower=0, upper=α_max_ctrl)],
-        variable=[Component("tf"; lower=0.1)],
+        control=[Component("α"; lower=α_min, upper=α_max_ctrl)],
+        variable=[Component("tf"; lower=tf_min)],
         costate=["∂r", "∂v", "∂h", "∂γ"],
         times=v -> (t0, v[1]),
         dynamics=(x, u, v, t) -> dynamics(x, u),

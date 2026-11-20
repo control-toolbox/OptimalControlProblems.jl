@@ -28,6 +28,8 @@ function OptimalControlProblems.brachistochrone(
     yf = params[:yf]
     u_min = params[:u_min]
     u_max = params[:u_max]
+    tf_l = params[:tf_l]
+    tf_u = params[:tf_u]
 
     # model
     ocp = @def begin
@@ -37,8 +39,8 @@ function OptimalControlProblems.brachistochrone(
         z = (px, py, v) ∈ R³, state
         u ∈ R, control
 
-        -1.57 ≤ u(t) ≤ 1.57
-        0.1 ≤ tf ≤ 20.0
+        u_min ≤ u(t) ≤ u_max
+        tf_l ≤ tf ≤ tf_u
 
         z(t0) == [x0, y0, v0]
 
