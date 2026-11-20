@@ -62,7 +62,9 @@ ext/
    keywords, the draft warning, `parameters_data`, `_initial_guess`, the parameters it reads
    (all used, all of the problem) and no bound written in the code (a bound is a parameter).
    Its report also lists what other tools check (☑️) and what is left to check by hand (ℹ️):
-   no failure does not mean the problem is right. `test_lint` runs it on every problem.
+   no failure does not mean the problem is right. The ℹ️ list is a checklist: paste it in the
+   pull request and tick each box, or say why not. `test_lint` runs the linter on every
+   problem.
 5. **Test it**: `Pkg.test(; test_args=["problem=<problem>"])` runs every test on this problem
    only (see `test/README.md`). The consistency tests check the files and the metadata; the
    smoke tests that it builds and runs; the equivalence tests that two modelings give the same

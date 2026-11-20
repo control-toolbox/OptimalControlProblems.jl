@@ -348,7 +348,8 @@ const MANUAL = (
 
 """
 The report of `results` in Markdown: a line per problem, the failures, what other tools
-check and what is left to check by hand. With `verbose`, every check.
+check and what is left to check by hand, as a checklist for the pull request. With
+`verbose`, every check.
 """
 function report(results::Vector{Check}; verbose::Bool=false)
     io = IOBuffer()
@@ -379,9 +380,11 @@ function report(results::Vector{Check}; verbose::Bool=false)
     for (what, tool) in ELSEWHERE
         println(io, "- ", what, ": ", tool, ".")
     end
-    println(io, "\n### ℹ️ To check by hand, for each problem\n")
+    names = join(("`$p`" for p in problems), ", ")
+    println(io, "\n### ℹ️ To check by hand, for $names\n")
+    println(io, "To paste in the pull request, each box ticked or the reason why not:\n")
     for what in MANUAL
-        println(io, "- ", what, ".")
+        println(io, "- [ ] ", what, ".")
     end
     println(
         io,
