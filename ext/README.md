@@ -26,6 +26,12 @@ ext/
 
 ## Add a problem
 
+0. **Skeleton**: `julia --project tools/new/problem.jl new <problem> <modelings...>` writes
+   the files of the steps below from the templates of `tools/new/templates/`, an example
+   problem in each modeling given, `:draft`; `add <problem> <modelings...>` adds a modeling
+   to an existing problem (a model file, a `:draft` status). Their `TODO`s mark what to write
+   in place of the example; the linter (step 4) fails until none is left. A new modeling of
+   the package needs its template there (a test checks it).
 1. **Metadata**, `MetaData/<problem>.jl`: an `OrderedDict` named `<problem>_meta` with
    - `:grid_size`, the default number of steps;
    - `:parameters`, a `NamedTuple` of the default parameters, or `nothing`; every bound of

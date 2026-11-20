@@ -4,9 +4,9 @@
 # failure here does not mean that a problem is right.
 #
 # Used by `tools/lint/problems.jl` (the command line) and by `test/suite/core/test_lint.jl`
-# (no failure allowed). The checks read the files of the problem as text and its metadata
-# through the package; they are pure functions of a `ProblemSource`, which the tests build by
-# hand.
+# (no failure allowed). The checks read the files of the problem as text, and its metadata
+# by evaluating its file; they are pure functions of a `ProblemSource`, which the tests build
+# by hand.
 module ProblemLint
 
 using OptimalControlProblems: OptimalControlProblems
@@ -38,6 +38,18 @@ struct ProblemSource
     models::Vector{Model}
 end
 
+"""
+The metadata of `problem` in `ext/MetaData/<problem>.jl` under `root`: the file evaluated in
+a module of its own, as the package does, so that a problem not yet known to the loaded
+package (just created, or under another root) can be linted.
+"""
+function metadata(problem::Symbol; root::AbstractString=pkgdir(OCP))
+    sandbox = Module()
+    Core.eval(sandbox, :(const OrderedDict = $(OCP.Metadata.OrderedDict)))
+    Base.include(sandbox, joinpath(root, "ext", "MetaData", "$(problem).jl"))
+    return Base.invokelatest(getglobal, sandbox, Symbol(problem, :_meta))
+end
+
 """The `ProblemSource` of `problem`, read from the files of the package under `root`."""
 function source(problem::Symbol; root::AbstractString=pkgdir(OCP))
     ext = joinpath(root, "ext")
@@ -51,7 +63,7 @@ function source(problem::Symbol; root::AbstractString=pkgdir(OCP))
     ]
     return ProblemSource(
         problem,
-        OCP.problem_metadata(problem),
+        metadata(problem; root),
         read(joinpath(ext, "MetaData", "$(problem).jl"), String),
         read_or_nothing(joinpath(ext, "MetaData", "$(problem).md")),
         models,
@@ -231,6 +243,19 @@ function checks(src::ProblemSource)
         any(m -> !isnothing(m.text), src.models),
         "files",
         "a model in one modeling at least",
+    )
+
+    # nothing left to fill: the skeleton of `tools/new/problem.jl` marks what to write
+    texts = [
+        "metadata" => src.metadata_text,
+        "description" => src.description,
+        ("model $(m.modeling)" => m.text for m in src.models)...,
+    ]
+    todo = [name for (name, text) in texts if !isnothing(text) && occursin("TODO", text)]
+    add(
+        isempty(todo),
+        "files",
+        "nothing left to fill (`TODO`)" * (isempty(todo) ? "" : ": $(join(todo, ", "))"),
     )
 
     # the description: one outline, sources
