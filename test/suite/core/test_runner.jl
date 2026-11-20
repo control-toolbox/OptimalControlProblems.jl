@@ -26,6 +26,14 @@ function test_runner()
             # `core` alone: no other environment (it always runs in-process)
             Test.@test sel(["core"]) == (String[], String[])
             Test.@test sel(["core", "JuMP"]) == (["JuMP"], String[])
+            # `+name`: the default environments and this one
+            Test.@test sel(["+ModelingToolkit"]) ==
+                (["JuMP", "ModelingToolkit", "OptimalControl"], String[])
+            Test.@test sel(["+ModelingToolkit", "*solve*"]) ==
+                (["JuMP", "ModelingToolkit", "OptimalControl"], ["*solve*"])
+            Test.@test sel(["JuMP", "+ModelingToolkit"]) ==
+                (["JuMP", "ModelingToolkit"], String[])
+            Test.@test_throws ArgumentError sel(["+Fortran"])
         end
 
         Test.@testset "mode" begin

@@ -37,14 +37,22 @@ Split the command-line `args` into the environments to run and the file patterns
 Names of `available` environments (and `core`) are environment names; the rest are
 patterns. With no environment name, every available environment except the `opt_in`
 ones runs; naming only `core` runs no environment (`core` always runs in-process).
+`+<name>` adds an available environment to the default ones: `+ModelingToolkit` is every
+environment run by default and ModelingToolkit (the coverage, which names no other).
 """
 function select_environments(args, available, opt_in; core::AbstractString="core")
+    added = String[chopprefix(a, "+") for a in args if startswith(a, "+")]
+    unknown = setdiff(added, available)
+    isempty(unknown) || throw(
+        ArgumentError("unknown environments $(join(("+" * u for u in unknown), ", "))")
+    )
+    args = filter(a -> !startswith(a, "+"), args)
     named = filter(a -> a == core || a in available, args)
     patterns = String[a for a in args if !(a in named)]
     environments = if isempty(named)
-        String[e for e in available if !(e in opt_in)]
+        String[e for e in available if !(e in opt_in) || e in added]
     else
-        String[e for e in named if e in available]
+        String[e for e in available if e in named || e in added]
     end
     return environments, patterns
 end
