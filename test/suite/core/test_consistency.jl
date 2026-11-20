@@ -24,6 +24,10 @@ end
 function test_files()
     Test.@testset "files" verbose = VERBOSE begin
         problems = OCP.problems(; status=:all)
+        # the list of the problems, read from the files when the package was compiled, is
+        # the one the files give now
+        Test.@test OCP.Metadata.make_list_of_problems() ==
+            (OCP.Metadata.PROBLEM_NAMES, OCP.Metadata.METADATA_PATH)
         # metadata and descriptions: one file each per problem, and nothing else
         for extension in DATA_FILES
             Test.@test names_in(joinpath(EXT, "MetaData"), extension) == problems

@@ -304,7 +304,8 @@ cron ignores labels and problem scoping.
 
 The environment `GPU` (`test/suite/GPU/`) solves every problem of the OptimalControl and
 OptimalControlScalarized modelings with Exa and MadNLP on the GPU (`GPU_CONFIGS` in
-`common/configs.jl`, small grid). It is opt-in, like `ModelingToolkit`: `CUDA`, `CUDSS` and
+`common/configs.jl`, small grid), written once in `common/gpu_tests.jl`; the two files of the
+environment are wrappers. It is opt-in, like `ModelingToolkit`: `CUDA`, `CUDSS` and
 `MadNLPGPU` are heavy and useless on a CPU runner. Run it with
 `Pkg.test(; test_args=["GPU"])`, or with the labels above on a pull request; on a push to
 `main` a single GPU run goes to `kkt`, or `occidata` if `kkt` is offline.

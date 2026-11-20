@@ -9,16 +9,19 @@ const VERBOSE = isdefined(Main, :TestOptions) ? Main.TestOptions.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestOptions) ? Main.TestOptions.SHOWTIMING : true
 
 # Source lines of the GPU tests that ask CUDA themselves instead of reading
-# `Main.TestCapabilities` (TST6: the predicate is defined once). This file is left out of
-# the walk: it spells out the pattern it searches for.
+# `Main.TestCapabilities` (TST6: the predicate is defined once): the files of this
+# environment and the shared GPU tests. This file is left out of the walk: it spells out the
+# pattern it searches for.
 function offenders()
     pattern = Regex("CUDA" * "\\.functional\\(\\)")
+    files = [
+        joinpath(@__DIR__, f) for
+        f in readdir(@__DIR__) if endswith(f, ".jl") && f != basename(@__FILE__)
+    ]
+    push!(files, joinpath(@__DIR__, "..", "..", "common", "gpu_tests.jl"))
     found = Tuple{String,Int}[]
-    for file in readdir(@__DIR__)
-        (endswith(file, ".jl") && file != basename(@__FILE__)) || continue
-        for (n, line) in enumerate(eachline(joinpath(@__DIR__, file)))
-            occursin(pattern, line) && push!(found, (file, n))
-        end
+    for file in files, (n, line) in enumerate(eachline(file))
+        occursin(pattern, line) && push!(found, (basename(file), n))
     end
     return found
 end
