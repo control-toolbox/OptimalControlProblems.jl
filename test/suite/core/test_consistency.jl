@@ -10,8 +10,9 @@ const OCP = OptimalControlProblems
 const ROOT = pkgdir(OptimalControlProblems)
 const EXT = joinpath(ROOT, "ext")
 
-# Directories of ext/ that hold one file per problem, and the extension of their files.
-const DATA_DIRECTORIES = ("MetaData" => ".jl", "Descriptions" => ".md")
+# The hand-written data of a problem, in ext/MetaData/: its metadata and its description,
+# one file each, side by side.
+const DATA_FILES = (".jl", ".md")
 
 function names_in(dir, extension)
     return sort!([
@@ -24,8 +25,8 @@ function test_files()
     Test.@testset "files" verbose = VERBOSE begin
         problems = OCP.problems(; status=:all)
         # metadata and descriptions: one file each per problem, and nothing else
-        for (dir, extension) in DATA_DIRECTORIES
-            Test.@test names_in(joinpath(EXT, dir), extension) == problems
+        for extension in DATA_FILES
+            Test.@test names_in(joinpath(EXT, "MetaData"), extension) == problems
         end
         # model directories: exactly the directories of the modeling table
         model_dirs = sort!([
@@ -244,7 +245,7 @@ end
 function test_outline()
     Test.@testset "outline" verbose = VERBOSE begin
         for problem in OCP.problems(; status=:all)
-            text = read(joinpath(EXT, "Descriptions", "$problem.md"), String)
+            text = read(joinpath(EXT, "MetaData", "$problem.md"), String)
             Test.@test follows_outline(text)
         end
         complete = "### Mathematical formulation\n### Qualitative behaviour\n### Characteristics\n### References\n"
@@ -270,7 +271,7 @@ end
 function test_sources()
     Test.@testset "sources" verbose = VERBOSE begin
         for problem in OCP.problems(; status=:all)
-            text = read(joinpath(EXT, "Descriptions", "$problem.md"), String)
+            text = read(joinpath(EXT, "MetaData", "$problem.md"), String)
             Test.@test cites_sources(text)
         end
         Test.@test cites_sources("text\n\n### References\n\n- **A. (2000)**. *Title*.\n")

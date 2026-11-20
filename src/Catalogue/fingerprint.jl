@@ -4,7 +4,7 @@
 function _problem_files(problem::Symbol)
     files = [
         joinpath(Modelings.EXT_PATH, "MetaData", "$(problem).jl"),
-        joinpath(Modelings.EXT_PATH, "Descriptions", "$(problem).md"),
+        joinpath(Modelings.EXT_PATH, "MetaData", "$(problem).md"),
     ]
     for spec in Modelings.MODELING_SPECS
         Modelings._problem_exists(problem, spec) &&

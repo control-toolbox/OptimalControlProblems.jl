@@ -228,7 +228,7 @@ modelings change different problems). The rules are read from the repository:
 | `ext/<M>Models/<p>.jl`, a problem of a modeling | `M`, `comparison` | `p` |
 | another file of `ext/<M>Models/` (e.g. `schemes/`) | `M`, `comparison` | all |
 | `ext/<E>.jl`, an extension | those whose `Project.toml` holds its triggers | all |
-| a file of `ext/MetaData/` or `ext/Descriptions/` named after a problem | all | `p` |
+| a file of `ext/MetaData/` named after a problem (metadata, description) | all | `p` |
 | `test/suite/<env>/**` | `env` (none for `core` and the opt-in ones) | all |
 | `test/common/<f>.jl` | those whose tests include it, directly or not; all if `test/runtests.jl` names it | all |
 | `test/cron/**`, `test/robustness/**`, `tools/**`, `docs/**`, Markdown outside `ext/` | none: `core` only | — |

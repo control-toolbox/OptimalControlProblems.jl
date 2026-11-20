@@ -12,7 +12,7 @@ rules are read from the repository, not written as a list of paths:
   schemes): the same environments, every problem;
 - ``ext/<E>.jl``, the entry point of an extension: the environments whose ``Project.toml``
   holds every trigger of ``E`` (``[extensions]`` of the package's ``Project.toml``);
-- ``ext/MetaData/**`` and ``ext/Descriptions/**``, a file named after a problem: every
+- ``ext/MetaData/**``, a file named after a problem (its metadata, its description): every
   environment, for that problem;
 - ``test/suite/<env>/**``: the environment ``env``;
 - ``test/common/<f>.jl``: the environments whose tests name ``<f>.jl`` (an ``include``),
@@ -152,7 +152,7 @@ def classify(row, repo):
         needed = set(repo.triggers[stem])
         envs = {e for e in repo.environments if needed <= repo.deps[e]}
         return envs, ALL, f"extension `{stem}`"
-    if parts[0] == "ext" and len(parts) > 2 and parts[1] in ("MetaData", "Descriptions"):
+    if parts[0] == "ext" and len(parts) > 2 and parts[1] == "MetaData":
         if stem in repo.problems:
             return ALL, {stem}, f"problem `{stem}`"
         return everything("not the file of a problem")
