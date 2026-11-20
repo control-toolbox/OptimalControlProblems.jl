@@ -17,7 +17,12 @@ electric_vehicle_meta = OrderedDict(
         x_tf=10,
         v_tf=0,
     ),
-    :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid, ModelingToolkit=:valid),
+    :status => (
+        OptimalControl=:valid,
+        OptimalControlScalarized=:valid,
+        JuMP=:valid,
+        ModelingToolkit=:valid,
+    ),
     # initial guess of every modeling (#377), from the parameters
     :init => p -> (state=[0.1, 0.1], control=0.1),
 )

@@ -161,7 +161,8 @@ function _start(init, key::Symbol, t0, n::Int)
     g = haskey(init, key) ? init[key] : 0.0
     g isa Function && (g = g(t0))
     v = g isa Number ? fill(Float64(g), n) : Float64.(vec(collect(g)))
-    length(v) == n || throw(DimensionMismatch("$key guess of length $(length(v)), $n $(key)s"))
+    length(v) == n ||
+        throw(DimensionMismatch("$key guess of length $(length(v)), $n $(key)s"))
     return v
 end
 
@@ -197,7 +198,9 @@ function prepare(
     # states is the one of `state_components`, that of the OptimalControl model.
     states = filter(!MTK.isinput, MTK.unknowns(sys))
     start_x = state_start(init, t0, length(states))
-    append!(inits, [x => start_x[i] for (i, x) in enumerate(states) if MTK.istunable(x, false)])
+    append!(
+        inits, [x => start_x[i] for (i, x) in enumerate(states) if MTK.istunable(x, false)]
+    )
 
     # The variables (the final time `tf`) are parameters to optimize, started from the guess.
     vars = variable_symbols(sys)
@@ -357,7 +360,10 @@ function _trajectory(sol, pb)
     xs = CTModels.Models.state_components(sys)
     us = CTModels.Models.control_components(sys)
     vs = CTModels.Models.variable_components(sys)
-    solved = [only(solved_parameters(sol).parameter.parameters[Symbol(v)].parameter.ps) for v in vs]
+    solved = [
+        only(solved_parameters(sol).parameter.parameters[Symbol(v)].parameter.ps) for
+        v in vs
+    ]
     if free_final_time(sys)
         t0, _ = times(pb)
         t = t0 .+ (only(solved[findall(==("tf"), vs)]) - t0) .* t

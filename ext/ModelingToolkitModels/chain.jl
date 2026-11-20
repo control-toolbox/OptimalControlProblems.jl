@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:chain)` and `OptimalControlProblems.status(:chain)`.
 """
 function OptimalControlProblems.chain(
-    ::ModelingToolkitBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::ModelingToolkitBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:chain, :ModelingToolkit)
     params = OptimalControlProblems.parameters_data(:chain, parameters)
@@ -31,9 +29,7 @@ function OptimalControlProblems.chain(
     ModelingToolkit.@variables u(..) [input = true]
 
     eqs = [
-        D(x₁(t)) ~ u(t),
-        D(x₂(t)) ~ x₁(t) * sqrt(1 + u(t)^2),
-        D(x₃(t)) ~ sqrt(1 + u(t)^2),
+        D(x₁(t)) ~ u(t), D(x₂(t)) ~ x₁(t) * sqrt(1 + u(t)^2), D(x₃(t)) ~ sqrt(1 + u(t)^2)
     ]
     # a Mayer cost: the final value of x₂
     costs = [x₂(tf)]
