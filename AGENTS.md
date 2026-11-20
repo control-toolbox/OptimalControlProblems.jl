@@ -86,3 +86,8 @@ plans and reports.
   beta is the human's choice: if the request does not say, ask; never infer it. State in
   the proposal the versions you apply: ct-agents, ct-conventions, and the commit of the
   CTActions clone `release.jl` runs from.
+- **Add a problem, or a modeling of one.** Specific to this repository: follow
+  [`ext/README.md`](ext/README.md). Before the tests, run the linter,
+  `julia --project tools/lint/problems.jl <problem>`, until it reports no ❌. No ❌ does not
+  mean the problem is right: paste the ℹ️ checklist of its report in the pull request and
+  tick each box, or say why it is not ticked.

@@ -51,7 +51,7 @@ function test_files()
     end
 end
 
-"""Required and optional fields of the metadata, with their types; statuses."""
+"""Required and optional fields of the metadata, with their types; the values of the statuses."""
 function test_schema()
     Test.@testset "metadata schema" verbose = VERBOSE begin
         schema = OCP.Metadata.METADATA_SCHEMA
@@ -65,34 +65,9 @@ function test_schema()
                 T = get(schema.optional, key, get(schema.generated, key, Union{}))
                 Test.@test value isa T
             end
-            # a status is declared exactly for the modelings having a model file
-            statuses = data[:status]
-            for spec in OCP.Modelings.MODELING_SPECS
-                has_file = isfile(joinpath(EXT, spec.directory, "$problem.jl"))
-                Test.@test haskey(statuses, spec.name) == has_file
-            end
-            Test.@test all(in((:draft, :valid)), values(statuses))
-        end
-    end
-end
-
-"""
-The unit and the meaning of every parameter (`:parameter_info`), in the order of the
-parameters: the page of a problem shows them, so they are written once, in the metadata.
-"""
-function test_parameter_info()
-    Test.@testset "parameter info" verbose = VERBOSE begin
-        for problem in OCP.problems(; status=:all)
-            data = OCP.problem_metadata(problem)
-            info = data[:parameter_info]
-            parameters = data[:parameters]
-            Test.@test keys(info) == (isnothing(parameters) ? () : keys(parameters))
-            for entry in values(info)
-                Test.@test entry isa NamedTuple
-                Test.@test keys(entry) == (:unit, :meaning)
-                Test.@test entry.unit isa Union{Nothing,String}
-                Test.@test entry.meaning isa String && !isempty(entry.meaning)
-            end
+            # a status is declared exactly for the modelings having a model file: the
+            # linter (`tools/lint/ProblemLint.jl`, `test_lint`)
+            Test.@test all(in((:draft, :valid)), values(data[:status]))
         end
     end
 end
@@ -213,76 +188,6 @@ function test_no_handwritten_list()
 end
 
 """
-Whether the description `text` cites its sources: a heading `References` followed by at
-least one list entry (#379).
-"""
-function cites_sources(text::AbstractString)
-    m = match(r"^#+ References[^\n]*\n(.*?)(?=^#|\z)"ms, text)
-    return !isnothing(m) && occursin(r"^\s*[-*] \S"m, m[1])
-end
-
-"""
-The outline of a description (#449, T2): its `###` headings, in this order. The qualitative
-behaviour is optional: a page whose description has none gets a placeholder
-(`with_behaviour` in `docs/problems.jl`). There is no parameters section: the page generates
-it from the metadata (`:parameters`, `:parameter_info`).
-"""
-const OUTLINE = (
-    "Mathematical formulation", "Qualitative behaviour", "Characteristics", "References"
-)
-const REQUIRED_HEADINGS = ("Mathematical formulation", "Characteristics", "References")
-
-"""Whether the `###` headings of `text` follow `OUTLINE`, with every required heading."""
-function follows_outline(text::AbstractString)
-    headings = [m[1] for m in eachmatch(r"^### (.+?)\s*$"m, text)]
-    all(in(OUTLINE), headings) || return false
-    issorted(headings; by=h -> findfirst(==(h), OUTLINE)) || return false
-    allunique(headings) || return false
-    return all(in(headings), REQUIRED_HEADINGS)
-end
-
-"""Every description has the same outline."""
-function test_outline()
-    Test.@testset "outline" verbose = VERBOSE begin
-        for problem in OCP.problems(; status=:all)
-            text = read(joinpath(EXT, "MetaData", "$problem.md"), String)
-            Test.@test follows_outline(text)
-        end
-        complete = "### Mathematical formulation\n### Qualitative behaviour\n### Characteristics\n### References\n"
-        Test.@test follows_outline(complete)
-        Test.@test follows_outline(
-            "### Mathematical formulation\n### Characteristics\n### References\n"
-        )
-        Test.@test !follows_outline("### Characteristics\n### References\n")
-        # the parameters section is generated: a description has none
-        Test.@test !follows_outline(
-            "### Mathematical formulation\n### Parameters\n### Characteristics\n### References\n",
-        )
-        Test.@test !follows_outline(
-            "### Mathematical formulation\n### References\n### Characteristics\n"
-        )
-        Test.@test !follows_outline(
-            "### Mathematical formulation\n### Characteristics\n### References and relevance\n",
-        )
-    end
-end
-
-"""Every description cites its sources (#379)."""
-function test_sources()
-    Test.@testset "sources" verbose = VERBOSE begin
-        for problem in OCP.problems(; status=:all)
-            text = read(joinpath(EXT, "MetaData", "$problem.md"), String)
-            Test.@test cites_sources(text)
-        end
-        Test.@test cites_sources("text\n\n### References\n\n- **A. (2000)**. *Title*.\n")
-        Test.@test !cites_sources("text\n\n### Formulation\n\n- an item\n")
-        Test.@test !cites_sources(
-            "text\n\n### References\n\nSee below.\n\n### Other\n\n- an item\n"
-        )
-    end
-end
-
-"""
 The analytic solutions of the continuous problems (#379): a state, a control, an objective
 and a source for the default parameters. That they solve the problem is checked against the
 OptimalControl model (`test/suite/OptimalControl/test_reference_solution.jl`).
@@ -314,9 +219,6 @@ function test_consistency()
         test_comparison_rule()
         test_reference_objectives()
         test_no_handwritten_list()
-        test_sources()
-        test_parameter_info()
-        test_outline()
         test_reference_solutions()
     end
 end

@@ -49,8 +49,6 @@ function OptimalControlProblems.space_shuttle(
     ψ_t0 = params[:ψ_t0]
 
     # for initial guess
-    α_s = params[:α_s]
-    β_s = params[:β_s]
 
     ## Final conditions, the so-called Terminal Area Energy Management (TAEM)
     h_tf = params[:h_tf]

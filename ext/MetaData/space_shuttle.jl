@@ -25,7 +25,6 @@ space_shuttle_meta = OrderedDict(
         v_t0=2.56,         # velocity (ft/sec) / 1e4,
         γ_t0=deg2rad(-1),  # flight path angle (rad),
         ψ_t0=deg2rad(90),  # azimuth (rad),
-        α_t0=deg2rad(0),   # angle of attack (rad),
         ## for initial guess
         α_s=deg2rad(0),   # angle of attack (rad)
         β_s=deg2rad(0),   # bank angle (rad),
@@ -77,10 +76,6 @@ space_shuttle_meta = OrderedDict(
         v_t0=(unit="10⁴ ft/s", meaning="initial velocity"),
         γ_t0=(unit="rad", meaning="initial flight path angle"),
         ψ_t0=(unit="rad", meaning="initial azimuth"),
-        α_t0=(
-            unit="rad",
-            meaning="initial angle of attack (not used by the models nor the initial guess)",
-        ),
         α_s=(unit="rad", meaning="angle of attack of the initial guess"),
         β_s=(unit="rad", meaning="bank angle of the initial guess"),
         h_tf=(

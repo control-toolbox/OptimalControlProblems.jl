@@ -5,8 +5,8 @@
 [trapeze]
 agreement = false
 grid_size = 500
-parameters = "(g = 9.80665, t0 = 0.0, x0 = 0.0, y0 = 10.0, v0 = 0.0, xf = 10.0, yf = 5.0, u_min = -3.141592653589793, u_max = π)"
-run = "https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42387105573 https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42387108959 https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42387112175 https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42387115100"
+parameters = "(g = 9.80665, t0 = 0.0, x0 = 0.0, y0 = 10.0, v0 = 0.0, xf = 10.0, yf = 5.0, u_min = -1.57, u_max = 1.57, tf_l = 0.1, tf_u = 20.0)"
+run = "https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/44015064560 https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/44235205662 https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/44455617205 https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42387115100"
 source = "computed"
 spread = 0.02249897337664817
 value = 1.802932061276909
@@ -54,7 +54,7 @@ value = 1.802932061276909
     [[trapeze.results]]
     configuration = "modeler=adnlp solver=ipopt"
     modeling = "OptimalControl"
-    objective = 1.802932006652922
+    objective = 1.8029320066529235
     platform = "cron-OptimalControl-1.13-ubuntu-latest"
     [[trapeze.results]]
     configuration = "modeler=adnlp solver=ipopt"

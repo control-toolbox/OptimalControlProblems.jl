@@ -21,10 +21,11 @@ balanced_field_meta = OrderedDict(
         γ_t0=0.0,       # initial flight path angle (rad)
         h_tf=10.668,    # final altitude (35 ft in m)
         γ_tf=0.0873,    # final flight path angle (5 degrees in rad)
-        v_min=0.0,
-        v_max=100.0,
-        α_min=-0.1745,  # -10 degrees
+        v_min=1.0,
+        α_min=0.0,
         α_max_ctrl=0.2618, # 15 degrees
+        h_min=0.0,
+        tf_min=0.1,
     ),
     :parameter_info => (
         t0=(unit="s", meaning="initial time, at the speed V1"),
@@ -50,19 +51,11 @@ balanced_field_meta = OrderedDict(
         γ_t0=(unit="rad", meaning="initial flight path angle"),
         h_tf=(unit="m", meaning="final altitude, the screen height of 35 ft"),
         γ_tf=(unit="rad", meaning="final flight path angle, 5°"),
-        v_min=(
-            unit="m/s",
-            meaning="lower bound of the velocity (not used by the models yet, which use 1)",
-        ),
-        v_max=(
-            unit="m/s",
-            meaning="upper bound of the velocity (not used by the models yet)",
-        ),
-        α_min=(
-            unit="rad",
-            meaning="lower bound of the angle of attack (not used by the models yet, which use 0)",
-        ),
+        v_min=(unit="m/s", meaning="lower bound of the velocity"),
+        α_min=(unit="rad", meaning="lower bound of the angle of attack"),
         α_max_ctrl=(unit="rad", meaning="upper bound of the angle of attack"),
+        h_min=(unit="m", meaning="lower bound of the altitude"),
+        tf_min=(unit="s", meaning="lower bound of the final time"),
     ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
     # initial guess of every modeling (#377), from the parameters
