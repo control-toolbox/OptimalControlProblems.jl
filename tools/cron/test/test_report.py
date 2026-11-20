@@ -632,6 +632,8 @@ class ResultsTests(unittest.TestCase):
             state, output = root / "state.json", root / "MTK.md"
             self.write_run(root / "run1", {"beam": "fail", "chain": "pass"})
             self.run_report(root / "run1", state, output, "https://x/runs/1")
+            # robot has not run yet: listed as such
+            self.assertIn("| robot | not tested yet | |", output.read_text())
             self.write_run(root / "run2", {"robot": "pass"})
             self.run_report(root / "run2", state, output, "https://x/runs/2")
 

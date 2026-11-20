@@ -305,8 +305,11 @@ def latest_lists(entry: dict[str, dict], kind: str) -> list[dict[str, str]]:
     return [row for problem in sorted(entry) for row in entry[problem][kind]]
 
 
-def rotation_markdown(entry: dict[str, dict], run_url: str) -> str:
-    """The table of the problems of a rotating cron (#435): when each was last tested."""
+def rotation_markdown(
+    entry: dict[str, dict], run_url: str, scope_problems: list[str] | None = None
+) -> str:
+    """The table of the problems of a rotating cron (#435): when each was last tested, those
+    of `scope_problems` not tested yet first."""
     lines = [
         "",
         "## Rotation (#435)",
@@ -317,6 +320,8 @@ def rotation_markdown(entry: dict[str, dict], run_url: str) -> str:
         "| problem | last tested | run |",
         "| --- | --- | --- |",
     ]
+    for problem in sorted(p for p in scope_problems or [] if p not in entry):
+        lines.append(f"| {problem} | not tested yet | |")
     for problem in sorted(entry, key=lambda p: (entry[p]["date"], p)):
         item = entry[problem]
         mark = " (this run)" if item["run"] == run_url else ""
@@ -1409,7 +1414,7 @@ def main() -> None:
             previous,
             note=args.scope_note,
         )
-        + (rotation_markdown(latest, args.run_url) if rotation else "")
+        + (rotation_markdown(latest, args.run_url, scope_problems) if rotation else "")
     )
     if args.results_dir is not None and results:
         publish_results(
