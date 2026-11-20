@@ -124,6 +124,9 @@ function solver_options(
         tol=o.TOL,
         max_iter=max_iter,
         mu_strategy=o.MU_STRATEGY,
+        # a quasi-Newton Hessian, as in the examples of Corleone: the exact one, by ForwardDiff
+        # through the integration of every control interval, is dense and costly (#435)
+        hessian_approximation="limited-memory",
         linear_solver="mumps",
         max_wall_time=o.MAX_WALL_TIME,
         sb=o.SB,

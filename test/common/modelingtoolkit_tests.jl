@@ -22,11 +22,21 @@ function analytic_objective(problem, grid_size, scheme)
     return isnothing(ref) ? nothing : ref.objective
 end
 
-"""What the shared tests need of the ModelingToolkit solves (see `common/modeling_tests.jl`)."""
+"""
+What the shared tests need of the ModelingToolkit solves (see `common/modeling_tests.jl`).
+The warmup compiles on the smoke grid, a few iterations: a second solve on the default grid
+costs as much as the first one (#435).
+"""
 function adapter()
     S = Main.SolveModelingToolkit
     return (
         solve=(pb, config; kwargs...) -> S.solve(pb, config; kwargs...),
+        warmup=(pb, config) -> S.solve(
+            pb,
+            config;
+            grid_size=Main.TestConfigs.SMOKE_GRID,
+            max_iter=Main.TestConfigs.SMOKE_MAX_ITER,
+        ),
         objective=S.objective,
         settings=S.settings,
         scheme=S.scheme,
