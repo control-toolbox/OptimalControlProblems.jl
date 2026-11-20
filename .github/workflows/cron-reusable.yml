@@ -40,6 +40,14 @@ on:
         required: false
         default: ''
         type: string
+      runs_on:
+        description: >-
+          The runners of the CPU job, a JSON list. The report expects one report from each:
+          a runner that leaves none (killed, #435) is a finding. macOS is left out for now
+          (scarce runners, long queues); it comes back with #344.
+        required: false
+        type: string
+        default: '["ubuntu-latest", "windows-latest"]'
       budget:
         description: >-
           Time budget of a run, in seconds (#435). 0, the default: every problem, in one
@@ -127,8 +135,7 @@ jobs:
     uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
     with:
       versions: '["1.13"]'
-      # macOS is left out for now (scarce runners, long queues); it comes back with #344.
-      runs_on: '["ubuntu-latest", "windows-latest"]'
+      runs_on: ${{ inputs.runs_on }}
       # keep every platform running after a failure: one report per platform is needed
       fail_fast: false
       use_ct_registry: true
@@ -176,6 +183,7 @@ jobs:
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       TESTS_FAILED: ${{ needs.cpu.result != 'success' || needs.gpu.result == 'failure' }}
       RESULTS_DIR: /tmp/cron-results
+      RUNNERS: ${{ join(fromJSON(inputs.runs_on), ',') }}
       # a restricted run writes its report and state aside, unpublished (`problems` input);
       # not in a rotation, where every run tests some problems and updates their results
       PARTIAL: ${{ inputs.problems != '' && inputs.budget == 0 }}
@@ -245,6 +253,7 @@ jobs:
             --package-version "$package_version" \
             --scope-note "$SCOPE_NOTE" \
             --rotation "$ROTATION" \
+            --runners "$RUNNERS" \
             "${test_failed_arg[@]}"
 
       - name: Publish report, results and observed state
@@ -284,6 +293,7 @@ jobs:
             --package-version "$(sed -n 's/^version = \"\(.*\)\"/\1/p' Project.toml | head -1)" \
             --scope-note "$SCOPE_NOTE" \
             --rotation "$ROTATION" \
+            --runners "$RUNNERS" \
             --issues \
             "${test_failed_arg[@]}"
 

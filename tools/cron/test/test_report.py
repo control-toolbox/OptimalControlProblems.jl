@@ -249,6 +249,20 @@ class ReportTest(unittest.TestCase):
         self.assertNotIn("problem=workflow", section)
         self.assertIn("failed or produced no report", section)
 
+    def test_a_platform_without_report_is_a_finding(self):
+        # #435: the ubuntu runner died, windows reported a failure of its own
+        rows = [{"platform": "cron-MTK-1.13-windows-latest", "problem": "beam"}]
+        self.assertEqual(
+            ["cron-MTK-1.13-ubuntu-latest"],
+            REPORT.missing_platforms(rows, "MTK", "1.13", ["ubuntu-latest", "windows-latest"]),
+        )
+        self.assertEqual([], REPORT.missing_platforms(rows, "MTK", "1.13", ["windows-latest"]))
+        self.assertEqual([], REPORT.missing_platforms(rows, "MTK", "1.13", []))
+        row = REPORT.missing_report_row("MTK", "cron-MTK-1.13-ubuntu-latest")
+        section = REPORT.issue_section("MTK", "failure", [row], "run")
+        self.assertIn("1.13-ubuntu-latest", section)
+        self.assertIn("failed or produced no report", section)
+
     def test_initial_issue_body_prepopulates_all_known_scopes(self):
         active = "<!-- cron-scope: JuMP -->\nACTIVE_JUMP_SECTION"
         body = REPORT.initial_issue_body("convergence", "JuMP", active)

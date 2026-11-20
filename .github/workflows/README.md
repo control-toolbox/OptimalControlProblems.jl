@@ -79,7 +79,10 @@ comes first (`tools/cron/select.py`). The tests then run each problem in its own
 process, in that order, and start no new one once the budget is spent
 (`test_args`: `problem=<order> budget=<s>`, see `test/README.md`). A process that crashes
 (e.g. out of memory) or runs past its timeout (45 min) is reported as an `error` of its
-problem only, so the problem at fault is named and the others are tested.
+problem only, so the problem at fault is named and the others are tested. A runner killed
+before it uploads its report (run 44747569284: the Ubuntu runner died during a problem) is a
+`workflow` error of its platform: the report expects one report from each runner of the
+`runs_on` input (`--runners` of `tools/cron/report.py`).
 
 A run of a rotation tests some problems only, so its reports and issues are built from the
 **last result of every problem** (`--rotation` of `tools/cron/report.py`, the `latest` entry

@@ -1337,15 +1337,25 @@ def prune_environments(results_dir: pathlib.Path) -> None:
                 shutil.rmtree(folder)
 
 
-def missing_report_row(scope: str) -> dict[str, str]:
+def missing_report_row(scope: str, platform: str = "workflow") -> dict[str, str]:
     return {
         "test": "report",
         "problem": "workflow",
         "modelings": scope,
         "status": "valid",
         "outcome": "error",
-        "platform": "workflow",
+        "platform": platform,
     }
+
+
+def missing_platforms(
+    rows: list[dict[str, str]], scope: str, julia_version: str, runners: list[str]
+) -> list[str]:
+    """The platforms of the CPU job (`cron-<scope>-<version>-<runner>`) with no report in
+    this run: a job killed before uploading it (#435, a runner that died)."""
+    seen = {row.get("platform", "") for row in rows}
+    expected = [f"cron-{scope}-{julia_version}-{runner}" for runner in runners]
+    return [platform for platform in expected if platform not in seen]
 
 
 def main() -> None:
@@ -1365,6 +1375,8 @@ def main() -> None:
     parser.add_argument("--scope-note", default="")
     # a rotating cron (#435): the problems of the scope, all of them, comma-separated
     parser.add_argument("--rotation", default="")
+    # the runners of the CPU job, comma-separated: one report expected from each
+    parser.add_argument("--runners", default="")
     args = parser.parse_args()
     scope_problems = [p for p in args.rotation.split(",") if p]
     rotation = bool(scope_problems)
@@ -1423,9 +1435,14 @@ def main() -> None:
 
     grouped = findings(rows)
     failure_rows = grouped["failure"]
-    # this run gave no report, or failed without saying where: the workflow is the finding
+    # this run gave no report, or failed without saying where: the workflow is the finding;
+    # a platform without a report is one, even when the others reported failures
+    runners = [r for r in args.runners.split(",") if r]
+    missing = missing_platforms(run_rows, args.scope, args.julia_version, runners)
     if not run_rows:
         failure_rows = failure_rows + [missing_report_row(args.scope)]
+    elif missing:
+        failure_rows = failure_rows + [missing_report_row(args.scope, m) for m in missing]
     elif args.tests_failed and not findings(run_rows)["failure"]:
         failure_rows = failure_rows + [missing_report_row(args.scope)]
 
