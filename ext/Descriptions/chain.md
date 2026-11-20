@@ -19,16 +19,6 @@ The problem can be stated as
 \end{aligned}
 ```
 
-### System parameters
-
-| Parameter | Symbol | Value | Description |
-|-----------|--------|-------|-------------|
-| Horizontal start | $a$ | 1 | Initial $x_1$ position |
-| Horizontal end | $b$ | 3 | Final $x_1$ position |
-| Chain length | $L$ | 4 | Total length of the chain |
-| Final time | $T$ | 1 | Duration of the motion |
-| Control input | $u$ | — | Horizontal velocity of the chain |
-
 ### Qualitative behaviour
 
 The optimal control trajectory exploits the nonlinear coupling between horizontal and vertical motion:  

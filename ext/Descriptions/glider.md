@@ -36,20 +36,6 @@ U_\text{updraft}(x) = u_c\, (1 - r) e^{-r}, \quad r = \left( \frac{x}{r_0} - 2.5
 
 where $m, g, S, \rho, c_0, c_1, u_c, r_0$ are constants describing the glider and the thermal properties.
 
-### System parameters
-
-| Parameter | Symbol | Value | Description |
-|-----------|--------|-------|-------------|
-| Initial horizontal position | $x_0$ | 0 | m |
-| Initial altitude | $y_0$ | 1000 | m |
-| Final altitude | $y_f$ | 900 | m |
-| Initial horizontal velocity | $v_{x0}$ | 13.23 | m/s |
-| Final horizontal velocity | $v_{xf}$ | 13.23 | m/s |
-| Initial vertical velocity | $v_{y0}$ | -1.288 | m/s |
-| Final vertical velocity | $v_{yf}$ | -1.288 | m/s |
-| Lift coefficient bounds | $c_L$ | [0, 1.4] | Control input |
-| Final time | $t_f$ | free | s |
-
 ### Qualitative behaviour
 
 - The optimal trajectory exploits the thermal updraft to maximise horizontal distance.  

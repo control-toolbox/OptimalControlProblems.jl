@@ -28,20 +28,6 @@ The model components are:
 - **Light model:** $\mu(t) = \mu_{\text{bar}} \,\max\!\big(0,\sin(\tau(t))\big)^2$, where $\tau(t)$ encodes the periodic day–night cycle,  
 - **Growth function (Monod law):** $\mu_2(s) = \mu_2^m \,\dfrac{s}{K_s + s}$.
 
-### Parameter values
-
-| Parameter | Symbol | Value |
-|-----------|--------|-------|
-| Flow coupling between reactors | $\beta$ | 1 |
-| Cost scaling | $c$ | 2 |
-| Substrate–algae interaction | $\gamma$ | 1 |
-| Half-period of light cycle | $\text{halfperiod}$ | 5 |
-| Monod half-saturation constant | $K_s$ | 0.05 |
-| Maximum biomass growth rate | $\mu_2^m$ | 0.1 |
-| Maximum light intensity | $\mu_{\text{bar}}$ | 1 |
-| Algal decay rate | $r$ | 0.005 |
-| Time horizon | $T$ | 200 |
-
 ### Qualitative behaviour
 
 The optimal solution exploits the **periodic light–dark structure**:  

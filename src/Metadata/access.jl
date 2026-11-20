@@ -36,6 +36,15 @@ The following keys are valid:
     x₂_tf = -1,
 ),
 ```
+- `parameter_info`: the unit and the meaning of each parameter, in the order of
+  `parameters`; `unit` is `nothing` for a dimensionless parameter. For example:
+```julia
+:parameter_info => (
+    t0 = (unit = "s", meaning = "initial time"),
+    x₁_u = (unit = nothing, meaning = "upper bound of the state x₁"),
+    ...
+),
+```
 - `status`: the status (`:valid` or `:draft`) of the problem in each modeling.
 - `init`: the initial guess of every modeling, a function of the parameters (see
   `OptimalControlProblems.initial_guess_data`).

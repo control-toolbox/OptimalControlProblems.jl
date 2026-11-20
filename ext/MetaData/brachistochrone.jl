@@ -11,6 +11,23 @@ brachistochrone_meta = OrderedDict(
         u_min=(-pi),
         u_max=pi,
     ),
+    :parameter_info => (
+        g=(unit="m/s²", meaning="gravitational acceleration"),
+        t0=(unit="s", meaning="initial time"),
+        x0=(unit="m", meaning="initial horizontal position px"),
+        y0=(unit="m", meaning="initial vertical position py"),
+        v0=(unit="m/s", meaning="initial speed"),
+        xf=(unit="m", meaning="final horizontal position px"),
+        yf=(unit="m", meaning="final vertical position py"),
+        u_min=(
+            unit="rad",
+            meaning="lower bound of the angle u (not read by the models yet, which use −1.57)",
+        ),
+        u_max=(
+            unit="rad",
+            meaning="upper bound of the angle u (not read by the models yet, which use 1.57)",
+        ),
+    ),
     :status => (OptimalControl=:valid, OptimalControlScalarized=:valid, JuMP=:valid),
     # initial guess of every modeling (#377), from the parameters
     :init =>

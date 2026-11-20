@@ -18,14 +18,6 @@ The problem can be stated as
 \end{aligned}
 ```
 
-### Parameters
-
-| Parameter | Symbol | Value |
-|-----------|--------|-------|
-| Oscillator frequency | $\omega$ | 1 |
-| Nonlinearity coefficient | $\varepsilon$ | 1 |
-| Final time | $T$ | 2 |
-
 ### Qualitative behaviour
 
 - The optimal control $u(t)$ regulates the nonlinear oscillations to minimise both state excursions and control effort.  

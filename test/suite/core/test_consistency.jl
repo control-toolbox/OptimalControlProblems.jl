@@ -76,6 +76,27 @@ function test_schema()
 end
 
 """
+The unit and the meaning of every parameter (`:parameter_info`), in the order of the
+parameters: the page of a problem shows them, so they are written once, in the metadata.
+"""
+function test_parameter_info()
+    Test.@testset "parameter info" verbose = VERBOSE begin
+        for problem in OCP.problems(; status=:all)
+            data = OCP.problem_metadata(problem)
+            info = data[:parameter_info]
+            parameters = data[:parameters]
+            Test.@test keys(info) == (isnothing(parameters) ? () : keys(parameters))
+            for entry in values(info)
+                Test.@test entry isa NamedTuple
+                Test.@test keys(entry) == (:unit, :meaning)
+                Test.@test entry.unit isa Union{Nothing,String}
+                Test.@test entry.meaning isa String && !isempty(entry.meaning)
+            end
+        end
+    end
+end
+
+"""
 Every problem `:valid` somewhere has a reference: another modeling where it is `:valid`, or
 a reference objective at its default grid (#375).
 """
@@ -200,27 +221,19 @@ function cites_sources(text::AbstractString)
 end
 
 """
-The outline of a description (#449, T2): its `###` headings, in this order. The parameters
-section is optional and has one of the names of `PARAMETER_HEADINGS`; the qualitative
-behaviour is optional too: a page whose description has none gets a placeholder
-(`with_behaviour` in `docs/problems.jl`).
+The outline of a description (#449, T2): its `###` headings, in this order. The qualitative
+behaviour is optional: a page whose description has none gets a placeholder
+(`with_behaviour` in `docs/problems.jl`). There is no parameters section: the page generates
+it from the metadata (`:parameters`, `:parameter_info`).
 """
 const OUTLINE = (
-    "Mathematical formulation",
-    "Parameters",
-    "Qualitative behaviour",
-    "Characteristics",
-    "References",
+    "Mathematical formulation", "Qualitative behaviour", "Characteristics", "References"
 )
 const REQUIRED_HEADINGS = ("Mathematical formulation", "Characteristics", "References")
-const PARAMETER_HEADINGS = ("Parameters", "Parameter values", "System parameters")
 
 """Whether the `###` headings of `text` follow `OUTLINE`, with every required heading."""
 function follows_outline(text::AbstractString)
-    headings = [
-        h in PARAMETER_HEADINGS ? "Parameters" : h for
-        h in (m[1] for m in eachmatch(r"^### (.+?)\s*$"m, text))
-    ]
+    headings = [m[1] for m in eachmatch(r"^### (.+?)\s*$"m, text)]
     all(in(OUTLINE), headings) || return false
     issorted(headings; by=h -> findfirst(==(h), OUTLINE)) || return false
     allunique(headings) || return false
@@ -234,12 +247,16 @@ function test_outline()
             text = read(joinpath(EXT, "Descriptions", "$problem.md"), String)
             Test.@test follows_outline(text)
         end
-        complete = "### Mathematical formulation\n### Parameter values\n### Qualitative behaviour\n### Characteristics\n### References\n"
+        complete = "### Mathematical formulation\n### Qualitative behaviour\n### Characteristics\n### References\n"
         Test.@test follows_outline(complete)
         Test.@test follows_outline(
             "### Mathematical formulation\n### Characteristics\n### References\n"
         )
         Test.@test !follows_outline("### Characteristics\n### References\n")
+        # the parameters section is generated: a description has none
+        Test.@test !follows_outline(
+            "### Mathematical formulation\n### Parameters\n### Characteristics\n### References\n",
+        )
         Test.@test !follows_outline(
             "### Mathematical formulation\n### References\n### Characteristics\n"
         )
@@ -297,6 +314,7 @@ function test_consistency()
         test_reference_objectives()
         test_no_handwritten_list()
         test_sources()
+        test_parameter_info()
         test_outline()
         test_reference_solutions()
     end

@@ -27,16 +27,6 @@ where
 - the control $u$ is the steering control, bounded by $u_{\min} = -\pi/2$ and $u_{\max} = \pi/2$,  
 - the parameter $a$ is a constant scaling the acceleration.
 
-### Parameter values
-
-| Parameter | Symbol | Value |
-|-----------|--------|-------|
-| Acceleration magnitude | $a$ | 100 |
-| Control lower bound | $u_{\min}$ | $-\pi/2$ |
-| Control upper bound | $u_{\max}$ | $\pi/2$ |
-| Initial state | $x_s$ | $(0,0,0,0)$ |
-| Final state | $x_f$ | $(\text{unspecified},5,45,0)$ |
-
 ### Qualitative behaviour
 
 The optimal trajectory typically exhibits **bang–bang control**, where the steering input switches between its extreme values to minimise time.  

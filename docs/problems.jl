@@ -116,12 +116,24 @@ function parameters_section(problem::Symbol)
     params = OCP.parameters_data(problem)
     isnothing(params) &&
         return "### [Parameters](@id $(anchor(problem, :parameters)))\n\nThe problem has no parameters.\n"
-    rows = join(("| `$(k)` | `$(v)` |" for (k, v) in pairs(params)), "\n")
+    info = get(OCP.problem_metadata(problem), :parameter_info, nothing)
+    unit(k) = (u = info[k].unit; isnothing(u) ? "–" : u)
+    rows = if isnothing(info)
+        join(("| `$(k)` | `$(v)` | | |" for (k, v) in pairs(params)), "\n")
+    else
+        join(
+            (
+                "| `$(k)` | `$(v)` | $(unit(k)) | $(info[k].meaning) |" for
+                (k, v) in pairs(params)
+            ),
+            "\n",
+        )
+    end
     return """
     ### [Parameters](@id $(anchor(problem, :parameters)))
 
-    | Parameter | Default value |
-    | :--- | :--- |
+    | Parameter | Default value | Unit | Meaning |
+    | :--- | :--- | :--- | :--- |
     $(rows)
 
     Every modeling takes other values with the keyword `parameters`, merged with these:

@@ -22,17 +22,6 @@ The problem can be stated as
 
 where $x_1, x_2, x_3$ are the state variables, $u$ is the control input, and $k_1, k_2, k_3$ are system parameters.
 
-### System parameters
-
-| Parameter | Symbol | Value | Description |
-|-----------|--------|-------|-------------|
-| Coupling coefficient | $k_1$ | 1 | Interaction between $x_1$ and $x_2$ |
-| Coupling coefficient | $k_2$ | 10 | Interaction between $x_1$ and $x_2$ |
-| Accumulation rate | $k_3$ | 1 | Growth of $x_3$ under complementary control |
-| Final time | $t_f$ | fixed | Horizon of the control problem |
-| Control bounds | $u$ | [0,1] | Single control input |
-| State bounds | $x$ | $[0,1.1]^3$ | Box constraints for $x_1, x_2, x_3$ |
-
 ### Qualitative behaviour
 
 - The first two states interact linearly under the effect of the control, while the third state accumulates according to $1-u(t)$.  

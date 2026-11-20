@@ -21,18 +21,6 @@ The problem can be stated as
 
 where $F(t) = \sin\left(\frac{2 \pi}{T} t\right)$ is a prescribed periodic forcing term.
 
-### System parameters
-
-| Parameter | Symbol | Value | Description |
-|-----------|--------|-------|-------------|
-| Mass 1 | $m_1$ | 100 kg | First mass directly affected by $F(t)$ |
-| Mass 2 | $m_2$ | 2 kg | Second mass influenced by damping control |
-| Spring stiffness 1 | $k_1$ | 100 N/m | Spring connecting first mass to reference |
-| Spring stiffness 2 | $k_2$ | 3 N/m | Coupling spring between the two masses |
-| Damping coefficient | $c$ | 0.5 Ns/m | Damping affecting second mass |
-| Final time | $T$ | $2\pi$ | Duration of the motion |
-| Control input | $u$ | — | Modulates the damping of the second mass |
-
 ### Qualitative behaviour
 
 - The system exhibits coupled oscillatory dynamics due to interaction between the two masses through springs and damper.  

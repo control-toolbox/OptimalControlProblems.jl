@@ -10,6 +10,7 @@ const METADATA_SCHEMA = (
     required=(
         grid_size=Int,
         parameters=Union{Nothing,NamedTuple},
+        parameter_info=NamedTuple,
         status=NamedTuple,
         init=Function,
     ),
