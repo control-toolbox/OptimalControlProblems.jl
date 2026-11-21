@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:mountain_car)` and `OptimalControlProblems.status(:mountain_car)`.
 """
 function OptimalControlProblems.mountain_car(
-    ::ModelingToolkitBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::ModelingToolkitBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:mountain_car, :ModelingToolkit)
     params = OptimalControlProblems.parameters_data(:mountain_car, parameters)

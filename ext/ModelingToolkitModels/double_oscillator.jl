@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:double_oscillator)` and `OptimalControlProblems.status(:double_oscillator)`.
 """
 function OptimalControlProblems.double_oscillator(
-    ::ModelingToolkitBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::ModelingToolkitBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:double_oscillator, :ModelingToolkit)
     params = OptimalControlProblems.parameters_data(:double_oscillator, parameters)
