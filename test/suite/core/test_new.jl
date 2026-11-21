@@ -12,9 +12,9 @@ include(joinpath(TOOLS, "lint", "ProblemLint.jl"))
 const N = NewProblem
 const L = ProblemLint
 
-failures(problem, root) = [
-    r.message for r in L.checks(L.source(problem; root)) if r.status === :fail
-]
+function failures(problem, root)
+    return [r.message for r in L.checks(L.source(problem; root)) if r.status === :fail]
+end
 
 # what the person writes in place of each `TODO`
 function fill_todos(root)
@@ -65,7 +65,8 @@ function test_new()
                 Test.@test statuses(:foo, root) ==
                     (OptimalControl=:draft, JuMP=:valid, ModelingToolkit=:draft)
                 failed = failures(:foo, root)
-                Test.@test failed == ["nothing left to fill (`TODO`): model ModelingToolkit"]
+                Test.@test failed ==
+                    ["nothing left to fill (`TODO`): model ModelingToolkit"]
             end
         end
 

@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:electric_vehicle)` and `OptimalControlProblems.status(:electric_vehicle)`.
 """
 function OptimalControlProblems.electric_vehicle(
-    ::ModelingToolkitBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::ModelingToolkitBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:electric_vehicle, :ModelingToolkit)
     params = OptimalControlProblems.parameters_data(:electric_vehicle, parameters)
@@ -36,7 +34,7 @@ function OptimalControlProblems.electric_vehicle(
 
     eqs = [D(x(t)) ~ v(t), D(v(t)) ~ h1 * u(t) - h2 * v(t)^2 - h0 - road(x(t))]
     costs = [
-        ModelingToolkit.Symbolics.Integral(t in (t0, tf))(b1 * u(t) * v(t) + b2 * u(t)^2),
+        ModelingToolkit.Symbolics.Integral(t in (t0, tf))(b1 * u(t) * v(t) + b2 * u(t)^2)
     ]
     constraints = [x(tf) ~ x_tf, v(tf) ~ v_tf]
 

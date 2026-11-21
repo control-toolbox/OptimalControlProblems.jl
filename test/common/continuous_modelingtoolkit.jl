@@ -168,8 +168,9 @@ function problem_data(sys, state_names, control_names, (t0, tf))
     us = ordered(filter(MTK.isinput, unknowns), control_names)
     vs = filter(p -> MTK.istunable(p, true) && !MTK.isinput(p), MTK.parameters(sys))
     free = isnothing(tf)
-    name.(vs) == (free ? ["tf"] : String[]) ||
-        throw(ArgumentError("variables $(name.(vs)) not supported: only the final time `tf`"))
+    name.(vs) == (free ? ["tf"] : String[]) || throw(
+        ArgumentError("variables $(name.(vs)) not supported: only the final time `tf`")
+    )
     n, m = length(xs), length(us)
     t0 = Float64(t0)
 
@@ -192,8 +193,12 @@ function problem_data(sys, state_names, control_names, (t0, tf))
         end
     end
     sig = (;
-        iv, states=unwrap.(xs), controls=unwrap.(us), variables=unwrap.(vs),
-        t0=horizon[1], tf=horizon[2],
+        iv,
+        states=unwrap.(xs),
+        controls=unwrap.(us),
+        variables=unwrap.(vs),
+        t0=horizon[1],
+        tf=horizon[2],
     )
 
     # dynamics, in the order of the states
@@ -251,16 +256,16 @@ function problem_data(sys, state_names, control_names, (t0, tf))
         nothing
     else
         (x, u, v, t) ->
-            sum(evaluate(ℓ, sig, point(; t=reduced(t, v), x, u, v)) for ℓ in integrands) /
-            duration(v)
+            sum(evaluate(ℓ, sig, point(; t=reduced(t, v), x, u, v)) for ℓ in integrands) / duration(v)
     end
     return (;
         state=[component(xs[i], lower_x[i], upper_x[i]) for i in 1:n],
         control=[component(us[k], lower_u[k], upper_u[k]) for k in 1:m],
         variable=[component(vs[j], lower_v[j], upper_v[j]) for j in eachindex(vs)],
         times=v -> free ? (t0, v[1]) : (t0, Float64(tf)),
-        dynamics=(x, u, v, t) ->
-            [evaluate(f, sig, point(; t=reduced(t, v), x, u, v)) / duration(v) for f in rhs],
+        dynamics=(x, u, v, t) -> [
+            evaluate(f, sig, point(; t=reduced(t, v), x, u, v)) / duration(v) for f in rhs
+        ],
         lagrange=lagrange,
         cost=(I, x0, xf, v) ->
             I + sum(evaluate(g, sig, point(; x0, xf, v)) for g in terms; init=0.0),

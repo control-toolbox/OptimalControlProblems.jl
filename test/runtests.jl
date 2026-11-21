@@ -105,18 +105,19 @@ function run_environment(
             return true
         end
         # the rotation (#435): one process per problem, in order, while the budget lasts
-        outcomes, skipped =
-            TestSelection.run_within_budget(problem_names, budget.seconds) do p
-                problem_report = "$report-$p"
-                rm(joinpath(TestStatus.REPORTS, "$problem_report.md"); force=true)
-                cmd = `$julia --project=$project $script $tests $name $problem_report problem=$p $patterns`
-                outcome = TestSelection.run_process(cmd; timeout=budget.timeout)
-                outcome in (:crashed, :timeout) && TestStatus.write_process_report(
-                    problem_report, p, name, outcome; timeout=budget.timeout
-                )
-                println("Problem $p: $outcome")
-                return outcome
-            end
+        outcomes, skipped = TestSelection.run_within_budget(
+            problem_names, budget.seconds
+        ) do p
+            problem_report = "$report-$p"
+            rm(joinpath(TestStatus.REPORTS, "$problem_report.md"); force=true)
+            cmd = `$julia --project=$project $script $tests $name $problem_report problem=$p $patterns`
+            outcome = TestSelection.run_process(cmd; timeout=budget.timeout)
+            outcome in (:crashed, :timeout) && TestStatus.write_process_report(
+                problem_report, p, name, outcome; timeout=budget.timeout
+            )
+            println("Problem $p: $outcome")
+            return outcome
+        end
         isempty(skipped) ||
             println("Budget spent, left for a later run: ", join(skipped, ", "))
         return all(o -> last(o) === :success, outcomes)

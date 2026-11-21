@@ -9,7 +9,7 @@
         x_t0=(unit=nothing, meaning="initial value of x"),
         x_u=(unit=nothing, meaning="upper bound of x"),
     ),
-{{status}}
+    {{status}}
     # initial guess of every modeling (#377), from the parameters
     :init => p -> (state=p.x_t0, control=0.0),
 )
