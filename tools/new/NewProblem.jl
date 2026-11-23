@@ -38,8 +38,9 @@ end
 function check_modelings(ms)
     isempty(ms) && throw(ArgumentError("give at least one modeling, among $(modelings())"))
     unknown = setdiff(ms, modelings())
-    isempty(unknown) ||
-        throw(ArgumentError("unknown modelings $(unknown), expected some of $(modelings())"))
+    isempty(unknown) || throw(
+        ArgumentError("unknown modelings $(unknown), expected some of $(modelings())")
+    )
     allunique(ms) || throw(ArgumentError("a modeling is given twice: $(ms)"))
     return nothing
 end
@@ -98,7 +99,9 @@ function add(problem::Symbol, ms::AbstractVector{Symbol}; root::AbstractString=p
     )
     present = filter(m -> haskey(statuses, m) || isfile(model_path(root, problem, m)), ms)
     isempty(present) || throw(ArgumentError("$(problem) has already $(present)"))
-    paths = [write_new(model_path(root, problem, m), template("$(m).jl", problem)) for m in ms]
+    paths = [
+        write_new(model_path(root, problem, m), template("$(m).jl", problem)) for m in ms
+    ]
     merge!(statuses, Dict(m => :draft for m in ms))
     write(path, replace(text, found.match => status_entry(statuses)))
     return [path; paths]
