@@ -11,9 +11,7 @@ Default parameters and the modeling status are available through
 `problem_metadata(:beam)` and `OptimalControlProblems.status(:beam)`.
 """
 function OptimalControlProblems.beam(
-    ::ModelingToolkitBackend;
-    parameters::Union{Nothing,NamedTuple}=nothing,
-    init=nothing,
+    ::ModelingToolkitBackend; parameters::Union{Nothing,NamedTuple}=nothing, init=nothing
 )
     OptimalControlProblems.Catalogue._warn_if_draft(:beam, :ModelingToolkit)
     params = OptimalControlProblems.parameters_data(:beam, parameters)
