@@ -1,0 +1,190 @@
+{
+  "scopes": {
+    "JuMP": {
+      "commit": "fff425e8f25fe1cf3273152950cfce5f6e44e205",
+      "date": "2026-11-24T04:19:26+00:00",
+      "platforms": [
+        "cron-JuMP-1.13-ubuntu-latest",
+        "cron-JuMP-1.13-windows-latest"
+      ],
+      "problems": [
+        "balanced_field",
+        "beam",
+        "bioreactor",
+        "brachistochrone",
+        "bryson_denham",
+        "cart_pendulum",
+        "chain",
+        "dielectrophoretic_particle",
+        "double_oscillator",
+        "ducted_fan",
+        "electric_vehicle",
+        "glider",
+        "insurance",
+        "jackson",
+        "moonlander",
+        "mountain_car",
+        "robbins",
+        "robot",
+        "rocket",
+        "space_shuttle",
+        "steering",
+        "vanderpol"
+      ],
+      "run": "https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/45324289719"
+    },
+    "JuMP-robustness": {
+      "commit": "22afbe75cff8b5182908020deb454a47065f9645",
+      "date": "2026-11-08T15:32:21+00:00",
+      "platforms": [
+        "cron-JuMP-robustness-1.13-ubuntu-latest",
+        "cron-JuMP-robustness-1.13-windows-latest"
+      ],
+      "problems": [
+        "balanced_field",
+        "beam",
+        "bioreactor",
+        "brachistochrone",
+        "bryson_denham",
+        "cart_pendulum",
+        "chain",
+        "dielectrophoretic_particle",
+        "double_oscillator",
+        "ducted_fan",
+        "electric_vehicle",
+        "glider",
+        "insurance",
+        "jackson",
+        "moonlander",
+        "mountain_car",
+        "robbins",
+        "robot",
+        "rocket",
+        "space_shuttle",
+        "steering",
+        "vanderpol"
+      ],
+      "run": "https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42494459775"
+    },
+    "ModelingToolkit": {
+      "commit": "e9e0004c7c11f27f2776bf3a798ecb2c73822752",
+      "date": "2026-11-28T04:40:47+00:00",
+      "platforms": [
+        "cron-ModelingToolkit-1.13-ubuntu-latest",
+        "cron-ModelingToolkit-1.13-windows-latest"
+      ],
+      "problems": [
+        "beam",
+        "bioreactor",
+        "bryson_denham",
+        "chain",
+        "double_oscillator",
+        "electric_vehicle",
+        "jackson",
+        "mountain_car",
+        "robbins",
+        "vanderpol"
+      ],
+      "run": "https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/46105625778"
+    },
+    "OptimalControl": {
+      "commit": "e9e0004c7c11f27f2776bf3a798ecb2c73822752",
+      "date": "2026-11-25T04:30:32+00:00",
+      "platforms": [
+        "cron-OptimalControl-1.13-ubuntu-latest",
+        "cron-OptimalControl-1.13-windows-latest",
+        "cron-OptimalControl-gpu-1.13-kkt"
+      ],
+      "problems": [
+        "balanced_field",
+        "beam",
+        "bioreactor",
+        "brachistochrone",
+        "bryson_denham",
+        "cart_pendulum",
+        "chain",
+        "dielectrophoretic_particle",
+        "double_oscillator",
+        "ducted_fan",
+        "electric_vehicle",
+        "glider",
+        "insurance",
+        "jackson",
+        "moonlander",
+        "mountain_car",
+        "robbins",
+        "robot",
+        "rocket",
+        "space_shuttle",
+        "steering",
+        "vanderpol"
+      ],
+      "run": "https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/45544746829"
+    },
+    "OptimalControl-robustness": {
+      "commit": "22afbe75cff8b5182908020deb454a47065f9645",
+      "date": "2026-11-08T15:56:52+00:00",
+      "platforms": [
+        "cron-OptimalControl-robustness-1.13-ubuntu-latest",
+        "cron-OptimalControl-robustness-1.13-windows-latest"
+      ],
+      "problems": [
+        "balanced_field",
+        "beam",
+        "bioreactor",
+        "brachistochrone",
+        "bryson_denham",
+        "cart_pendulum",
+        "chain",
+        "dielectrophoretic_particle",
+        "double_oscillator",
+        "ducted_fan",
+        "electric_vehicle",
+        "glider",
+        "insurance",
+        "jackson",
+        "moonlander",
+        "mountain_car",
+        "robbins",
+        "robot",
+        "rocket",
+        "space_shuttle",
+        "steering",
+        "vanderpol"
+      ],
+      "run": "https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/42494459775"
+    },
+    "OptimalControlScalarized": {
+      "commit": "e9e0004c7c11f27f2776bf3a798ecb2c73822752",
+      "date": "2026-11-26T04:18:13+00:00",
+      "platforms": [
+        "cron-OptimalControlScalarized-1.13-ubuntu-latest",
+        "cron-OptimalControlScalarized-1.13-windows-latest",
+        "cron-OptimalControlScalarized-gpu-1.13-kkt"
+      ],
+      "problems": [
+        "balanced_field",
+        "beam",
+        "brachistochrone",
+        "bryson_denham",
+        "chain",
+        "dielectrophoretic_particle",
+        "double_oscillator",
+        "ducted_fan",
+        "electric_vehicle",
+        "glider",
+        "insurance",
+        "jackson",
+        "mountain_car",
+        "robbins",
+        "robot",
+        "rocket",
+        "space_shuttle",
+        "steering",
+        "vanderpol"
+      ],
+      "run": "https://github.com/control-toolbox/OptimalControlProblems.jl/actions/runs/45752744109"
+    }
+  },
+  "updated": "2026-11-28T04:40:47+00:00"
+}
